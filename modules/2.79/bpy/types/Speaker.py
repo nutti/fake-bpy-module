@@ -1,0 +1,3 @@
+Speaker.relative = None
+
+

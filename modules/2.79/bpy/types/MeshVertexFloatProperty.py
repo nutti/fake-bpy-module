@@ -1,0 +1,5 @@
+class MeshVertexFloatProperty:
+    value = None
+
+
+

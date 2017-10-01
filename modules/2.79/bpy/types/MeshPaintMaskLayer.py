@@ -1,0 +1,3 @@
+MeshPaintMaskLayer.data = None
+
+

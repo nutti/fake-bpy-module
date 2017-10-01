@@ -1,0 +1,3 @@
+NodeSocketVectorVelocity.links = None
+
+

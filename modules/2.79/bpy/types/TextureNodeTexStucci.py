@@ -1,0 +1,5 @@
+class TextureNodeTexStucci:
+
+    pass
+
+

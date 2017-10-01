@@ -1,0 +1,3 @@
+MaskSplinePoint.parent = None
+
+

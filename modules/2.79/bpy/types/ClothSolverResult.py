@@ -1,0 +1,3 @@
+ClothSolverResult.status = None
+
+

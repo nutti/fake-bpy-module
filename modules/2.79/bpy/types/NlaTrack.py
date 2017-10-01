@@ -1,0 +1,3 @@
+NlaTrack.strips = None
+
+

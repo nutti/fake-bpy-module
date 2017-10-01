@@ -1,0 +1,3 @@
+ThemeTextEditor.space = None
+
+

@@ -1,0 +1,3 @@
+UserPreferences.view = None
+
+

@@ -1,0 +1,5 @@
+class ChildParticle:
+
+    pass
+
+

@@ -1,0 +1,3 @@
+TextureNodeGroup.interface = None
+
+

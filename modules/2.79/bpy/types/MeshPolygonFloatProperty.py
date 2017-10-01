@@ -1,0 +1,5 @@
+class MeshPolygonFloatProperty:
+    value = None
+
+
+

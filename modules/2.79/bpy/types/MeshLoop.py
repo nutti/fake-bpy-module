@@ -1,0 +1,3 @@
+MeshLoop.tangent = None
+
+

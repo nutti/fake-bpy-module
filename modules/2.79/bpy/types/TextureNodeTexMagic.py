@@ -1,0 +1,5 @@
+class TextureNodeTexMagic:
+
+    pass
+
+

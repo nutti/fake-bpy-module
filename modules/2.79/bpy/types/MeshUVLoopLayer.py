@@ -1,0 +1,3 @@
+MeshUVLoopLayer.data = None
+
+

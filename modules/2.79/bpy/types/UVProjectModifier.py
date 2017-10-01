@@ -1,0 +1,3 @@
+UVProjectModifier.projectors = None
+
+

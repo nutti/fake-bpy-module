@@ -1,0 +1,5 @@
+class ShaderNodeGamma:
+
+    pass
+
+

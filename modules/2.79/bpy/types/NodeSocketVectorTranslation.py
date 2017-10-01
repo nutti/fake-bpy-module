@@ -1,0 +1,3 @@
+NodeSocketVectorTranslation.links = None
+
+

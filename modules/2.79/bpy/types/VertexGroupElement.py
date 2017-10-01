@@ -1,0 +1,3 @@
+VertexGroupElement.group = None
+
+

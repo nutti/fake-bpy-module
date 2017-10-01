@@ -1,0 +1,3 @@
+NodeSocketFloatFactor.links = None
+
+

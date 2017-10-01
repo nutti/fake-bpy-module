@@ -1,0 +1,5 @@
+class SceneBases:
+    active = None
+
+
+

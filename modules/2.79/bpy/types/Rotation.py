@@ -1,0 +1,5 @@
+class Rotation:
+
+    pass
+
+

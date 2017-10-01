@@ -1,0 +1,3 @@
+NodeSocketColor.links = None
+
+

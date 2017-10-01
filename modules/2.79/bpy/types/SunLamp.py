@@ -1,0 +1,3 @@
+SunLamp.sky = None
+
+

@@ -1,0 +1,5 @@
+class ShaderNodeBsdfHair:
+    component = None
+
+
+

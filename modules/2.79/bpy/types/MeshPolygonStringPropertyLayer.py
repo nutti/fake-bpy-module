@@ -1,0 +1,3 @@
+MeshPolygonStringPropertyLayer.data = None
+
+

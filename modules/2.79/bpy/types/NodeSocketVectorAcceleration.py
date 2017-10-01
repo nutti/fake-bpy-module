@@ -1,0 +1,3 @@
+NodeSocketVectorAcceleration.links = None
+
+
