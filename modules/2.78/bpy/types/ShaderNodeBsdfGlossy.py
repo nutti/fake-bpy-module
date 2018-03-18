@@ -1,0 +1,5 @@
+class ShaderNodeBsdfGlossy:
+    distribution = None
+
+
+

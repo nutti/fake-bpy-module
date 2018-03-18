@@ -1,0 +1,3 @@
+MeshTextureFaceLayer.data = None
+
+

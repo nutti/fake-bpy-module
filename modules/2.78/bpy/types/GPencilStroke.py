@@ -1,0 +1,3 @@
+GPencilStroke.triangles = None
+
+

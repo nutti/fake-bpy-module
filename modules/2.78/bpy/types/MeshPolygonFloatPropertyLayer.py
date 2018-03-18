@@ -1,0 +1,3 @@
+MeshPolygonFloatPropertyLayer.data = None
+
+

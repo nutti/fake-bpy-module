@@ -1,0 +1,3 @@
+MovieTrackingObject.tracks = None
+
+

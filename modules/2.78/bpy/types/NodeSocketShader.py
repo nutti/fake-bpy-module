@@ -1,0 +1,3 @@
+NodeSocketShader.links = None
+
+

@@ -1,0 +1,5 @@
+class AnyType:
+
+    pass
+
+

@@ -1,0 +1,3 @@
+TextureNodeCurveTime.curve = None
+
+

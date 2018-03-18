@@ -1,0 +1,3 @@
+NodeSocketFloatUnsigned.links = None
+
+

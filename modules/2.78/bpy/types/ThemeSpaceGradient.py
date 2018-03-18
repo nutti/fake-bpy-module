@@ -1,0 +1,3 @@
+ThemeSpaceGradient.panelcolors = None
+
+

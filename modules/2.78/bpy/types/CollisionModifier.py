@@ -1,0 +1,3 @@
+CollisionModifier.settings = None
+
+

@@ -1,0 +1,3 @@
+MeshTexturePolyLayer.data = None
+
+

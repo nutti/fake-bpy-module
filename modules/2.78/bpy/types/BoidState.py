@@ -1,0 +1,3 @@
+BoidState.rules = None
+
+

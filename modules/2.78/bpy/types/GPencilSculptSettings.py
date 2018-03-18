@@ -1,0 +1,3 @@
+GPencilSculptSettings.brush = None
+
+

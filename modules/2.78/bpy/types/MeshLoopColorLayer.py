@@ -1,0 +1,3 @@
+MeshLoopColorLayer.data = None
+
+

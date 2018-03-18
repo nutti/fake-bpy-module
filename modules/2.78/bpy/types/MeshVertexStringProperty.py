@@ -1,0 +1,5 @@
+class MeshVertexStringProperty:
+    value = None
+
+
+

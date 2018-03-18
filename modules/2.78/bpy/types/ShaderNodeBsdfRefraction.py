@@ -1,0 +1,5 @@
+class ShaderNodeBsdfRefraction:
+    distribution = None
+
+
+

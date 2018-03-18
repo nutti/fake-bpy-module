@@ -1,0 +1,5 @@
+class GameFloatProperty:
+    value = None
+
+
+

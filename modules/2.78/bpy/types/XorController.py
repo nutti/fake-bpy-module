@@ -1,0 +1,5 @@
+class XorController:
+
+    pass
+
+

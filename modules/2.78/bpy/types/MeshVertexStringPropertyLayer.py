@@ -1,0 +1,3 @@
+MeshVertexStringPropertyLayer.data = None
+
+

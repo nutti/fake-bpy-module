@@ -1,0 +1,3 @@
+TextureSlot.name = None
+
+

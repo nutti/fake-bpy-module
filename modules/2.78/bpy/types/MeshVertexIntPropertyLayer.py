@@ -1,0 +1,3 @@
+MeshVertexIntPropertyLayer.data = None
+
+

@@ -1,0 +1,5 @@
+class MeshPolygonStringProperty:
+    value = None
+
+
+

@@ -1,0 +1,3 @@
+ThemeImageEditor.space = None
+
+

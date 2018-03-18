@@ -1,0 +1,5 @@
+class AlwaysSensor:
+
+    pass
+
+

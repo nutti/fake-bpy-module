@@ -1,0 +1,5 @@
+class ShaderNodeBsdfDiffuse:
+
+    pass
+
+

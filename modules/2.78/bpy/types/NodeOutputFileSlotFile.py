@@ -1,0 +1,3 @@
+NodeOutputFileSlotFile.format = None
+
+

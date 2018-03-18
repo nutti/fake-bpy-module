@@ -1,0 +1,3 @@
+MaskLayer.splines = None
+
+

@@ -1,0 +1,3 @@
+BoidRule.type = None
+
+

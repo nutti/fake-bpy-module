@@ -1,0 +1,4 @@
+def weight(index):
+    pass
+
+

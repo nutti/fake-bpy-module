@@ -1,0 +1,5 @@
+class ShaderNodeNewGeometry:
+
+    pass
+
+

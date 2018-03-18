@@ -1,0 +1,5 @@
+class ShaderNodeAmbientOcclusion:
+
+    pass
+
+

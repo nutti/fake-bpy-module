@@ -1,0 +1,3 @@
+ShaderNodeRGBCurve.mapping = None
+
+

@@ -1,0 +1,3 @@
+MeshVertexFloatPropertyLayer.data = None
+
+

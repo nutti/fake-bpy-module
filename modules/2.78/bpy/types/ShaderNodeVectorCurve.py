@@ -1,0 +1,3 @@
+ShaderNodeVectorCurve.mapping = None
+
+

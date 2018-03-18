@@ -1,0 +1,3 @@
+NodeSocketIntUnsigned.links = None
+
+
