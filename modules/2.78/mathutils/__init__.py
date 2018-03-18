@@ -19,6 +19,9 @@ class Color:
     def freeze(self):
         pass
 
+    def __init__(self, val):
+        pass
+
 
 
 class Euler:
@@ -52,6 +55,9 @@ class Euler:
         pass
 
     def zero(self):
+        pass
+
+    def __init__(self, val):
         pass
 
 
@@ -143,6 +149,9 @@ class Matrix:
     def zero(self):
         pass
 
+    def __init__(self, val):
+        pass
+
 
 
 class Quaternion:
@@ -212,6 +221,9 @@ class Quaternion:
         pass
 
     def to_matrix(self):
+        pass
+
+    def __init__(self, val):
         pass
 
 
@@ -643,6 +655,9 @@ class Vector:
         pass
 
     def zero(self):
+        pass
+
+    def __init__(self, val):
         pass
 
 

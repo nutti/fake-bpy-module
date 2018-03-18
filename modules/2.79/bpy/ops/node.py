@@ -1,4 +1,4 @@
-def add_and_link_node(type="", use_transform=False, settings=None, link_socket_index=0):
+def add_and_link_node(type="", settings=None, use_transform=False, link_socket_index=0):
     pass
 
 
@@ -10,7 +10,7 @@ def add_mask(name="Mask"):
     pass
 
 
-def add_node(type="", use_transform=False, settings=None):
+def add_node(type="", settings=None, use_transform=False):
     pass
 
 
@@ -18,7 +18,7 @@ def add_reroute(path=None, cursor=6):
     pass
 
 
-def add_search(type="", use_transform=False, settings=None, node_item=''):
+def add_search(type="", settings=None, use_transform=False, node_item=''):
     pass
 
 

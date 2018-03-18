@@ -18,5 +18,8 @@ class KDTree:
     def insert(self, co, index):
         pass
 
+    def __init__(self, size):
+        pass
+
 
 

@@ -313,6 +313,26 @@ class MathutilsAnalyzer(BaseAnalyzer):
                         s["params"][6] = "tri_b3"
                     elif s["name"] == "intersect_point_line":
                         s["params"][2] = "line_p2"
+                elif s["type"] == "class":
+                    # add __init__ method if __init__ is missing.
+                    # all classes defined in mathutils module don't have
+                    # __init__ method
+                    found = False
+                    for m in s["method"]:
+                        if m["name"] == "__init__":
+                            found = True
+                            break
+                    if not found:
+                        if s["name"] == "KDTree":
+                            s["method"].append({
+                                "name": "__init__",
+                                "params": ["size"],
+                            })
+                        elif s["name"] != "BVHTree":
+                            s["method"].append({
+                                "name": "__init__",
+                                "params": ["val"],
+                            })
 
 
 class BpyExtraAnalyzer(BaseAnalyzer):
