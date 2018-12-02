@@ -11,6 +11,7 @@ You can see tutorials for each IDEs to click link.
 *NOTE: fake-bpy-module does not use IDE specific feature. You can also this module use many other IDEs.*
 
 * [PyCharm](docs/setup_pycharm.md)
+* [Visual Studio Code](docs/setup_visual_studio_code.md)
 
 The tutorial uses a premade module.  
 If you want to generate module manually, see ([Generate Module](docs/generate_module.md)).
