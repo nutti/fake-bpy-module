@@ -28,7 +28,7 @@ ${blender_dir}/blender --background --factory-startup -noaudio --python ${source
 sphinx-build -b xml ${source_dir}/doc/python_api/sphinx-in ${TMP_DIR}
 
 # generate fake bpy modules
-python gen.py -i ${TMP_DIR} -o ${output_dir}
+python gen.py -i ${TMP_DIR} -o ${output_dir} -t pycharm -f pep8
 
 # clear temporary directory
 cd ${current_dir}
