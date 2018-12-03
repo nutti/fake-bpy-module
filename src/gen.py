@@ -1,3 +1,5 @@
+# coding: UTF-8
+
 import xml.etree.ElementTree as et
 import glob
 import re
@@ -210,7 +212,7 @@ class ClassInfo(Info):
         else:
             data = {
                 "type": self._type,
-                "name": self.name,
+                "name": self._name,
                 "description": self._description,
                 "module": self._module,
                 "methods": [m.to_dict() for m in self._methods],
@@ -405,9 +407,9 @@ class FunctionInfo(Info):
         else:
             data = {
                 "type": self._type,
-                "name": self.name,
+                "name": self._name,
                 "description": self._description,
-                "return": self._return,
+                "return": self._return.to_dict(),
                 "class": self._class,
                 "module": self._module,
                 "parameters": [p for p in self._parameters],
