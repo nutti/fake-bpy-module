@@ -12,6 +12,7 @@ You can see tutorials for each IDEs to click link.
 
 * [PyCharm](docs/setup_pycharm.md)
 * [Visual Studio Code](docs/setup_visual_studio_code.md)
+* [All Text Editor (Install as Python module)](docs/setup_all_text_editor.md)
 
 The tutorial uses a premade module.  
 If you want to generate module manually, see ([Generate Module](docs/generate_module.md)).
