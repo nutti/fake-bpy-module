@@ -914,6 +914,11 @@ class BpyAnalyzer(BaseAnalyzer):
                                     m.set_parameter(i, "key_types")
                                 elif p.find("value_types=") != -1:
                                     m.set_parameter(i, "value_types")
+                elif s.type() == "function":
+                    if s.name() == "RemoveProperty":
+                        for i, p in enumerate(s.parameters()):
+                            if p.find("attr=") != -1:
+                                s.set_parameter(i, "attr")
 
 
 class BglAnalyzer(BaseAnalyzer):
@@ -942,7 +947,7 @@ class BmeshAnalyzer(BaseAnalyzer):
                 if l == s:
                     count = count + 1
                     if count >= 2:
-                        info.set_paramter(i, s + "_" + str(count))
+                        info.set_parameter(i, s + "_" + str(count))
 
     def _modify(self, result):
         for sections in result:
@@ -1110,9 +1115,7 @@ class BaseGenerator:
                 file.write(code_data)
 
     def dump_json(self, filename, data):
-        json_data = []
-        for sections in data:
-            json_data.append([s.to_dict() for s in sections])
+        json_data = [info.to_dict() for info in data]
         with open(filename, "w") as f:
             json.dump(json_data, f, indent=4)
 
