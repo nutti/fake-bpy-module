@@ -4,6 +4,7 @@ TMP_DIR=./gen_module-tmp
 
 if [ $# -ne 4 ]; then
     echo "Usage: sh gen_module.sh <source-dir> <blender-dir> <version> <output-dir>"
+    exit 1
 fi
 
 source_dir=${1}
@@ -17,7 +18,7 @@ mkdir -p ${TMP_DIR}
 
 # change to the target branch/tag
 cd ${source_dir}
-git checkout v${version}
+git checkout ${version}
 
 cd ${current_dir}
 
