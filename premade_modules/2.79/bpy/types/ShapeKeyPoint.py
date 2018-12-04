@@ -1,5 +1,0 @@
-class ShapeKeyPoint:
-    co = None
-
-
-

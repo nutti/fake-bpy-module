@@ -1,4 +1,0 @@
-def unlink(controller):
-    pass
-
-

@@ -1,3 +1,0 @@
-MovieSequence.transform = None
-
-

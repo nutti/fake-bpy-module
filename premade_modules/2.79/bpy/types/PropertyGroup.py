@@ -1,5 +1,0 @@
-class PropertyGroup:
-    name = None
-
-
-

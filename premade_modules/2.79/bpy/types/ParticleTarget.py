@@ -1,3 +1,0 @@
-ParticleTarget.name = None
-
-

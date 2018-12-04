@@ -1,5 +1,0 @@
-class RandomSensor:
-    seed = None
-
-
-

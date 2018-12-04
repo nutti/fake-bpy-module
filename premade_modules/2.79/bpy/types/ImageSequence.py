@@ -1,3 +1,0 @@
-ImageSequence.transform = None
-
-

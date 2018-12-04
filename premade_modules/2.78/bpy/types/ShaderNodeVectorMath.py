@@ -1,5 +1,0 @@
-class ShaderNodeVectorMath:
-    operation = None
-
-
-

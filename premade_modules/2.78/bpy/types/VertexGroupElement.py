@@ -1,3 +1,0 @@
-VertexGroupElement.group = None
-
-

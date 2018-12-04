@@ -1,3 +1,0 @@
-NodeSocketVirtual.links = None
-
-

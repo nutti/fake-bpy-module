@@ -1,3 +1,0 @@
-NodeSocketFloatAngle.links = None
-
-

@@ -1,5 +1,0 @@
-class MessageSensor:
-    subject = None
-
-
-

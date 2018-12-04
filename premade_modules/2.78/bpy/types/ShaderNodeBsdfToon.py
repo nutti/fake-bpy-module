@@ -1,5 +1,0 @@
-class ShaderNodeBsdfToon:
-    component = None
-
-
-

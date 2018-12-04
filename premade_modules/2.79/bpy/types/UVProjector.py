@@ -1,5 +1,0 @@
-class UVProjector:
-    object = None
-
-
-

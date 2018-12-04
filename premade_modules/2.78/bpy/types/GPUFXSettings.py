@@ -1,3 +1,0 @@
-GPUFXSettings.ssao = None
-
-

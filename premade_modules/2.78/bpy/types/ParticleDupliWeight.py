@@ -1,3 +1,0 @@
-ParticleDupliWeight.name = None
-
-

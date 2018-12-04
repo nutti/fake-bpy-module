@@ -1,5 +1,0 @@
-class ShaderNodeBump:
-    invert = None
-
-
-

@@ -1,5 +1,0 @@
-class ShaderNodeBsdfPrincipled:
-    distribution = None
-
-
-

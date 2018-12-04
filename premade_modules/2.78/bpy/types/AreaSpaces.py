@@ -1,3 +1,0 @@
-AreaSpaces.active = None
-
-

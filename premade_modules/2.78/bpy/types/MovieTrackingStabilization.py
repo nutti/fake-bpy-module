@@ -1,3 +1,0 @@
-MovieTrackingStabilization.tracks = None
-
-

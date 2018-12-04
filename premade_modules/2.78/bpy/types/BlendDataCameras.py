@@ -1,4 +1,0 @@
-def tag(value):
-    pass
-
-

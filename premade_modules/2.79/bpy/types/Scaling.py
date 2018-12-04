@@ -1,5 +1,0 @@
-class Scaling:
-
-    pass
-
-

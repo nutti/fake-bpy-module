@@ -1,3 +1,0 @@
-NodeSocketIntFactor.links = None
-
-

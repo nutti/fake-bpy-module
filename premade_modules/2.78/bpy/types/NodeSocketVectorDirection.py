@@ -1,3 +1,0 @@
-NodeSocketVectorDirection.links = None
-
-

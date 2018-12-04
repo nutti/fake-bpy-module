@@ -1,5 +1,0 @@
-class ActuatorSensor:
-    actuator = None
-
-
-

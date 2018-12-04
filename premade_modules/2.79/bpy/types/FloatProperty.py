@@ -1,3 +1,0 @@
-FloatProperty.step = None
-
-

@@ -1,3 +1,0 @@
-NodeSocketFloat.links = None
-
-

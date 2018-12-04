@@ -1,3 +1,0 @@
-Modifier.type = None
-
-

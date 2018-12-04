@@ -1,5 +1,0 @@
-class NodeOutputFileSlotLayer:
-    name = None
-
-
-

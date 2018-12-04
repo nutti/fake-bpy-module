@@ -1,5 +1,0 @@
-class LineStyleColorModifier:
-
-    pass
-
-

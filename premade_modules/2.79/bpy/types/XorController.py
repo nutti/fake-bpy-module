@@ -1,5 +1,0 @@
-class XorController:
-
-    pass
-
-

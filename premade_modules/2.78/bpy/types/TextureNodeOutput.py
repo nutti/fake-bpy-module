@@ -1,5 +1,0 @@
-class TextureNodeOutput:
-    filepath = None
-
-
-

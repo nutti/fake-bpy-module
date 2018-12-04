@@ -1,5 +1,0 @@
-class ColorManagedInputColorspaceSettings:
-    name = None
-
-
-

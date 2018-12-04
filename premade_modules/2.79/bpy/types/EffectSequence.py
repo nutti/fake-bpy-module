@@ -1,3 +1,0 @@
-EffectSequence.transform = None
-
-

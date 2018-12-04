@@ -1,4 +1,0 @@
-def draw(context):
-    pass
-
-

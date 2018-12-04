@@ -1,3 +1,0 @@
-ParticleEdit.object = None
-
-

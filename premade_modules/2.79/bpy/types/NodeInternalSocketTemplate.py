@@ -1,3 +1,0 @@
-NodeInternalSocketTemplate.type = None
-
-

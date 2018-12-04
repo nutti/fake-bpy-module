@@ -1,3 +1,0 @@
-FluidVertexVelocity.velocity = None
-
-

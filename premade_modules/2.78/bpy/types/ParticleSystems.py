@@ -1,3 +1,0 @@
-ParticleSystems.active = None
-
-

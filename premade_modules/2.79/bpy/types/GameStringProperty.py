@@ -1,5 +1,0 @@
-class GameStringProperty:
-    value = None
-
-
-

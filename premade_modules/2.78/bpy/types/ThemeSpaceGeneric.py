@@ -1,3 +1,0 @@
-ThemeSpaceGeneric.panelcolors = None
-
-

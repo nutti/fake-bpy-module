@@ -1,3 +1,0 @@
-MeshEdge.key = None
-
-

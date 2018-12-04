@@ -1,3 +1,0 @@
-Scopes.histogram = None
-
-

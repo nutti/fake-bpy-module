@@ -1,4 +1,0 @@
-def compare(item):
-    pass
-
-

@@ -1,3 +1,0 @@
-TextureNodeCurveRGB.mapping = None
-
-

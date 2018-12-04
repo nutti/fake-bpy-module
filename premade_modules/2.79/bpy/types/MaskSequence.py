@@ -1,3 +1,0 @@
-MaskSequence.transform = None
-
-

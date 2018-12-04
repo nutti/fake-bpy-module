@@ -1,3 +1,0 @@
-NodeGroupInput.interface = None
-
-

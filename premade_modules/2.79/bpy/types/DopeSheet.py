@@ -1,3 +1,0 @@
-DopeSheet.source = None
-
-

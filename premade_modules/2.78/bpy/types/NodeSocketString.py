@@ -1,3 +1,0 @@
-NodeSocketString.links = None
-
-

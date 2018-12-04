@@ -1,3 +1,0 @@
-NodeCustomGroup.interface = None
-
-

@@ -1,5 +1,0 @@
-class GameTimerProperty:
-    value = None
-
-
-

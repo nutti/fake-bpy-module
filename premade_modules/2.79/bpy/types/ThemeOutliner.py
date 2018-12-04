@@ -1,3 +1,0 @@
-ThemeOutliner.space = None
-
-

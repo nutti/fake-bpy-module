@@ -1,3 +1,0 @@
-ThemeConsole.space = None
-
-

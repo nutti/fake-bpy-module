@@ -1,3 +1,0 @@
-PythonConstraint.targets = None
-
-

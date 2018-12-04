@@ -1,5 +1,0 @@
-class TextureNodeDecompose:
-
-    pass
-
-

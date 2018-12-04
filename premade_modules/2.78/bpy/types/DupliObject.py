@@ -1,3 +1,0 @@
-DupliObject.uv = None
-
-

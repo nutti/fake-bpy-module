@@ -1,3 +1,0 @@
-PackedFile.size = None
-
-

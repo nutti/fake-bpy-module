@@ -1,3 +1,0 @@
-GPencilPalette.colors = None
-
-

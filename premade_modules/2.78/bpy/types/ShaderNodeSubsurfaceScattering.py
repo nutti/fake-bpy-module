@@ -1,5 +1,0 @@
-class ShaderNodeSubsurfaceScattering:
-    falloff = None
-
-
-

@@ -1,5 +1,0 @@
-class LampTextureSlots:
-
-    pass
-
-

@@ -1,3 +1,0 @@
-EnumPropertyItem.value = None
-
-

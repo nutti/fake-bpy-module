@@ -1,3 +1,0 @@
-ShaderNodeGroup.interface = None
-
-

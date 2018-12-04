@@ -1,3 +1,0 @@
-SoftBodyModifier.settings = None
-
-

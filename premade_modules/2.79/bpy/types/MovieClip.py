@@ -1,3 +1,0 @@
-MovieClip.tracking = None
-
-

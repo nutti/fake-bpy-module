@@ -1,3 +1,0 @@
-MaskSpline.points = None
-
-

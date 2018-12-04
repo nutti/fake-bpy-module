@@ -1,3 +1,0 @@
-FluidSimulationModifier.settings = None
-
-

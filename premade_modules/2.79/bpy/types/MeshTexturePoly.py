@@ -1,5 +1,0 @@
-class MeshTexturePoly:
-    image = None
-
-
-

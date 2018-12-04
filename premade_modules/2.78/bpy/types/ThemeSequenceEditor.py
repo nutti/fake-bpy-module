@@ -1,3 +1,0 @@
-ThemeSequenceEditor.space = None
-
-

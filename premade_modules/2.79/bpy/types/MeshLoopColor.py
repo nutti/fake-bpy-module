@@ -1,5 +1,0 @@
-class MeshLoopColor:
-    color = None
-
-
-

@@ -1,5 +1,0 @@
-class ShaderNodeNormal:
-
-    pass
-
-

@@ -1,3 +1,0 @@
-Addon.preferences = None
-
-

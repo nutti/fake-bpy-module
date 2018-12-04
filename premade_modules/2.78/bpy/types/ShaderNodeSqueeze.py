@@ -1,5 +1,0 @@
-class ShaderNodeSqueeze:
-
-    pass
-
-

@@ -1,5 +1,0 @@
-class CyclesMeshSettings:
-
-    pass
-
-

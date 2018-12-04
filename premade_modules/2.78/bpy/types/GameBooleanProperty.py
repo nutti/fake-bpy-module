@@ -1,5 +1,0 @@
-class GameBooleanProperty:
-    value = None
-
-
-

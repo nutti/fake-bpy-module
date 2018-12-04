@@ -1,3 +1,0 @@
-NodeSocketVectorEuler.links = None
-
-

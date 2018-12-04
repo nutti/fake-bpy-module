@@ -1,4 +1,0 @@
-def evaluate(value):
-    pass
-
-

@@ -1,3 +1,0 @@
-Spline.points = None
-
-

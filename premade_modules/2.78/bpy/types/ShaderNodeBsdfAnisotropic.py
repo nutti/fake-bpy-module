@@ -1,5 +1,0 @@
-class ShaderNodeBsdfAnisotropic:
-    distribution = None
-
-
-

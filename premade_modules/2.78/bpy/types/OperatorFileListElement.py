@@ -1,5 +1,0 @@
-class OperatorFileListElement:
-    name = None
-
-
-

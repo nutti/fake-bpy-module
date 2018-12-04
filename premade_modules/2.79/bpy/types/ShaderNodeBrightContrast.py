@@ -1,5 +1,0 @@
-class ShaderNodeBrightContrast:
-
-    pass
-
-

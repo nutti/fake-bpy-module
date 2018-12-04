@@ -1,5 +1,0 @@
-class OrController:
-
-    pass
-
-

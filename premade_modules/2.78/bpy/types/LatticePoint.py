@@ -1,3 +1,0 @@
-LatticePoint.groups = None
-
-

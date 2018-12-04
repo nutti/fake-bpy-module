@@ -1,3 +1,0 @@
-ThemeInfo.space = None
-
-

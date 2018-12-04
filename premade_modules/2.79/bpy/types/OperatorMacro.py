@@ -1,3 +1,0 @@
-OperatorMacro.properties = None
-
-

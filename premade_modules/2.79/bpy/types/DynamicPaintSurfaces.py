@@ -1,3 +1,0 @@
-DynamicPaintSurfaces.active = None
-
-

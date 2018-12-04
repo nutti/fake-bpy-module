@@ -1,5 +1,0 @@
-class ShaderNodeWavelength:
-
-    pass
-
-

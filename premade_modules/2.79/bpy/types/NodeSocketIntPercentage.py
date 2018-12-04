@@ -1,3 +1,0 @@
-NodeSocketIntPercentage.links = None
-
-

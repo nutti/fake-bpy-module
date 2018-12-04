@@ -1,5 +1,0 @@
-class ShaderNodeLayerWeight:
-
-    pass
-
-

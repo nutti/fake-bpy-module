@@ -1,5 +1,0 @@
-class RenderSlot:
-    name = None
-
-
-

@@ -1,5 +1,0 @@
-class ShaderNodeVolumeAbsorption:
-
-    pass
-
-

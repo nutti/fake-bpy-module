@@ -1,5 +1,0 @@
-class TextureNodeTexMusgrave:
-
-    pass
-
-

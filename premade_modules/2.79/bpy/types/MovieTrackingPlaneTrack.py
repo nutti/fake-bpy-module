@@ -1,3 +1,0 @@
-MovieTrackingPlaneTrack.markers = None
-
-

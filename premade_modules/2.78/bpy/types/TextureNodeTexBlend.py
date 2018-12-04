@@ -1,5 +1,0 @@
-class TextureNodeTexBlend:
-
-    pass
-
-

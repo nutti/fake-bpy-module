@@ -1,4 +1,0 @@
-def weight(index):
-    pass
-
-

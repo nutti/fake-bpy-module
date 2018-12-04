@@ -1,5 +1,0 @@
-class FluidSettings:
-    type = None
-
-
-

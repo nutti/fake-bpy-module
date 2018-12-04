@@ -1,3 +1,0 @@
-SceneSequence.transform = None
-
-

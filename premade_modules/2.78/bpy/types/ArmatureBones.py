@@ -1,5 +1,0 @@
-class ArmatureBones:
-    active = None
-
-
-

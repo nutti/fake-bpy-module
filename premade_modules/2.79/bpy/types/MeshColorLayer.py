@@ -1,3 +1,0 @@
-MeshColorLayer.data = None
-
-

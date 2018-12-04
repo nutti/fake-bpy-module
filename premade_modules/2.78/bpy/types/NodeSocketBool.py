@@ -1,3 +1,0 @@
-NodeSocketBool.links = None
-
-

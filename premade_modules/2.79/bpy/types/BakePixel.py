@@ -1,3 +1,0 @@
-BakePixel.uv = None
-
-

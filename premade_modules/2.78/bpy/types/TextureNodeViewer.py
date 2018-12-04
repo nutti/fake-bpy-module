@@ -1,5 +1,0 @@
-class TextureNodeViewer:
-
-    pass
-
-

@@ -1,3 +1,0 @@
-IntProperty.step = None
-
-

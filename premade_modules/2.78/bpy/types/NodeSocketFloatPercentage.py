@@ -1,3 +1,0 @@
-NodeSocketFloatPercentage.links = None
-
-

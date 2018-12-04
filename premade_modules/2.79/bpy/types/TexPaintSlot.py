@@ -1,3 +1,0 @@
-TexPaintSlot.index = None
-
-

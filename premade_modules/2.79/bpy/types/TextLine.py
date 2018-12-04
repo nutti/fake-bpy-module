@@ -1,5 +1,0 @@
-class TextLine:
-    body = None
-
-
-

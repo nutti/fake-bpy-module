@@ -1,5 +1,0 @@
-class TextureNodeDistance:
-
-    pass
-
-

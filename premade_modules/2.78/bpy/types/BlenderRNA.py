@@ -1,3 +1,0 @@
-BlenderRNA.structs = None
-
-

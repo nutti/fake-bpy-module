@@ -1,3 +1,0 @@
-ThemeFileBrowser.space = None
-
-

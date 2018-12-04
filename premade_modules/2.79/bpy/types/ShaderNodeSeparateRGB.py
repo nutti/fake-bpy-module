@@ -1,5 +1,0 @@
-class ShaderNodeSeparateRGB:
-
-    pass
-
-

@@ -1,4 +1,0 @@
-def remove(lineset):
-    pass
-
-

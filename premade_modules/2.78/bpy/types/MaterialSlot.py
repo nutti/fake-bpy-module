@@ -1,3 +1,0 @@
-MaterialSlot.name = None
-
-

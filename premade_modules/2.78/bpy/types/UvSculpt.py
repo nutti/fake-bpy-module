@@ -1,5 +1,0 @@
-class UvSculpt:
-
-    pass
-
-

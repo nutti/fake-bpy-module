@@ -1,5 +1,0 @@
-class NodeSocketInterfaceShader:
-
-    pass
-
-

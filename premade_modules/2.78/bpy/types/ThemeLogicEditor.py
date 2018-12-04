@@ -1,3 +1,0 @@
-ThemeLogicEditor.space = None
-
-

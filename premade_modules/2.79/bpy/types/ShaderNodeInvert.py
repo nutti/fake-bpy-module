@@ -1,5 +1,0 @@
-class ShaderNodeInvert:
-
-    pass
-
-

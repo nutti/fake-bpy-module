@@ -1,3 +1,0 @@
-MovieReconstructedCamera.matrix = None
-
-

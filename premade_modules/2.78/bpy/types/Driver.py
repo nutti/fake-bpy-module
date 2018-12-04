@@ -1,3 +1,0 @@
-Driver.variables = None
-
-

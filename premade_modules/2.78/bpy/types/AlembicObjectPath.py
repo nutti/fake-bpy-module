@@ -1,5 +1,0 @@
-class AlembicObjectPath:
-    path = None
-
-
-

@@ -1,5 +1,0 @@
-class MovieTrackingObjectPlaneTracks:
-    active = None
-
-
-

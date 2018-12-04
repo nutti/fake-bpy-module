@@ -1,4 +1,0 @@
-def translate(vec):
-    pass
-
-

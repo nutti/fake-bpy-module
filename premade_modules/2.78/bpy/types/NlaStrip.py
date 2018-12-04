@@ -1,3 +1,0 @@
-NlaStrip.type = None
-
-

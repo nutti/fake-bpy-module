@@ -1,3 +1,0 @@
-BoidSettings.states = None
-
-

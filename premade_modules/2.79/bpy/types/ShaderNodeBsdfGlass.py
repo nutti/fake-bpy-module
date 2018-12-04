@@ -1,5 +1,0 @@
-class ShaderNodeBsdfGlass:
-    distribution = None
-
-
-

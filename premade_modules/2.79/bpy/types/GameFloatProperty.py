@@ -1,5 +1,0 @@
-class GameFloatProperty:
-    value = None
-
-
-
