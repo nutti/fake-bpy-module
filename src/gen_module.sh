@@ -18,7 +18,9 @@ mkdir -p ${TMP_DIR}
 
 # change to the target branch/tag
 cd ${source_dir}
+git fetch --prune
 git checkout ${version}
+git pull origin ${version}
 
 cd ${current_dir}
 
