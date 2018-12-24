@@ -25,13 +25,14 @@ git pull origin ${version}
 cd ${current_dir}
 
 # generate .rst documents
-${blender_dir}/blender --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py
+${blender_dir}/blender --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${TMP_DIR}
 
 # convert .rst to .xml
-sphinx-build -b xml ${source_dir}/doc/python_api/sphinx-in ${TMP_DIR}
+mkdir -p ${TMP_DIR}/sphinx-out-xml
+sphinx-build -b xml ${TMP_DIR}/sphinx-in ${TMP_DIR}/sphinx-out-xml
 
 # generate fake bpy modules
-python gen.py -i ${TMP_DIR} -o ${output_dir} -t pycharm -f pep8
+python gen.py -i ${TMP_DIR}/sphinx-out-xml -o ${output_dir} -t pycharm -f pep8
 
 # clear temporary directory
 cd ${current_dir}
