@@ -1,15 +1,15 @@
-def add_and_link_node(type="",
+def add_and_link_node(settings=None,
+                      type="",
                       use_transform=False,
-                      settings=None,
                       link_socket_index=0):
     '''Add a node to the active tree and link to an existing socket 
 
+    :param settings: Settings, Settings to be applied on the newly created node 
+    :type settings: bpy_prop_collection of NodeSetting, (optional)
     :param type: Node Type, Node type 
     :type type: string, (optional, never None)
     :param use_transform: Use Transform, Start transform operator after inserting the node 
     :type use_transform: boolean, (optional)
-    :param settings: Settings, Settings to be applied on the newly created node 
-    :type settings: bpy_prop_collection of NodeSetting, (optional)
     :param link_socket_index: Link Socket Index, Index of the socket to link 
     :type link_socket_index: int in [-inf, inf], (optional)
     '''
@@ -97,15 +97,15 @@ def add_mask(name="Mask"):
     pass
 
 
-def add_node(type="", use_transform=False, settings=None):
+def add_node(settings=None, type="", use_transform=False):
     '''Add a node to the active tree 
 
+    :param settings: Settings, Settings to be applied on the newly created node 
+    :type settings: bpy_prop_collection of NodeSetting, (optional)
     :param type: Node Type, Node type 
     :type type: string, (optional, never None)
     :param use_transform: Use Transform, Start transform operator after inserting the node 
     :type use_transform: boolean, (optional)
-    :param settings: Settings, Settings to be applied on the newly created node 
-    :type settings: bpy_prop_collection of NodeSetting, (optional)
     '''
 
     pass
@@ -123,15 +123,15 @@ def add_reroute(path=None, cursor=6):
     pass
 
 
-def add_search(type="", use_transform=False, settings=None, node_item=''):
+def add_search(settings=None, type="", use_transform=False, node_item=''):
     '''Add a node to the active tree 
 
+    :param settings: Settings, Settings to be applied on the newly created node 
+    :type settings: bpy_prop_collection of NodeSetting, (optional)
     :param type: Node Type, Node type 
     :type type: string, (optional, never None)
     :param use_transform: Use Transform, Start transform operator after inserting the node 
     :type use_transform: boolean, (optional)
-    :param settings: Settings, Settings to be applied on the newly created node 
-    :type settings: bpy_prop_collection of NodeSetting, (optional)
     :param node_item: Node Type, Node type 
     :type node_item: enum in [], (optional)
     '''
