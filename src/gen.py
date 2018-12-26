@@ -1099,7 +1099,13 @@ class BaseGenerator:
     def generate(self, filename, data, style_config='pep8'):
         with open(filename, "w") as file:
             code_data = ""
-            for info in data:
+
+            for mod in data["child_modules"]:
+                code_data += "from . import {}\n".format(mod)
+            if len(data["child_modules"]) >= 1:
+                code_data += "\n\n"
+
+            for info in data["data"]:
                 # if "type" not in s:
                 #     continue
                 if info.type() == "function":
@@ -1115,7 +1121,7 @@ class BaseGenerator:
                 file.write(code_data)
 
     def dump_json(self, filename, data):
-        json_data = [info.to_dict() for info in data]
+        json_data = [info.to_dict() for info in data["data"]]
         with open(filename, "w") as f:
             json.dump(json_data, f, indent=4)
 
@@ -1149,8 +1155,8 @@ def make_module_dirs(base_path, structure):
                 pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
                 if dir_path == base_path:
                     continue
-                with open(dir_path + "/__init__.py", "w"):
-                    pass
+                # with open(dir_path + "/__init__.py", "w"):
+                #     pass
                 make_dir(dir_path, item["children"])
 
     make_dir(base_path, structure)
@@ -1191,7 +1197,30 @@ def build_generation_info(analyze_results, module_structure):
                     return ret
         return None
 
+    def build_child_modules(info, name, structure):
+        for m in structure:
+            mod_name = name + m["name"]
+            if len(m["children"]) == 0:
+                filename = re.sub("\.", "/", mod_name) + ".py"
+                info[filename] = {
+                    "data": [],
+                    "child_modules": [],
+                    "name": mod_name
+                }
+            else:
+                filename = re.sub("\.", "/", mod_name) + "/__init__.py"
+                info[filename] = {
+                    "data": [],
+                    "child_modules": [child["name"] for child in m["children"]],
+                    "name": mod_name
+                }
+                build_child_modules(info, mod_name + ".", m["children"])
+
+    # build child modules
     generator_info = {}
+    build_child_modules(generator_info, "", module_structure)
+
+    # build data
     for r in analyze_results:
         for sections in r:
             for s in sections:
@@ -1201,8 +1230,10 @@ def build_generation_info(analyze_results, module_structure):
                     raise RuntimeError("Could not find target file to generate "
                                        "(target: {})".format(s.module()))
                 if target not in generator_info:
-                    generator_info[target] = []
-                generator_info[target].append(s)
+                    raise RuntimeError("Could not find target in generator_info "
+                                       "(target: {})".format(s.module()))
+                generator_info[target]["data"].append(s)
+
 
     return generator_info
 
@@ -1242,8 +1273,7 @@ def gen_package(path, xml_files, analyzer, generator):
             generator.dump_json(path + "/" + key + "-dump.json",
                                 generation_info[key])
         # generate python code
-        generator.generate(path + "/" + key, generation_info[key],
-                           STYLE_FORMAT)
+        generator.generate(path + "/" + key, generation_info[key], STYLE_FORMAT)
 
 
 def gen_bpy_package():
