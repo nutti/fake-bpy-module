@@ -2,6 +2,8 @@
 
 fake-bpy-module is the collections of the fake Blender Python API module for the code completion in commonly used IDEs.
 
+![fake-bpy-module Thumbnail](docs/images/fake-bpy-module_thumbnail.png)
+
 
 ## Supported IDEs
 
@@ -33,8 +35,8 @@ These modules are optimized for PyCharm.
   * [2.78c](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78/2.78c)
 * 2.79
   * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79)
-  * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79a)
-  * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79b)
+  * [2.79a](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79a)
+  * [2.79b](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79b)
 * 2.80
   * [Newest (Commit ID:e5e885d0ecb9430a73e0a904cdb6035a2ef77e98)](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.80/e5e885d0ecb9430a73e0a904cdb6035a2ef77e98)
 
