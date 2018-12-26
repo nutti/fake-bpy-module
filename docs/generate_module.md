@@ -22,15 +22,34 @@ $ git clone git://git.blender.org/blender.git
 ```
 
 
-#### 3. Run script
+#### 3. Download fake-bpy-module sources
+
+Download the fake-bpy-module sources from GitHub.
+
+Use Git and clone fake-bpy-module repository.
 
 ```
-# sh gen_module.sh <source-dir> <blender-dir> <version>
+$ git clone https://github.com/nutti/fake-bpy-module.git
+```
+
+or
+
+Download .zip file from GitHub.
+
+https://github.com/nutti/fake-bpy-module/archive/master.zip
+
+
+#### 4. Run script
+
+```
+$ cd fake-bpy-module/src
+$ sh gen_module.sh <source-dir> <blender-dir> <version> <output-dir>
 ```
 
 * `<source-dir>`: Specify Blender sources directory.
 * `<blender-dir>`: Specify Blender binary directory.
 * `<version>`: Specify Blender version.
+* `<output-dir>`: Specify directory where generated modules are output.
 
 
 ## Case 2: Do it yourself all procedures
@@ -75,9 +94,27 @@ $ sphinx-build -b xml doc/python_api/sphinx-in <xml-out>
 ```
 
 
-#### 6. Generate modules
+#### 6. Download fake-bpy-module sources
+
+Download the fake-bpy-module sources from GitHub.
+
+Use Git and clone fake-bpy-module repository.
 
 ```
+$ git clone https://github.com/nutti/fake-bpy-module.git
+```
+
+or
+
+Download .zip file from GitHub.
+
+https://github.com/nutti/fake-bpy-module/archive/master.zip
+
+
+#### 7. Generate modules
+
+```
+$ cd fake-bpy-module/src
 $ python gen.py -i <input-dir> -o <output-dir> -t <target> -f <format>
 ```
 

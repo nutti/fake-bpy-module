@@ -44,7 +44,7 @@ Add the path for the auto completion from Visual Studio.
 ```json
 {
     "python.autoComplete.extraPaths": [
-        "<path-to-repository>/fake-bpy-module/premade_modules/2.79"
+        "<path-to-repository>/fake-bpy-module/premade_modules/2.79/2.79b"
     ]
 }
 ```

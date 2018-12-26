@@ -26,8 +26,17 @@ In this case, you don't need to generate module.
 For now, there are premade modules for below versions.
 These modules are optimized for PyCharm.
 
-* [2.78](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78)
-* [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79)
+* 2.78
+  * [2.78](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78/2.78)
+  * [2.78a](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78/2.78a)
+  * [2.78b](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78/2.78b)
+  * [2.78c](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.78/2.78c)
+* 2.79
+  * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79)
+  * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79a)
+  * [2.79](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.79/2.79b)
+* 2.80
+  * [Newest (Commit ID:e5e885d0ecb9430a73e0a904cdb6035a2ef77e98)](https://github.com/nutti/fake-bpy-module/tree/master/premade_modules/2.80/e5e885d0ecb9430a73e0a904cdb6035a2ef77e98)
 
 You can generate module manually.  
 The all processes you need to generate module is indicated in the tutorial ([Generate Module](docs/generate_module.md)).
