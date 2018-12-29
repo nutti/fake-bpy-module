@@ -1,3 +1,8 @@
+from . import translations
+from . import handlers
+from . import timers
+from . import icons
+
 background = None
 '''Boolean, True when blender is running without a user interface (started with -b) '''
 
@@ -77,7 +82,7 @@ ffmpeg = None
 '''constant value bpy.app.ffmpeg(supported=True, avcodec_version=(58, 18, 100), avcodec_version_string=‘58, 18, 100, avdevice_version=(58, 3, 100), avdevice_version_string=‘58, 3, 100, avformat_version=(58, 12, 100), avformat_version_string=‘58, 12, 100, avutil_version=(56, 14, 100), avutil_version_string=‘56, 14, 100, swscale_version=(5, 1, 100), swscale_version_string= 5, 1, 100) '''
 
 handlers = None
-'''constant value bpy.app.handlers(frame_change_pre=[], frame_change_post=[], render_pre=[], render_post=[], render_write=[], render_stats=[], render_init=[], render_complete=[], render_cancel=[], load_pre=[], load_post=[], save_pre=[], save_post=[], undo_pre=[], undo_post=[], redo_pre=[], redo_post=[], depsgraph_update_pre=[], depsgraph_update_post=[], version_update=[<function do_versions at 0x10f40a510>], load_factory_startup_post=[], persistent=<class ‘persistent>) '''
+'''constant value bpy.app.handlers(frame_change_pre=[], frame_change_post=[], render_pre=[], render_post=[], render_write=[], render_stats=[], render_init=[], render_complete=[], render_cancel=[], load_pre=[], load_post=[], save_pre=[], save_post=[], undo_pre=[], undo_post=[], redo_pre=[], redo_post=[], depsgraph_update_pre=[], depsgraph_update_post=[], version_update=[<function do_versions at 0x11cd68510>], load_factory_startup_post=[], persistent=<class ‘persistent>) '''
 
 ocio = None
 '''constant value bpy.app.ocio(supported=True, version=(1, 1, 0), version_string= 1, 1, 0) '''
