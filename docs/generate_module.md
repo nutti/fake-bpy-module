@@ -43,12 +43,14 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 ```
 $ cd fake-bpy-module/src
-$ sh gen_module.sh <source-dir> <blender-dir> <version> <output-dir>
+$ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir>
 ```
 
 * `<source-dir>`: Specify Blender sources directory.
 * `<blender-dir>`: Specify Blender binary directory.
-* `<version>`: Specify Blender version.
+* `<branch/tag/commit>`: Specify target Blender source's branch for generating module.
+  * If you want to generate module for 2.79a, specify v2.79a
+  * If you want to generate module for newest Blender version, specify master
 * `<output-dir>`: Specify directory where generated modules are output.
 
 
