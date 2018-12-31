@@ -1,3 +1,6 @@
+from . import translations
+from . import handlers
+
 background = None
 '''Boolean, True when blender is running without a user interface (started with -b) '''
 
@@ -68,7 +71,7 @@ ffmpeg = None
 '''constant value bpy.app.ffmpeg(supported=True, avcodec_version=(55, 39, 101), avcodec_version_string=‘55, 39, 101, avdevice_version=(55, 5, 100), avdevice_version_string=‘55, 5, 100, avformat_version=(55, 19, 104), avformat_version_string=‘55, 19, 104, avutil_version=(52, 48, 101), avutil_version_string=‘52, 48, 101, swscale_version=(2, 5, 101), swscale_version_string= 2, 5, 101) '''
 
 handlers = None
-'''constant value bpy.app.handlers(frame_change_pre=[], frame_change_post=[], render_pre=[], render_post=[], render_write=[], render_stats=[], render_init=[], render_complete=[], render_cancel=[], load_pre=[], load_post=[], save_pre=[], save_post=[], scene_update_pre=[], scene_update_post=[], game_pre=[], game_post=[], version_update=[<function do_versions at 0x11042e840>], persistent=<class ‘persistent>) '''
+'''constant value bpy.app.handlers(frame_change_pre=[], frame_change_post=[], render_pre=[], render_post=[], render_write=[], render_stats=[], render_init=[], render_complete=[], render_cancel=[], load_pre=[], load_post=[], save_pre=[], save_post=[], scene_update_pre=[], scene_update_post=[], game_pre=[], game_post=[], version_update=[<function do_versions at 0x10f65fb70>], persistent=<class ‘persistent>) '''
 
 ocio = None
 '''constant value bpy.app.ocio(supported=True, version=(1, 0, 7), version_string= 1, 0, 7) '''

@@ -1,3 +1,10 @@
+from . import noise
+from . import bvhtree
+from . import kdtree
+from . import geometry
+from . import interpolate
+
+
 class Color:
     '''This object gives access to Colors in Blender. '''
 

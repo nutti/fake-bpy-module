@@ -1,3 +1,5 @@
+from . import offscreen
+
 GPU_DATA_1I = None
 '''one integer '''
 

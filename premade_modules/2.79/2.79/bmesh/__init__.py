@@ -1,3 +1,9 @@
+from . import utils
+from . import types
+from . import ops
+from . import geometry
+
+
 def from_edit_mesh(mesh):
     '''Return a BMesh from this mesh, currently the mesh must already be in editmode. 
 

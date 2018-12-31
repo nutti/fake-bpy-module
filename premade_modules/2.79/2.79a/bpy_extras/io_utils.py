@@ -121,7 +121,7 @@ def unique_name(key, name, name_dict, name_max=-1, clean_func=None, sep='.'):
 
 
 path_reference_mode = None
-'''constant value (<built-in function EnumProperty>, {‘name: ‘Path Mode, ‘attr: ‘path_mode, ‘description: ‘Method used to reference paths, ‘items: ((‘AUTO, ‘Auto, ‘Use Relative paths with subdirectories only), (‘ABSOLUTE, ‘Absolute, ‘Always write absolute paths), (‘RELATIVE, ‘Relative, ‘Always write relative paths (where possible)), (‘MATCH, ‘Match, ‘Match Absolute/Relative setting with input path), (‘STRIP, ‘Strip Path, ‘Filename only), (‘COPY, ‘Copy, ‘Copy the file to the destination path (or subdirectory))), ‘default: ‘AUTO}) '''
+'''constant value (<built-in function EnumProperty>, {‘items: ((‘AUTO, ‘Auto, ‘Use Relative paths with subdirectories only), (‘ABSOLUTE, ‘Absolute, ‘Always write absolute paths), (‘RELATIVE, ‘Relative, ‘Always write relative paths (where possible)), (‘MATCH, ‘Match, ‘Match Absolute/Relative setting with input path), (‘STRIP, ‘Strip Path, ‘Filename only), (‘COPY, ‘Copy, ‘Copy the file to the destination path (or subdirectory))), ‘name: ‘Path Mode, ‘description: ‘Method used to reference paths, ‘attr: ‘path_mode, ‘default: ‘AUTO}) '''
 
 
 class ExportHelper:

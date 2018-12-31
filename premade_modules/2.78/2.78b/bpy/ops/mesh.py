@@ -1279,12 +1279,12 @@ def primitive_plane_add(
 
 
 def primitive_torus_add(
-        location=(0.0, 0.0, 0.0),
         rotation=(0.0, 0.0, 0.0),
+        view_align=False,
+        location=(0.0, 0.0, 0.0),
         layers=(False, False, False, False, False, False, False, False, False,
                 False, False, False, False, False, False, False, False, False,
                 False, False),
-        view_align=False,
         major_segments=48,
         minor_segments=12,
         mode='MAJOR_MINOR',
@@ -1294,14 +1294,14 @@ def primitive_torus_add(
         abso_minor_rad=0.75):
     '''Add a torus mesh 
 
-    :param location: Location 
-    :type location: float array of 3 items in [-inf, inf], (optional)
     :param rotation: Rotation 
     :type rotation: float array of 3 items in [-inf, inf], (optional)
-    :param layers: Layers 
-    :type layers: boolean array of 20 items, (optional)
     :param view_align: Align to View 
     :type view_align: boolean, (optional)
+    :param location: Location 
+    :type location: float array of 3 items in [-inf, inf], (optional)
+    :param layers: Layers 
+    :type layers: boolean array of 20 items, (optional)
     :param major_segments: Major Segments, Number of segments for the main ring of the torus 
     :type major_segments: int in [3, 256], (optional)
     :param minor_segments: Minor Segments, Number of segments for the minor ring of the torus 

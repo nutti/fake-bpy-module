@@ -1,3 +1,6 @@
+from . import ContextFunctions
+
+
 def getCurrentScene():
     '''Returns the current scene. 
 
