@@ -86,7 +86,7 @@ function generate_module() {
 }
 
 if [ ${version} = "all" ]; then
-    for KEY in ${!BLENDER_DOWNLOAD_URL[@]}; do
+    for KEY in ${!BLENDER_TAG_NAME[@]}; do
         generate_module ${KEY}
     done
 else
