@@ -7,6 +7,24 @@ You can choose the method to generate module.
 2. [Case 2: Do it yourself all procedures](#case-2-do-it-yourself-all-procedures)
 
 
+### Pre-requirement
+
+#### Python Version
+
+The generating script can be run on Python >= 3.5.
+Ensure that Python version is >= 3.5 on your environment.
+
+
+#### Install requirement packages
+
+The generating script uses the packages listed on [requirements.txt](../requirements.txt).
+Execute below command to install requirement packages.
+
+```bash
+$ pip install -r requirements.txt
+```
+
+
 ## Case 1: Use utility script
 
 #### 1. Download Blender binary
