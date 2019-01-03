@@ -1097,7 +1097,7 @@ class BaseGenerator:
         return str_
 
     def generate(self, filename, data, style_config='pep8'):
-        with open(filename, "w") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             code_data = ""
 
             for mod in data["child_modules"]:
