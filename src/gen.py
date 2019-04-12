@@ -767,7 +767,7 @@ class ClassAnalyzer:
             analyzer = FunctionAnalyzer(self.filename, "method")
             m = analyzer.analyze(desc)
             result["method"].append(m)
-        elif attr == "attribute":
+        elif attr == "attribute" or attr == "data":
             if "attribute" not in result:
                 result["attribute"] = []
             analyzer = VariableAnalyzer(self.filename, "attribute")
