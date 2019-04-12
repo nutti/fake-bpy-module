@@ -1151,6 +1151,12 @@ class BaseGenerator:
     def generate(self, filename, data, style_config='pep8'):
         self.mod_name = data["name"]
 
+        # at first, sort data to avoid generating large diff
+        sorted_data = sorted(
+            data["data"],
+            key=lambda x : (x.type(), x.name())
+        )
+
         with open(filename, "w", encoding="utf-8") as file:
             self.print_header(file)
 
@@ -1161,7 +1167,7 @@ class BaseGenerator:
             if len(data["child_modules"]) >= 1:
                 code_data += "\n\n"
 
-            for info in data["data"]:
+            for info in sorted_data:
                 # if "type" not in s:
                 #     continue
                 if info.type() == "function":
