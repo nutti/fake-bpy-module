@@ -323,6 +323,11 @@ class FunctionInfo(Info):
     def parameters(self):
         return self._parameters
 
+    def parameter(self, idx):
+        if idx >= len(self._parameters):
+            raise RuntimeError("Out of range")
+        return self._parameters[idx]
+
     def set_parameters(self, params):
         self._parameters = []
         self.add_parameters(params)
@@ -844,6 +849,11 @@ class BaseAnalyzer:
     def _modify(self, result):
         pass
 
+    def update_parameter_if_not_equal(self, info, param_idx, expect):
+        if info.parameter(param_idx) == expect:
+            return
+        info.set_parameter(param_idx, expect)
+
     def analyze(self, filename):
         tree = et.parse(filename)
         root = tree.getroot()       # <document>
@@ -949,12 +959,29 @@ class BmeshAnalyzer(BaseAnalyzer):
                     if count >= 2:
                         info.set_parameter(i, s + "_" + str(count))
 
+    def __handle_extrude_face_region(self, info):
+        self.update_parameter_if_not_equal(info, 0, "bmesh")
+        self.update_parameter_if_not_equal(info, 1, "geom=[]")
+        self.update_parameter_if_not_equal(info, 2, "edges_exclude=[]")
+        self.update_parameter_if_not_equal(info, 3, "use_keep_orig=False")
+        self.update_parameter_if_not_equal(info, 4, "use_select_history=False")
+
+    def __handle_translate(self, info):
+        self.update_parameter_if_not_equal(info, 0, "bmesh")
+        self.update_parameter_if_not_equal(info, 1, "vec=Vector()")
+        self.update_parameter_if_not_equal(info, 2, "space=Matrix()")
+        self.update_parameter_if_not_equal(info, 3, "verts=[]")
+
     def _modify(self, result):
         for sections in result:
             for s in sections:
                 if s.type() == "function":
                     if s.name() == "wireframe":
                         self.__rename_duplicate(s)
+                    elif s.name() == 'extrude_face_region':
+                        self.__handle_extrude_face_region(s)
+                    elif s.name() == 'translate':
+                        self.__handle_translate(s)
 
 
 class GpuAnalyzer(BaseAnalyzer):
@@ -1000,6 +1027,9 @@ class FreestyleAnalyzer(BaseAnalyzer):
 
 
 class BaseGenerator:
+    def __init__(self):
+        self.mod_name = None
+
     def _gen_function_code(self, info):
         data = info.to_dict()
         str_ = ""
@@ -1096,8 +1126,15 @@ class BaseGenerator:
 
         return str_
 
+    def print_header(self, file):
+        pass
+
     def generate(self, filename, data, style_config='pep8'):
+        self.mod_name = data["name"]
+
         with open(filename, "w", encoding="utf-8") as file:
+            self.print_header(file)
+
             code_data = ""
 
             for mod in data["child_modules"]:
@@ -1124,6 +1161,14 @@ class BaseGenerator:
         json_data = [info.to_dict() for info in data["data"]]
         with open(filename, "w") as f:
             json.dump(json_data, f, indent=4)
+
+
+class BmeshGenerator(BaseGenerator):
+    def print_header(self, file):
+        if self.mod_name == "bmesh.ops":
+            file.write("from ..mathutils import Vector, Matrix\n")
+            file.write("\n")
+
 
 # build module structure
 def build_module_structure(modules):
@@ -1320,7 +1365,7 @@ def gen_aud_module():
 
 def gen_bmesh_package():
     files = glob.glob(INPUT_DIR + "/bmesh*.xml")
-    gen_package(OUTPUT_DIR, files, BmeshAnalyzer(), BaseGenerator())
+    gen_package(OUTPUT_DIR, files, BmeshAnalyzer(), BmeshGenerator())
 
 
 def parse_options():
