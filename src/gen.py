@@ -822,6 +822,9 @@ class ClassAnalyzer:
 
 
 class BaseAnalyzer:
+    def __init__(self):
+        self.filename = None
+
     def _analyze_desc(self, filename, desc):
         result = None
         attr = desc.get("desctype")
@@ -855,6 +858,7 @@ class BaseAnalyzer:
         info.set_parameter(param_idx, expect)
 
     def analyze(self, filename):
+        self.filename = filename
         tree = et.parse(filename)
         root = tree.getroot()       # <document>
         result = []
@@ -913,6 +917,18 @@ class MathutilsAnalyzer(BaseAnalyzer):
 
 
 class BpyAnalyzer(BaseAnalyzer):
+    def __handle_ui_layout(self, info):
+        for m in info.methods():
+            if m.name() == "template_list":
+                self.update_parameter_if_not_equal(m, 2, "dataptr=\"\"")
+                self.update_parameter_if_not_equal(m, 3, "propname=\"\"")
+                self.update_parameter_if_not_equal(m, 4, "active_dataptr=\"\"")
+                self.update_parameter_if_not_equal(m, 5, "active_propname=0")
+
+    def _match(self, filename, mod_name):
+        p = re.compile(r".*{}\.xml$".format(mod_name.replace(r'.', r'\.')))
+        return True if p.match(filename) else False
+
     def _modify(self, result):
         for sections in result:
             for s in sections:
@@ -924,6 +940,9 @@ class BpyAnalyzer(BaseAnalyzer):
                                     m.set_parameter(i, "key_types")
                                 elif p.find("value_types=") != -1:
                                     m.set_parameter(i, "value_types")
+                    if self._match(self.filename, "bpy.types.UILayout"):
+                        if s.name() == "UILayout":
+                            self.__handle_ui_layout(s)
                 elif s.type() == "function":
                     if s.name() == "RemoveProperty":
                         for i, p in enumerate(s.parameters()):
