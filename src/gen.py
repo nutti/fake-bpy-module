@@ -1188,6 +1188,13 @@ class BaseGenerator:
             json.dump(json_data, f, indent=4)
 
 
+class BpyGenerator(BaseGenerator):
+    def print_header(self, file):
+        if self.mod_name == "bpy":
+            file.write("from .context import Context as context\n")
+            file.write("\n")
+
+
 class BmeshGenerator(BaseGenerator):
     def print_header(self, file):
         if self.mod_name == "bmesh.ops":
@@ -1346,11 +1353,23 @@ def gen_package(path, xml_files, analyzer, generator):
         generator.generate(path + "/" + key, generation_info[key], STYLE_FORMAT)
 
 
+def gen_bpy_context_skelton():
+    filename = "{}/bpy/context.py".format(OUTPUT_DIR)
+    with open(filename, "w", encoding="utf-8") as file:
+        file.write("class Context:\n")
+        file.write(INDENT + "# pylint: dynamic-attributes = .*\n")
+        file.write(INDENT + "def __init__(self, **kwargs):\n")
+        file.write(INDENT * 2 + "pass\n")
+
+
 def gen_bpy_package():
     all_files = glob.glob(INPUT_DIR + "/bpy*.xml")
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
     files = list(set(all_files) - set(excludes_files))
-    gen_package(OUTPUT_DIR, files, BpyAnalyzer(), BaseGenerator())
+    gen_package(OUTPUT_DIR, files, BpyAnalyzer(), BpyGenerator())
+    # generate bpy.context skelton file.
+    # this is a skelton file to suppress the pylint error.
+    gen_bpy_context_skelton()
 
 
 def gen_bgl_module():
