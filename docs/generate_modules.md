@@ -1,7 +1,7 @@
 # Generate Modules
 
-This document shows the procedure for generating module by yourself.
-You can choose the method to generate module.
+This document shows the procedure for generating modules by yourself.  
+You can choose the method to generate modules.
 
 1. [Case 1: Use utility script](#case-1-use-utility-script)
 2. [Case 2: Do it yourself all procedures](#case-2-do-it-yourself-all-procedures)
@@ -11,18 +11,27 @@ You can choose the method to generate module.
 
 #### Python Version
 
-The generating script can be run on Python >= 3.5.
+The generating script can be run on Python >= 3.5.  
 Ensure that Python version is >= 3.5 on your environment.
 
 
 #### Install requirement packages
 
-The generating script uses the packages listed on [requirements.txt](../requirements.txt).
+The generating script uses the packages listed on [requirements.txt](../requirements.txt).  
 Execute below command to install requirement packages.
 
 ```bash
 $ pip install -r requirements.txt
 ```
+
+
+### Setup IDE
+
+After generating modules, you need to setup IDE to enable a code completion.
+
+* [PyCharm](docs/setup_pycharm.md)
+* [Visual Studio Code](docs/setup_visual_studio_code.md)
+* [All Text Editor (Install as Python module)](docs/setup_all_text_editor.md)
 
 
 ## Case 1: Use utility script
@@ -66,9 +75,9 @@ $ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir>
 
 * `<source-dir>`: Specify Blender sources directory.
 * `<blender-dir>`: Specify Blender binary directory.
-* `<branch/tag/commit>`: Specify target Blender source's branch for generating module.
-  * If you want to generate module for 2.79a, specify v2.79a
-  * If you want to generate module for newest Blender version, specify master
+* `<branch/tag/commit>`: Specify target Blender source's branch for the generating modules.
+  * If you want to generate modules for 2.79a, specify v2.79a
+  * If you want to generate modules for newest Blender version, specify master
 * `<output-dir>`: Specify directory where generated modules are output.
 
 

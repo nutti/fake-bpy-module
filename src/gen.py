@@ -1232,8 +1232,6 @@ def make_module_dirs(base_path, structure):
                 pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
                 if dir_path == base_path:
                     continue
-                # with open(dir_path + "/__init__.py", "w"):
-                #     pass
                 make_dir(dir_path, item["children"])
 
     make_dir(base_path, structure)
