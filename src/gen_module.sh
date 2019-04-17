@@ -1,6 +1,7 @@
 #!/bin/sh
 
 TMP_DIR_NAME=gen_module-tmp
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
 if [ $# -ne 4 ]; then
     echo "Usage: sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir>"
@@ -32,7 +33,7 @@ mkdir -p ${tmp_dir}/sphinx-out-xml
 sphinx-build -b xml ${tmp_dir}/sphinx-in ${tmp_dir}/sphinx-out-xml
 
 # generate fake bpy modules
-python gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -t pycharm -f pep8
+python3 ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -t pycharm -f pep8
 
 # clear temporary directory
 cd ${current_dir}

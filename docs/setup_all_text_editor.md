@@ -6,33 +6,14 @@ Thanks **@GDquest** for creating a great tutorial video!
 [![](https://img.youtube.com/vi/IQgLBnPO2uo/0.jpg)](https://www.youtube.com/watch?v=IQgLBnPO2uo)
 
 
-#### 1. Download the premade module
+#### 1. Check the generated modules location
 
-Download the premade module from GitHub.
-
-Use Git and clone fake-bpy-module repository.
-
-```
-$ git clone https://github.com/nutti/fake-bpy-module.git
-```
-
-or
-
-Download .zip file from GitHub.
-
-https://github.com/nutti/fake-bpy-module/archive/master.zip
+Check the location of the generated modules.  
 
 
-#### 2. Check premade module location
-
-Check the location of premade module and remember it because we use it process 3.  
-The premade module is located in `premade_modules`.
-You can see each version of the premade module on there.
-
-
-#### 3. Install the module as the Python module
+#### 2. Install the modules as the Python module
 
 1. Search and go to the directory `Python.exe` binary is installed.
-2. Place the premade module to the `Lib` directory.
+2. Place the generated modules to the `Lib` directory.
 
 *Note: Be sure the Python version that you are using*

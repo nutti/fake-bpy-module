@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:latest
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+    branches:
+      only:
+        - master
+        - spike_pypi
+    steps:
+      - checkout
+      - run:
+          name: Get required packages
+          command: apt-get update && apt-get install -y git python3 python3-pip python-sphinx curl unzip blender
+      - run:
+          name: Install pip package dependency
+          command: pip3 install -r requirements.txt
+      - run:
+          name: Install pip package 'pathlib'
+          command: pip3 install pathlib
+      - run:
+          name: Download Blender Source
+          command: git clone git://git.blender.org/blender.git
+      - run:
+          name: Download all Blender
+          command: bash tools/utils/download_blender.sh all blender-bin
+      - run:
+          name: Make build directory
+          command: mkdir build
+      - run:
+          name: Generate pip Packages (Blender 2.78)
+          command: bash tools/pip_package/build_pip_package.sh release 2.78 blender blender-bin/blender-v278-bin
+      - run:
+          name: Generate pip Packages (Blender 2.78a)
+          command: bash tools/pip_package/build_pip_package.sh release 2.78a blender blender-bin/blender-v278a-bin
+      - run:
+          name: Generate pip Packages (Blender 2.78b)
+          command: bash tools/pip_package/build_pip_package.sh release 2.78b blender blender-bin/blender-v278b-bin
+      - run:
+          name: Generate pip Packages (Blender 2.78c)
+          command: bash tools/pip_package/build_pip_package.sh release 2.78c blender blender-bin/blender-v278c-bin
+      - run:
+          name: Generate pip Packages (Blender 2.79)
+          command: bash tools/pip_package/build_pip_package.sh release 2.79 blender blender-bin/blender-v279-bin
+      - run:
+          name: Generate pip Packages (Blender 2.79a)
+          command: bash tools/pip_package/build_pip_package.sh release 2.79a blender blender-bin/blender-v279a-bin
+      - run:
+          name: Generate pip Packages (Blender 2.79b)
+          command: bash tools/pip_package/build_pip_package.sh release 2.79b blender blender-bin/blender-v279b-bin
+      - run:
+          name: Generate pip Packages (Blender 2.80)
+          command: bash tools/pip_package/build_pip_package.sh release 2.80 blender blender-bin/blender-v280-bin
+      - run:
+          name: Compress All Generated Packages
+          command: tar cvfz all.tar.gz release/* && mv all.tar.gz release
+      - store_artifacts:
+          path: release
+          destination: fake-bpy-module
