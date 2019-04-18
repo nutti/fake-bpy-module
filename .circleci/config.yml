@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run:
           name: Get required packages
-          command: apt-get update && apt-get install -y git python3 python3-pip python-sphinx curl unzip blender
+          command: apt-get update && apt-get install -y git python3 python3-pip python-sphinx curl unzip blender pandoc
       - run:
           name: Install pip package dependency
           command: pip3 install -r requirements.txt

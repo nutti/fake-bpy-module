@@ -72,6 +72,8 @@ if [ ${target} = "release" ]; then
     mkdir -p ${tmp_dir} && cd ${tmp_dir}
     cp ${SCRIPT_DIR}/setup.py .
     cp ${SCRIPT_DIR}/../../README.md .
+    pandoc -f markdown -t rst -o README.rst README.md
+    rm README.md
 
     # generate fake bpy module
     fake_module_dir="out"
@@ -82,6 +84,7 @@ if [ ${target} = "release" ]; then
 
     # build pip package
     rm -rf fake_bpy_module*.egg-info/ dist/ build/
+    ls .
     python3 setup.py sdist
     python3 setup.py bdist_wheel
 
@@ -105,6 +108,7 @@ elif [ ${target} = "develop" ]; then
     rm -r ${fake_module_dir}
 
     # build and install package
+    ls .
     python3 setup.py develop
 
     # clean up
