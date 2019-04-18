@@ -12,7 +12,7 @@ version = datetime.datetime.today().strftime("%Y%m%d")
 
 # long_description
 try:
-    readme_path = "{}/README.md".format(os.path.dirname(os.path.abspath(__file__)).replace("\\", "/"))
+    readme_path = "{}/README.rst".format(os.path.dirname(os.path.abspath(__file__)).replace("\\", "/"))
     with open(readme_path, "r") as f:
         long_description = f.read()
 except IOError:
@@ -29,7 +29,6 @@ setup(
     maintainer_email="nutti.metro@gmail.com",
     description="Collection of the fake Blender Python API module for the code completion.",
     long_description=long_description,
-    long_description_content_type="text/markdown",
     py_modules=[
         "bgl",
         "blf",
