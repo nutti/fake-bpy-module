@@ -2,7 +2,7 @@
 
 fake-bpy-module is the collections of the fake Blender Python API modules for the code completion in commonly used IDEs.
 
-![fake-bpy-module Thumbnail](https://raw.githubusercontent.com/nutti/fake-bpy-module/master/docs/images/fake-bpy-module_thumbnail.png)
+![](https://raw.githubusercontent.com/nutti/fake-bpy-module/master/docs/images/fake-bpy-module_thumbnail.png)
 
 ## Install
 
