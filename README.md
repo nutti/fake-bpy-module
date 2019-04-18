@@ -4,6 +4,7 @@ fake-bpy-module is the collections of the fake Blender Python API modules for th
 
 ![](https://raw.githubusercontent.com/nutti/fake-bpy-module/master/docs/images/fake-bpy-module_thumbnail.png)
 
+
 ## Install
 
 fake-bpy-module is registered to PyPI.  
@@ -24,14 +25,14 @@ pip install fake-bpy-module-2.80
 
 |Version|PyPI|
 |---|---|
-|2.78||
-|2.78a||
-|2.78b||
-|2.78c||
-|2.79||
-|2.79a||
-|2.79b||
-|2.80||
+|2.78|https://pypi.org/project/fake-bpy-module-2.78/|
+|2.78a|https://pypi.org/project/fake-bpy-module-2.78a/|
+|2.78b|https://pypi.org/project/fake-bpy-module-2.78b/|
+|2.78c|https://pypi.org/project/fake-bpy-module-2.78c/|
+|2.79|https://pypi.org/project/fake-bpy-module-2.79/|
+|2.79a|https://pypi.org/project/fake-bpy-module-2.79a/|
+|2.79b|https://pypi.org/project/fake-bpy-module-2.79b/|
+|2.80|https://pypi.org/project/fake-bpy-module-2.80/|
 
 
 ### Generate Modules Manually
