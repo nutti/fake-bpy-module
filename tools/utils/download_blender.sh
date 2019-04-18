@@ -60,7 +60,7 @@ declare -A NEED_MOVE_LINUX=(
     ["v279"]="blender-2.79-linux-glibc219-x86_64"
     ["v279a"]="blender-2.79a-linux-glibc219-x86_64"
     ["v279b"]="blender-2.79b-linux-glibc219-x86_64"
-    ["v280"]="blender-2.80-5ac7675f4c9c-linux-glibc224-x86_64"
+    ["v280"]="blender-2.80-e5c5b990c6d3-linux-glibc224-x86_64"
 )
 
 function download_blender() {
