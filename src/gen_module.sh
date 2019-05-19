@@ -33,7 +33,7 @@ mkdir -p ${tmp_dir}/sphinx-out-xml
 sphinx-build -b xml ${tmp_dir}/sphinx-in ${tmp_dir}/sphinx-out-xml
 
 # generate fake bpy modules
-python3 ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -t pycharm -f pep8
+python3 ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
 
 # clear temporary directory
 cd ${current_dir}
