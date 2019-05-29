@@ -1,0 +1,27 @@
+{
+  "update": [
+    {
+      "name": "extrude_face_region",
+      "type": "function",
+      "module": "bmesh.ops",
+      "parameters": [
+          "bmesh",
+          "geom=[]",
+          "edges_exclude={}",
+          "use_keep_orig=False",
+          "use_select_history=False"
+      ]
+    },
+    {
+      "name": "translate",
+      "type": "function",
+      "module": "bmesh.ops",
+      "parameters": [
+          "bmesh",
+          "vec=mathutils.Vector()",
+          "space=mathutils.Matrix()",
+          "verts=[]"
+      ]
+    }
+  ]
+}

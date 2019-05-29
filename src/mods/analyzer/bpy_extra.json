@@ -1,0 +1,13 @@
+{
+  "update": [
+    {
+      "name": "path_reference_copy",
+      "type": "function",
+      "module": "bpy_extras.io_utils",
+      "parameters": [
+          "copy_set",
+          "report='print'"
+      ]
+    }
+  ]
+}
