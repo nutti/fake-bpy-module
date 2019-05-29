@@ -1,0 +1,17 @@
+{
+  "remove": [
+    {
+      "name": "GPU_DYNAMIC_MIST_ENABLE:",
+      "type": "constant"
+    }
+  ],
+  "new": [
+    {
+      "name": "GPU_DYNAMIC_MIST_ENABLE",
+      "type": "constant",
+      "module": "gpu",
+      "data_type": "float",
+      "description": "See bpy.types.WorldMistSettings.use_mist. "
+    }
+  ]
+}

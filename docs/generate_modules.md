@@ -144,13 +144,11 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 ```
 $ cd fake-bpy-module/src
-$ python gen.py -i <input-dir> -o <output-dir> -t <target> -f <format>
+$ python gen.py -i <input-dir> -o <output-dir> -f <format>
 ```
 
 * `-i <input-dir>`: Specify input directory. (the directory .xml files are located by process 5)
 * `-o <output-dir>`: Specify output directory. (the directory generated files will be located)
-* `-t <target>`: Specify IDE target. If this option is specified, the optimized modules will be generated.
-  * `pycharm`: Optimized for PyCharm
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with suffix `-dump.json`
 * `-f <format>`: Format the generated code using format
   * `pep8`: Format generated code using pep8 format

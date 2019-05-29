@@ -1,0 +1,50 @@
+{
+  "update": [
+    {
+      "name": "SmoothingShader",
+      "type": "class",
+      "module": "freestyle.shaders",
+      "methods": [
+        {
+          "type": "method",
+          "name": "__init__",
+          "parameters": [
+            "num_iterations=100",
+            "factor_point=0.1",
+            "factor_curvature=0.0",
+            "factor_curvature_difference=0.2",
+            "aniso_point=0.0",
+            "aniso_normal=0.0",
+            "aniso_curvature=0.0",
+            "carricature_factor=1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "angle_x_normal",
+      "type": "function",
+      "module": "freestyle.utils",
+      "parameters": [
+        "it"
+      ]
+    },
+    {
+      "name": "normal_at_I0D",
+      "type": "function",
+      "module": "freestyle.utils",
+      "parameters": [
+        "it"
+      ]
+    },
+    {
+      "name": "pairwise",
+      "type": "function",
+      "module": "freestyle.utils",
+      "parameters": [
+        "iterable",
+        "types={}"
+      ]
+    }
+  ]
+}
