@@ -8,7 +8,7 @@ jobs:
     branches:
       only:
         - master
-        - spike_pypi
+        - ci_testing
     steps:
       - checkout
       - run:

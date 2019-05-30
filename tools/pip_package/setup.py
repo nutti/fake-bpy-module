@@ -42,7 +42,7 @@ setup(
         "bpy_extras",
         "bmesh"
     ],
-    install_requires=[],
+    install_requires=["typing>=3.6.2"],
     license="MIT",
     classifiers=[
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
