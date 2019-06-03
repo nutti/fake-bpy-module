@@ -933,7 +933,7 @@ class DataTypeRefiner:
             else:
                 output_log(LOG_LEVEL_WARN,
                            "Could not find any data type ({})"
-                           .format(dtype_str, data_type.to_string()))
+                           .format(remove_unencodable(data_type.to_string())))
 
         if modifier is None:
             if dtype is None:
