@@ -295,8 +295,11 @@ class BaseGenerator:
             # import child module to search child modules
             for mod in data.child_modules:
                 wt.addln("from . import {}".format(mod))
-            if len(data.child_modules) >= 1:
-                wt.new_line(2)
+            if len(data.child_modules) > 0:
+                wt.new_line()
+
+            if (len(data.dependencies) > 0) or (len(data.child_modules) > 0):
+                wt.new_line()
 
             for info in sorted_data:
                 if info.type() == "function":
