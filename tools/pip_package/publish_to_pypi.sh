@@ -26,6 +26,9 @@ fi
 tar xvfz ${RELEASE_FILE}
 
 for dir in `find ${RELEASE_DIR} -type d`; do
+    if [ ${dir} = ${RELEASE_DIR} ]; then
+        continue
+    fi
     if [ ${target} = "release" ]; then
         twine upload --repository pypi ${dir}/*
     elif [ ${target} = "test" ]; then
