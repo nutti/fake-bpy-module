@@ -34,14 +34,7 @@ setup(
         "blf",
         "aud"
     ],
-    packages=[
-        "bpy",
-        "mathutils",
-        "gpu",
-        "freestyle",
-        "bpy_extras",
-        "bmesh"
-    ],
+    packages=find_packages(),
     install_requires=["typing>=3.6.2"],
     license="MIT",
     classifiers=[

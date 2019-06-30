@@ -484,12 +484,16 @@ class BaseAnalyzer:
 
 
 class AnalyzerWithModFile(BaseAnalyzer):
-    def __init__(self, mod_file: str):
+    def __init__(self, mod_files: List[str]):
         super(BaseAnalyzer, self).__init__()
-        self._mod_file: str = mod_file
+        self._mod_files: List[str] = mod_files
 
-    def _modify_with_mod_file(self, result: 'AnalysisResult'):
-        with open(self._mod_file, encoding="utf-8") as f:
+    def _modify_with_mod_files(self, result: 'AnalysisResult'):
+        for mod_file in self._mod_files:
+            self._modify_with_mod_file(mod_file, result)
+
+    def _modify_with_mod_file(self, mod_file: str, result: 'AnalysisResult'):
+        with open(mod_file, encoding="utf-8") as f:
             data = json.load(f)
 
             # process "remove" field
@@ -550,9 +554,9 @@ class AnalyzerWithModFile(BaseAnalyzer):
                                 continue
                             info.from_dict(item, 'UPDATE')
 
-    def _modify_post_process(self):
+    def _modify_post_process(self, result: 'AnalysisResult'):
         pass
 
     def _modify(self, result: 'AnalysisResult'):
-        self._modify_with_mod_file(result)
-        self._modify_post_process()
+        self._modify_with_mod_files(result)
+        self._modify_post_process(result)
