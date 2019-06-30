@@ -388,6 +388,7 @@ class PackageGeneratorConfig:
         self.os: str = "Linux"
         self.style_format: str = "pep8"
         self.dump: bool = False
+        self.mod_version: str = "any"
 
 
 class PackageGenerationRule:

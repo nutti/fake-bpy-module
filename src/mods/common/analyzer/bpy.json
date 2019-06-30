@@ -559,6 +559,24 @@
         "cls",
         "attr"
       ]
+    },
+    {
+      "name": "RenderEngine",
+      "type": "class",
+      "module": "bpy.types",
+      "methods": [
+        {
+          "type": "method",
+          "name": "camera_model_matrix",
+          "class": "RenderEngine",
+          "module": "bpy.types",
+          "parameters": [
+            "camera",
+            "use_spherical_stereo=False",
+            "r_model_matrix=0.0"
+          ]
+        }
+      ]
     }
   ]
 }

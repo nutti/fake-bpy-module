@@ -70,7 +70,7 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 ```
 $ cd fake-bpy-module/src
-$ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir>
+$ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
 ```
 
 * `<source-dir>`: Specify Blender sources directory.
@@ -79,6 +79,9 @@ $ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir>
   * If you want to generate modules for 2.79a, specify v2.79a
   * If you want to generate modules for newest Blender version, specify master
 * `<output-dir>`: Specify directory where generated modules are output.
+* `<mod_version>`: Modify APIs by using patch files located in `mods` directory.
+  * If you specify `2.80`, all patch files under `mods/2.80` will be used.
+  * Files located in `mods/common` directories will be used at any time.
 
 
 ## Case 2: Do it yourself all procedures
@@ -144,7 +147,7 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 ```
 $ cd fake-bpy-module/src
-$ python gen.py -i <input-dir> -o <output-dir> -f <format>
+$ python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
 ```
 
 * `-i <input-dir>`: Specify input directory. (the directory .xml files are located by process 5)
@@ -152,3 +155,6 @@ $ python gen.py -i <input-dir> -o <output-dir> -f <format>
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with suffix `-dump.json`
 * `-f <format>`: Format the generated code using format
   * `pep8`: Format generated code using pep8 format
+* `-m <mod_version>`: Modify APIs by using patch files located in `mods` directory.
+  * If you specify `2.80`, all patch files under `mods/2.80` will be used.
+  * Files located in `mods/common` directories will be used at any time.
