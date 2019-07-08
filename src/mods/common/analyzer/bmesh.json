@@ -18,8 +18,8 @@
       "module": "bmesh.ops",
       "parameters": [
           "bmesh",
-          "vec=mathutils.Vector()",
-          "space=mathutils.Matrix()",
+          "vec",
+          "space",
           "verts=[]"
       ]
     }

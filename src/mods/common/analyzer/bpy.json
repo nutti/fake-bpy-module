@@ -561,6 +561,16 @@
       ]
     },
     {
+      "name": "resource_path",
+      "type": "function",
+      "module": "bpy.utils",
+      "parameters": [
+        "type",
+        "major=2",
+        "minor=\"\""
+      ]
+    },
+    {
       "name": "RenderEngine",
       "type": "class",
       "module": "bpy.types",
