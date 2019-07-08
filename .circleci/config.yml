@@ -60,5 +60,5 @@ jobs:
           path: release
           destination: pip_packages
       - store_artifacts:
-          path: premade_modules
-          destination: premade_modules
+          path: pre_generated_modules
+          destination: pre_generated_modules

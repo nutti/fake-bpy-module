@@ -13,6 +13,12 @@ Check your Python version is >= 3.6.
 
 ## Install
 
+fake-bpy-module can be installed via a pip package, or pre-generated modules.
+You can also generate and install modules manually.
+
+
+### Install via pip package
+
 fake-bpy-module is registered to PyPI.  
 You can install it as a pip package.
 
@@ -27,7 +33,7 @@ pip install fake-bpy-module-2.80
 ```
 
 
-### Supported Blender Version
+#### Supported Blender Version
 
 |Version|PyPI|
 |---|---|
@@ -41,9 +47,22 @@ pip install fake-bpy-module-2.80
 |2.80|https://pypi.org/project/fake-bpy-module-2.80/|
 
 
+### Install via pre-generated modules
+
+Download Pre-generated modules from [Release page](https://github.com/nutti/fake-bpy-module/releases).
+
+The process of installation via pre-generated modules is different by IDE.
+See the installation processes as follows for detail.
+
+* [PyCharm](docs/setup_pycharm.md)
+* [Visual Studio Code](docs/setup_visual_studio_code.md)
+* [All Text Editor (Install as Python module)](docs/setup_all_text_editor.md)
+
+
 ### Generate Modules Manually
 
-You can also generate the modules manually. See [Generate Module](https://github.com/nutti/fake-bpy-module/blob/master/docs/generate_modules.md).
+You can also generate modules manually.
+See [Generate Module](https://github.com/nutti/fake-bpy-module/blob/master/docs/generate_modules.md) for detail.
 
 
 ## Bug report / Feature request / Disscussions

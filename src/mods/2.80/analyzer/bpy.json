@@ -16,6 +16,35 @@
       ]
     },
     {
+      "name": "bpy_struct",
+      "type": "class",
+      "module": "bpy.types",
+      "methods": [
+        {
+          "name": "keyframe_delete",
+          "type": "method",
+          "module": "bpy.types",
+          "parameters": [
+            "data_path",
+            "index=-1",
+            "frame=0",
+            "group=\"\""
+          ]
+        },
+        {
+          "name": "keyframe_insert",
+          "type": "method",
+          "module": "bpy.types",
+          "parameters": [
+            "data_path",
+            "index=-1",
+            "frame=0",
+            "group=\"\""
+          ]
+        }
+      ]
+    },
+    {
       "name": "UILayout",
       "type": "class",
       "module": "bpy.types",
