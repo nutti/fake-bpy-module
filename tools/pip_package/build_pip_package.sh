@@ -16,7 +16,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v279"]="v2.79"
     ["v279a"]="v2.79a"
     ["v279b"]="v2.79b"
-    ["v280"]="d19d0ff99e61"
+    ["v280"]="3b4054cb586f"
 )
 
 TMP_DIR_NAME="tmp"
@@ -35,6 +35,7 @@ target=${1}
 version=${2}
 source_dir=${3}
 blender_dir=${4}
+now_date=`date '+%Y%m%d'`
 
 
 # check if the target is develop or release
@@ -78,9 +79,9 @@ if [ ${target} = "release" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
-    zip_dir="fake_bpy_module_${version}"
+    zip_dir="fake_bpy_module_${version}-${now_date}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="pre_generated_modules_${version}.zip"
+    zip_file_name="pre_generated_modules_${version}-${now_date}.zip"
     zip -r ${zip_file_name} ${zip_dir}
     mv ${zip_file_name} ${pre_generated_modules_dir}
     mv ${fake_module_dir}/* .
@@ -114,9 +115,9 @@ elif [ ${target} = "develop" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
-    zip_dir="fake_bpy_module_${version}"
+    zip_dir="fake_bpy_module_${version}-${now_date}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="pre_generated_modules_${version}.zip"
+    zip_file_name="pre_generated_modules_${version}-${now_date}.zip"
     zip -r ${zip_file_name} ${fake_module_dir} 
     mv ${zip_file_name} ${pre_generated_modules_dir}
     mv ${fake_module_dir}/* .
