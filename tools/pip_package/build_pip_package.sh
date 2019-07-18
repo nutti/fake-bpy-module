@@ -16,11 +16,11 @@ declare -A BLENDER_TAG_NAME=(
     ["v279"]="v2.79"
     ["v279a"]="v2.79a"
     ["v279b"]="v2.79b"
-    ["v280"]="3b4054cb586f"
+    ["v280"]="v2.80-rc1"
 )
 
 TMP_DIR_NAME="tmp"
-PREMADE_MODULES_DIR="pre_generated_modules"
+RAW_MODULES_DIR="raw_modules"
 RELEASE_DIR="release"
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 CURRENT_DIR=`pwd`
@@ -61,7 +61,7 @@ fi
 
 # check if release dir and tmp dir are not exist
 tmp_dir=${SCRIPT_DIR}/${TMP_DIR_NAME}-${version}
-pre_generated_modules_dir=${CURRENT_DIR}/${PREMADE_MODULES_DIR}
+raw_modules_dir=${CURRENT_DIR}/${RAW_MODULES_DIR}
 release_dir=${CURRENT_DIR}/${RELEASE_DIR}
 if [ -e ${tmp_dir} ]; then
     echo "${tmp_dir} is already exists."
@@ -71,7 +71,7 @@ fi
 
 if [ ${target} = "release" ]; then
     # setup pre-generated-modules/release/temp directories
-    mkdir -p ${pre_generated_modules_dir}
+    mkdir -p ${raw_modules_dir}
     mkdir -p ${release_dir}
     mkdir -p ${tmp_dir} && cd ${tmp_dir}
 
@@ -79,11 +79,11 @@ if [ ${target} = "release" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
-    zip_dir="fake_bpy_module_${version}-${now_date}"
+    zip_dir="fake_bpy_modules_${version}-${now_date}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="pre_generated_modules_${version}-${now_date}.zip"
+    zip_file_name="fake_bpy_modules_${version}-${now_date}.zip"
     zip -r ${zip_file_name} ${zip_dir}
-    mv ${zip_file_name} ${pre_generated_modules_dir}
+    mv ${zip_file_name} ${raw_modules_dir}
     mv ${fake_module_dir}/* .
     rm -r ${zip_dir}
     rm -r ${fake_module_dir}
@@ -107,7 +107,7 @@ if [ ${target} = "release" ]; then
 
 elif [ ${target} = "develop" ]; then
     # setup pre-generated-modules/release/temp directories
-    mkdir -p ${pre_generated_modules_dir}
+    mkdir -p ${raw_modules_dir}
     mkdir -p ${release_dir} && cd ${release_dir}
     cp ${SCRIPT_DIR}/setup.py .
 
@@ -115,11 +115,11 @@ elif [ ${target} = "develop" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
-    zip_dir="fake_bpy_module_${version}-${now_date}"
+    zip_dir="fake_bpy_modules_${version}-${now_date}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="pre_generated_modules_${version}-${now_date}.zip"
+    zip_file_name="fake_bpy_modules_${version}-${now_date}.zip"
     zip -r ${zip_file_name} ${fake_module_dir} 
-    mv ${zip_file_name} ${pre_generated_modules_dir}
+    mv ${zip_file_name} ${raw_modules_dir}
     mv ${fake_module_dir}/* .
     rm -r ${zip_dir}
     rm -r ${fake_module_dir}

@@ -56,9 +56,12 @@ jobs:
       - run:
           name: Compress All Generated Packages
           command: tar cvfz all.tar.gz release/* && mv all.tar.gz release
+      - run:
+          name: Compress All Raw Modules
+          command: tar cvfz all.tar.gz raw_modules/* && mv all.tar.gz raw_modules
       - store_artifacts:
           path: release
           destination: pip_packages
       - store_artifacts:
-          path: pre_generated_modules
-          destination: pre_generated_modules
+          path: raw_modules
+          destination: raw_modules

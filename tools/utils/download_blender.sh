@@ -28,7 +28,7 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79-windows64.zip"
     ["v279a"]="https://download.blender.org/release/Blender2.79/blender-2.79a-windows64.zip"
     ["v279b"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
-    ["v280"]="https://builder.blender.org/download/blender-2.80-c0c1b4542f39-win64.zip"
+    ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80rc1-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -39,7 +39,7 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79-linux-glibc219-x86_64.tar.bz2"
     ["v279a"]="https://download.blender.org/release/Blender2.79/blender-2.79a-linux-glibc219-x86_64.tar.bz2"
     ["v279b"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
-    ["v280"]="https://builder.blender.org/download/blender-2.80-3b4054cb586f-linux-glibc217-x86_64.tar.bz2"
+    ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80rc1-linux-glibc217-x86_64.tar.bz2"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -60,7 +60,7 @@ declare -A NEED_MOVE_LINUX=(
     ["v279"]="blender-2.79-linux-glibc219-x86_64"
     ["v279a"]="blender-2.79a-linux-glibc219-x86_64"
     ["v279b"]="blender-2.79b-linux-glibc219-x86_64"
-    ["v280"]="blender-2.80-3b4054cb586f-linux-glibc217-x86_64"
+    ["v280"]="blender-2.80rc1-linux-glibc217-x86_64"
 )
 
 function download_blender() {
