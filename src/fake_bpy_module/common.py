@@ -16,6 +16,11 @@ MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set",
 ]
 
+MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
+    "BMElemSeq": "list",
+    "sequence": "list",
+}
+
 MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "list": "typing.List",
     "dict": "typing.Dict",
@@ -899,19 +904,25 @@ class DataTypeRefiner:
         for type_ in MODIFIER_DATA_TYPE:
             if has_data_type(dtype_str, type_):
                 modifier = type_
-
-        dtype = None
-        # at first we check built-in data type
-        for type_ in BUILTIN_DATA_TYPE:
-            if has_data_type(dtype_str, type_):
-                dtype = type_
+                break
+        if not modifier:
+            for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
+                if has_data_type(dtype_str, key):
+                    modifier = value
+                    break
 
         # remove modifier from dtype_str
         # TODO: need to clip only modifier string
         if modifier:
             dtype_str.replace(modifier, "")
 
-        # search from package entry points
+        # at first we check built-in data type
+        dtype = None
+        for type_ in BUILTIN_DATA_TYPE:
+            if has_data_type(dtype_str, type_):
+                dtype = type_
+
+        # and then, search from package entry points
         if dtype is None:
             for entry in self._entry_points:
                 if entry.type not in ["constant", "class"]:
