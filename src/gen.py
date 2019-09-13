@@ -31,8 +31,8 @@ class MathutilsAnalyzer(fbm.AnalyzerWithModFile):
                             m.set_parameter(i, p.replace("=noise.types.STDPERLIN", "=types.STDPERLIN"))
 
 
-class BglAnalyzer(fbm.BaseAnalyzer):
-    def _modify(self, result: 'fbm.AnalysisResult'):
+class BglAnalyzer(fbm.AnalyzerWithModFile):
+    def _modify_post_process(self, result: 'fbm.AnalysisResult'):
         for section in result.section_info:
             for info in section.info_list:
                 if info.type() == "function":
@@ -54,7 +54,10 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bgl*.xml")
-    return fbm.PackageGenerationRule("bgl", files, BglAnalyzer(), fbm.BaseGenerator())
+    mod_files = [
+        "{}/mods/common/analyzer/bgl.generated.json".format(MOD_FILES_DIR).replace("\\", "/"),
+    ]
+    return fbm.PackageGenerationRule("bgl", files, BglAnalyzer(mod_files), fbm.BaseGenerator())
 
 
 def make_blf_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':

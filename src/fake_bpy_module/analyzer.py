@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 import re
-from typing import List
+from typing import List, Dict
 import json
 
 from .common import (
@@ -519,13 +519,41 @@ class AnalyzerWithModFile(BaseAnalyzer):
             if "new" in data.keys():
                 new_section = SectionInfo()
                 for item in data["new"]:
-                    if item["type"] == "constant":
-                        new_v = VariableInfo("constant")
-                        new_v.from_dict(item, 'NEW')
-                        new_section.info_list.append(new_v)
+
+                    # check if entry is already registered
+                    has_entry = False
+                    for section in result.section_info:
+                        for info in section.info_list:
+                            if ("type" not in item) or (info.type() != item["type"]):
+                                continue
+                            if ("name" not in item) or (info.name() != item["name"]):
+                                continue
+                            if ("module" not in item) or (info.module() != item["module"]):
+                                continue
+                            has_entry = True
+                            break
+                        if has_entry:
+                            break
+
+                    if not has_entry:
+                        if item["type"] == "constant":
+                            new_v = VariableInfo("constant")
+                            new_v.from_dict(item, 'NEW')
+                            print(new_v.to_dict())
+                            new_section.info_list.append(new_v)
+                        elif item["type"] == "function":
+                            new_f = FunctionInfo("function")
+                            new_f.from_dict(item, 'NEW')
+                            new_section.info_list.append(new_f)
+                        else:
+                            raise RuntimeError("Unsupported Type: {}"
+                                               .format(item["type"]))
                     else:
-                        raise RuntimeError("Unsupported Type: {}"
-                                           .format(item["type"]))
+                        output_log(LOG_LEVEL_WARN,
+                                   "{} is already registered"
+                                   .format(item["name"]))
+
+                print(len(result.section_info))
                 result.section_info.append(new_section)
 
             # process "append" field
