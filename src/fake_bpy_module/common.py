@@ -637,6 +637,7 @@ class ClassInfo(Info):
         self._module: str = None
         self._methods: List['FunctionInfo'] = []
         self._attributes: List['VariableInfo'] = []
+        self._base_classes: List['DataType'] = []
 
     def name(self) -> str:
         return self._name
@@ -658,6 +659,9 @@ class ClassInfo(Info):
 
     def methods(self) -> List['FunctionInfo']:
         return self._methods
+
+    def base_classes(self) -> List['DataType']:
+        return self._base_classes
 
     def add_method(self, method: 'FunctionInfo'):
         if method.type() != "method":
@@ -693,6 +697,16 @@ class ClassInfo(Info):
         self._attributes = []
         self.add_attributes(attrs)
 
+    def add_base_class(self, class_: 'DataType'):
+        self._base_classes.append(class_)
+
+    def add_base_classes(self, classes: List['DataType']):
+        for c in classes:
+            self.add_base_class(c)
+
+    def set_base_class(self, index: int, class_: 'DataType'):
+        self._base_classes[index] = class_
+
     def to_dict(self) -> dict:
         if self._name is None:
             raise RuntimeError("'name' is empty")
@@ -711,6 +725,8 @@ class ClassInfo(Info):
                 "module": remove_unencodable(self._module),
                 "methods": [m.to_dict() for m in self._methods],
                 "attributes": [a.to_dict() for a in self._attributes],
+                "base_classes": [remove_unencodable(c.to_string())
+                                 for c in self._base_classes]
             }
         else:
             data = {
@@ -720,6 +736,7 @@ class ClassInfo(Info):
                 "module": self._module,
                 "methods": [m.to_dict() for m in self._methods],
                 "attributes": [a.to_dict() for a in self._attributes],
+                "base_classes": [c.to_string() for c in self._base_classes]
             }
 
         return data
@@ -789,6 +806,14 @@ class ClassInfo(Info):
                             break
                     else:
                         raise RuntimeError("{} is not found".format(a["name"]))
+            else:
+                raise RuntimeError("Unsupported method: {}".format(method))
+
+        if "base_classes" in data:
+            if method == 'NEW':
+                for c in data["base_classes"]:
+                    new_c = IntermidiateDataType(c)
+                    self._base_classes.append(new_c)
             else:
                 raise RuntimeError("Unsupported method: {}".format(method))
 
