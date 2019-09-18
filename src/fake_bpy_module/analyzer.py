@@ -437,7 +437,7 @@ class AnalysisResult:
 
 class BaseAnalyzer:
     def __init__(self):
-        self.filename: str = None
+        self.filenames: List[str] = []
 
     def _analyze_desc(self, filename: str, desc) -> 'Info':
         result = None
@@ -466,8 +466,8 @@ class BaseAnalyzer:
     def _modify(self, result: 'AnalysisResult'):
         pass
 
-    def analyze(self, filename: str) -> 'AnalysisResult':
-        self.filename: str = filename
+    def _analyze_by_file(self, filename: str) -> 'AnalysisResult':
+        self.filenames.append(filename)
 
         tree = et.parse(filename)
         root = tree.getroot()       # <document>
@@ -478,6 +478,14 @@ class BaseAnalyzer:
                 self._analyze_section(filename, child, r)
                 result.section_info.append(r)
 
+        return result
+
+    def analyze(self, filenames: List[str]) -> 'AnalysisResult':
+        result = AnalysisResult()
+        for f in filenames:
+            r = self._analyze_by_file(f)
+            result.section_info.extend(r.section_info)
+
         self._modify(result)
 
         return result
@@ -485,7 +493,7 @@ class BaseAnalyzer:
 
 class AnalyzerWithModFile(BaseAnalyzer):
     def __init__(self, mod_files: List[str]):
-        super(BaseAnalyzer, self).__init__()
+        super(AnalyzerWithModFile, self).__init__()
         self._mod_files: List[str] = mod_files
 
     def _modify_with_mod_files(self, result: 'AnalysisResult'):
@@ -539,12 +547,15 @@ class AnalyzerWithModFile(BaseAnalyzer):
                         if item["type"] == "constant":
                             new_v = VariableInfo("constant")
                             new_v.from_dict(item, 'NEW')
-                            print(new_v.to_dict())
                             new_section.info_list.append(new_v)
                         elif item["type"] == "function":
                             new_f = FunctionInfo("function")
                             new_f.from_dict(item, 'NEW')
                             new_section.info_list.append(new_f)
+                        elif item["type"] == "class":
+                            new_c = ClassInfo()
+                            new_c.from_dict(item, 'NEW')
+                            new_section.info_list.append(new_c)
                         else:
                             raise RuntimeError("Unsupported Type: {}"
                                                .format(item["type"]))
@@ -553,7 +564,6 @@ class AnalyzerWithModFile(BaseAnalyzer):
                                    "{} is already registered"
                                    .format(item["name"]))
 
-                print(len(result.section_info))
                 result.section_info.append(new_section)
 
             # process "append" field

@@ -11,6 +11,7 @@ from .common import (
     DataTypeRefiner,
     EntryPoint,
     Info,
+    ClassInfo,
     VariableInfo,
 )
 from .analyzer import (
@@ -139,7 +140,10 @@ class BaseGenerator:
         data = info.to_dict()
         wt = self._writer
 
-        wt.addln("class {}:".format(data["name"]))
+        if len(data["base_classes"]) == 0:
+            wt.addln("class {}:".format(data["name"]))
+        else:
+            wt.addln("class {}({}):".format(data["name"], ", ".join(data["base_classes"]).replace("'", "")))
 
         with CodeWriterIndent(1):
             if data["description"] != "":
@@ -259,10 +263,11 @@ class BaseGenerator:
                  filename: str,
                  data: 'GenerationInfoByTarget',
                  style_config: str='pep8'):
-        # at first, sort data to avoid generating large diff
+        # At first, sort data to avoid generating large diff.
+        # Note: Base class must be located above derived class
         sorted_data = sorted(
             data.data,
-            key=lambda x: (x.type(), x.name())
+            key=lambda x: (1 if isinstance(x, ClassInfo) and len(x.base_classes()) >= 1 else 0, x.type(), x.name())
         )
 
         with open(filename, "w", encoding="utf-8") as file:
@@ -422,28 +427,26 @@ class PackageAnalyzer:
 
     # build package structure
     def _build_package_structure(self):
-        analyze_results = self._analyze()
+        analyze_result = self._analyze()
 
         # collect module list
         module_list = []
-        for results in analyze_results.values():
-            module_list.extend(self._collect_module_list(results))
+        for result in analyze_result.values():
+            module_list.extend(self._collect_module_list(result))
         return self._build_module_structure(module_list)
 
-    def _analyze(self) -> Dict['PackageGenerationRule', List['AnalysisResult']]:
-        results = {}
+    def _analyze(self) -> Dict['PackageGenerationRule', 'AnalysisResult']:
+        result = {}
         for rule in self._rules:
-            results[rule] = self._analyze_by_rule(rule)
+            result[rule] = self._analyze_by_rule(rule)
 
-        return results
+        return result
 
-    def _analyze_by_rule(self, rule: 'PackageGenerationRule') -> List['AnalysisResult']:
-        result: List['AnalysisResult'] = []
+    def _analyze_by_rule(self, rule: 'PackageGenerationRule') -> 'AnalysisResult':
         # replace windows path separator
         target_files = [f.replace("\\", "/") for f in rule.target_files()]
         # analyze all .xml files
-        for f in target_files:
-            result.append(rule.analyzer().analyze(f))
+        result = rule.analyzer().analyze(target_files)
 
         return result
 
@@ -470,16 +473,15 @@ class PackageAnalyzer:
         return structure
 
     # collect module list
-    def _collect_module_list(self, analyze_results: List['AnalysisResult']) -> List[str]:
+    def _collect_module_list(self, analyze_result: 'AnalysisResult') -> List[str]:
         module_list = []
-        for r in analyze_results:
-            for section in r.section_info:
-                for info in section.info_list:
-                    if info.module() is None:
-                        output_log(LOG_LEVEL_WARN, "{}'s module is None".format(info.name()))
-                        continue
-                    if info.module() not in module_list:
-                        module_list.append(info.module())
+        for section in analyze_result.section_info:
+            for info in section.info_list:
+                if info.module() is None:
+                    output_log(LOG_LEVEL_WARN, "{}'s module is None".format(info.name()))
+                    continue
+                if info.module() not in module_list:
+                    module_list.append(info.module())
 
         return module_list
 
@@ -487,10 +489,10 @@ class PackageAnalyzer:
         # at first analyze without DataTypeRefiner
         generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}
         for rule in self._rules:
-            analyze_results = self._analyze_by_rule(rule)
-            module_structure = self._build_module_structure(self._collect_module_list(analyze_results))
+            analyze_result = self._analyze_by_rule(rule)
+            module_structure = self._build_module_structure(self._collect_module_list(analyze_result))
             generation_info[rule] = self._build_generation_info_internal(
-                analyze_results, module_structure)
+                analyze_result, module_structure)
 
         # build entry points
         entry_points = []
@@ -507,7 +509,7 @@ class PackageAnalyzer:
                     entry_points.append(entry)
         return entry_points
 
-    def _build_generation_info_internal(self, analyze_results: List['AnalysisResult'],
+    def _build_generation_info_internal(self, analyze_result: 'AnalysisResult',
                                         module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
         def find_target_file(name: str, structure: 'ModuleStructure', target: str) -> str:
             for m in structure.children():
@@ -546,16 +548,15 @@ class PackageAnalyzer:
         build_child_modules(generator_info, "", module_structure)
 
         # build data
-        for r in analyze_results:
-            for section in r.section_info:
-                for info in section.info_list:
-                    target = find_target_file("", module_structure,
-                                              re.sub("\.", "/", info.module()))
-                    if target is None:
-                        raise RuntimeError("Could not find target file to generate "
-                                           "(target: {})".format(info.module()))
-                    gen_info = generator_info.get_target(target)
-                    gen_info.data.append(info)
+        for section in analyze_result.section_info:
+            for info in section.info_list:
+                target = find_target_file("", module_structure,
+                                          re.sub("\.", "/", info.module()))
+                if target is None:
+                    raise RuntimeError("Could not find target file to generate "
+                                       "(target: {})".format(info.module()))
+                gen_info = generator_info.get_target(target)
+                gen_info.data.append(info)
 
         return generator_info
 
@@ -690,45 +691,53 @@ class PackageAnalyzer:
                                          refiner,
                                          a.data_type(),
                                          data.module() + "." + data.name())
+                for c in data.base_classes():
+                    self._add_dependency(dependencies,
+                                         refiner,
+                                         c,
+                                         data.module() + "." + data.name())
 
         return dependencies
 
-    def _refine_data_type(self, refiner: 'DataTypeRefiner', results: List['AnalysisResult']):
-        for result in results:
-            for section in result.section_info:
-                for info in section.info_list:
-                    # refine function parameters and return value
-                    if info.type() == "function":
-                        for p in info.parameter_details():
+    def _refine_data_type(self, refiner: 'DataTypeRefiner', analysis_result: 'AnalysisResult'):
+        for section in analysis_result.section_info:
+            for info in section.info_list:
+                # refine function parameters and return value
+                if info.type() == "function":
+                    for p in info.parameter_details():
+                        refined_type = refiner.get_refined_data_type(
+                            p.data_type(), info.module())
+                        p.set_data_type(refined_type)
+
+                    return_ = info.return_()
+                    refined_type = refiner.get_refined_data_type(
+                        return_.data_type(), info.module())
+                    return_.set_data_type(refined_type)
+                # refine constant
+                elif info.type() == "constant":
+                    refined_type = refiner.get_refined_data_type(
+                        info.data_type(), info.module())
+                    info.set_data_type(refined_type)
+                # refine class attributes and method parameters and return value
+                elif info.type() == "class":
+                    for a in info.attributes():
+                        refined_type = refiner.get_refined_data_type(
+                            a.data_type(), info.module())
+                        a.set_data_type(refined_type)
+                    for m in info.methods():
+                        for p in m.parameter_details():
                             refined_type = refiner.get_refined_data_type(
                                 p.data_type(), info.module())
                             p.set_data_type(refined_type)
 
-                        return_ = info.return_()
+                        return_ = m.return_()
                         refined_type = refiner.get_refined_data_type(
                             return_.data_type(), info.module())
                         return_.set_data_type(refined_type)
-                    # refine constant
-                    elif info.type() == "constant":
+                    for i, c in enumerate(info.base_classes()):
                         refined_type = refiner.get_refined_data_type(
-                            info.data_type(), info.module())
-                        info.set_data_type(refined_type)
-                    # refine class attributes and method parameters and return value
-                    elif info.type() == "class":
-                        for a in info.attributes():
-                            refined_type = refiner.get_refined_data_type(
-                                a.data_type(), info.module())
-                            a.set_data_type(refined_type)
-                        for m in info.methods():
-                            for p in m.parameter_details():
-                                refined_type = refiner.get_refined_data_type(
-                                    p.data_type(), info.module())
-                                p.set_data_type(refined_type)
-
-                            return_ = m.return_()
-                            refined_type = refiner.get_refined_data_type(
-                                return_.data_type(), info.module())
-                            return_.set_data_type(refined_type)
+                            c, info.module())
+                        info.set_base_class(i, refined_type)
 
     def _remove_duplicate(self, gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
@@ -829,6 +838,13 @@ class PackageAnalyzer:
                         return_.set_data_type(CustomDataType(
                             new_data_type, return_.data_type().modifier()))
 
+                for i, c in enumerate(info.base_classes()):
+                    if c.type() == 'CUSTOM':
+                        new_data_type = refiner.get_generation_data_type(
+                            c.data_type(), gen_info.name)
+                        info.set_base_class(i, CustomDataType(
+                            new_data_type, c.modifier()))
+
             processed_info.data.append(info)
 
         return processed_info
@@ -840,11 +856,11 @@ class PackageAnalyzer:
         generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}
         for rule in self._rules:
             refiner = DataTypeRefiner(package_structure, entry_points)
-            analyze_results = self._analyze_by_rule(rule)
-            self._refine_data_type(refiner, analyze_results)
+            analyze_result = self._analyze_by_rule(rule)
+            self._refine_data_type(refiner, analyze_result)
 
-            module_structure = self._build_module_structure(self._collect_module_list(analyze_results))
-            generation_info[rule] = self._build_generation_info_internal(analyze_results, module_structure)
+            module_structure = self._build_module_structure(self._collect_module_list(analyze_result))
+            generation_info[rule] = self._build_generation_info_internal(analyze_result, module_structure)
 
             for target in generation_info[rule].targets():
                 info = self._remove_duplicate(generation_info[rule].get_target(target))

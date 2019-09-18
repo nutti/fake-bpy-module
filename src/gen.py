@@ -46,6 +46,7 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
     files = list(set(all_files) - set(excludes_files))
     mod_files = [
         "{}/mods/common/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
+        "{}/mods/common/analyzer/bpy.generated.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
     if config.mod_version == "2.80":
         mod_files.append("{}/mods/2.80/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
