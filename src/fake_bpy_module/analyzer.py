@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 import re
-from typing import List, Dict
+from typing import List
 import json
 
 from .common import (

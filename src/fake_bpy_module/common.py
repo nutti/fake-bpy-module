@@ -8,15 +8,27 @@ from .utils import (
     LOG_LEVEL_WARN,
 )
 
+REPLACE_DATA_TYPE: Dict[str, str] = {
+    "Enumerated constant": "str, int",
+    "enum": "str, int",
+}
 
 BUILTIN_DATA_TYPE: List[str] = [
     "bool", "str", "bytes", "float", "int",
 ]
+
+BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
+    "string": "str",
+    "boolean": "bool",
+}
+
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set",
 ]
 
 MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
+    "List": "list",
+    "bpy_prop_collection": "list",
     "BMElemSeq": "list",
     "sequence": "list",
 }
@@ -72,7 +84,7 @@ class DataType:
     def modifier(self) -> str:
         raise NotImplementedError()
 
-    def data_type(self) -> str:
+    def data_types(self) -> List[str]:
         raise NotImplementedError()
 
     def to_string(self) -> str:
@@ -92,7 +104,7 @@ class UnknownDataType(DataType):
     def modifier(self) -> str:
         raise RuntimeError("module() is not callable")
 
-    def data_type(self) -> str:
+    def data_types(self) -> List[str]:
         raise RuntimeError("data_type() is not callable")
 
     def to_string(self) -> str:
@@ -112,7 +124,7 @@ class IntermidiateDataType(DataType):
     def modifier(self) -> str:
         raise RuntimeError("module() is not callable ({})".format(self._data_type))
 
-    def data_type(self) -> str:
+    def data_types(self) -> List[str]:
         raise RuntimeError("data_type() is not callable ({})".format(self._data_type))
 
     def to_string(self) -> str:
@@ -120,11 +132,15 @@ class IntermidiateDataType(DataType):
 
 
 class BuiltinDataType(DataType):
-    def __init__(self, data_type: str, modifier: str=None):
-        if data_type not in BUILTIN_DATA_TYPE:
-            raise ValueError("data_type must be {} but {}"
-                             .format(BUILTIN_DATA_TYPE, data_type))
-        self._data_type: str = data_type
+    def __init__(self, data_types: List[str], modifier: str=None):
+        if len(data_types) == 0:
+            raise ValueError("length of data_types must be >= 1 but {}"
+                             .format(len(data_types)))
+        for dtype in data_types:
+            if dtype not in BUILTIN_DATA_TYPE:
+                raise ValueError("data_type must be {} but {}"
+                                 .format(BUILTIN_DATA_TYPE, dtype))
+        self._data_types: List[str] = data_types
         if (modifier is not None) and (modifier not in MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
@@ -139,14 +155,23 @@ class BuiltinDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_type(self) -> str:
-        return self._data_type
+    def data_types(self) -> List[str]:
+        return self._data_types
 
     def to_string(self) -> str:
         if self._modifier is None:
-            return self._data_type
+            if len(self._data_types) == 1:
+                return self._data_types[0]
+            return "typing.Union[{}]".format(", ".join(self._data_types))
 
-        return "{}[{}]".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier], self._data_type)
+        if len(self._data_types) == 1:
+            return "{}[{}]"\
+                   .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                   self._data_types[0])
+        else:
+            return "{}[typeing.Union[{}]]"\
+                   .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                           ", ".join(self._data_types))
 
 
 class ModifierDataType(DataType):
@@ -165,7 +190,7 @@ class ModifierDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_type(self) -> str:
+    def data_types(self) -> List[str]:
         raise RuntimeError("data_type is not callable ({})".format(self._modifier))
 
     def to_string(self) -> str:
@@ -173,8 +198,12 @@ class ModifierDataType(DataType):
 
 
 class CustomDataType(DataType):
-    def __init__(self, data_type: str, modifier: str=None):
-        self._data_type: str = data_type
+    def __init__(self, data_types: List[str], modifier: str=None):
+        # TODO: support more than 2 data_types
+        if len(data_types) != 1:
+            raise ValueError("length of data_types must be {} but {}"
+                             .format(1, len(data_types)))
+        self._data_types: List[str] = data_types
         if (modifier is not None) and (modifier not in MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
@@ -189,14 +218,16 @@ class CustomDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_type(self) -> str:
-        return self._data_type
+    def data_types(self) -> List[str]:
+        return self._data_types
 
     def to_string(self) -> str:
         if self._modifier is None:
-            return "'{}'".format(self._data_type)
+            return "'{}'".format(self._data_types[0])
 
-        return "{}['{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier], self._data_type)
+        return "{}['{}']"\
+               .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                               self._data_types[0])
 
 
 class Info:
@@ -859,14 +890,6 @@ class ModuleStructure:
 
 
 class DataTypeRefiner:
-    DATA_TYPE_ALIAS: Dict[str, str] = {
-        "string": "str",
-        "Enumerated constant": "int",
-        "enum": "int",
-        "List": "list",
-        "bpy_prop_collection": "list",
-        "boolean": "bool",
-    }
 
     def __init__(self, package_structure: 'ModuleStructure', entry_points: List['EntryPoint']):
         self._package_structure: 'ModuleStructure' = package_structure
@@ -920,78 +943,96 @@ class DataTypeRefiner:
 
         # convert to aliased data type string
         dtype_str = data_type.to_string()
-        for type_ in self.DATA_TYPE_ALIAS.keys():
-            if has_data_type(dtype_str, type_):
-                dtype_str = dtype_str.replace(type_, self.DATA_TYPE_ALIAS[type_])
+        for (key, value) in REPLACE_DATA_TYPE.items():
+            if has_data_type(dtype_str, key):
+                dtype_str = dtype_str.replace(key, value)
 
         # get modifier
         modifier = None
         for type_ in MODIFIER_DATA_TYPE:
             if has_data_type(dtype_str, type_):
                 modifier = type_
+                # remove modifier from dtype_str
+                # TODO: need to clip only modifier string
+                dtype_str.replace(type_, "")
                 break
         if not modifier:
             for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
                 if has_data_type(dtype_str, key):
                     modifier = value
+                    # remove modifier from dtype_str
+                    # TODO: need to clip only modifier string
+                    dtype_str.replace(key, "")
                     break
 
-        # remove modifier from dtype_str
-        # TODO: need to clip only modifier string
-        if modifier:
-            dtype_str.replace(modifier, "")
-
         # at first we check built-in data type
-        dtype = None
+        dtype = []
+        has_builtin_dtype = False
         for type_ in BUILTIN_DATA_TYPE:
             if has_data_type(dtype_str, type_):
-                dtype = type_
+                dtype.append(type_)
+                has_builtin_dtype = True
+        for (key, value) in BUILTIN_DATA_TYPE_ALIASES.items():
+            if has_data_type(dtype_str, key):
+                dtype.append(value)
+                has_builtin_dtype = True
+        dtype = list(set(dtype))
 
         # and then, search from package entry points
-        if dtype is None:
+        # TODO: Need to check _entry_point if dtype has some value, but
+        #       it raises performance problem.
+        has_custom_dtype = False
+        if not has_builtin_dtype:
             for entry in self._entry_points:
                 if entry.type not in ["constant", "class"]:
                     continue
                 if has_data_type(dtype_str, entry.fullname()):
-                    dtype = entry.fullname()
+                    dtype.append(entry.fullname())
+                    has_custom_dtype = True
                     break
                 full_data_type = "{}.{}".format(module_name, dtype_str)
                 if has_data_type(full_data_type, entry.fullname()):
-                    dtype = entry.fullname()
+                    dtype.append(entry.fullname())
+                    has_custom_dtype = True
                     break
                 full_data_type = full_data_type.replace(" ", "")
                 if has_data_type(full_data_type, entry.fullname()):
-                    dtype = entry.fullname()
+                    dtype.append(entry.fullname())
+                    has_custom_dtype = True
                     break
                 if has_data_type(dtype_str, entry.name):
-                    dtype = entry.fullname()
+                    dtype.append(entry.fullname())
+                    has_custom_dtype = True
                     break
-            else:
-                output_log(LOG_LEVEL_WARN,
-                           "Could not find any data type ({})"
-                           .format(remove_unencodable(data_type.to_string())))
+        if not has_builtin_dtype and not has_custom_dtype:
+            output_log(LOG_LEVEL_WARN,
+                       "Could not find any data type ({})"
+                       .format(remove_unencodable(data_type.to_string())))
 
         if modifier is None:
-            if dtype is None:
+            if has_builtin_dtype:
+                return BuiltinDataType(dtype)
+            elif has_custom_dtype:
+                return CustomDataType(dtype)
+            else:
                 return UnknownDataType()
-            else:
-                if dtype in BUILTIN_DATA_TYPE:
-                    return BuiltinDataType(dtype)
-                else:
-                    return CustomDataType(dtype)
         else:
-            if dtype is None:
-                return ModifierDataType(modifier)
-            else:
+            if has_builtin_dtype:
                 if (modifier != "list") and (modifier != "set"):
                     output_log(LOG_LEVEL_WARN,
                                "Modifier '{}' does not support element type inference ({})"
                                .format(modifier, data_type.to_string()))
                     return ModifierDataType(modifier)
-                if dtype in BUILTIN_DATA_TYPE:
-                    return BuiltinDataType(dtype, modifier)
-                else:
-                    return CustomDataType(dtype, modifier)
+                return BuiltinDataType(dtype, modifier)
+            elif has_custom_dtype:
+                if (modifier != "list") and (modifier != "set"):
+                    output_log(LOG_LEVEL_WARN,
+                               "Modifier '{}' does not support element type inference ({})"
+                               .format(modifier, data_type.to_string()))
+                    return ModifierDataType(modifier)
+                return CustomDataType(dtype, modifier)
+            else:
+                return UnknownDataType()
 
     def get_base_name(self, data_type: str) -> str:
         if data_type is None:
@@ -1034,7 +1075,15 @@ class DataTypeRefiner:
 
         return ensured
 
-    def get_generation_data_type(self, data_type_1: str,
+    def get_generation_data_type(self, data_type_1: List[str],
+                                      data_type_2: str) -> List[str]:
+        final_data_types = []
+        for dtype in data_type_1:
+            final_data_types.append(
+                self._get_generation_data_type(dtype, data_type_2))
+        return final_data_types
+
+    def _get_generation_data_type(self, data_type_1: str,
                                  data_type_2: str) -> str:
         mod_names_full_1 = self.get_module_name(data_type_1)
         mod_names_full_2 = self.get_module_name(data_type_2)
