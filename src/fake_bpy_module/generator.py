@@ -629,26 +629,27 @@ class PackageAnalyzer:
         if data_type_1.type() == 'MODIFIER':
             return
 
-        original_data_type = data_type_1.data_type()
+        original_data_types = data_type_1.data_types()
 
-        mod = self._get_import_module_path(refiner, original_data_type, data_type_2)
-        base = refiner.get_base_name(original_data_type)
-        if mod is None:
-            return
+        for dtype in original_data_types:
+            mod = self._get_import_module_path(refiner, dtype, data_type_2)
+            base = refiner.get_base_name(dtype)
+            if mod is None:
+                continue
 
-        target_dep = None
-        for dep in dependencies:
-            if dep.mod_name == mod:
-                target_dep = dep
-                break
-        if target_dep is None:
-            target_dep = Dependency()
-            target_dep.mod_name = mod
-            target_dep.add_type(base)
-            dependencies.append(target_dep)
-        else:
-            if base not in target_dep.type_lists:
+            target_dep = None
+            for dep in dependencies:
+                if dep.mod_name == mod:
+                    target_dep = dep
+                    break
+            if target_dep is None:
+                target_dep = Dependency()
+                target_dep.mod_name = mod
                 target_dep.add_type(base)
+                dependencies.append(target_dep)
+            else:
+                if base not in target_dep.type_lists:
+                    target_dep.add_type(base)
 
     def _build_dependencies(self,
                             package_structure: 'ModuleStructure',
@@ -795,14 +796,14 @@ class PackageAnalyzer:
                 for p in info.parameter_details():
                     if p.data_type().type() == 'CUSTOM':
                         new_data_type = refiner.get_generation_data_type(
-                            p.data_type().data_type(), gen_info.name)
+                            p.data_type().data_types(), gen_info.name)
                         p.set_data_type(CustomDataType(
                             new_data_type, p.data_type().modifier()))
 
                 return_ = info.return_()
                 if return_.data_type().type() == 'CUSTOM':
                     new_data_type = refiner.get_generation_data_type(
-                        return_.data_type().data_type(), gen_info.name)
+                        return_.data_type().data_types(), gen_info.name)
                     return_.set_data_type(CustomDataType(
                         new_data_type, return_.data_type().modifier()))
 
@@ -810,7 +811,7 @@ class PackageAnalyzer:
             elif info.type() == "constant":
                 if info.data_type().type() == 'CUSTOM':
                     new_data_type = refiner.get_generation_data_type(
-                        info.data_type().data_type(), gen_info.name)
+                        info.data_type().data_types(), gen_info.name)
                     info.set_data_type(CustomDataType(
                         new_data_type, info.data_type().modifier()))
 
@@ -819,7 +820,7 @@ class PackageAnalyzer:
                 for a in info.attributes():
                     if a.data_type().type() == 'CUSTOM':
                         new_data_type = refiner.get_generation_data_type(
-                            a.data_type().data_type(), gen_info.name)
+                            a.data_type().data_types(), gen_info.name)
                         a.set_data_type(CustomDataType(
                             new_data_type, a.data_type().modifier()))
 
@@ -827,21 +828,21 @@ class PackageAnalyzer:
                     for p in m.parameter_details():
                         if p.data_type().type() == 'CUSTOM':
                             new_data_type = refiner.get_generation_data_type(
-                                p.data_type().data_type(), gen_info.name)
+                                p.data_type().data_types(), gen_info.name)
                             p.set_data_type(CustomDataType(
                                 new_data_type, p.data_type().modifier()))
 
                     return_ = m.return_()
                     if return_.data_type().type() == 'CUSTOM':
                         new_data_type = refiner.get_generation_data_type(
-                            return_.data_type().data_type(), gen_info.name)
+                            return_.data_type().data_types(), gen_info.name)
                         return_.set_data_type(CustomDataType(
                             new_data_type, return_.data_type().modifier()))
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':
                         new_data_type = refiner.get_generation_data_type(
-                            c.data_type(), gen_info.name)
+                            c.data_types(), gen_info.name)
                         info.set_base_class(i, CustomDataType(
                             new_data_type, c.modifier()))
 
