@@ -16,7 +16,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v279"]="v2.79"
     ["v279a"]="v2.79a"
     ["v279b"]="v2.79b"
-    ["v280"]="v2.80-rc1"
+    ["v280"]="v2.80"
 )
 
 TMP_DIR_NAME="tmp"
