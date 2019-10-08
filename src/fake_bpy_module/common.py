@@ -169,7 +169,7 @@ class BuiltinDataType(DataType):
                    .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
                                    self._data_types[0])
         else:
-            return "{}[typeing.Union[{}]]"\
+            return "{}[typing.Union[{}]]"\
                    .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
                            ", ".join(self._data_types))
 
@@ -516,6 +516,11 @@ class FunctionInfo(Info):
         self._parameters[idx] = param
 
     def add_parameter(self, param: str):
+        if param in self._parameters:
+            output_log(LOG_LEVEL_WARN,
+                       "Parameter {} is already registered in ({}), so skip to add this parameter."
+                       .format(param, " | ".join(self._parameters)))
+            return
         self._parameters.append(param)
 
     def add_parameters(self, params: List[str]):
@@ -809,7 +814,8 @@ class ClassInfo(Info):
                             update_m.from_dict(m, 'UPDATE')
                             break
                     else:
-                        raise RuntimeError("{} is not found".format(m["name"]))
+                        raise RuntimeError("Method '{}' is not found at class '{}.{}'"
+                                           .format(m["name"], self._module, self._name))
             else:
                 raise RuntimeError("Unsupported method: {}".format(method))
 
@@ -1032,7 +1038,7 @@ class DataTypeRefiner:
                     return ModifierDataType(modifier)
                 return CustomDataType(dtype, modifier)
             else:
-                return UnknownDataType()
+                return ModifierDataType(modifier)
 
     def get_base_name(self, data_type: str) -> str:
         if data_type is None:
