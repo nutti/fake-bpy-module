@@ -24,7 +24,7 @@ cd ${source_dir}
 git fetch --prune
 git checkout master
 git pull origin master
-git checkout ${branch_name}
+git checkout -f ${branch_name}
 git pull origin ${branch_name}
 
 # generate .rst documents

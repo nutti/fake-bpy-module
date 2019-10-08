@@ -268,13 +268,36 @@ class FunctionAnalyzer:
             elif child.tag == "field_list":
                 self._parse_field_list(child, result)
 
+    def _parse_parameter_body_text(self, text):
+        sp = [re.sub(" ", "", p) for p in text.split(",")]
+
+        params = []
+        parenthese_level = 0
+        next_param = ""
+        for p in sp:
+            parenthese_level += p.count("(") - p.count(")")
+            if parenthese_level < 0:
+                raise ValueError("Parenthese Level must be >= 0, but {}. (text: {}, filename: {})"
+                                 .format(parenthese_level, text, self.filename))
+
+            next_param += p + ","
+            if parenthese_level == 0:
+                params.append(next_param[:-1])  # strip last ","
+                next_param = ""
+        
+        if parenthese_level != 0:
+            raise ValueError("Parenthese Level must be == 0, but {}. (text: {}, filename: {})"
+                             .format(parenthese_level, text, self.filename))
+
+        return params
+
     def _get_parameters(self, elm):
         result = []
+        param_bodies = []
         for child in list(elm):
             if child.tag == "desc_parameter":
-                sp = child.text.split(",")
-                for s in sp:
-                    result.append(re.sub(" ", "", s))
+                param_bodies.append(child.text)
+        result.extend(self._parse_parameter_body_text(",".join(param_bodies)))
         return result
 
     def analyze(self, elm) -> 'FunctionInfo':
@@ -287,15 +310,25 @@ class FunctionAnalyzer:
                 fullname = child.get("fullname")
                 text = child.find("desc_name").text
                 lp = text.find("(")
-                rp = text.find(")")
-                if lp == -1:
+                rp = text.rfind(")")
+                if (lp == -1) or (rp == -1):
                     output_log(
                         LOG_LEVEL_NOTICE,
-                        "'(' and ')' are not found (text={0})".format(text)
+                        "'(' or ')' are not found (text={}, filename={})".format(text, self.filename)
                     )
 
                     # get name data
                     name = text
+
+                    # TODO: freestyle.shader.SmoothingShader.__init__() matches this case.
+                    parenthese_index = name.find("(")
+                    if parenthese_index != -1:
+                        name = name[:parenthese_index]
+                        output_log(
+                            LOG_LEVEL_WARN,
+                            "Function name has parenthesis. But this should be fixed at Blender itself. (name: {}, filename: {})"
+                            .format(name, self.filename)
+                        )
 
                     # get parameters
                     params = []
@@ -303,12 +336,18 @@ class FunctionAnalyzer:
                     if c is not None:
                         params = self._get_parameters(c)
                 else:
+                    if lp == -1:
+                        raise ValueError("( is not found. (text: {}, filename: {})"
+                                         .format(text, self.filename))
+                    if rp == -1:
+                        raise ValueError(") is not found. (text: {}, filename: {})"
+                                         .format(text, self.filename))
+
                     # get name data
                     name = text[0:lp]
 
                     # get parameters
-                    params = [re.sub(" ", "", p)
-                              for p in text[lp + 1:rp].split(",")]
+                    params = self._parse_parameter_body_text(text[lp + 1:rp])
 
                 self.info.set_name(name)
                 self.info.add_parameters(params)
@@ -319,7 +358,8 @@ class FunctionAnalyzer:
                         output_log(
                             LOG_LEVEL_NOTICE,
                             "fullname does not match text "
-                            "(fullname={0}, text={1})".format(fullname, name)
+                            "(fullname={}, text={}, filename={})"
+                            .format(fullname, name, self.filename)
                         )
 
                 # get module/class data
