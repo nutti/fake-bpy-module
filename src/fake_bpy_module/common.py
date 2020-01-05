@@ -960,7 +960,7 @@ class DataTypeRefiner:
                 modifier = type_
                 # remove modifier from dtype_str
                 # TODO: need to clip only modifier string
-                dtype_str.replace(type_, "")
+                dtype_str = dtype_str.replace(type_, "")
                 break
         if not modifier:
             for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
@@ -968,7 +968,7 @@ class DataTypeRefiner:
                     modifier = value
                     # remove modifier from dtype_str
                     # TODO: need to clip only modifier string
-                    dtype_str.replace(key, "")
+                    dtype_str = dtype_str.replace(key, "")
                     break
 
         # at first we check built-in data type
