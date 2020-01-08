@@ -6,6 +6,7 @@ SUPPORTED_VERSIONS=(
     "2.78" "2.78a" "2.78b" "2.78c"
     "2.79" "2.79a" "2.79b"
     "2.80"
+    "2.81" "2.81a"
 )
 
 declare -A BLENDER_TAG_NAME=(
@@ -17,6 +18,8 @@ declare -A BLENDER_TAG_NAME=(
     ["v279a"]="v2.79a"
     ["v279b"]="v2.79b"
     ["v280"]="v2.80"
+    ["v281"]="v2.81"
+    ["v281a"]="v2.81a"
 )
 
 TMP_DIR_NAME="tmp"
