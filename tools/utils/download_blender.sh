@@ -6,6 +6,7 @@ SUPPORTED_VERSIONS=(
     "2.78" "2.78a" "2.78b" "2.78c"
     "2.79" "2.79a" "2.79b"
     "2.80"
+    "2.81" "2.81a"
     "all"
 )
 
@@ -18,6 +19,8 @@ declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
     ["v279a"]="https://download.blender.org/release/Blender2.79/blender-2.79a-macOS-10.6.zip"
     ["v279b"]="https://download.blender.org/release/Blender2.79/blender-2.79b-macOS-10.6.zip"
     ["v280"]=""
+    ["v281"]=""
+    ["v281a"]=""
 )
 
 declare -A BLENDER_DOWNLOAD_URL_WIN64=(
@@ -29,6 +32,8 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v279a"]="https://download.blender.org/release/Blender2.79/blender-2.79a-windows64.zip"
     ["v279b"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
     ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-windows64.zip"
+    ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81-windows64.zip"
+    ["v281a"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -40,6 +45,8 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v279a"]="https://download.blender.org/release/Blender2.79/blender-2.79a-linux-glibc219-x86_64.tar.bz2"
     ["v279b"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
     ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2"
+    ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81-linux-glibc217-x86_64.tar.bz2"
+    ["v281a"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -61,6 +68,8 @@ declare -A NEED_MOVE_LINUX=(
     ["v279a"]="blender-2.79a-linux-glibc219-x86_64"
     ["v279b"]="blender-2.79b-linux-glibc219-x86_64"
     ["v280"]="blender-2.80-linux-glibc217-x86_64"
+    ["v281"]="blender-2.81-linux-glibc217-x86_64"
+    ["v281a"]="blender-2.81a-linux-glibc217-x86_64"
 )
 
 function download_blender() {

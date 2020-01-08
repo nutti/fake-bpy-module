@@ -13,7 +13,8 @@ SUPPORTED_STYLE_FORMAT: List[str] = ["none", "pep8"]
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
     "2.78", "2.78a", "2.78b", "2.78c",
     "2.79", "2.79a", "2.79b",
-    "2.80"
+    "2.80",
+    "2.81", "2.81a"
 ]
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
