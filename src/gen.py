@@ -81,9 +81,9 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
         "{}/mods/common/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/common/analyzer/bpy.generated.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    if config.mod_version == "2.80":
+    if config.mod_version in ["2.80"]:
         mod_files.append("{}/mods/2.80/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    elif config.mod_version == "2.81":
+    elif config.mod_version in ["2.81", "2.81a"]:
         mod_files.append("{}/mods/2.81/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
     return fbm.PackageGenerationRule("bpy", files, BpyAnalyzer(mod_files), fbm.BaseGenerator())
 
