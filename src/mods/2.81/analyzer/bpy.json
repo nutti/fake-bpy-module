@@ -1,0 +1,72 @@
+{
+    "update": [
+        {
+            "name": "BlendData",
+            "type": "class",
+            "module": "bpy.types",
+            "methods": [
+                {
+                    "name": "batch_remove",
+                    "type": "method",
+                    "module": "bpy.types",
+                    "parameters": [
+                        "ids=()"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "UILayout",
+            "type": "class",
+            "module": "bpy.types",
+            "methods": [
+                {
+                    "name": "prop_with_popover",
+                    "type":"method",
+                    "module": "bpy.types",
+                    "parameters": [
+                        "data",
+                        "property",
+                        "text=\"\"",
+                        "text_ctxt=\"\"",
+                        "translate=True",
+                        "icon=0",
+                        "icon_only=False",
+                        "panel=\"\""
+                    ]
+                },
+                {
+                    "name": "prop_with_menu",
+                    "type":"method",
+                    "module": "bpy.types",
+                    "parameters": [
+                        "data",
+                        "property",
+                        "text=\"\"",
+                        "text_ctxt=\"\"",
+                        "translate=True",
+                        "icon=0",
+                        "icon_only=False",
+                        "menu=\"\""
+                    ]
+                },
+                {
+                    "name": "operator_menu_hold",
+                    "type":"method",
+                    "module": "bpy.types",
+                    "parameters": [
+                        "operator",
+                        "text=\"\"",
+                        "text_ctxt=\"\"",
+                        "translate=True",
+                        "icon=0",
+                        "emboss=True",
+                        "depress=False",
+                        "icon_value=0",
+                        "menu=\"\""
+                    ]
+                }
+            ]
+        }
+    ]
+}
