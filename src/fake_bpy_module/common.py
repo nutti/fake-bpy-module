@@ -11,6 +11,12 @@ from .utils import (
 REPLACE_DATA_TYPE: Dict[str, str] = {
     "Enumerated constant": "str, int",
     "enum": "str, int",
+    # TODO: should handle by using __iter__() method and so on...
+    "BMEdgeSeq": "list of BMEdge",
+    "BMFaceSeq": "list of BMFace",
+    "BMLoopSeq": "list of BMLoop",
+    "BMVertSeq": "list of BMVert",
+    "BMEditSelSeq": "list of BMEditSel",
 }
 
 BUILTIN_DATA_TYPE: List[str] = [
