@@ -5,10 +5,7 @@ import unittest
 
 
 SUPPORTED_VERSIONS = [
-    "2.78", "2.78a", "2.78b", "2.78c",
-    "2.79", "2.79a", "2.79b",
-    "2.80",
-    "2.81", "2.81a",
+    "2.78", "2.79", "2.80", "2.81", "2.82"
 ]
 
 
@@ -53,7 +50,7 @@ def main():
         fake_bpy_module_test.aud_test.AudTest,
         fake_bpy_module_test.bmesh_test.BmeshTest,
     ]
-    if config.blender_version == "2.80":
+    if config.blender_version in ["2.80", "2.81", "2.82"]:
         test_cases.append(fake_bpy_module_test.gpu_extras_test.GpuExtrasTest)
 
     suite = unittest.TestSuite()

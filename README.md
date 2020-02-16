@@ -38,13 +38,10 @@ pip install fake-bpy-module-2.80
 |Version|PyPI|
 |---|---|
 |2.78|https://pypi.org/project/fake-bpy-module-2.78/|
-|2.78a|https://pypi.org/project/fake-bpy-module-2.78a/|
-|2.78b|https://pypi.org/project/fake-bpy-module-2.78b/|
-|2.78c|https://pypi.org/project/fake-bpy-module-2.78c/|
 |2.79|https://pypi.org/project/fake-bpy-module-2.79/|
-|2.79a|https://pypi.org/project/fake-bpy-module-2.79a/|
-|2.79b|https://pypi.org/project/fake-bpy-module-2.79b/|
 |2.80|https://pypi.org/project/fake-bpy-module-2.80/|
+|2.81|https://pypi.org/project/fake-bpy-module-2.81/|
+|2.82|https://pypi.org/project/fake-bpy-module-2.82/|
 
 
 ### Install via pre-generated modules

@@ -11,10 +11,7 @@ INPUT_DIR: str = "."
 SUPPORTED_TARGET: List[str] = ["pycharm"]
 SUPPORTED_STYLE_FORMAT: List[str] = ["none", "pep8"]
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
-    "2.78", "2.78a", "2.78b", "2.78c",
-    "2.79", "2.79a", "2.79b",
-    "2.80",
-    "2.81", "2.81a"
+    "2.78", "2.79", "2.80", "2.81", "2.82"
 ]
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
@@ -83,8 +80,10 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
     ]
     if config.mod_version in ["2.80"]:
         mod_files.append("{}/mods/2.80/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    elif config.mod_version in ["2.81", "2.81a"]:
+    elif config.mod_version in ["2.81"]:
         mod_files.append("{}/mods/2.81/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
+    elif config.mod_version in ["2.82"]:
+        mod_files.append("{}/mods/2.82/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
     return fbm.PackageGenerationRule("bpy", files, BpyAnalyzer(mod_files), fbm.BaseGenerator())
 
 
@@ -173,7 +172,7 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
     )
     parser.add_argument(
         "-m", dest="mod_version", type=str,
-        help="Blender version for specific mod patches to be applied (ex. 2.80, 2.79a)"
+        help="Blender version for specific mod patches to be applied (ex. 2.79, 2.80)"
     )
     args = parser.parse_args()
     if args.input_dir:
