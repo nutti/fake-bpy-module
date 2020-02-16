@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nutti/fake_bpy_module_ci:v1.1
+      - image: nutti/fake_bpy_module_ci:v1.2
     branches:
       only:
         - master
@@ -13,23 +13,8 @@ jobs:
           name: Generate pip Packages (Blender 2.78)
           command: bash tools/pip_package/build_pip_package.sh release 2.78 ../blender ../blender-bin/blender-v278-bin
       - run:
-          name: Generate pip Packages (Blender 2.78a)
-          command: bash tools/pip_package/build_pip_package.sh release 2.78a ../blender ../blender-bin/blender-v278a-bin
-      - run:
-          name: Generate pip Packages (Blender 2.78b)
-          command: bash tools/pip_package/build_pip_package.sh release 2.78b ../blender ../blender-bin/blender-v278b-bin
-      - run:
-          name: Generate pip Packages (Blender 2.78c)
-          command: bash tools/pip_package/build_pip_package.sh release 2.78c ../blender ../blender-bin/blender-v278c-bin
-      - run:
           name: Generate pip Packages (Blender 2.79)
           command: bash tools/pip_package/build_pip_package.sh release 2.79 ../blender ../blender-bin/blender-v279-bin
-      - run:
-          name: Generate pip Packages (Blender 2.79a)
-          command: bash tools/pip_package/build_pip_package.sh release 2.79a ../blender ../blender-bin/blender-v279a-bin
-      - run:
-          name: Generate pip Packages (Blender 2.79b)
-          command: bash tools/pip_package/build_pip_package.sh release 2.79b ../blender ../blender-bin/blender-v279b-bin
       - run:
           name: Generate pip Packages (Blender 2.80)
           command: bash tools/pip_package/build_pip_package.sh release 2.80 ../blender ../blender-bin/blender-v280-bin
@@ -37,8 +22,8 @@ jobs:
           name: Generate pip Packages (Blender 2.81)
           command: bash tools/pip_package/build_pip_package.sh release 2.81 ../blender ../blender-bin/blender-v281-bin
       - run:
-          name: Generate pip Packages (Blender 2.81a)
-          command: bash tools/pip_package/build_pip_package.sh release 2.81a ../blender ../blender-bin/blender-v281a-bin
+          name: Generate pip Packages (Blender 2.82)
+          command: bash tools/pip_package/build_pip_package.sh release 2.82 ../blender ../blender-bin/blender-v282-bin
       - run:
           name: Compress All Generated Packages
           command: tar cvfz all.tar.gz release/* && mv all.tar.gz release
