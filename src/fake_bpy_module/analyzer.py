@@ -544,7 +544,8 @@ class AnalyzerWithModFile(BaseAnalyzer):
         with open(mod_file, encoding="utf-8") as f:
             data = json.load(f)
 
-            # process "remove" field
+            # Process "remove" field
+            #   - Remove item if the same item exists in AnalysisResult.
             if "remove" in data.keys():
                 for item in data["remove"]:
                     for section in result.section_info:
@@ -563,7 +564,8 @@ class AnalyzerWithModFile(BaseAnalyzer):
                                        "{} (type={}) is removed"
                                        .format(rm.name(), rm.type()))
 
-            # process "new" field
+            # Process "new" field
+            #   - Add item if the same item doesn't exist in AnalysisResult.
             if "new" in data.keys():
                 new_section = SectionInfo()
                 for item in data["new"]:
@@ -606,7 +608,9 @@ class AnalyzerWithModFile(BaseAnalyzer):
 
                 result.section_info.append(new_section)
 
-            # process "append" field
+            # Process "append" field
+            #   - Add item's field if the same exists in AnalysisResult.
+            #   - Value of item's field must be None.
             if "append" in data.keys():
                 for item in data["append"]:
                     for section in result.section_info:
@@ -619,7 +623,9 @@ class AnalyzerWithModFile(BaseAnalyzer):
                                 continue
                             info.from_dict(item, 'APPEND')
 
-            # process "update" field
+            # Process "update" field
+            #   - Update item's field if the same exists in AnalysisResult.
+            #   - Value of item's field can be None or some values.
             if "update" in data.keys():
                 for item in data["update"]:
                     for section in result.section_info:
