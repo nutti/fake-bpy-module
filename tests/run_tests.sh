@@ -24,7 +24,7 @@ for pkg in ${package_list}; do
     mkdir ${tmp_dir_path}
     unzip ${pkg} -d ${tmp_dir_path}
     pkg_dir_path=${tmp_dir_path}/${pkg_dir_name}
-    python3 ${SCRIPT_DIR}/python/run_tests.py -p ${pkg_dir_path} -v ${blender_version}
+    python ${SCRIPT_DIR}/python/run_tests.py -p ${pkg_dir_path} -v ${blender_version}
     if [ $? -ne 0 ]; then
         echo "Test Failure. (${pkg})"
         exit 1

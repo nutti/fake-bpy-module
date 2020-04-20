@@ -35,22 +35,29 @@ ${blender_dir}/blender --background --factory-startup -noaudio --python ${source
 mkdir -p ${tmp_dir}/sphinx-out-xml
 sphinx-build -b xml ${tmp_dir}/sphinx-in ${tmp_dir}/sphinx-out-xml
 
+# generate modfiles
+startup_dir=`find ${blender_dir} -type d | egrep "/[0-9.]{4}/scripts/startup$"`
+if [ $? -ne 0 ]; then
+    echo "Could not find startup directory."
+    exit 1
+
+fi
+generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
+mkdir -p ${generated_mod_dir}
+${blender_dir}/blender --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
+mkdir ${generated_mod_dir}/gen_startup_modfile
+python ${SCRIPT_DIR}/gen_modfile/gen_startup_modfile.py -i ${blender_dir}/${startup_dir} -o ${generated_mod_dir}/gen_startup_modfile/bpy.json
+mkdir ${generated_mod_dir}/gen_bgl_modfile
+python ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
+
 # generate fake bpy modules
-which python3
-if [ $? -eq 0 ]; then
-    if [ ${mod_version} = "" ]; then
-        python3 ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
-    else
-        python3 ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
-    fi
+if [ ${mod_version} = "" ]; then
+    python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
 else
-    if [ ${mod_version} = "" ]; then
-        python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
-    else
-        python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
-    fi
+    python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
 fi
 
 # clear temporary directory
 cd ${current_dir}
 rm -rf ${tmp_dir}
+rm -rf ${generated_mod_dir}

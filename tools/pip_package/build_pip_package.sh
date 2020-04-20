@@ -90,8 +90,8 @@ if [ ${target} = "release" ]; then
     rm README.md
     rm -rf fake_bpy_module*.egg-info/ dist/ build/
     ls -R .
-    python3 setup.py sdist
-    python3 setup.py bdist_wheel
+    python setup.py sdist
+    python setup.py bdist_wheel
 
     # move the generated package to releaes directory
     mv dist ${release_dir}/${version}
@@ -121,7 +121,7 @@ elif [ ${target} = "develop" ]; then
 
     # build and install package
     ls -R .
-    python3 setup.py develop
+    python setup.py develop
 
     # clean up
     cd ${CURRENT_DIR}
