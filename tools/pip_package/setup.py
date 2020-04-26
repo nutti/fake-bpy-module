@@ -1,4 +1,5 @@
 import os
+import glob
 import datetime
 from setuptools import setup, find_packages
 
@@ -18,22 +19,21 @@ try:
 except IOError:
     long_description = ""
 
+# find python module.
+py_modules = list(set(glob.glob("*.py")) - {"setup.py"})
+py_modules = [os.path.splitext(m)[0] for m in py_modules]
 
 setup(
     name=module_name,
     version=version,
     url="https://github.com/nutti/fake-bpy-module",
-    author="Nutti",
+    author="nutti",
     author_email="nutti.metro@gmail.com",
-    maintainer="Nutti",
+    maintainer="nutti",
     maintainer_email="nutti.metro@gmail.com",
     description="Collection of the fake Blender Python API module for the code completion.",
     long_description=long_description,
-    py_modules=[
-        "bgl",
-        "blf",
-        "aud"
-    ],
+    py_modules=py_modules,
     packages=find_packages(),
     install_requires=["typing>=3.6.2"],
     license="MIT",
