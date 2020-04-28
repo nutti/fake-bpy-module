@@ -30,8 +30,14 @@ target=${1}
 version=${2}
 source_dir=${3}
 blender_dir=${4}
-now_date=`date '+%Y%m%d'`
 
+if [ ${RELEASE_VERSION:-not_exist} = "not_exist" ]; then
+    echo "Environment variable 'RELEASE_VERSION' does not exist, so use date as release version"
+    release_version=`date '+%Y%m%d'`
+else
+    echo "Environment variable 'RELEASE_VERSION' exists, so use it as release version"
+    release_version="${RELEASE_VERSION}"
+fi
 
 # check if the target is develop or release
 if [ ! ${target} = "release" ] && [ ! ${target} = "develop" ]; then
@@ -74,9 +80,9 @@ if [ ${target} = "release" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
-    zip_dir="fake_bpy_modules_${version}-${now_date}"
+    zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="fake_bpy_modules_${version}-${now_date}.zip"
+    zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
     zip -r ${zip_file_name} ${zip_dir}
     mv ${zip_file_name} ${raw_modules_dir}
     mv ${fake_module_dir}/* .
@@ -110,9 +116,9 @@ elif [ ${target} = "develop" ]; then
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
     sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
-    zip_dir="fake_bpy_modules_${version}-${now_date}"
+    zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
-    zip_file_name="fake_bpy_modules_${version}-${now_date}.zip"
+    zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
     zip -r ${zip_file_name} ${fake_module_dir} 
     mv ${zip_file_name} ${raw_modules_dir}
     mv ${fake_module_dir}/* .

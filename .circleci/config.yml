@@ -10,6 +10,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Set release version environment variable
+          command: |
+              date '+%Y%m%d' >> /tmp/fake_bpy_module.release_version
+              echo "export RELEASE_VERSION=`cat /tmp/fake_bpy_module.release_version`" >> ${BASH_ENV}
+              source ${BASH_ENV}
+      - run:
           name: Generate pip Packages (Blender 2.78)
           command: bash tools/pip_package/build_pip_package.sh release 2.78 ../blender ../blender-bin/blender-v278-bin
       - run:
