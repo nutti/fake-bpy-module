@@ -8,8 +8,13 @@ cur_dir = os.getcwd().replace("\\", "/")
 blender_version = cur_dir.split('/')[-1].split('-')[-1]
 module_name = "fake-bpy-module-{}".format(blender_version)
 
-# version
-version = datetime.datetime.today().strftime("%Y%m%d")
+# release version
+if "RELEASE_VERSION" in os.environ:
+    print("Environment variable 'RELEASE_VERSION' exists, so use it as release version")
+    release_version = os.environ["RELEASE_VERSION"]
+else:
+    print("Environment variable 'RELEASE_VERSION' does not exist, so use date as release version")
+    release_version = datetime.datetime.today().strftime("%Y%m%d")
 
 # long_description
 try:
@@ -25,7 +30,7 @@ py_modules = [os.path.splitext(m)[0] for m in py_modules]
 
 setup(
     name=module_name,
-    version=version,
+    version=release_version,
     url="https://github.com/nutti/fake-bpy-module",
     author="nutti",
     author_email="nutti.metro@gmail.com",
