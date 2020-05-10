@@ -22,7 +22,7 @@ CURRENT_DIR=`pwd`
 
 # check arguments
 if [ $# -ne 4 ]; then
-    echo "Usage: sh build_pip_package.sh <develop|release> <blender-version> <source-dir> <blender-dir>"
+    echo "Usage: bash build_pip_package.sh <develop|release> <blender-version> <source-dir> <blender-dir>"
     exit 1
 fi
 
@@ -79,7 +79,7 @@ if [ ${target} = "release" ]; then
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
-    sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
+    bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
@@ -115,7 +115,7 @@ elif [ ${target} = "develop" ]; then
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version%.*}${version##*.}
-    sh ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
+    bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"

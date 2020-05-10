@@ -494,12 +494,44 @@ class BaseAnalyzer:
 
         return result
 
+    def _analyze_desc_with_base_classes(self, filename: str, desc, base_classes: List['DataType']) -> 'Info':
+        result = None
+        attr = desc.get("desctype")
+        if attr == "class":
+            analyzer = ClassAnalyzer(filename)
+            result = analyzer.analyze(desc)
+            result.add_base_classes(base_classes)
+        else:
+            raise ValueError("desctype must be 'class' when base_classes are exist")
+
+        return result
+
+    def _analyze_base_classes(self, filename: str, elm) -> List['DataType']:
+        base_classes = []
+        for child in elm.iter("reference"):
+            data_type = IntermidiateDataType(child.attrib["reftitle"])
+            base_classes.append(data_type)
+
+        return base_classes
+
     def _analyze_section(self, filename: str, elm, result: 'SectionInfo'):
+        base_classes = []
         for child in list(elm):
-            if child.tag == "desc":     # <desc>
-                r = self._analyze_desc(filename, child)
-                if r:
-                    result.info_list.append(r)
+            if child.tag == "paragraph":    # <paragraph>base classes — </paragraph>
+                # This is a special case to get base classes.
+                if child.text and \
+                        (child.text.startswith("base classes — ") or
+                         child.text.startswith("base class — ")):
+                    base_classes = self._analyze_base_classes(filename, child)
+            elif child.tag == "desc":     # <desc>
+                if not base_classes:
+                    r = self._analyze_desc(filename, child)
+                    if r:
+                        result.info_list.append(r)
+                else:
+                    r = self._analyze_desc_with_base_classes(filename, child, base_classes)
+                    if r:
+                        result.info_list.append(r)
             elif child.tag == "section":    # <section>
                 self._analyze_section(filename, child, result)
 
