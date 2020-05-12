@@ -4,6 +4,7 @@ import pathlib
 from yapf.yapflib.yapf_api import FormatCode
 from typing import List, Dict
 from collections import OrderedDict
+from tqdm import tqdm
 
 from .common import (
     DataType,
@@ -287,15 +288,15 @@ class BaseGenerator:
         for class_ in class_data:
             class_node = class_name_to_nodes[class_.name()]
             for base_class in class_.base_classes():
-                if len(base_class.data_types()) != 1:
-                    raise ValueError("DataType of base class must be 1. ({})".format(class_.name()))
-                base_class_node = class_name_to_nodes.get(base_class.data_types()[0])
+                if base_class.type() == 'MIXIN':
+                    raise ValueError("DataType of base class must not be MixinDataType.")
+                base_class_node = class_name_to_nodes.get(base_class.data_type())
                 if base_class_node:
                     graph.make_edge(base_class_node, class_node)
                 else:
                     output_log(LOG_LEVEL_WARN,
                                "Base class node (type={}) is not found"
-                               .format(base_class.data_types()[0]))
+                               .format(base_class.data_type()))
         sorted_nodes = topological_sort(graph)
         sorted_class_data = [node.data for node in sorted_nodes]
 
@@ -305,9 +306,9 @@ class BaseGenerator:
             order[class_.name()] = i
         for class_ in sorted_class_data:
             def sort_func(x):
-                if x.data_types()[0] not in order.keys():
+                if x.data_type() not in order.keys():
                     return 0
-                return -order[x.data_types()[0]]
+                return -order[x.data_type()]
 
             new_base_classes = sorted(class_.base_classes(), key=sort_func)
             for i, c in enumerate(new_base_classes):
@@ -693,27 +694,31 @@ class PackageAnalyzer:
         if data_type_1.type() == 'MODIFIER':
             return
 
-        original_data_types = data_type_1.data_types()
+        if data_type_1.type() == 'MIXIN':
+            for d in data_type_1.data_types():
+                self._add_dependency(dependencies, refiner, d, data_type_2)
+        else:
+            original_data_types = data_type_1.data_type()
 
-        for dtype in original_data_types:
-            mod = self._get_import_module_path(refiner, dtype, data_type_2)
-            base = refiner.get_base_name(dtype)
-            if mod is None:
-                continue
+            for dtype in original_data_types:
+                mod = self._get_import_module_path(refiner, dtype, data_type_2)
+                base = refiner.get_base_name(dtype)
+                if mod is None:
+                    continue
 
-            target_dep = None
-            for dep in dependencies:
-                if dep.mod_name == mod:
-                    target_dep = dep
-                    break
-            if target_dep is None:
-                target_dep = Dependency()
-                target_dep.mod_name = mod
-                target_dep.add_type(base)
-                dependencies.append(target_dep)
-            else:
-                if base not in target_dep.type_lists:
+                target_dep = None
+                for dep in dependencies:
+                    if dep.mod_name == mod:
+                        target_dep = dep
+                        break
+                if target_dep is None:
+                    target_dep = Dependency()
+                    target_dep.mod_name = mod
                     target_dep.add_type(base)
+                    dependencies.append(target_dep)
+                else:
+                    if base not in target_dep.type_lists:
+                        target_dep.add_type(base)
 
     def _build_dependencies(self,
                             package_structure: 'ModuleStructure',
@@ -765,44 +770,46 @@ class PackageAnalyzer:
         return dependencies
 
     def _refine_data_type(self, refiner: 'DataTypeRefiner', analysis_result: 'AnalysisResult'):
+        data_to_refine = []
         for section in analysis_result.section_info:
-            for info in section.info_list:
-                # refine function parameters and return value
-                if info.type() == "function":
-                    for p in info.parameter_details():
+            data_to_refine.extend([l for l in section.info_list])
+        for info in tqdm(data_to_refine):
+            # refine function parameters and return value
+            if info.type() == "function":
+                for p in info.parameter_details():
+                    refined_type = refiner.get_refined_data_type(
+                        p.data_type(), info.module())
+                    p.set_data_type(refined_type)
+
+                return_ = info.return_()
+                refined_type = refiner.get_refined_data_type(
+                    return_.data_type(), info.module())
+                return_.set_data_type(refined_type)
+            # refine constant
+            elif info.type() == "constant":
+                refined_type = refiner.get_refined_data_type(
+                    info.data_type(), info.module())
+                info.set_data_type(refined_type)
+            # refine class attributes and method parameters and return value
+            elif info.type() == "class":
+                for a in info.attributes():
+                    refined_type = refiner.get_refined_data_type(
+                        a.data_type(), info.module())
+                    a.set_data_type(refined_type)
+                for m in info.methods():
+                    for p in m.parameter_details():
                         refined_type = refiner.get_refined_data_type(
                             p.data_type(), info.module())
                         p.set_data_type(refined_type)
 
-                    return_ = info.return_()
+                    return_ = m.return_()
                     refined_type = refiner.get_refined_data_type(
                         return_.data_type(), info.module())
                     return_.set_data_type(refined_type)
-                # refine constant
-                elif info.type() == "constant":
+                for i, c in enumerate(info.base_classes()):
                     refined_type = refiner.get_refined_data_type(
-                        info.data_type(), info.module())
-                    info.set_data_type(refined_type)
-                # refine class attributes and method parameters and return value
-                elif info.type() == "class":
-                    for a in info.attributes():
-                        refined_type = refiner.get_refined_data_type(
-                            a.data_type(), info.module())
-                        a.set_data_type(refined_type)
-                    for m in info.methods():
-                        for p in m.parameter_details():
-                            refined_type = refiner.get_refined_data_type(
-                                p.data_type(), info.module())
-                            p.set_data_type(refined_type)
-
-                        return_ = m.return_()
-                        refined_type = refiner.get_refined_data_type(
-                            return_.data_type(), info.module())
-                        return_.set_data_type(refined_type)
-                    for i, c in enumerate(info.base_classes()):
-                        refined_type = refiner.get_refined_data_type(
-                            c, info.module())
-                        info.set_base_class(i, refined_type)
+                        c, info.module())
+                    info.set_base_class(i, refined_type)
 
     def _remove_duplicate(self, gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
@@ -841,7 +848,7 @@ class PackageAnalyzer:
                     new_attributes.append(a1)
             d.set_attributes(new_attributes)
 
-        # TODO: check class-method/function as well. Be careful to remove duplicate
+        # TODO: check class-method/function as well. But be careful to remove duplicate
         #       because of override method is allowed
 
         return processed_info
@@ -854,61 +861,50 @@ class PackageAnalyzer:
         processed_info.dependencies = gen_info.dependencies
         processed_info.child_modules = gen_info.child_modules
 
+        def rewrite_to_generation_data_type(data_type: 'DataType'):
+            new_data_type = refiner.get_generation_data_type(
+                data_type.data_type(), gen_info.name)
+            return CustomDataType(new_data_type, data_type.modifier())
+
+        def rewrite(info_to_rewrite: 'Info'):
+            if info_to_rewrite.data_type().type() == 'CUSTOM':
+                info_to_rewrite.set_data_type(rewrite_to_generation_data_type(info_to_rewrite.data_type()))
+            elif info_to_rewrite.data_type().type() == 'MIXIN':
+                mixin_dt = info_to_rewrite.data_type()
+                for i, d in enumerate(mixin_dt.data_types()):
+                    if d.type() == 'CUSTOM':
+                        mixin_dt.set_data_type(i, rewrite_to_generation_data_type(d))
+
         for info in gen_info.data:
             # rewrite function parameters and return value
             if info.type() == "function":
                 for p in info.parameter_details():
-                    if p.data_type().type() == 'CUSTOM':
-                        new_data_type = refiner.get_generation_data_type(
-                            p.data_type().data_types(), gen_info.name)
-                        p.set_data_type(CustomDataType(
-                            new_data_type, p.data_type().modifier()))
+                    rewrite(p)
 
                 return_ = info.return_()
-                if return_.data_type().type() == 'CUSTOM':
-                    new_data_type = refiner.get_generation_data_type(
-                        return_.data_type().data_types(), gen_info.name)
-                    return_.set_data_type(CustomDataType(
-                        new_data_type, return_.data_type().modifier()))
+                rewrite(return_)
 
             # rewrite constant
             elif info.type() == "constant":
-                if info.data_type().type() == 'CUSTOM':
-                    new_data_type = refiner.get_generation_data_type(
-                        info.data_type().data_types(), gen_info.name)
-                    info.set_data_type(CustomDataType(
-                        new_data_type, info.data_type().modifier()))
+                rewrite(info)
 
             # rewrite class attributes and method parameters and return value
             elif info.type() == "class":
                 for a in info.attributes():
-                    if a.data_type().type() == 'CUSTOM':
-                        new_data_type = refiner.get_generation_data_type(
-                            a.data_type().data_types(), gen_info.name)
-                        a.set_data_type(CustomDataType(
-                            new_data_type, a.data_type().modifier()))
+                    rewrite(a)
 
                 for m in info.methods():
                     for p in m.parameter_details():
-                        if p.data_type().type() == 'CUSTOM':
-                            new_data_type = refiner.get_generation_data_type(
-                                p.data_type().data_types(), gen_info.name)
-                            p.set_data_type(CustomDataType(
-                                new_data_type, p.data_type().modifier()))
+                        rewrite(p)
 
                     return_ = m.return_()
-                    if return_.data_type().type() == 'CUSTOM':
-                        new_data_type = refiner.get_generation_data_type(
-                            return_.data_type().data_types(), gen_info.name)
-                        return_.set_data_type(CustomDataType(
-                            new_data_type, return_.data_type().modifier()))
+                    rewrite(return_)
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':
-                        new_data_type = refiner.get_generation_data_type(
-                            c.data_types(), gen_info.name)
-                        info.set_base_class(i, CustomDataType(
-                            new_data_type, c.modifier()))
+                        info.set_base_class(i, rewrite_to_generation_data_type(c))
+                    elif c.type() == 'MIXIN':
+                        raise ValueError("Base classes must not be MixinDataType")
 
             processed_info.data.append(info)
 

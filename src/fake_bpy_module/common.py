@@ -6,17 +6,17 @@ from .utils import (
     remove_unencodable,
     output_log,
     LOG_LEVEL_WARN,
+    LOG_LEVEL_DEBUG,
 )
 
 REPLACE_DATA_TYPE: Dict[str, str] = {
     "Enumerated constant": "str, int",
     "enum": "str, int",
-    # TODO: should handle by using __iter__() method and so on...
-    "BMEdgeSeq": "list of BMEdge",
-    "BMFaceSeq": "list of BMFace",
-    "BMLoopSeq": "list of BMLoop",
-    "BMVertSeq": "list of BMVert",
-    "BMEditSelSeq": "list of BMEditSel",
+    "BMEdgeSeq": "BMEdgeSeq of BMEdge",
+    "BMFaceSeq": "BMFaceSeq of BMFace",
+    "BMLoopSeq": "BMLoopSeq of BMLoop",
+    "BMVertSeq": "BMVertSeq of BMVert",
+    "BMEditSelSeq": "BMEditSelSeq of BMEditSel",
 }
 
 BUILTIN_DATA_TYPE: List[str] = [
@@ -29,14 +29,25 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 }
 
 MODIFIER_DATA_TYPE: List[str] = [
-    "list", "dict", "set",
+    "list", "dict", "set", "tuple",
 ]
 
 MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
     "List": "list",
-    "bpy_prop_collection": "list",
-    "BMElemSeq": "list",
     "sequence": "list",
+    "array": "list",
+}
+
+# True:  XXX of YYY -> Union[List[YYY], XXXX]
+# False:  XXX of YYY -> Union[List[YYY]]
+LISTOF_FORMAT: Dict[str, bool] = {
+    "bpy_prop_collection": True,
+    "BMElemSeq": True,
+    "BMEdgeSeq": True,
+    "BMFaceSeq": True,
+    "BMLoopSeq": True,
+    "BMVertSeq": True,
+    "BMEditSelSeq": True,
 }
 
 MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
@@ -90,7 +101,7 @@ class DataType:
     def modifier(self) -> str:
         raise NotImplementedError()
 
-    def data_types(self) -> List[str]:
+    def data_type(self) -> str:
         raise NotImplementedError()
 
     def to_string(self) -> str:
@@ -110,7 +121,7 @@ class UnknownDataType(DataType):
     def modifier(self) -> str:
         raise RuntimeError("module() is not callable")
 
-    def data_types(self) -> List[str]:
+    def data_type(self) -> str:
         raise RuntimeError("data_type() is not callable")
 
     def to_string(self) -> str:
@@ -130,7 +141,7 @@ class IntermidiateDataType(DataType):
     def modifier(self) -> str:
         raise RuntimeError("module() is not callable ({})".format(self._data_type))
 
-    def data_types(self) -> List[str]:
+    def data_type(self) -> str:
         raise RuntimeError("data_type() is not callable ({})".format(self._data_type))
 
     def to_string(self) -> str:
@@ -138,15 +149,14 @@ class IntermidiateDataType(DataType):
 
 
 class BuiltinDataType(DataType):
-    def __init__(self, data_types: List[str], modifier: str=None):
-        if len(data_types) == 0:
-            raise ValueError("length of data_types must be >= 1 but {}"
-                             .format(len(data_types)))
-        for dtype in data_types:
-            if dtype not in BUILTIN_DATA_TYPE:
-                raise ValueError("data_type must be {} but {}"
-                                 .format(BUILTIN_DATA_TYPE, dtype))
-        self._data_types: List[str] = data_types
+    def __init__(self, data_type: str, modifier: str=None):
+        if not isinstance(data_type, str):
+            raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
+
+        if data_type not in BUILTIN_DATA_TYPE:
+            raise ValueError("data_type must be {} but {}"
+                             .format(BUILTIN_DATA_TYPE, data_type))
+        self._data_type: str = data_type
         if (modifier is not None) and (modifier not in MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
@@ -161,23 +171,15 @@ class BuiltinDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_types(self) -> List[str]:
-        return self._data_types
+    def data_type(self) -> str:
+        return self._data_type
 
     def to_string(self) -> str:
         if self._modifier is None:
-            if len(self._data_types) == 1:
-                return self._data_types[0]
-            return "typing.Union[{}]".format(", ".join(self._data_types))
+            return self._data_type
 
-        if len(self._data_types) == 1:
-            return "{}[{}]"\
-                   .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
-                                   self._data_types[0])
-        else:
-            return "{}[typing.Union[{}]]"\
-                   .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
-                           ", ".join(self._data_types))
+        return "{}[{}]".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                               self._data_type)
 
 
 class ModifierDataType(DataType):
@@ -196,7 +198,7 @@ class ModifierDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_types(self) -> List[str]:
+    def data_type(self) -> str:
         raise RuntimeError("data_type is not callable ({})".format(self._modifier))
 
     def to_string(self) -> str:
@@ -204,12 +206,11 @@ class ModifierDataType(DataType):
 
 
 class CustomDataType(DataType):
-    def __init__(self, data_types: List[str], modifier: str=None):
-        # TODO: support more than 2 data_types
-        if len(data_types) != 1:
-            raise ValueError("length of data_types must be {} but {}"
-                             .format(1, len(data_types)))
-        self._data_types: List[str] = data_types
+    def __init__(self, data_type: str, modifier: str=None):
+        if not isinstance(data_type, str):
+            raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
+
+        self._data_type: str = data_type
         if (modifier is not None) and (modifier not in MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
@@ -224,16 +225,36 @@ class CustomDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
-    def data_types(self) -> List[str]:
-        return self._data_types
+    def data_type(self) -> str:
+        return self._data_type
 
     def to_string(self) -> str:
         if self._modifier is None:
-            return "'{}'".format(self._data_types[0])
+            return "'{}'".format(self._data_type)
 
-        return "{}['{}']"\
-               .format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
-                               self._data_types[0])
+        return "{}['{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                 self._data_type)
+
+
+class MixinDataType(DataType):
+    def __init__(self, data_types: List['DataType']):
+        if len(data_types) <= 1:
+            raise ValueError("length of data_types must be >= 2 but {}"
+                             .format(len(data_types)))
+        self._data_types: List['DataType'] = data_types
+
+    def type(self) -> str:
+        return 'MIXIN'
+
+    def data_types(self) -> List['DataType']:
+        return self._data_types
+
+    def to_string(self) -> str:
+        s = [dt.to_string() for dt in self._data_types]
+        return "typing.Union[{}]".format(", ".join(s))
+
+    def set_data_type(self, index, data_type: 'DataType'):
+        self._data_types[index] = data_type
 
 
 class Info:
@@ -921,31 +942,6 @@ class DataTypeRefiner:
 
         return "'{}'".format(data_type)
 
-    def decompose_refined_data_type(self, data_type: str):
-        if data_type is None:
-            return None, None
-
-        # example: typing.List['Action'] -> List, Action
-        p = re.compile(r"^typing\.(List|Set|Dict)\['(.+)'\]$")
-        m = p.match(data_type)
-        if m:
-            return m.group(1), m.group(2)
-
-        # example: typing.List[int] -> List, int
-        p = re.compile(r"^typing\.(List|Set|Dict)\[(.+)\]$")
-        m = p.match(data_type)
-        if m:
-            return m.group(1), m.group(2)
-
-        # example: 'Action' -> Action
-        p = re.compile(r"^'(.+)'$")
-        m = p.match(data_type)
-        if m:
-            return None, m.group(1)
-
-        # example: int -> int
-        return None, data_type
-
     def get_refined_data_type(self, data_type: 'DataType', module_name: str) -> 'DataType':
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
@@ -959,92 +955,196 @@ class DataTypeRefiner:
             if has_data_type(dtype_str, key):
                 dtype_str = dtype_str.replace(key, value)
 
-        # get modifier
-        modifier = None
-        for type_ in MODIFIER_DATA_TYPE:
-            if has_data_type(dtype_str, type_):
-                modifier = type_
-                # remove modifier from dtype_str
-                # TODO: need to clip only modifier string
-                dtype_str = dtype_str.replace(type_, "")
-                break
-        if not modifier:
-            for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
-                if has_data_type(dtype_str, key):
-                    modifier = value
-                    # remove modifier from dtype_str
-                    # TODO: need to clip only modifier string
-                    dtype_str = dtype_str.replace(key, "")
-                    break
+        # strip non-sense string
+        strip_pattens = [
+            r"default (True|False|[-0-9.]+)",
+            r"default \".*\"",
+            r"default \'.*\'",
+            r"default \‘.*\’",
+            r"default \“.*\”",
+            r"default \{.*\}",
+            r"default \([-0-9., ]*\)",
+            r"\(optional\)",
+            r"\(readonly\)",
+            r"\(never None\)",
+            r"\(optional, never None\)",
+            r"\(readonly, never None\)",
+            r"in \[.*\]",
+            r"in \{.*\}",
+            r"of [0-9]+ items",
+        ]
+        for sp in strip_pattens:
+            dtype_str = re.sub(sp, "", dtype_str)
 
-        # at first we check built-in data type
-        dtype = []
-        has_builtin_dtype = False
-        for type_ in BUILTIN_DATA_TYPE:
-            if has_data_type(dtype_str, type_):
-                dtype.append(type_)
-                has_builtin_dtype = True
-        for (key, value) in BUILTIN_DATA_TYPE_ALIASES.items():
-            if has_data_type(dtype_str, key):
-                dtype.append(value)
-                has_builtin_dtype = True
-        dtype = list(set(dtype))
+        def only_nonsense_chars(string_to_parse: str) -> bool:
+            NONSENSE_CHARS = [",", " ", "(", ")"]
+            for c in string_to_parse:
+                if c not in NONSENSE_CHARS:
+                    return False
+            return True
 
-        # and then, search from package entry points
-        # TODO: Need to check _entry_point if dtype has some value, but
-        #       it raises performance problem.
-        has_custom_dtype = False
-        if not has_builtin_dtype:
+        def parse_builtin_dtype(string_to_parse: str) -> (List[str], str):
+            dtype = []
+            stripped_string = string_to_parse
+            for type_ in BUILTIN_DATA_TYPE:
+                if has_data_type(stripped_string, type_):
+                    dtype.append(type_)
+                    stripped_string = stripped_string.replace(type_, "")
+            for (key, value) in BUILTIN_DATA_TYPE_ALIASES.items():
+                if has_data_type(stripped_string, key):
+                    dtype.append(value)
+                    stripped_string = stripped_string.replace(key, "")
+            if only_nonsense_chars(stripped_string):
+                stripped_string = ""
+            return dtype, stripped_string
+
+        def parse_custom_dtype(string_to_parse: str) -> (List[str], str):
+            dtype = []
+            stripped_string = string_to_parse
             for entry in self._entry_points:
+                if len(stripped_string) == 0:
+                    break
                 if entry.type not in ["constant", "class"]:
                     continue
-                if has_data_type(dtype_str, entry.fullname()):
+                if has_data_type(stripped_string, entry.fullname()):
                     dtype.append(entry.fullname())
-                    has_custom_dtype = True
-                    break
-                full_data_type = "{}.{}".format(module_name, dtype_str)
+                    stripped_string = stripped_string.replace(entry.fullname(), "")
+                    if only_nonsense_chars(stripped_string):
+                        stripped_string = ""
+                    continue
+                full_data_type = "{}.{}".format(module_name, stripped_string)
                 if has_data_type(full_data_type, entry.fullname()):
                     dtype.append(entry.fullname())
-                    has_custom_dtype = True
-                    break
+                    stripped_string = stripped_string.replace(entry.name, "")
+                    if only_nonsense_chars(stripped_string):
+                        stripped_string = ""
+                    continue
                 full_data_type = full_data_type.replace(" ", "")
                 if has_data_type(full_data_type, entry.fullname()):
                     dtype.append(entry.fullname())
-                    has_custom_dtype = True
-                    break
-                if has_data_type(dtype_str, entry.name):
+                    stripped_string = stripped_string.replace(entry.name, "")
+                    if only_nonsense_chars(stripped_string):
+                        stripped_string = ""
+                    continue
+                if has_data_type(stripped_string, entry.name):
                     dtype.append(entry.fullname())
-                    has_custom_dtype = True
+                    stripped_string = stripped_string.replace(entry.name, "")
+                    if only_nonsense_chars(stripped_string):
+                        stripped_string = ""
+                    continue
+            if only_nonsense_chars(stripped_string):
+                stripped_string = ""
+            return dtype, stripped_string
+
+        # Check "XXX of YYY" format
+        def parse_listof_case(string_to_parse: str) -> (List[Dict[str, str]], str):
+            listof_case = []
+            stripped_string = string_to_parse
+            for class_, need_to_add in LISTOF_FORMAT.items():
+                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)
+                m = re.search(regex, stripped_string)
+                if m:
+                    case = {}
+                    case["modifier"] = "list"
+                    case["builtin_dtype"], _ = parse_builtin_dtype(m.groups()[0])
+                    case["custom_dtype"] = []
+                    case["self_dtype"] = None
+                    if not case["builtin_dtype"]:
+                        case["custom_dtype"], _ = parse_custom_dtype(m.groups()[0])
+                        if not case["custom_dtype"]:
+                            continue
+                    if need_to_add:
+                        case["self_dtype"] = class_
+                    stripped_string = stripped_string.replace(m.group(), "")
+                    listof_case.append(case)
+            if only_nonsense_chars(stripped_string):
+                stripped_string = ""
+            return listof_case, stripped_string
+
+        def parse_modifier(string_to_parse: str) -> (List[str], str):
+            modifier = None
+            stripped_string = string_to_parse
+            for type_ in MODIFIER_DATA_TYPE:
+                if has_data_type(stripped_string, type_):
+                    modifier = type_
+                    # remove modifier from stripped_string
+                    # TODO: need to clip only modifier string
+                    #       (issue ex. hogelist -> hoge)
+                    stripped_string = stripped_string.replace(type_, "")
                     break
-        if not has_builtin_dtype and not has_custom_dtype:
+            if not modifier:
+                for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
+                    if has_data_type(stripped_string, key):
+                        modifier = value
+                        # remove modifier from stripped_string
+                        # TODO: need to clip only modifier string
+                        #       (issue ex. hogelist -> hoge)
+                        stripped_string = stripped_string.replace(key, "")
+                        break
+            if only_nonsense_chars(stripped_string):
+                stripped_string = ""
+            return modifier, stripped_string
+
+
+        listof_case, dtype_str = parse_listof_case(dtype_str)
+        modifier, dtype_str = parse_modifier(dtype_str)
+
+        # at first we check built-in data type
+        builtin_dtypes, dtype_str = parse_builtin_dtype(dtype_str)
+        builtin_dtypes = list(set(builtin_dtypes))
+
+        # and then, search from package entry points
+        custom_dtypes, dtype_str = parse_custom_dtype(dtype_str)
+        if not builtin_dtypes and not custom_dtypes and not modifier and not listof_case:
             output_log(LOG_LEVEL_WARN,
                        "Could not find any data type ({})"
                        .format(remove_unencodable(data_type.to_string())))
+        custom_dtypes = list(set(custom_dtypes))
+
+        if dtype_str:
+            output_log(LOG_LEVEL_DEBUG,
+                       "dtype_str is still exists ({})".format(remove_unencodable(dtype_str)))
+
+        dtype_list = []
+        for case in listof_case:
+            if case["builtin_dtype"]:
+                dtype_list.append(BuiltinDataType(case["builtin_dtype"][0], case["modifier"]))
+            elif case["custom_dtype"]:
+                dtype_list.append(CustomDataType(case["custom_dtype"][0], case["modifier"]))
+            if case["self_dtype"]:
+                dtype_list.append(CustomDataType(case["self_dtype"]))
 
         if modifier is None:
-            if has_builtin_dtype:
-                return BuiltinDataType(dtype)
-            elif has_custom_dtype:
-                return CustomDataType(dtype)
-            else:
-                return UnknownDataType()
+            for d in builtin_dtypes:
+                dtype_list.append(BuiltinDataType(d))
+            for d in custom_dtypes:
+                dtype_list.append(CustomDataType(d))
         else:
-            if has_builtin_dtype:
+            for d in builtin_dtypes:
                 if (modifier != "list") and (modifier != "set"):
                     output_log(LOG_LEVEL_WARN,
                                "Modifier '{}' does not support element type inference ({})"
-                               .format(modifier, data_type.to_string()))
-                    return ModifierDataType(modifier)
-                return BuiltinDataType(dtype, modifier)
-            elif has_custom_dtype:
+                               .format(modifier, d))
+                    dtype_list.append(ModifierDataType(modifier))
+                else:
+                    dtype_list.append(BuiltinDataType(d, modifier))
+            for d in custom_dtypes:
                 if (modifier != "list") and (modifier != "set"):
                     output_log(LOG_LEVEL_WARN,
                                "Modifier '{}' does not support element type inference ({})"
-                               .format(modifier, data_type.to_string()))
-                    return ModifierDataType(modifier)
-                return CustomDataType(dtype, modifier)
-            else:
-                return ModifierDataType(modifier)
+                               .format(modifier, d))
+                    dtype_list.append(ModifierDataType(modifier))
+                else:
+                    dtype_list.append(CustomDataType(d, modifier))
+            if not builtin_dtypes and not custom_dtypes:
+                dtype_list.append(ModifierDataType(modifier))
+
+        if len(dtype_list) == 1:
+            return dtype_list[0]
+        elif len(dtype_list) >= 2:
+            return MixinDataType(dtype_list)
+        else:
+            return UnknownDataType()
 
     def get_base_name(self, data_type: str) -> str:
         if data_type is None:
@@ -1087,15 +1187,7 @@ class DataTypeRefiner:
 
         return ensured
 
-    def get_generation_data_type(self, data_type_1: List[str],
-                                      data_type_2: str) -> List[str]:
-        final_data_types = []
-        for dtype in data_type_1:
-            final_data_types.append(
-                self._get_generation_data_type(dtype, data_type_2))
-        return final_data_types
-
-    def _get_generation_data_type(self, data_type_1: str,
+    def get_generation_data_type(self, data_type_1: str,
                                  data_type_2: str) -> str:
         mod_names_full_1 = self.get_module_name(data_type_1)
         mod_names_full_2 = self.get_module_name(data_type_2)
