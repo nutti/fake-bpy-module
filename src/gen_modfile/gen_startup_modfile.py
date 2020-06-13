@@ -86,7 +86,7 @@ def get_scripts_list_to_parse(config: 'GenerationConfig') -> List[str]:
                 continue
 
             filepath = os.path.join(cur_dir, file_).replace("/", separator())
-            with open(filepath, "r") as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 lines = [l for l in f.readlines() if l.find("register_class(") != -1]
             if len(lines) > 0:
                 scripts_to_parse.append(filepath)
@@ -97,7 +97,7 @@ def get_scripts_list_to_parse(config: 'GenerationConfig') -> List[str]:
 def analyze(scripts_paths: List[str]) -> Dict:
     root_nodes = {}
     for script_path in scripts_paths:
-        with open(script_path, "r") as f:
+        with open(script_path, "r", encoding="utf-8") as f:
             source = f.read()
 
         root_nodes[script_path] = ast.parse(source, script_path)
