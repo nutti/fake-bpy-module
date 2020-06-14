@@ -122,7 +122,7 @@ def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGe
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
     files = list(set(all_files) - set(excludes_files))
     mod_files = []
-    if config.mod_version in ["2.80", "2.81", "2.82"]:
+    if config.mod_version not in ["2.78", "2.79"]:
         mod_files.append("{}/mods/generated_mods/gen_modules_modfile/gpu_extras.json".format(MOD_FILES_DIR).replace("\\", "/"))
     return fbm.PackageGenerationRule("gpu_extras", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
@@ -164,7 +164,7 @@ def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageG
         "{}/mods/generated_mods/gen_modules_modfile/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/"),
     }
 
-    if config.mod_version in ["2.80", "2.81", "2.82"]:
+    if config.mod_version not in ["2.78", "2.79"]:
         mod_files -= {
             "{}/mods/generated_mods/gen_modules_modfile/gpu_extras.json".format(MOD_FILES_DIR).replace("\\", "/"),
         }

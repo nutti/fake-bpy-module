@@ -12,7 +12,7 @@ source_dir=${1}
 blender_dir=${2}
 branch_name=${3}
 output_dir=${4}
-mod_version=${5}
+mod_version=${5:-not-specified}
 current_dir=`pwd`
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
 
@@ -67,7 +67,7 @@ mkdir ${generated_mod_dir}/gen_bgl_modfile
 python ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
 
 # generate fake bpy modules
-if [ ${mod_version} = "" ]; then
+if [ ${mod_version} = "not-specified" ]; then
     python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
 else
     python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
