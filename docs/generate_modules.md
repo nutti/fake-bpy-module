@@ -21,7 +21,9 @@ The generating script uses the packages listed on [requirements.txt](../requirem
 Execute below command to install requirement packages.
 
 ```bash
-$ pip install -r requirements.txt
+git clone https://github.com/nutti/fake-bpy-module.git
+cd fake-bpy-module
+pip install -r requirements.txt
 ```
 
 
@@ -44,8 +46,8 @@ Download Blender whose version is the version you try to generate modules.
 
 #### 2. Download Blender sources
 
-```
-$ git clone git://git.blender.org/blender.git
+```bash
+git clone git://git.blender.org/blender.git
 ```
 
 
@@ -55,29 +57,27 @@ Download the fake-bpy-module sources from GitHub.
 
 Use Git and clone fake-bpy-module repository.
 
-```
-$ git clone https://github.com/nutti/fake-bpy-module.git
+```bash
+git clone https://github.com/nutti/fake-bpy-module.git
 ```
 
-or
-
-Download .zip file from GitHub.
+Or, you can download .zip file from GitHub.
 
 https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 
 #### 4. Run script
 
-```
-$ cd fake-bpy-module/src
-$ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
+```bash
+cd fake-bpy-module/src
+bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
 ```
 
 * `<source-dir>`: Specify Blender sources directory.
 * `<blender-dir>`: Specify Blender binary directory.
 * `<branch/tag/commit>`: Specify target Blender source's branch for the generating modules.
-  * If you want to generate modules for 2.79, specify v2.79
-  * If you want to generate modules for newest Blender version, specify master
+  * If you want to generate modules for 2.79, specify `v2.79`
+  * If you want to generate modules for newest Blender version, specify `master`
 * `<output-dir>`: Specify directory where generated modules are output.
 * `<mod_version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
@@ -88,14 +88,23 @@ $ sh gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <
 
 #### 1. Download Blender binary
 
-Download Blender binary from [Blender official download site](https://download.blender.org/release/).
-Download Blender whose version is the version you try to generate modules.
+Download Blender binary from [Blender official download site](https://download.blender.org/release/).  
+Download Blender whose version is the version you try to generate modules.  
+Place Blender binary to some directory.  
+In this tutorial, Blender binary assumes to be placed on `/workspace/blender-bin`. (i.e. Blender executable is located on `/workspace/blender-bin/blender`)
+
+```bash
+export WORKSPACE=/workspace
+export BLENDER_BIN=${WORKSPACE}/blender-bin
+export BLENDER_SRC=${WORKSPACE}/blender
+```
 
 
 #### 2. Download Blender sources
 
-```
-$ git clone git://git.blender.org/blender.git
+```bash
+cd ${WORKSPACE}
+git clone git://git.blender.org/blender.git
 ```
 
 
@@ -104,26 +113,28 @@ $ git clone git://git.blender.org/blender.git
 Be sure to match the version between sources and binary.
 If you try to generate modules for v2.79, you should use `git checkout v2.79`.
 
-```
-$ cd blender
-$ git checkout [branch/tag/commit]
+```bash
+cd ${BLENDER_SRC}
+git checkout [branch/tag/commit]
 ```
 
 
 #### 4. Generate .rst documents
 
-Generated .rst documents are located on `doc/python_api/sphinx-in`.
+Generated .rst documents are located on `${BLENDER_SRC}/doc/python_api/sphinx-in`.
 
-```
-$ blender --background --factory-startup -noaudio --python doc/python_api/sphinx_doc_gen.py
+```bash
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python doc/python_api/sphinx_doc_gen.py
 ```
 
 
 #### 5. Convert .rst to .xml
 
+```bash
+sphinx-build -b xml doc/python_api/sphinx-in <xml-out>
 ```
-$ sphinx-build -b xml doc/python_api/sphinx-in <xml-out>
-```
+
+* `<xml-out>`: Specify output directory for generated .xml files.
 
 
 #### 6. Download fake-bpy-module sources
@@ -132,29 +143,45 @@ Download the fake-bpy-module sources from GitHub.
 
 Use Git and clone fake-bpy-module repository.
 
-```
-$ git clone https://github.com/nutti/fake-bpy-module.git
+```bash
+cd ${WORKSPACE}
+git clone https://github.com/nutti/fake-bpy-module.git
 ```
 
-or
-
-Download .zip file from GitHub.
+Or, you can download .zip file from GitHub.
 
 https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 
-#### 7. Generate modules
+#### 7. Generate mod files
 
-```
-$ cd fake-bpy-module/src
-$ python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
+```bash
+cd fake-bpy-module/src
+
+mkdir -p mods/generated_mods
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python gen_modfile/gen_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile
+
+mkdir -p mods/generated_mods/gen_startup_modfile
+python gen_modfile/gen_startup_modfile.py -i ${BLENDER_BIN}/<blender-version>/scripts/startup -o mods/generated_mods/gen_startup_modfile/bpy.json
+
+mkdir -p mods/generated_mods/gen_bgl_modfile
+python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.c -o mods/generated_mods/gen_bgl_modfile/bgl.json
 ```
 
-* `-i <input-dir>`: Specify input directory. (the directory .xml files are located by process 5)
-* `-o <output-dir>`: Specify output directory. (the directory generated files will be located)
+* `<blender-version>`: Specify Blender version.
+
+
+#### 8. Generate modules
+
+```bash
+python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
+```
+
+* `-i <input-dir>`: Specify input directory. (The directory where .xml files are located in process 5)
+* `-o <output-dir>`: Specify output directory. (The directory where generated files will be located)
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with suffix `-dump.json`
-* `-f <format>`: Format the generated code using format
-  * `pep8`: Format generated code using pep8 format
+* `-f <format>`: Format the generated code by `<format>` convention.
+  * `pep8`: Format generated code by pep8.
 * `-m <mod_version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
   * Files located in `mods/common` directories will be used at any time.
