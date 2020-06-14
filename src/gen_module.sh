@@ -2,6 +2,7 @@
 
 TMP_DIR_NAME=gen_module-tmp
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
+PYTHON_BIN=${PYTHON_BIN:-python3}
 
 if [ $# -ne 4 ] && [ $# -ne 5 ]; then
     echo "Usage: bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> [<mod-version>]"
@@ -30,6 +31,20 @@ fi
 
 if [ ! -e ${blender_bin} ]; then
     echo "${blender_bin} is not exist"
+    exit 1
+fi
+
+# check if PYTHON_BIN binary is availble
+if ! command -v ${PYTHON_BIN} > /dev/null; then
+    echo "Error: Cannot find ${PYTHON_BIN} binary."
+    exit 1
+fi
+python_bin=$(command -v ${PYTHON_BIN})
+
+# check if python version meets our requirements
+IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
+if [ ${python_version[0]} -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 6 ]]; then
+    echo "Error: Unsupported python version \"${python_version[0]}.${python_version[1]}\". Requiring python 3.6 or higher."
     exit 1
 fi
 
@@ -62,15 +77,15 @@ generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
 mkdir -p ${generated_mod_dir}
 ${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
 mkdir ${generated_mod_dir}/gen_startup_modfile
-python ${SCRIPT_DIR}/gen_modfile/gen_startup_modfile.py -i ${startup_dir} -o ${generated_mod_dir}/gen_startup_modfile/bpy.json
+${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_startup_modfile.py -i ${startup_dir} -o ${generated_mod_dir}/gen_startup_modfile/bpy.json
 mkdir ${generated_mod_dir}/gen_bgl_modfile
-python ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
+${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
 
 # generate fake bpy modules
 if [ ${mod_version} = "not-specified" ]; then
-    python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
+    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
 else
-    python ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
+    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
 fi
 
 # clear temporary directory

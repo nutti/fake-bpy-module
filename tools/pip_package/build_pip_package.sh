@@ -19,6 +19,7 @@ RAW_MODULES_DIR="raw_modules"
 RELEASE_DIR="release"
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 CURRENT_DIR=`pwd`
+PYTHON_BIN=${PYTHON_BIN:-python3}
 
 # check arguments
 if [ $# -ne 4 ]; then
@@ -30,6 +31,20 @@ target=${1}
 version=${2}
 source_dir=${3}
 blender_dir=${4}
+
+# check if PYTHON_BIN binary is availble
+if ! command -v ${PYTHON_BIN} > /dev/null; then
+    echo "Error: Cannot find ${PYTHON_BIN} binary."
+    exit 1
+fi
+python_bin=$(command -v ${PYTHON_BIN})
+
+# check if python version meets our requirements
+IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
+if [ ${python_version[0]} -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 6 ]]; then
+    echo "Error: Unsupported python version \"${python_version[0]}.${python_version[1]}\". Requiring python 3.6 or higher."
+    exit 1
+fi
 
 if [ ${RELEASE_VERSION:-not_exist} = "not_exist" ]; then
     echo "Environment variable 'RELEASE_VERSION' does not exist, so use date as release version"
@@ -96,8 +111,8 @@ if [ ${target} = "release" ]; then
     rm README.md
     rm -rf fake_bpy_module*.egg-info/ dist/ build/
     ls -R .
-    python setup.py sdist
-    python setup.py bdist_wheel
+    ${python_bin} setup.py sdist
+    ${python_bin} setup.py bdist_wheel
 
     # move the generated package to releaes directory
     mv dist ${release_dir}/${version}
@@ -119,7 +134,7 @@ elif [ ${target} = "develop" ]; then
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
-    zip -r ${zip_file_name} ${fake_module_dir} 
+    zip -r ${zip_file_name} ${fake_module_dir}
     mv ${zip_file_name} ${raw_modules_dir}
     mv ${fake_module_dir}/* .
     rm -r ${zip_dir}
@@ -127,7 +142,7 @@ elif [ ${target} = "develop" ]; then
 
     # build and install package
     ls -R .
-    python setup.py develop
+    ${python_bin} setup.py develop
 
     # clean up
     cd ${CURRENT_DIR}
