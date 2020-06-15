@@ -7,8 +7,8 @@ fake-bpy-module is the collections of the fake Blender Python API modules for th
 
 ## Requirements
 
-fake-bpy-module uses typing module and type hints availabled from Python 3.6.
-Check your Python version is >= 3.6.
+fake-bpy-module uses typing module and type hints availabled from Python 3.7.
+Check your Python version is >= 3.7.
 
 
 ## Install

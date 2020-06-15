@@ -11,8 +11,8 @@ You can choose the method to generate modules.
 
 #### Python Version
 
-The generating script can be run on Python >= 3.6.
-Check your Python version is >= 3.6.
+The generating script can be run on Python >= 3.7.
+Check your Python version is >= 3.7.
 
 
 #### Install requirement packages
