@@ -63,10 +63,6 @@ git pull origin ${branch_name}
 cd ${current_dir}
 ${blender_bin} --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
 
-# convert .rst to .xml
-mkdir -p ${tmp_dir}/sphinx-out-xml
-sphinx-build -b xml ${tmp_dir}/sphinx-in ${tmp_dir}/sphinx-out-xml
-
 # generate modfiles
 startup_dir=`find ${blender_dir} -type d | egrep "/[0-9.]{4}/scripts/startup$"`
 if [ $? -ne 0 ]; then
@@ -83,9 +79,9 @@ ${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/sour
 
 # generate fake bpy modules
 if [ ${mod_version} = "not-specified" ]; then
-    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8
+    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-in -o ${output_dir} -f pep8
 else
-    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-out-xml -o ${output_dir} -f pep8 -m ${mod_version}
+    ${python_bin} ${SCRIPT_DIR}/gen.py -i ${tmp_dir}/sphinx-in -o ${output_dir} -f pep8 -m ${mod_version}
 fi
 
 # clear temporary directory

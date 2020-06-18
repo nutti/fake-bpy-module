@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 import re
-from typing import List
+from typing import List, IO, Any
 import json
 
 from .common import (
@@ -21,455 +21,6 @@ from .utils import (
 )
 
 
-def textify(elm) -> str:
-    s = []
-    if elm.text:
-        s.append(elm.text)
-    for child in elm.getchildren():
-        s.extend(textify(child))
-    if elm.tail:
-        s.append(elm.tail)
-
-    return ''.join(s)
-
-
-class VariableAnalyzer:
-    def __init__(self, filename: str, type_: str):
-        self.filename: str = filename
-        self.info: 'VariableInfo' = VariableInfo(type_)
-
-    def _parse_field(self, elm, result):
-        field_type = ""
-        for child in list(elm):
-            if child.tag == "field_name":
-                field_type = child.text
-            elif child.tag == "field_body":
-                if field_type == "Type":
-                    result["data_dtype"] = re.sub(r'\s+', ' ', textify(child))
-
-    def _parse_field_list(self, elm, result):
-        for child in list(elm):
-            if child.tag == "field":
-                self._parse_field(child, result)
-
-    def _parse_desc_content(self, elm, result):
-        for child in list(elm):
-            if child.tag == "paragraph":
-                result["desc"] = re.sub(r'\s+', ' ', textify(child))
-            elif child.tag == "field_list":
-                self._parse_field_list(child, result)
-
-    def analyze(self, elm) -> 'VariableInfo':
-        signature_analyzed = False
-        for child in list(elm):
-            if child.tag == "desc_signature":
-                if signature_analyzed:
-                    msg = "desc_content must be parsed after parsing " \
-                          "desc_signature"
-                    output_log(LOG_LEVEL_ERR, msg)
-                    raise RuntimeError(msg)
-
-                # get name data
-                name = child.get("fullname")
-                if name is None:
-                    name = child.find("desc_name").text   # for constant data
-                class_ = child.get("class")
-                if (class_ is not None) and (class_ != ""):
-                    idx = name.rfind(class_)    # for class attribute
-                    if idx != -1:
-                        name = name[idx + len(class_) + 1:]
-                self.info.set_name(name)
-
-                # get module/class data
-                self.info.set_class(class_)
-                self.info.set_module(child.get("module"))
-
-                signature_analyzed = True
-
-            elif child.tag == "desc_content":
-                if not signature_analyzed:
-                    msg = "desc_signature must be parsed before parsing " \
-                          "desc_content"
-                    output_log(LOG_LEVEL_ERR, msg)
-                    raise RuntimeError(msg)
-
-                result = {}
-                self._parse_desc_content(child, result)
-
-                # get description/dtype data
-                if "desc" in result:
-                    self.info.set_description(result["desc"])
-                if "data_dtype" in result:
-                    self.info.set_data_type(IntermidiateDataType(result["data_dtype"]))
-
-        if not signature_analyzed:
-            msg = "The data data is not parsed"
-            output_log(LOG_LEVEL_ERR, msg)
-            raise RuntimeError(msg)
-
-        return self.info
-
-
-class FunctionAnalyzer:
-    def __init__(self, filename, type_):
-        self.filename: str = filename
-        self.info: 'FunctionInfo' = FunctionInfo(type_)
-
-    def _get_return_type_paragraph(self, elm):
-        all_str = textify(elm)
-        s = re.sub(r'\s+', ' ', all_str)
-        return s
-
-    def _get_return_type(self, elm):
-        for child in list(elm):
-            if child.tag == "paragraph":
-                return self._get_return_type_paragraph(child)
-
-        output_log(
-            LOG_LEVEL_WARN,
-            "<paragraph> is not found (filename={0})".format(self.filename)
-        )
-        return ""
-
-    def _get_param_paragraph(self, elm):
-        """
-        parse
-
-          <paragraph>
-            <literal_strong>
-              [name]
-            </literal_strong>
-            <literal_emphasis>
-              [type]
-            </literal_emphasis>
-            [desc]
-          </paragraph>
-
-        or
-
-          <paragraph>
-            <strong>
-              [name]
-            </strong>
-            <literal_emphasis>
-              [type]
-            </literal_emphasis>
-            [desc]
-          </paragraph>
-        """
-
-        name = None
-        for l in list(elm):
-            if (l.tag == "literal_strong") or (l.tag == "strong"):
-                name = l.text
-        str_ = textify(elm)
-        if name is None:
-            output_log(
-                LOG_LEVEL_WARN,
-                "<literal_strong> or <strong> is not found. "
-                "(filename={0})".format(self.filename)
-            )
-            return None
-
-        str_ = re.sub(r'\s+', ' ',  str_)
-        str_ = re.sub(r'\(\s+', '(', str_)
-        r = re.compile("([a-zA-Z0-9_]+) \((.+)\) – (.+)")
-        result = r.findall(str_)
-        if result:
-            info = ParameterDetailInfo()
-            info.set_name(result[0][0])
-            info.set_description(result[0][2])
-            info.set_data_type(IntermidiateDataType(result[0][1]))
-            return info
-
-        r = re.compile("([a-zA-Z0-9_]+) – (.+)")
-        result = r.findall(str_)
-        if result:
-            info = ParameterDetailInfo()
-            info.set_name(result[0][0])
-            info.set_description(result[0][1])
-            return info
-
-        r = re.compile("([a-zA-Z0-9_]+) \((.+)\) – ")
-        result = r.findall(str_)
-        if result:
-            info = ParameterDetailInfo()
-            info.set_name(result[0][0])
-            info.set_data_type(IntermidiateDataType(result[0][1]))
-            return info
-
-        output_log(
-            LOG_LEVEL_WARN,
-            "Does not match any paramter pattern. "
-            "(filename={}, str={})".format(self.filename, str_)
-        )
-
-        return None
-
-    def _analyze_list_item(self, elm):
-        paragraph = None
-        for child in list(elm):
-            if child.tag == "paragraph":
-                paragraph = child
-                break
-
-        if not paragraph:
-            output_log(
-                LOG_LEVEL_WARN,
-                "<paragraph> is not found (filename={0})".format(self.filename)
-            )
-            return None
-
-        return self._get_param_paragraph(paragraph)
-
-    def _parse_bullet_list(self, elm):
-        items = []
-        for child in list(elm):
-            if child.tag == "list_item":
-                item = self._analyze_list_item(child)
-                if item is not None:
-                    items.append(item)
-        return items
-
-    def _analyze_param_list(self, elm, result):
-        params = []
-        for child in list(elm):
-            if child.tag == "bullet_list":
-                params = self._parse_bullet_list(child)
-            elif child.tag == "paragraph":
-                p = self._get_param_paragraph(child)
-                if p:
-                    params = [p]
-
-        result["params_detail"] = params
-
-    def _parse_field(self, elm, result):
-        field_type = ""
-        for child in list(elm):
-            if child.tag == "field_name":
-                field_type = child.text
-            elif child.tag == "field_body":
-                if field_type == "Parameters":
-                    self._analyze_param_list(child, result)
-                elif field_type == "Return type":
-                    result["return_dtype"] = self._get_return_type(child)
-                elif field_type == "Returns":
-                    result["return_desc"] = re.sub(r'\s+', ' ', textify(child))
-
-    def _parse_field_list(self, elm, result):
-        for child in list(elm):
-            if child.tag == "field":
-                self._parse_field(child, result)
-
-    def _parse_desc_content(self, elm, result):
-        for child in list(elm):
-            if child.tag == "paragraph":
-                result["desc"] = re.sub(r'\s+', ' ', textify(child))
-            elif child.tag == "field_list":
-                self._parse_field_list(child, result)
-
-    def _parse_parameter_body_text(self, text):
-        sp = [re.sub(" ", "", p) for p in text.split(",")]
-
-        params = []
-        parenthese_level = 0
-        next_param = ""
-        for p in sp:
-            parenthese_level += p.count("(") - p.count(")")
-            if parenthese_level < 0:
-                raise ValueError("Parenthese Level must be >= 0, but {}. (text: {}, filename: {})"
-                                 .format(parenthese_level, text, self.filename))
-
-            next_param += p + ","
-            if parenthese_level == 0:
-                params.append(next_param[:-1])  # strip last ","
-                next_param = ""
-        
-        if parenthese_level != 0:
-            raise ValueError("Parenthese Level must be == 0, but {}. (text: {}, filename: {})"
-                             .format(parenthese_level, text, self.filename))
-
-        return params
-
-    def _get_parameters(self, elm):
-        result = []
-        param_bodies = []
-        for child in list(elm):
-            if child.tag == "desc_parameter":
-                param_bodies.append(child.text)
-        result.extend(self._parse_parameter_body_text(",".join(param_bodies)))
-        return result
-
-    def analyze(self, elm) -> 'FunctionInfo':
-        signature_analyzed = False
-        for child in list(elm):
-            if child.tag == "desc_signature":
-                if signature_analyzed:
-                    continue
-
-                fullname = child.get("fullname")
-                text = child.find("desc_name").text
-                lp = text.find("(")
-                rp = text.rfind(")")
-                if (lp == -1) or (rp == -1):
-                    output_log(
-                        LOG_LEVEL_NOTICE,
-                        "'(' or ')' are not found (text={}, filename={})".format(text, self.filename)
-                    )
-
-                    # get name data
-                    name = text
-
-                    # TODO: freestyle.shader.SmoothingShader.__init__() matches this case.
-                    parenthese_index = name.find("(")
-                    if parenthese_index != -1:
-                        name = name[:parenthese_index]
-                        output_log(
-                            LOG_LEVEL_WARN,
-                            "Function name has parenthesis. But this should be fixed at Blender itself. (name: {}, filename: {})"
-                            .format(name, self.filename)
-                        )
-
-                    # get parameters
-                    params = []
-                    c = child.find("desc_parameterlist")
-                    if c is not None:
-                        params = self._get_parameters(c)
-                else:
-                    if lp == -1:
-                        raise ValueError("( is not found. (text: {}, filename: {})"
-                                         .format(text, self.filename))
-                    if rp == -1:
-                        raise ValueError(") is not found. (text: {}, filename: {})"
-                                         .format(text, self.filename))
-
-                    # get name data
-                    name = text[0:lp]
-
-                    # get parameters
-                    params = self._parse_parameter_body_text(text[lp + 1:rp])
-
-                self.info.set_name(name)
-                self.info.add_parameters(params)
-
-                # validate name data
-                if not self.info.equal_to_fullname(fullname):
-                    if fullname is not None:
-                        output_log(
-                            LOG_LEVEL_NOTICE,
-                            "fullname does not match text "
-                            "(fullname={}, text={}, filename={})"
-                            .format(fullname, name, self.filename)
-                        )
-
-                # get module/class data
-                self.info.set_module(child.get("module"))
-                self.info.set_class(child.get("class"))
-
-                signature_analyzed = True
-
-            elif child.tag == "desc_content":
-                if not signature_analyzed:
-                    msg = "desc_signature must be parsed before parsing " \
-                          "desc_content"
-                    output_log(LOG_LEVEL_ERR, msg)
-                    raise RuntimeError(msg)
-
-                result = {}
-                self._parse_desc_content(child, result)
-
-                # get description data
-                if "desc" in result.keys():
-                    self.info.set_description(result["desc"])
-
-                # get return data
-                return_builder = ReturnInfo()
-                if "return_dtype" in result.keys():
-                    return_builder.set_data_type(IntermidiateDataType(result["return_dtype"]))
-                if "return_desc" in result.keys():
-                    return_builder.set_description(result["return_desc"])
-                self.info.set_return(return_builder)
-
-                # get params_detail data
-                if "params_detail" in result.keys():
-                    self.info.add_parameter_details(result["params_detail"])
-                break
-
-        if not signature_analyzed:
-            msg = "The function data is not parsed"
-            output_log(LOG_LEVEL_ERR, msg)
-            raise RuntimeError(msg)
-
-        return self.info
-
-
-class ClassAnalyzer:
-    def __init__(self, filename):
-        self.filename: str = filename
-        self.info: 'ClassInfo' = ClassInfo()
-
-    def _parse_desc(self, desc, result):
-        attr = desc.get("desctype")
-        if attr == "function" or attr == "method":
-            if "method" not in result:
-                result["method"] = []
-            analyzer = FunctionAnalyzer(self.filename, "method")
-            m = analyzer.analyze(desc)
-            result["method"].append(m)
-        elif attr == "attribute" or attr == "data":
-            if "attribute" not in result:
-                result["attribute"] = []
-            analyzer = VariableAnalyzer(self.filename, "attribute")
-            a = analyzer.analyze(desc)
-            result["attribute"].append(a)
-
-    def _parse_desc_content(self, elm, result):
-        for child in list(elm):
-            if child.tag == "paragraph":
-                result["desc"] = re.sub(r'\s+', ' ', textify(child))
-            elif child.tag == "desc":
-                self._parse_desc(child, result)
-
-    def analyze(self, elm) -> 'ClassInfo':
-        signature_analyzed = False
-        for child in list(elm):
-            if child.tag == "desc_signature":
-                if signature_analyzed:
-                    continue        # ignore
-
-                # get name data
-                self.info.set_name(child.get("fullname"))
-
-                # get module data
-                self.info.set_module(child.get("module"))
-
-                signature_analyzed = True
-
-            elif child.tag == "desc_content":
-                if not signature_analyzed:
-                    msg = "desc_signature must be parsed before parsing " \
-                          "desc_content"
-                    output_log(LOG_LEVEL_ERR, msg)
-                    raise RuntimeError(msg)
-
-                # get description data
-                result = {}
-                self._parse_desc_content(child, result)
-                if "desc" in result.keys():
-                    self.info.set_description(result["desc"])
-                if "method" in result.keys():
-                    self.info.add_methods(result["method"])
-                if "attribute" in result.keys():
-                    self.info.add_attributes(result["attribute"])
-
-        if not signature_analyzed:
-            msg = "The class data is not parsed"
-            output_log(LOG_LEVEL_ERR, msg)
-            raise RuntimeError(msg)
-
-        return self.info
-
-
 class AnalysisResult:
     def __init__(self):
         self.section_info: List['SectionInfo'] = []
@@ -477,86 +28,790 @@ class AnalysisResult:
 
 class BaseAnalyzer:
     def __init__(self):
-        self.filenames: List[str] = []
+        self.current_file: str = None
 
-    def _analyze_desc(self, filename: str, desc) -> 'Info':
-        result = None
-        attr = desc.get("desctype")
-        if attr == "function" or attr == "method":
-            analyzer = FunctionAnalyzer(filename, "function")
-            result = analyzer.analyze(desc)
-        elif attr == "data":
-            analyzer = VariableAnalyzer(filename, "constant")
-            result = analyzer.analyze(desc)
-        elif attr == "class":
-            analyzer = ClassAnalyzer(filename)
-            result = analyzer.analyze(desc)
+    def _get_level_space_count(self, level: int) -> int:
+        return level * 3
 
-        return result
+    def _cleanup_string(self, line: str) -> str:
+        result = line
 
-    def _analyze_desc_with_base_classes(self, filename: str, desc, base_classes: List['DataType']) -> 'Info':
-        result = None
-        attr = desc.get("desctype")
-        if attr == "class":
-            analyzer = ClassAnalyzer(filename)
-            result = analyzer.analyze(desc)
-            result.add_base_classes(base_classes)
-        else:
-            raise ValueError("desctype must be 'class' when base_classes are exist")
+        result = re.sub(r":class:", " ", result)
+        result = re.sub(r"`", " ", result)
+        result = re.sub(r"^\s+", "", result)
+        result = re.sub(r"\s+$", "", result)
+        result = re.sub(r"\s+", " ", result)
 
         return result
 
-    def _analyze_base_classes(self, filename: str, elm) -> List['DataType']:
+    def _invalid_line(self, line: str, level: int):
+        raise ValueError("Invalid line: {} (File name: {}, Level: {})"
+                         .format(line.rstrip("\n"), self.current_file, level))
+
+    def _skip_until_next_le_level(self, file: IO[Any], level: int):
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return
+            last_pos = file.tell()
+            line = file.readline()
+
+    def _parse_module(self, file: IO[Any], level: int) -> str:
+        line = file.readline()
+        m = re.match(r"^\.\. module:: ([a-zA-Z0-9._]+)", line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        module_name = m.group(1)
+
+        return module_name
+
+    def _parse_base_class(self, file: IO[Any], level: int) -> List['DataType']:
+        line = file.readline()
+        m = re.match(r"^base (class|classes) --- (.*)", line)
+        if m is None:
+            self._invalid_line(line, level)
+        
         base_classes = []
-        for child in elm.iter("reference"):
-            data_type = IntermidiateDataType(child.attrib["reftitle"])
-            base_classes.append(data_type)
+        sps = self._parse_comma_separated_string(self._cleanup_string(m.group(2)))
+        for sp in sps:
+            base_classes.append(IntermidiateDataType(self._cleanup_string(sp)))
 
         return base_classes
 
-    def _analyze_section(self, filename: str, elm, result: 'SectionInfo'):
-        base_classes = []
-        for child in list(elm):
-            if child.tag == "paragraph":    # <paragraph>base classes — </paragraph>
-                # This is a special case to get base classes.
-                if child.text and \
-                        (child.text.startswith("base classes — ") or
-                         child.text.startswith("base class — ")):
-                    base_classes = self._analyze_base_classes(filename, child)
-            elif child.tag == "desc":     # <desc>
-                if not base_classes:
-                    r = self._analyze_desc(filename, child)
-                    if r:
-                        result.info_list.append(r)
+    def _parse_description(self, file: IO[Any], level: int) -> str:
+        line = file.readline()
+        pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}.*"
+        m = re.match(pattern, line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        description = line
+
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return description
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return description
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(arg|type|return|rtype)", line):
+                file.seek(last_pos)
+                return description
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}.*", line):
+                description += line
+            else:
+                self._invalid_line(line, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        return description
+
+    def _has_le_level_start(self, line: str, level: int) -> bool:
+        for lv in range(level+1):
+            pattern = r"^\s{" + str(lv*3) + r"}\.\."
+            if re.match(pattern, line):
+                return True
+        return False
+
+    def _has_le_level_string(self, line: str, level: int) -> bool:
+        for lv in range(level+1):
+            pattern = r"^\s{" + str(lv*3) + r"}\S+"
+            if re.match(pattern, line):
+                return True
+        return False
+
+    def _parse_func_detail(self, file: IO[Any], level: int) -> dict:
+        def _parse_type(file: IO[Any], level: int) -> List[dict]:
+            last_pos = file.tell()
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:type ([a-zA-Z0-9_, ]+):(.*)"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            infos = []
+            for s in self._parse_comma_separated_string(m.group(1)):
+                infos.append({
+                    "name": self._cleanup_string(s),
+                    "type": "parameter",
+                    "description": "",
+                    "data_type": m.group(2),
+                })
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return infos
+                elif self._has_le_level_string(line, level):
+                    file.seek(last_pos)
+                    return infos
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(arg|type|return|rtype)", line):
+                    file.seek(last_pos)
+                    return infos
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\s*(\S+)", line):
+                    data_type = re.sub(r"\s+", " ", line)
+                    for info in infos:
+                        info["data_type"] += data_type
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}(\S+)", line):
+                    file.seek(last_pos)
+                    return infos
                 else:
-                    r = self._analyze_desc_with_base_classes(filename, child, base_classes)
-                    if r:
-                        result.info_list.append(r)
-            elif child.tag == "section":    # <section>
-                self._analyze_section(filename, child, result)
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return infos
+
+        def _parse_arg(file: IO[Any], level: int) -> List[dict]:
+            last_pos = file.tell()
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:arg ([a-zA-Z0-9_, ]+):(.*)"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            infos = []
+            for s in self._parse_comma_separated_string(m.group(1)):
+                infos.append({
+                    "name": self._cleanup_string(s),
+                    "type": "parameter",
+                    "description": m.group(2),
+                    "data_type": "",
+                })
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return infos
+                elif re.match(r"^disabled: set global orientation in Collada assets", line):
+                    pass
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line):
+                    file.seek(last_pos)
+                    return infos
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level) - 1) + r"," + str(self._get_level_space_count(level+1) + 8) + r"}(\S+)", line):
+                    description = re.sub(r"\s+", " ", line)
+                    for info in infos:
+                        info["description"] += description
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}(\S+)", line):
+                    file.seek(last_pos)
+                    return infos
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return infos
+
+        def _parse_return(file: IO[Any], level: int) -> str:
+            last_pos = file.tell()
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:return.*:(.*)"   # TODO: handle :return vert: or :return (min, max): case
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            description = re.sub(r"\s+", " ", m.group(1))
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return description
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line):
+                    file.seek(last_pos)
+                    return description
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}(\s*\S+)", line):
+                    description += re.sub(r"\s+", " ", line)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}(\S+)", line):
+                    file.seek(last_pos)
+                    return description
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return description
+
+        def _parse_rtype(file: IO[Any], level: int) -> str:
+            last_pos = file.tell()
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:rtype.*:(.*)"   # TODO: handle :rtype vert: or :rtype (min, max): case
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            data_type = re.sub(r"\s+", " ", m.group(1))
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return data_type
+                elif self._has_le_level_string(line, level):
+                    file.seek(last_pos)
+                    return data_type
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line):
+                    file.seek(last_pos)
+                    return data_type
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}(\S+)", line):
+                    data_type += re.sub(r"\s+", " ", line)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}(\S+)", line):
+                    file.seek(last_pos)
+                    return data_type
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return data_type
+
+        parameters_types = []
+        parameters_args = []
+        return_type = None
+        return_ = None
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                break
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line):
+                m = re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line)
+                file.seek(last_pos)
+                if m.group(1) == "type":
+                    parameters_types.extend(_parse_type(file, level))
+                elif m.group(1) == "arg":
+                    parameters_args.extend(_parse_arg(file, level))
+                elif m.group(1) == "return":
+                    if return_ is not None:
+                        raise ValueError(":return must be appeared only once: {} (File name: {}, Level: {})"
+                                         .format(self.current_file, line, level))
+                    return_ = _parse_return(file, level)
+                elif m.group(1) == "rtype":
+                    if return_type is not None:
+                        raise ValueError(":rtype must be appeared only once: {} (File name: {}, Level: {})"
+                                         .format(self.current_file, line, level))
+                    return_type = _parse_rtype(file, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        # Merge.
+        info = {
+            "parameters": [],
+            "return": None,
+        }
+
+        for pt in parameters_types:
+            param_info = ParameterDetailInfo()
+            param_info.set_name(self._cleanup_string(pt["name"]))
+            param_info.set_data_type(IntermidiateDataType(self._cleanup_string(pt["data_type"])))
+            for pa in parameters_args:
+                if pt["name"] == pa["name"]:
+                    param_info.append_description(self._cleanup_string(pa["description"]) + " ")
+            info["parameters"].append(param_info)
+        for pa in parameters_args:
+            for pi in parameters_types:
+                if pi["name"] == pa["name"]:
+                    break
+            else:
+                param_info = ParameterDetailInfo()
+                param_info.set_name(self._cleanup_string(pa["name"]))
+                param_info.set_data_type(IntermidiateDataType(self._cleanup_string(pa["data_type"])))
+                info["parameters"].append(param_info)
+
+        if return_ is not None and return_type is not None:
+            return_info = ReturnInfo()
+            if return_ is not None:
+                return_info.set_description(self._cleanup_string(return_))
+            if return_type is not None:
+                return_info.set_data_type(IntermidiateDataType(self._cleanup_string(return_type)))
+            info["return"] = return_info
+
+        return info
+
+    def _parse_comma_separated_string(self, line: str) -> List[str]:
+        level = 0
+        params = []
+        current = ""
+        for c in line:
+            if c == "(":
+                level += 1
+            elif c ==")":
+                level -= 1
+                if level < 0:
+                    raise ValueError("Level must be >= 0 but {} (File name: {}, Line: {})"
+                                     .format(level, self.current_file, line))
+            if level == 0 and c == ",":
+                params.append(current)
+                current = ""
+            else:
+                current += c
+
+        if level != 0:
+            raise ValueError("Level must be == 0 but {} (File name: {}, Line: {})"
+                             .format(level, self.current_file, line))
+
+        if current != "":
+            params.append(current)
+
+        return params
+
+    def _parse_constant(self, file: IO[Any], level: int) -> 'VariableInfo':
+        def _parse_type(file: IO[Any], level: int) -> str:
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:type: (.*)"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            type_str = m.group(1)
+
+            return type_str
+
+        line = file.readline()
+        pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. (data|attribute):: ([a-zA-Z0-9_]+):*$"
+        m = re.match(pattern, line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        info = VariableInfo("constant")
+        info.set_name(self._cleanup_string(m.group(2)))
+
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return info
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return info
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:type:", line):
+                file.seek(last_pos)
+                info.set_data_type(IntermidiateDataType(self._cleanup_string(_parse_type(file, level=level+1))))
+            elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. code-block::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. _[a-zA-Z0-9-_]+:", line)):
+                self._skip_until_next_le_level(file, level=level+1)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                self._invalid_line(line, level)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                file.seek(last_pos)
+                info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+            else:
+                self._invalid_line(line, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        return info
+
+    def _parse_attribute(self, file: IO[Any], level: int) -> 'VariableInfo':
+        def _parse_type(file: IO[Any], level: int) -> str:
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}:type: (.*)"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            type_str = m.group(1)
+
+            return type_str
+
+        line = file.readline()
+        pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. (data|attribute):: ([a-zA-Z0-9_]+)$"
+        m = re.match(pattern, line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        info = VariableInfo("attribute")
+        info.set_name(self._cleanup_string(m.group(2)))
+
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return info
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return info
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:type:", line):
+                file.seek(last_pos)
+                info.set_data_type(IntermidiateDataType(self._cleanup_string(_parse_type(file, level=level+1))))
+            elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. seealso::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. warning::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line)):
+                self._skip_until_next_le_level(file, level=level+1)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                self._invalid_line(line, level)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                file.seek(last_pos)
+                info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+            else:
+                self._invalid_line(line, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        return info
+
+    def _parse_function(self, file: IO[Any], level: int) -> 'FunctionInfo':
+        line = file.readline()
+        pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. (function|method):: ([a-zA-Z0-9_]+)\s*\((.*)\)"
+        m = re.match(pattern, line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        info = FunctionInfo("function")
+        info.set_name(self._cleanup_string(m.group(2)))
+        for p in self._parse_comma_separated_string(m.group(3)):
+            info.add_parameter(self._cleanup_string(p))
+
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return info
+            elif re.match(r"^Computes the Constrained Delaunay Triangulation of a set of vertices, with edges", line):
+                pass
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return info
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:", line):
+                file.seek(last_pos)
+                detail = self._parse_func_detail(file, level=level+1)
+                info.add_parameter_details(detail["parameters"])
+                if detail["return"] is not None:
+                    info.set_return(detail["return"])
+            elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. seealso::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. warning::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. code-block::", line)):
+                self._skip_until_next_le_level(file, level=level+1)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                self._invalid_line(line, level)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                file.seek(last_pos)
+                info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+            else:
+                self._invalid_line(line, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        return info
+
+    def _parse_class(self, file: IO[Any], level: int) -> 'ClassInfo':
+        def _parse_method(file: IO[Any], level: int) -> 'FunctionInfo':
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. method:: ([a-zA-Z0-9_]+)\((.*)\):*$"
+            m = re.match(pattern, line)
+            if m is None:
+                # Special case for freestyle.shaders.rst
+                pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. method:: (__init__)\((num_iterations=100, factor_point=0.1),$"
+                m = re.match(pattern, line)
+                if m is None:
+                    self._invalid_line(line, level)
+
+                # Skip until ')' is found.
+                line = file.readline()
+                while line:
+                    if re.match(r"\)$", line):
+                        break
+                    line = file.readline()
+
+            info = FunctionInfo("method")
+            info.set_name(self._cleanup_string(m.group(1)))
+            for p in self._parse_comma_separated_string(m.group(2)):
+                info.add_parameter(self._cleanup_string(p))
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return info
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:", line):
+                    file.seek(last_pos)
+                    detail = self._parse_func_detail(file, level=level+1)
+                    info.add_parameter_details(detail["parameters"])
+                    if detail["return"] is not None:
+                        info.set_return(detail["return"])
+                elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line) or
+                      re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. code-block::", line) or
+                      re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. warning::", line) or
+                      re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. literalinclude::", line) or
+                      re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. seealso::", line)):
+                    self._skip_until_next_le_level(file, level=level+1)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                    self._invalid_line(line, level)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                    file.seek(last_pos)
+                    info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return info
+
+        def _parse_class_method(file: IO[Any], level: int) -> 'FunctionInfo':
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. classmethod:: ([a-zA-Z0-9_]+)\((.*)\):*$"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            info = FunctionInfo("classmethod")
+            info.set_name(self._cleanup_string(m.group(1)))
+            for p in self._parse_comma_separated_string(m.group(2)):
+                info.add_parameter(self._cleanup_string(p))
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return info
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:", line):
+                    file.seek(last_pos)
+                    detail = self._parse_func_detail(file, level=level+1)
+                    info.add_parameter_details(detail["parameters"])
+                    if detail["return"] is not None:
+                        info.set_return(detail["return"])
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                    self._invalid_line(line, level)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                    file.seek(last_pos)
+                    info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return info
+
+        def _parse_static_method(file: IO[Any], level: int) -> 'FunctionInfo':
+            line = file.readline()
+            pattern = r"^\s{" + str(self._get_level_space_count(level)) + r"}\.\. (staticmethod|function):: ([a-zA-Z0-9_]+)\((.*)\):*$"
+            m = re.match(pattern, line)
+            if m is None:
+                self._invalid_line(line, level)
+
+            info = FunctionInfo("staticmethod")
+            info.set_name(self._cleanup_string(m.group(2)))
+            for p in self._parse_comma_separated_string(m.group(3)):
+                info.add_parameter(self._cleanup_string(p))
+
+            last_pos = file.tell()
+            line = file.readline()
+            while line:
+                if re.match(r"^\s*$", line):
+                    pass
+                elif self._has_le_level_start(line, level):
+                    file.seek(last_pos)
+                    return info
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}:", line):
+                    file.seek(last_pos)
+                    detail = self._parse_func_detail(file, level=level+1)
+                    info.add_parameter_details(detail["parameters"])
+                    if detail["return"] is not None:
+                        info.set_return(detail["return"])
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line):
+                    self._skip_until_next_le_level(file, level=level+1)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                    self._invalid_line(line, level)
+                elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                    file.seek(last_pos)
+                    info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+                else:
+                    self._invalid_line(line, level)
+                last_pos = file.tell()
+                line = file.readline()
+
+            return info
+
+        line = file.readline()
+        m = re.match(r"^\.\. class:: ([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,]+\))*", line)
+        if m is None:
+            self._invalid_line(line, level)
+
+        class_name = self._cleanup_string(m.group(1))
+
+        info = ClassInfo()
+        info.set_name(class_name)
+
+        last_pos = file.tell()
+        line = file.readline()
+        while line:
+            if re.match(r"^\s*$", line):
+                pass
+            elif self._has_le_level_start(line, level):
+                file.seek(last_pos)
+                return info
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                return info
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. data::", line):
+                file.seek(last_pos)
+                attr = self._parse_attribute(file, level=level+1)
+                attr.set_class(class_name)
+                info.add_attribute(attr)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. attribute::", line):
+                file.seek(last_pos)
+                attr = self._parse_attribute(file, level=level+1)
+                attr.set_class(class_name)
+                info.add_attribute(attr)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. method::", line):
+                file.seek(last_pos)
+                method = _parse_method(file, level=level+1)
+                method.set_class(class_name)
+                info.add_method(method)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. classmethod::", line):
+                file.seek(last_pos)
+                method = _parse_class_method(file, level=level+1)
+                method.set_class(class_name)
+                info.add_method(method)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. staticmethod::", line):
+                file.seek(last_pos)
+                method = _parse_static_method(file, level=level+1)
+                method.set_class(class_name)
+                info.add_method(method)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. function::", line):
+                file.seek(last_pos)
+                method = _parse_static_method(file, level=level+1)
+                method.set_class(class_name)
+                info.add_method(method)
+            elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. code-block::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. warning::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. literalinclude::", line) or
+                  re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. seealso::", line)):
+                self._skip_until_next_le_level(file, level=level+1)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
+                self._invalid_line(line, level)
+            elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):
+                file.seek(last_pos)
+                info.append_description(self._cleanup_string(self._parse_description(file, level=level+1)) + " ")
+            else:
+                self._invalid_line(line, level)
+            last_pos = file.tell()
+            line = file.readline()
+
+        return info
 
     def _modify(self, result: 'AnalysisResult'):
         pass
 
-    def _analyze_by_file(self, filename: str) -> 'AnalysisResult':
-        self.filenames.append(filename)
+    def _analyze_by_file(self, filename: str) -> 'SectionInfo':
+        self.current_file = filename
 
-        tree = et.parse(filename)
-        root = tree.getroot()       # <document>
-        result = AnalysisResult()
-        for child in list(root):
-            if child.tag == "section":    # <section>
-                r: 'SectionInfo' = SectionInfo()
-                self._analyze_section(filename, child, r)
-                result.section_info.append(r)
+        with open(filename, "r", encoding="utf-8") as file:
+            last_pos = file.tell()
+            line = file.readline()
+            section = SectionInfo()
+            module_name = None
+            base_classes = None
+            while line:
+                if re.match(r"^base (class|classes) ---", line):
+                    if base_classes is not None:
+                        self._invalid_line(line, 0)
+                    file.seek(last_pos)
+                    base_classes = self._parse_base_class(file, level=0)
+                elif re.match(r"^\.\. module::", line):
+                    if module_name is not None:
+                        self._invalid_line(line, 0)
+                    file.seek(last_pos)
+                    module_name = self._cleanup_string(self._parse_module(file, level=0))
+                elif re.match(r"^\.\. class::", line):
+                    file.seek(last_pos)
+                    class_info = self._parse_class(file, level=0)
+                    class_info.set_module(module_name)
+                    if base_classes is not None:
+                        class_info.add_base_classes(base_classes)
+                    section.add_info(class_info)
+                elif re.match(r"^\.\. function::", line):
+                    file.seek(last_pos)
+                    function_info = self._parse_function(file, level=0)
+                    function_info.set_module(module_name)
+                    section.add_info(function_info)
+                elif re.match(r"^\.\. method::", line):
+                    file.seek(last_pos)
+                    function_info = self._parse_function(file, level=0)
+                    function_info.set_module(module_name)
+                    section.add_info(function_info)
+                elif re.match(r"^\.\. data::", line):
+                    file.seek(last_pos)
+                    data_info = self._parse_constant(file, level=0)
+                    data_info.set_module(module_name)
+                    section.add_info(data_info)
+                elif re.match(r"^\.\. attribute::", line):
+                    file.seek(last_pos)
+                    data_info = self._parse_constant(file, level=0)
+                    data_info.set_module(module_name)
+                    section.add_info(data_info)
+                elif (re.match(r"^\.\. include::", line) or
+                      re.match(r"^\.\. literalinclude::", line) or
+                      re.match(r"^\.\. note::", line) or
+                      re.match(r"^\.\. rubric::", line) or
+                      re.match(r"^\.\. hlist::", line) or
+                      re.match(r"^\.\. toctree::", line) or
+                      re.match(r"^\.\. warning::", line) or
+                      re.match(r"^\.\. code-block::", line) or
+                      re.match(r"^\.\. seealso::", line) or
+                      re.match(r"^\.\. note,", line) or
+                      re.match(r"^\.\.$", line) or
+                      re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line)):
+                    self._skip_until_next_le_level(file, level=0)
+                elif re.match(r"^\.\.", line):
+                    self._invalid_line(line, 0)
+                last_pos = file.tell()
+                line = file.readline()
 
-        return result
+        return section
 
     def analyze(self, filenames: List[str]) -> 'AnalysisResult':
         result = AnalysisResult()
         for f in filenames:
-            r = self._analyze_by_file(f)
-            result.section_info.extend(r.section_info)
+            info = self._analyze_by_file(f)
+            result.section_info.append(info)
 
         self._modify(result)
 

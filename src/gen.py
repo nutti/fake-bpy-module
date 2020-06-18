@@ -71,8 +71,8 @@ class BpyAnalyzer(fbm.AnalyzerWithModFile):
 
 
 def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    all_files = glob.glob(INPUT_DIR + "/bpy*.xml")
-    excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
+    all_files = glob.glob(INPUT_DIR + "/bpy*.rst")
+    excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     files = list(set(all_files) - set(excludes_files))
     mod_files = [
         "{}/mods/common/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
@@ -89,7 +89,7 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 
 def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/bgl*.xml")
+    files = glob.glob(INPUT_DIR + "/bgl*.rst")
     mod_files = [
         "{}/mods/generated_mods/gen_bgl_modfile/bgl.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
@@ -97,12 +97,12 @@ def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 
 def make_blf_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/blf*.xml")
+    files = glob.glob(INPUT_DIR + "/blf*.rst")
     return fbm.PackageGenerationRule("blf", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
 
 def make_mathutils_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/mathutils*.xml")
+    files = glob.glob(INPUT_DIR + "/mathutils*.rst")
     mod_files = [
         "{}/mods/common/analyzer/mathutils.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
@@ -110,7 +110,7 @@ def make_mathutils_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGen
 
 
 def make_gpu_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/gpu*.xml")
+    files = glob.glob(INPUT_DIR + "/gpu*.rst")
     mod_files = [
         "{}/mods/common/analyzer/gpu.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
@@ -118,8 +118,8 @@ def make_gpu_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 
 def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    all_files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
-    excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
+    all_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
+    excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     files = list(set(all_files) - set(excludes_files))
     mod_files = []
     if config.mod_version not in ["2.78", "2.79"]:
@@ -128,7 +128,7 @@ def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGe
 
 
 def make_freestyle_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/freestyle*.xml")
+    files = glob.glob(INPUT_DIR + "/freestyle*.rst")
     mod_files = [
         "{}/mods/common/analyzer/freestyle.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
@@ -136,7 +136,7 @@ def make_freestyle_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGen
 
 
 def make_bpy_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/bpy_extras*.xml")
+    files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     mod_files = [
         "{}/mods/common/analyzer/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_modules_modfile/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/")
@@ -145,12 +145,12 @@ def make_bpy_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGe
 
 
 def make_aud_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/aud*.xml")
+    files = glob.glob(INPUT_DIR + "/aud*.rst")
     return fbm.PackageGenerationRule("aud", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
 
 def make_bmesh_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    files = glob.glob(INPUT_DIR + "/bmesh*.xml")
+    files = glob.glob(INPUT_DIR + "/bmesh*.rst")
     mod_files = [
         "{}/mods/common/analyzer/bmesh.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]

@@ -128,7 +128,7 @@ class BaseGenerator:
 
         with CodeWriterIndent(1):
             # documentation
-            wt.add("'''{}".format(data["description"]))
+            wt.add("''' {}".format(data["description"]))
             wt.new_line(2)
             for p in data["parameter_details"]:
                 if p["description"] != "":
@@ -153,7 +153,8 @@ class BaseGenerator:
 
         with CodeWriterIndent(1):
             if data["description"] != "":
-                wt.addln("'''{}'''".format(data["description"]))
+                wt.addln("''' {}".format(data["description"]))
+                wt.addln("'''")
                 wt.new_line(1)
 
             for a in data["attributes"]:
@@ -161,7 +162,7 @@ class BaseGenerator:
                     wt.addln("{}: {} = None".format(a["name"], a["data_type"]))
                 else:
                     wt.addln("{} = None".format(a["name"]))
-                wt.add("'''")
+                wt.add("''' ")
                 if a["description"] != "":
                     wt.add("{}".format(a["description"]))
                 if a["data_type"] != "":
@@ -173,10 +174,25 @@ class BaseGenerator:
                 wt.new_line(1)
 
             for m in data["methods"]:
-                if len(m["parameters"]) > 0:
-                    wt.add("def {}(self, ".format(m["name"]))
-                else:
-                    wt.add("def {}(self".format(m["name"]))
+                if m["type"] == "method":
+                    if len(m["parameters"]) > 0:
+                        wt.add("def {}(self, ".format(m["name"]))
+                    else:
+                        wt.add("def {}(self".format(m["name"]))
+                elif m["type"] == "classmethod":
+                    if len(m["parameters"]) > 0:
+                        wt.addln("@classmethod")
+                        wt.add("def {}(cls, ".format(m["name"]))
+                    else:
+                        wt.addln("@classmethod")
+                        wt.add("def {}(cls".format(m["name"]))
+                elif m["type"] == "staticmethod":
+                    if len(m["parameters"]) > 0:
+                        wt.addln("@staticmethod")
+                        wt.add("def {}(".format(m["name"]))
+                    else:
+                        wt.addln("@staticmethod")
+                        wt.add("def {}(".format(m["name"]))
                 for i, p in enumerate(m["parameters"]):
                     sp = p.split("=")
                     default_value = None
@@ -212,7 +228,7 @@ class BaseGenerator:
 
                 with CodeWriterIndent(2):
                 # documentation
-                    wt.addln("'''{}".format(m["description"]))
+                    wt.addln("''' {}".format(m["description"]))
                     wt.new_line(1)
                     for p in m["parameter_details"]:
                         wt.addln(":param {}: {}"
@@ -243,8 +259,9 @@ class BaseGenerator:
         else:
             wt.addln("{} = None".format(data["name"]))
         if data["description"] != "":
-            wt.add("'''{}'''"
+            wt.addln("''' {}"
                    .format(remove_unencodable(data["description"])))
+            wt.addln("'''")
         wt.new_line(2)
 
     def print_header(self, file):
@@ -595,13 +612,13 @@ class PackageAnalyzer:
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
-                    filename = re.sub("\.", "/", mod_name) + ".py"
+                    filename = re.sub(r"\.", "/", mod_name) + ".py"
                     info = gen_info.create_target(filename)
                     info.data = []
                     info.child_modules = []
                     info.name = mod_name
                 else:
-                    filename = re.sub("\.", "/", mod_name) + "/__init__.py"
+                    filename = re.sub(r"\.", "/", mod_name) + "/__init__.py"
                     info = gen_info.create_target(filename)
                     info.data = []
                     info.child_modules = [child.name for child in m.children()]
@@ -616,7 +633,7 @@ class PackageAnalyzer:
         for section in analyze_result.section_info:
             for info in section.info_list:
                 target = find_target_file("", module_structure,
-                                          re.sub("\.", "/", info.module()))
+                                          re.sub(r"\.", "/", info.module()))
                 if target is None:
                     raise RuntimeError("Could not find target file to generate "
                                        "(target: {})".format(info.module()))
@@ -735,10 +752,11 @@ class PackageAnalyzer:
                                          p.data_type(),
                                          data.module() + "." + data.name())
                 r = data.return_()
-                self._add_dependency(dependencies,
-                                     refiner,
-                                     r.data_type(),
-                                     data.module() + "." + data.name())
+                if r is not None:
+                    self._add_dependency(dependencies,
+                                        refiner,
+                                        r.data_type(),
+                                        data.module() + "." + data.name())
             elif data.type() == "constant":
                 self._add_dependency(dependencies,
                                      refiner,
@@ -752,10 +770,11 @@ class PackageAnalyzer:
                                              p.data_type(),
                                              data.module() + "." + data.name())
                     r = m.return_()
-                    self._add_dependency(dependencies,
-                                         refiner,
-                                         r.data_type(),
-                                         data.module() + "." + data.name())
+                    if r is not None:
+                        self._add_dependency(dependencies,
+                                            refiner,
+                                            r.data_type(),
+                                            data.module() + "." + data.name())
                 for a in data.attributes():
                     self._add_dependency(dependencies,
                                          refiner,
@@ -782,9 +801,10 @@ class PackageAnalyzer:
                     p.set_data_type(refined_type)
 
                 return_ = info.return_()
-                refined_type = refiner.get_refined_data_type(
-                    return_.data_type(), info.module())
-                return_.set_data_type(refined_type)
+                if return_ is not None:
+                    refined_type = refiner.get_refined_data_type(
+                        return_.data_type(), info.module())
+                    return_.set_data_type(refined_type)
             # refine constant
             elif info.type() == "constant":
                 refined_type = refiner.get_refined_data_type(
@@ -803,9 +823,10 @@ class PackageAnalyzer:
                         p.set_data_type(refined_type)
 
                     return_ = m.return_()
-                    refined_type = refiner.get_refined_data_type(
-                        return_.data_type(), info.module())
-                    return_.set_data_type(refined_type)
+                    if return_ is not None:
+                        refined_type = refiner.get_refined_data_type(
+                            return_.data_type(), info.module())
+                        return_.set_data_type(refined_type)
                 for i, c in enumerate(info.base_classes()):
                     refined_type = refiner.get_refined_data_type(
                         c, info.module())
@@ -882,7 +903,8 @@ class PackageAnalyzer:
                     rewrite(p)
 
                 return_ = info.return_()
-                rewrite(return_)
+                if return_ is not None:
+                    rewrite(return_)
 
             # rewrite constant
             elif info.type() == "constant":
@@ -898,7 +920,8 @@ class PackageAnalyzer:
                         rewrite(p)
 
                     return_ = m.return_()
-                    rewrite(return_)
+                    if return_ is not None:
+                        rewrite(return_)
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':

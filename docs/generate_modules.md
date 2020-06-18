@@ -128,16 +128,7 @@ ${BLENDER_BIN}/blender --background --factory-startup -noaudio --python doc/pyth
 ```
 
 
-#### 5. Convert .rst to .xml
-
-```bash
-sphinx-build -b xml doc/python_api/sphinx-in <xml-out>
-```
-
-* `<xml-out>`: Specify output directory for generated .xml files.
-
-
-#### 6. Download fake-bpy-module sources
+#### 5. Download fake-bpy-module sources
 
 Download the fake-bpy-module sources from GitHub.
 
@@ -153,7 +144,7 @@ Or, you can download .zip file from GitHub.
 https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 
-#### 7. Generate mod files
+#### 6. Generate mod files
 
 ```bash
 cd fake-bpy-module/src
@@ -171,13 +162,13 @@ python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/ge
 * `<blender-version>`: Specify Blender version.
 
 
-#### 8. Generate modules
+#### 7. Generate modules
 
 ```bash
 python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
 ```
 
-* `-i <input-dir>`: Specify input directory. (The directory where .xml files are located in process 5)
+* `-i <input-dir>`: Specify input directory (The directory where .rst files are located in process 4). In this document, `<input-dir>` should be `${BLENDER_SRC}/doc/python_api/sphinx-in`.
 * `-o <output-dir>`: Specify output directory. (The directory where generated files will be located)
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with suffix `-dump.json`
 * `-f <format>`: Format the generated code by `<format>` convention.

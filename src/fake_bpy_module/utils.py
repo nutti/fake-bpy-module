@@ -9,7 +9,6 @@ LOG_LEVEL_ERR = 4
 
 LOG_LEVEL = LOG_LEVEL_WARN
 
-
 def check_os():
     if os.name == "nt":
         return "Windows"
