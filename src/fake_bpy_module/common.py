@@ -312,6 +312,11 @@ class ParameterDetailInfo(Info):
     def set_description(self, desc: str):
         self._description = desc
 
+    def append_description(self, desc: str):
+        if self._description is None:
+            self._description = ""
+        self._description += desc
+
     def set_data_type(self, dtype: 'DataType'):
         self._data_type = dtype
 
@@ -367,6 +372,11 @@ class ReturnInfo(Info):
 
     def set_description(self, desc: str):
         self._description = desc
+
+    def append_description(self, desc: str):
+        if self._description is None:
+            self._description = ""
+        self._description += desc
 
     def set_data_type(self, dtype: 'DataType'):
         self._data_type = dtype
@@ -427,6 +437,11 @@ class VariableInfo(Info):
 
     def set_description(self, desc: str):
         self._description = desc
+
+    def append_description(self, desc: str):
+        if self._description is None:
+            self._description = ""
+        self._description += desc
 
     def set_class(self, class_: str):
         self._class = class_
@@ -494,7 +509,7 @@ class VariableInfo(Info):
 
 
 class FunctionInfo(Info):
-    supported_type: List[str] = ["function", "method"]
+    supported_type: List[str] = ["function", "method", "classmethod", "staticmethod"]
 
     def __init__(self, type_: str):
         super(FunctionInfo, self).__init__()
@@ -590,6 +605,11 @@ class FunctionInfo(Info):
 
     def set_description(self, desc: str):
         self._description = desc
+
+    def append_description(self, desc: str):
+        if self._description is None:
+            self._description = ""
+        self._description += desc
 
     def to_dict(self) -> dict:
         if self._type not in self.supported_type:
@@ -720,6 +740,11 @@ class ClassInfo(Info):
     def set_description(self, desc: str):
         self._description = desc
 
+    def append_description(self, desc: str):
+        if self._description is None:
+            self._description = ""
+        self._description += desc
+
     def methods(self) -> List['FunctionInfo']:
         return self._methods
 
@@ -727,16 +752,18 @@ class ClassInfo(Info):
         return self._base_classes
 
     def add_method(self, method: 'FunctionInfo'):
-        if method.type() != "method":
+        supported = ["method", "classmethod", "staticmethod"]
+        if method.type() not in supported:
             raise RuntimeError("Expected Info.type() is {} but {}."
-                               .format("method", method.type()))
+                               .format(supported, method.type()))
         self._methods.append(method)
 
     def add_methods(self, methods: List['FunctionInfo']):
+        supported = ["method", "classmethod", "staticmethod"]
         for m in methods:
-            if m.type() != "method":
+            if m.type() not in supported:
                 raise RuntimeError("Expected Info.type() is {} but {}."
-                                   .format("method", m.type()))
+                                   .format(supported, m.type()))
             self.add_method(m)
 
     def set_methods(self, methods: List['FunctionInfo']):
@@ -886,6 +913,15 @@ class SectionInfo:
     def __init__(self):
         self.info_list: List['Info'] = []
 
+    def add_info(self, info: 'Info'):
+        self.info_list.append(info)
+
+    def to_dict(self) -> dict:
+        result = {"info_list": []}
+        for info in self.info_list:
+            result["info_list"].append(info.to_dict())
+        return result
+
 
 class ModuleStructure:
     def __init__(self):
@@ -957,6 +993,9 @@ class DataTypeRefiner:
 
         # strip non-sense string
         strip_pattens = [
+            r"\s+type\s*$",
+            r"^\s*type\s+",
+            r"^type$",
             r"default (True|False|[-0-9.]+)",
             r"default \".*\"",
             r"default \'.*\'",
