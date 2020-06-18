@@ -92,7 +92,9 @@ function wait_for_all() {
         wait ${pid} &&:
         (exit $?) && (exit ${status}) &&:; status=$?
     done
-    [ ${status} -ne 0 ] && exit ${status}
+    if [ ${status} -ne 0 ]; then
+        exit ${status}
+    fi
 }
 
 function check_os() {
