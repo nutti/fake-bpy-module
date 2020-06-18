@@ -19,7 +19,7 @@ RAW_MODULES_DIR="raw_modules"
 RELEASE_DIR="release"
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 CURRENT_DIR=`pwd`
-PYTHON_BIN=${PYTHON_BIN:-python3}
+PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check arguments
 if [ $# -ne 4 ]; then

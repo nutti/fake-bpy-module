@@ -2,7 +2,7 @@
 
 TMP_DIR_NAME=gen_module-tmp
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-PYTHON_BIN=${PYTHON_BIN:-python3}
+PYTHON_BIN=${PYTHON_BIN:-python}
 
 if [ $# -ne 4 ] && [ $# -ne 5 ]; then
     echo "Usage: bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> [<mod-version>]"

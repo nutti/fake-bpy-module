@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nutti/fake_bpy_module_ci:v1.4
+      - image: nutti/fake_bpy_module_ci:v1.5
     branches:
       only:
         - master

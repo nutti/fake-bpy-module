@@ -8,17 +8,22 @@ RUN env
 RUN apt-get update -y
 RUN apt-get install -y \
             git \
-            python3 \
-            python3-pip \
+            python3.7 \
+            python3.7-distutils \
             python3-sphinx \
             curl \
             unzip \
             blender \
             pandoc \
+            wget \
             zip
 
-RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3.7 get-pip.py && \
+    rm -f get-pip.py
+
+RUN rm -f /usr/bin/python && ln -s /usr/bin/python3.7 /usr/bin/python
+RUN rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3.7 /usr/bin/pip
 
 RUN pip install pathlib
 
