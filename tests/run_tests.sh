@@ -8,7 +8,7 @@ fi
 PACKAGES_PATH=${1}
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 TMP_DIR_NAME="tmp"
-PYTHON_BIN=${PYTHON_BIN:-python3}
+PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check if PYTHON_BIN binary is availble
 if ! command -v ${PYTHON_BIN} > /dev/null; then
