@@ -25,6 +25,12 @@ if [ ${python_version[0]} -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${pytho
     exit 1
 fi
 
+function check_pep440_compatible_version() {
+    local version="${1}"
+    ${python_bin} -c "from setuptools._vendor.packaging.version import Version; Version(\"${version}\")"
+    return $?
+}
+
 tmp_dir_path="${SCRIPT_DIR}/${TMP_DIR_NAME}"
 
 invalid_package=0
@@ -32,9 +38,15 @@ failed_test=0
 
 package_list=`find ${PACKAGES_PATH} -name "*.zip"`
 for pkg in ${package_list}; do
-    if [[ ${pkg} =~ (fake_bpy_modules_([a-z0-9\.]+)-[0-9]{8}).zip ]]; then
+    if [[ ${pkg} =~ (fake_bpy_modules_([a-z0-9\.]+)-(.*)).zip ]]; then
         pkg_dir_name=${BASH_REMATCH[1]}
         blender_version=${BASH_REMATCH[2]}
+        pkg_version=${BASH_REMATCH[3]}
+        if ! check_pep440_compatible_version "${pkg_version}"; then
+            echo "Invalid package: '${pkg}'. File version '${pkg_version}' does not conform with PEP440."
+            ((invalid_package+=1))
+            continue
+        fi
     else
         echo "Invalid package: ${pkg}"
         ((invalid_package+=1))
