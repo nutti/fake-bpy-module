@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nutti/fake_bpy_module_ci:v1.5
+      - image: nutti/fake_bpy_module_ci:v1.6
     branches:
       only:
         - master
@@ -30,6 +30,9 @@ jobs:
       - run:
           name: Generate pip Packages (Blender 2.82)
           command: bash tools/pip_package/build_pip_package.sh release 2.82 ../blender ../blender-bin/blender-v282-bin
+      - run:
+          name: Generate pip Packages (Blender 2.83)
+          command: bash tools/pip_package/build_pip_package.sh release 2.83 ../blender ../blender-bin/blender-v283-bin
       - run:
           name: Compress All Generated Packages
           command: tar cvfz all.tar.gz release/* && mv all.tar.gz release

@@ -3,7 +3,7 @@
 # usage example: bash batch_gen_modules.sh 2.79 out
 
 SUPPORTED_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82"
+    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
 )
 
 declare -A BLENDER_TAG_NAME=(
@@ -11,7 +11,8 @@ declare -A BLENDER_TAG_NAME=(
     ["v279"]="v2.79b"
     ["v280"]="v2.80"
     ["v281"]="v2.81a"
-    ["v282"]="v2.82"
+    ["v282"]="v2.82a"
+    ["v283"]="v2.83"
 )
 
 TMP_DIR_NAME="tmp"

@@ -11,7 +11,7 @@ INPUT_DIR: str = "."
 SUPPORTED_TARGET: List[str] = ["pycharm"]
 SUPPORTED_STYLE_FORMAT: List[str] = ["none", "pep8"]
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
-    "2.78", "2.79", "2.80", "2.81", "2.82"
+    "2.78", "2.79", "2.80", "2.81", "2.82", "2.83"
 ]
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
@@ -85,6 +85,8 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
         mod_files.append("{}/mods/2.81/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
     elif config.mod_version in ["2.82"]:
         mod_files.append("{}/mods/2.82/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
+    elif config.mod_version in ["2.83"]:
+        mod_files.append("{}/mods/2.83/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
     return fbm.PackageGenerationRule("bpy", files, BpyAnalyzer(mod_files), fbm.BaseGenerator())
 
 

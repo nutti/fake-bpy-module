@@ -203,7 +203,19 @@ class BaseAnalyzer:
                 elif self._has_le_level_start(line, level):
                     file.seek(last_pos)
                     return infos
+                elif re.match(r"^   :type threshold: float", line):
+                    pass
+                elif re.match(r"^   :return: The created :class:`Sound` object.", line):
+                    pass
+                elif re.match(r"^   :rtype: :class:`Sound`", line):
+                    pass
                 elif re.match(r"^disabled: set global orientation in Collada assets", line):
+                    pass
+                elif re.match(r"^they're pushed onto NLA tracks with the same name", line):
+                    pass
+                elif re.match(r"^When off, use default/rest pose as bind pose", line):
+                    pass
+                elif re.match(r"^When off, all the currently assigned actions become one", line):
                     pass
                 elif re.match(r"^\s{" + str(self._get_level_space_count(level)) + r"}:(type|arg|return|rtype)", line):
                     file.seek(last_pos)
@@ -616,6 +628,9 @@ class BaseAnalyzer:
                     info.add_parameter_details(detail["parameters"])
                     if detail["return"] is not None:
                         info.set_return(detail["return"])
+                elif (re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. note::", line) or
+                      re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\. warning::", line)):
+                    self._skip_until_next_le_level(file, level=level+1)
                 elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\.\.", line):
                     self._invalid_line(line, level)
                 elif re.match(r"^\s{" + str(self._get_level_space_count(level+1)) + r"}\S+", line):

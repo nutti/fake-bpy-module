@@ -3,7 +3,7 @@
 # usage example: bash download_blender.sh 2.79 out
 
 SUPPORTED_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82"
+    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "all"
 )
 
@@ -13,6 +13,7 @@ declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
     ["v280"]=""
     ["v281"]=""
     ["v282"]=""
+    ["v283"]=""
 )
 
 declare -A BLENDER_DOWNLOAD_URL_WIN64=(
@@ -20,7 +21,8 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
     ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-windows64.zip"
     ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
-    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82-windows64.zip"
+    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
+    ["v283"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -28,7 +30,8 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
     ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2"
     ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
-    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82-linux64.tar.xz"
+    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
+    ["v283"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-linux64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -44,7 +47,8 @@ declare -A NEED_MOVE_LINUX=(
     ["v279"]="blender-2.79b-linux-glibc219-x86_64"
     ["v280"]="blender-2.80-linux-glibc217-x86_64"
     ["v281"]="blender-2.81a-linux-glibc217-x86_64"
-    ["v282"]="blender-2.82-linux64"
+    ["v282"]="blender-2.82a-linux64"
+    ["v283"]="blender-2.83.0-linux64"
 )
 
 function download_blender() {
