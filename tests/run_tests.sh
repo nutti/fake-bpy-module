@@ -26,25 +26,34 @@ fi
 
 tmp_dir_path="${SCRIPT_DIR}/${TMP_DIR_NAME}"
 
+invalid_package=0
+failed_test=0
+
 package_list=`find ${PACKAGES_PATH} -name "*.zip"`
 for pkg in ${package_list}; do
     if [[ ${pkg} =~ (fake_bpy_modules_([a-z0-9\.]+)-[0-9]{8}).zip ]]; then
         pkg_dir_name=${BASH_REMATCH[1]}
         blender_version=${BASH_REMATCH[2]}
     else
-        echo "'${pkg}' is invalid package."
+        echo "Invalid package: ${pkg}"
+        ((invalid_package+=1))
         continue
     fi
 
     mkdir -p ${tmp_dir_path}
     unzip ${pkg} -d ${tmp_dir_path}
     pkg_dir_path=${tmp_dir_path}/${pkg_dir_name}
-    ${python_bin} ${SCRIPT_DIR}/python/run_tests.py -p ${pkg_dir_path} -v ${blender_version}
-    if [ $? -ne 0 ]; then
-        echo "Test Failure. (${pkg})"
-        exit 1
+    if ! ${python_bin} "${SCRIPT_DIR}/python/run_tests.py" -p "${pkg_dir_path}" -v "${blender_version}"; then
+        echo "Tests failed: ${pkg}"
+        ((failed_test+=1))
+        continue
     fi
     rm -rf ${tmp_dir_path}
 done
+
+if ((failed_test + invalid_package > 0)); then
+    echo "Error: Found ${invalid_package} invalid packages and ${failed_test} failed tests."
+    exit 1
+fi
 
 exit 0
