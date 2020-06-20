@@ -7,6 +7,10 @@ on:
       - ci_testing
       - master
   pull_request:
+  # Only trigger on released (not pre-released) events
+  release:
+    types:
+      - released
 
 jobs:
   set_versions:
@@ -91,3 +95,30 @@ jobs:
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
+
+  publish_modules:
+    name: Upload artifacts to PyPi
+    needs: build_modules
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+
+        # Publish to TestPyPi on each merge to master
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.test_pypi_token }}
+          repository_url: https://test.pypi.org/legacy/
+          packages_dir: "dist/*/*/"
+
+        # Publish to PyPi in case a Github release is created
+      - name: Publish distribution 📦 to PyPI
+        if: github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.pypi_token }}
+          packages_dir: "dist/*/*/"
