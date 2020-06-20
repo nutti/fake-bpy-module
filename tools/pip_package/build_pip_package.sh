@@ -55,6 +55,13 @@ else
     release_version="${RELEASE_VERSION}"
 fi
 
+# Verify that the version is compatible with PEP 440: https://www.python.org/dev/peps/pep-0440/
+# This is assumed in further steps below, so check abort early in case it does not match
+if ! ${python_bin} -c "from setuptools._vendor.packaging.version import Version; Version(\"${release_version}\")"; then
+    echo "Error: Found invalid release version: \"${release_version}\""
+    exit 1
+fi
+
 # check if the target is develop or release
 if [ ! ${target} = "release" ] && [ ! ${target} = "develop" ]; then
     echo "target must be release or develop"
