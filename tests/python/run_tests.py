@@ -30,7 +30,7 @@ def parse_options(config: FakeBpyModuleTestConfig):
     if args.modules_path:
         config.modules_path = args.modules_path
     if args.blender_version not in SUPPORTED_VERSIONS:
-        raise ValueError("Not supported version {}".format(arg.blender_version))
+        raise ValueError("Not supported version {}".format(args.blender_version))
     config.blender_version = args.blender_version
 
 
