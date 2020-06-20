@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eEu
 
 RELEASE_FILE="all.tar.gz"
 RELEASE_DIR="./release"

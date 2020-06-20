@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # require: bash version >= 4
 # usage example: bash batch_gen_modules.sh 2.79 out
+set -eEu
 
 SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"

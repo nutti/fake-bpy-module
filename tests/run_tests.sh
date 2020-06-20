@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eEu
 
 if [ $# -ne 1 ]; then
     echo "Usage: run_tests.sh <packages_path>"
