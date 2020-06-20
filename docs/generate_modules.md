@@ -84,6 +84,16 @@ bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <
   * Files located in `mods/common` directories will be used at any time.
 
 
+**Specify Python interpreter**
+
+By default, this command uses Python interpreter by calling `python` command.  
+If you want to use other Python interpreter, you can specify by `PYTHON_BIN` environment variable.
+
+```bash
+PYTHON_BIN=/path/to/python3.7 bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
+```
+
+
 ## Case 2: Do it yourself all procedures
 
 #### 1. Download Blender binary
