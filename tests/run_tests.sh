@@ -36,7 +36,7 @@ for pkg in ${package_list}; do
         continue
     fi
 
-    mkdir ${tmp_dir_path}
+    mkdir -p ${tmp_dir_path}
     unzip ${pkg} -d ${tmp_dir_path}
     pkg_dir_path=${tmp_dir_path}/${pkg_dir_name}
     ${python_bin} ${SCRIPT_DIR}/python/run_tests.py -p ${pkg_dir_path} -v ${blender_version}
