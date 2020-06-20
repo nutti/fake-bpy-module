@@ -9,9 +9,27 @@ on:
   pull_request:
 
 jobs:
+  set_versions:
+    name: Set build versions
+    runs-on: ubuntu-latest
+    outputs:
+      module_version: ${{ steps.set_module_version.outputs.module_version }}
+      file_version: ${{ steps.set_file_version.outputs.file_version }}
+    steps:
+      # Use ISO 8601 date (in UTC) for release
+      - name: Set module version
+        id: set_module_version
+        run: echo ::set-output name=module_version::$(date -u +%Y%m%d)
+
+      # Use ISO 8601 timestamps (in UTC) for output/file version
+      - name: Set file version
+        id: set_file_version
+        run: echo ::set-output name=file_version::$(date -u +%Y%m%dT%H%M%SZ)
+
   build_modules:
     name: Build modules
     runs-on: ubuntu-18.04
+    needs: [set_versions]
     strategy:
       fail-fast: false
       matrix:
@@ -54,11 +72,22 @@ jobs:
           repository: "blender/blender"
           path: blender
 
-      - name: Set release version environment variable
-        run: echo ::set-env name=RELEASE_VERSION::$(date +%Y%m%d)
-
       - name: Generate pip Packages
+        env:
+          RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
         run: bash tools/pip_package/build_pip_package.sh release ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin
+
+      - name: Archive pip packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: fake_bpy_modules_${{ matrix.blender_version}}_pip_${{ needs.set_versions.outputs.file_version }}
+          path: release
+
+      - name: Archive raw modules
+        uses: actions/upload-artifact@v2
+        with:
+          name: fake_bpy_modules_${{ matrix.blender_version}}_raw_${{ needs.set_versions.outputs.file_version }}
+          path: "raw_modules/fake_bpy_module*"
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
