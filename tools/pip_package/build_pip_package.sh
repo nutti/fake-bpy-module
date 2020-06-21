@@ -8,12 +8,12 @@ SUPPORTED_VERSIONS=(
 )
 
 declare -A BLENDER_TAG_NAME=(
-    ["v278"]="v2.78c"
-    ["v279"]="v2.79b"
-    ["v280"]="v2.80"
-    ["v281"]="v2.81a"
-    ["v282"]="v2.82a"
-    ["v283"]="v2.83"
+    ["v2.78"]="v2.78c"
+    ["v2.79"]="v2.79b"
+    ["v2.80"]="v2.80"
+    ["v2.81"]="v2.81a"
+    ["v2.82"]="v2.82a"
+    ["v2.83"]="v2.83"
 )
 
 TMP_DIR_NAME="tmp"
@@ -102,7 +102,7 @@ if [ ${target} = "release" ]; then
 
     # generate fake bpy module
     fake_module_dir="out"
-    ver=v${version%.*}${version##*.}
+    ver=v${version}
     bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
@@ -138,7 +138,7 @@ elif [ ${target} = "develop" ]; then
 
     # generate fake bpy module
     fake_module_dir="out"
-    ver=v${version%.*}${version##*.}
+    ver=v${version}
     bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
