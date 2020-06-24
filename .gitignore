@@ -1,3 +1,15 @@
 .idea/
 .DS_Store
+
+# ignore python
 __pycache__/
+.venv
+
+# build files
+tests/tmp
+src/mods/generated_mods
+tools/pip_package/tmp-*
+
+# ignore artifacts
+release
+raw_modules
