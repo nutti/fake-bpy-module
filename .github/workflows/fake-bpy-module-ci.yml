@@ -1,0 +1,76 @@
+name: fake-bpy-module CI
+
+on:
+  push:
+    branches:
+      # Temporarily trigger only on "ci_testing" branch
+      - ci_testing
+
+jobs:
+  build_modules:
+    name: Build modules
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.7"
+
+      - name: Blender downloads cache
+        uses: actions/cache@v2
+        id: blender-bin-cache
+        with:
+          path: blender-bin
+          key: blender-binaries-${{ runner.os }}-${{ hashFiles('**/tools/utils/download_blender.sh') }}
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Blender binary dependencies
+        run: sudo apt-get install -y libglu1-mesa
+
+      - name: Install fake-bpy-module tools
+        run: sudo apt-get install -y pandoc
+
+      - name: Download Blender files
+        if: steps.blender-bin-cache.outputs.cache-hit != 'true'
+        run: bash tools/utils/download_blender.sh all blender-bin
+
+        # alternatively to the github checkout, you can also use git.blender.org. See below.
+      - name: Checkout Blender from Github
+        uses: actions/checkout@v2
+        with:
+          repository: "blender/blender"
+          path: blender
+          fetch-depth: 0
+
+      - name: Set release version environment variable
+        run: echo ::set-env name=RELEASE_VERSION::$(date +%Y%m%d)
+
+        # TODO: In the future, the following commands should be replaced by a matrix:
+        # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix
+      - name: Generate pip Packages (Blender 2.78)
+        run: bash tools/pip_package/build_pip_package.sh release 2.78 ./blender ./blender-bin/blender-v278-bin
+
+      - name: Generate pip Packages (Blender 2.79)
+        run: bash tools/pip_package/build_pip_package.sh release 2.79 ./blender ./blender-bin/blender-v279-bin
+
+      - name: Generate pip Packages (Blender 2.80)
+        run: bash tools/pip_package/build_pip_package.sh release 2.80 ./blender ./blender-bin/blender-v280-bin
+
+      - name: Generate pip Packages (Blender 2.81)
+        run: bash tools/pip_package/build_pip_package.sh release 2.81 ./blender ./blender-bin/blender-v281-bin
+
+      - name: Generate pip Packages (Blender 2.82)
+        run: bash tools/pip_package/build_pip_package.sh release 2.82 ./blender ./blender-bin/blender-v282-bin
+
+      - name: Generate pip Packages (Blender 2.83)
+        run: bash tools/pip_package/build_pip_package.sh release 2.83 ./blender ./blender-bin/blender-v283-bin
+
+      - name: Test Generated Modules
+        run: bash tests/run_tests.sh raw_modules
