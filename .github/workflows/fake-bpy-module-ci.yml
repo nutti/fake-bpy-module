@@ -5,6 +5,8 @@ on:
     branches:
       # Temporarily trigger only on "ci_testing" branch
       - ci_testing
+      - master
+  pull_request:
 
 jobs:
   build_modules:
