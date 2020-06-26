@@ -49,7 +49,6 @@ jobs:
         with:
           repository: "blender/blender"
           path: blender
-          fetch-depth: 0
 
       - name: Set release version environment variable
         run: echo ::set-env name=RELEASE_VERSION::$(date +%Y%m%d)

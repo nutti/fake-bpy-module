@@ -12,7 +12,7 @@ fi
 
 source_dir=${1}
 blender_dir=${2}
-branch_name=${3}
+git_ref=${3}
 output_dir=${4}
 mod_version=${5:-not-specified}
 current_dir=`pwd`
@@ -49,16 +49,30 @@ if [ ${python_version[0]} -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${pytho
     exit 1
 fi
 
+function get_remote_git_ref() {
+    local ref=$1
+
+    # 1. Try asking remote for ref. (git ls-remote)
+    # 2. If multiple are found, take first one (head -n 1)
+    # 3. Only save hash (cut -f1)
+    local remote_ref="$(git ls-remote origin $ref | head -n 1 | cut -f1)"
+
+    # if remote ref was not found, it probably was a git hash
+    if [ -z "${remote_ref}" ]; then
+        remote_ref="$ref"
+    fi
+
+    echo "${remote_ref}"
+}
+
 # make temporary directory
 mkdir -p ${tmp_dir}
 
-# change to the target branch/tag/commit
+# change to the target git ref
 cd ${source_dir}
-git fetch --prune
-git checkout master
-git pull origin master
-git checkout -f ${branch_name}
-git pull origin ${branch_name}
+remote_git_ref="$(get_remote_git_ref "${git_ref}")"
+git fetch --depth 1 origin "${remote_git_ref}"
+git checkout -f "${remote_git_ref}"
 
 # generate .rst documents
 cd ${current_dir}
