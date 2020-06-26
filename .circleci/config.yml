@@ -17,22 +17,22 @@ jobs:
               source ${BASH_ENV}
       - run:
           name: Generate pip Packages (Blender 2.78)
-          command: bash tools/pip_package/build_pip_package.sh release 2.78 ../blender ../blender-bin/blender-v278-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.78 ../blender ../blender-bin/blender-v2.78-bin
       - run:
           name: Generate pip Packages (Blender 2.79)
-          command: bash tools/pip_package/build_pip_package.sh release 2.79 ../blender ../blender-bin/blender-v279-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.79 ../blender ../blender-bin/blender-v2.79-bin
       - run:
           name: Generate pip Packages (Blender 2.80)
-          command: bash tools/pip_package/build_pip_package.sh release 2.80 ../blender ../blender-bin/blender-v280-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.80 ../blender ../blender-bin/blender-v2.80-bin
       - run:
           name: Generate pip Packages (Blender 2.81)
-          command: bash tools/pip_package/build_pip_package.sh release 2.81 ../blender ../blender-bin/blender-v281-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.81 ../blender ../blender-bin/blender-v2.81-bin
       - run:
           name: Generate pip Packages (Blender 2.82)
-          command: bash tools/pip_package/build_pip_package.sh release 2.82 ../blender ../blender-bin/blender-v282-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.82 ../blender ../blender-bin/blender-v2.82-bin
       - run:
           name: Generate pip Packages (Blender 2.83)
-          command: bash tools/pip_package/build_pip_package.sh release 2.83 ../blender ../blender-bin/blender-v283-bin
+          command: bash tools/pip_package/build_pip_package.sh release 2.83 ../blender ../blender-bin/blender-v2.83-bin
       - run:
           name: Compress All Generated Packages
           command: tar cvfz all.tar.gz release/* && mv all.tar.gz release

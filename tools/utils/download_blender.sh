@@ -9,47 +9,47 @@ SUPPORTED_VERSIONS=(
 )
 
 declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
-    ["v278"]="https://download.blender.org/release/Blender2.78/blender-2.78c-OSX_10.6-x86_64.zip"
-    ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79a-macOS-10.6.zip"
-    ["v280"]=""
-    ["v281"]=""
-    ["v282"]=""
-    ["v283"]=""
+    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-OSX_10.6-x86_64.zip"
+    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79a-macOS-10.6.zip"
+    ["v2.80"]=""
+    ["v2.81"]=""
+    ["v2.82"]=""
+    ["v2.83"]=""
 )
 
 declare -A BLENDER_DOWNLOAD_URL_WIN64=(
-    ["v278"]="https://download.blender.org/release/Blender2.78/blender-2.78c-windows64.zip"
-    ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
-    ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-windows64.zip"
-    ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
-    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
-    ["v283"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-windows64.zip"
+    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-windows64.zip"
+    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
+    ["v2.80"]="https://download.blender.org/release/Blender2.80/blender-2.80-windows64.zip"
+    ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
+    ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
+    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
-    ["v278"]="https://download.blender.org/release/Blender2.78/blender-2.78c-linux-glibc219-x86_64.tar.bz2"
-    ["v279"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
-    ["v280"]="https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2"
-    ["v281"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
-    ["v282"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
-    ["v283"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-linux64.tar.xz"
+    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-linux-glibc219-x86_64.tar.bz2"
+    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
+    ["v2.80"]="https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2"
+    ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
+    ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
+    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.0-linux64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
-    ["v278"]="blender-2.78c-OSX_10.6-x86_64"
-    ["v279"]="blender-2.79b-macOS-10.6"
+    ["v2.78"]="blender-2.78c-OSX_10.6-x86_64"
+    ["v2.79"]="blender-2.79b-macOS-10.6"
 )
 
 declare -A NEED_MOVE_WIN64=(
 )
 
 declare -A NEED_MOVE_LINUX=(
-    ["v278"]="blender-2.78c-linux-glibc219-x86_64"
-    ["v279"]="blender-2.79b-linux-glibc219-x86_64"
-    ["v280"]="blender-2.80-linux-glibc217-x86_64"
-    ["v281"]="blender-2.81a-linux-glibc217-x86_64"
-    ["v282"]="blender-2.82a-linux64"
-    ["v283"]="blender-2.83.0-linux64"
+    ["v2.78"]="blender-2.78c-linux-glibc219-x86_64"
+    ["v2.79"]="blender-2.79b-linux-glibc219-x86_64"
+    ["v2.80"]="blender-2.80-linux-glibc217-x86_64"
+    ["v2.81"]="blender-2.81a-linux-glibc217-x86_64"
+    ["v2.82"]="blender-2.82a-linux64"
+    ["v2.83"]="blender-2.83.0-linux64"
 )
 
 function download_blender() {
@@ -176,7 +176,7 @@ if [ ${version} = "all" ]; then
     wait_for_all ${pids[@]}
 else
     if [ ${os} == "Mac" ]; then
-        ver=v${version%.*}${version##*.}
+        ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_MACOSX[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_MACOSX[${ver}]+_}" == "_" ]]; then
@@ -184,7 +184,7 @@ else
         fi
         download_blender ${ver} ${url} ${move_from}
     elif [ ${os} == "Cygwin64" ]; then
-        ver=v${version%.*}${version##*.}
+        ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_WIN64[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_WIN64[${ver}]+_}" == "_" ]]; then
@@ -192,7 +192,7 @@ else
         fi
         download_blender ${ver} ${url} ${move_from}
     elif [ ${os} == "Linux" ]; then
-        ver=v${version%.*}${version##*.}
+        ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_LINUX[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_LINUX[${ver}]+_}" == "_" ]]; then
