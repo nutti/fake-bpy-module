@@ -52,6 +52,15 @@ declare -A NEED_MOVE_LINUX=(
     ["v2.83"]="blender-2.83.1-linux64"
 )
 
+declare -A BLENDER_CHECKSUM_URL=(
+    ["v2.78"]="https://download.blender.org/release/Blender2.78/release278c.md5"
+    ["v2.79"]="https://download.blender.org/release/Blender2.79/release279b.md5"
+    ["v2.80"]="https://download.blender.org/release/Blender2.80/release280.md5"
+    ["v2.81"]="https://download.blender.org/release/Blender2.81/release281a.md5"
+    ["v2.82"]="https://download.blender.org/release/Blender2.82/release282a.md5"
+    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.1.md5"
+)
+
 function get_extractor() {
     local file_extension=${1}
     local extractor
@@ -64,6 +73,53 @@ function get_extractor() {
     echo "${extractor}"
 }
 
+function verify_download_integrity() {
+    local version=${1}
+    local target_filepath=${2}
+
+    if [ ! -f "${target_filepath}" ]; then
+        return 1
+    fi
+
+    echo "Found Blender ${version} download. Verifying the integrity."
+
+    local target_filename download_dir checksum_url checksum_filename
+    target_filename="$(basename "${target_filepath}")"
+    download_dir="$(dirname "${target_filepath}")"
+    checksum_url="${BLENDER_CHECKSUM_URL[${version}]}"
+    checksum_filename="$(basename "${checksum_url}")"
+
+    pushd "${download_dir}" 1> /dev/null
+
+    curl --fail -s "${checksum_url}" -o "${checksum_filename}"
+
+    if ! grep -q "${target_filename}" "${checksum_filename}"; then
+        echo "Error: Unable to find \"${target_filename}\" in \"${checksum_filename}\""
+        cat "${checksum_filename}"
+        return 1
+    fi
+
+    local checksum
+    checksum="$(grep "${target_filename}" "${checksum_filename}")"
+
+    md5sum --check --status <<< "${checksum}"
+    local returncode=$?
+
+    if [ $returncode -ne 0 ]; then
+        echo "Checksum verification of Blender ${version} failed:"
+        echo "  Expected: ${checksum}"
+        echo "  Received: $(md5sum "${target_filename}")"
+    else
+        echo "Checksum of Blender ${version} verified."
+    fi
+
+    # if function had no critical errors, remove checksum file again.
+    rm "${checksum_filename}"
+
+    popd 1> /dev/null
+    return ${returncode}
+}
+
 # download Blender binary
 function download_blender() {
     ver=${1}
@@ -71,13 +127,13 @@ function download_blender() {
     move_from=${3}
 
     local download_dir target
-    download_dir="$(pwd)"
+    download_dir="$(pwd)/downloads"
     target=blender-${ver}-bin
 
     local url file_extension filename filepath
     url=${blender_download_url}
     file_extension=${url##*.}
-    filename=${target}.${file_extension}
+    filename="$(basename "${url}")"
     filepath="${download_dir}/${filename}"
 
     local extractor
@@ -87,9 +143,24 @@ function download_blender() {
         exit 1
     fi
 
-    # fetch file
-    echo "Downloading Blender ${ver}: ${blender_download_url}"
-    curl --fail -s "${url}" -o "${filepath}"
+    # check if file already has been download and verify its signature
+    if ! verify_download_integrity "${ver}" "${filepath}";  then
+        # create download folder
+        mkdir -p "${download_dir}"
+
+        # fetch file
+        echo "Downloading Blender ${ver}: ${blender_download_url}"
+        curl --fail -s "${url}" -o "${filepath}"
+
+        # verify integrity of the download
+        if ! verify_download_integrity "${ver}" "${filepath}"; then
+            echo "Error: Blender ${ver} download failed, please retry. If this happens again, please open a bug report."
+            echo "  URL: ${url}"
+            exit 1
+        fi
+    else
+        echo "Found verified Blender ${ver} download: \"${filepath}\""
+    fi
 
     local targetpath="${output_dir}/${target}"
 
@@ -114,9 +185,6 @@ function download_blender() {
 
     # go back to download folder
     popd 1> /dev/null
-
-    # delete downloaded file
-    rm "${filepath}"
 }
 
 function wait_for_all() {
