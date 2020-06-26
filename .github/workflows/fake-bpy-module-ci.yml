@@ -56,22 +56,22 @@ jobs:
         # TODO: In the future, the following commands should be replaced by a matrix:
         # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix
       - name: Generate pip Packages (Blender 2.78)
-        run: bash tools/pip_package/build_pip_package.sh release 2.78 ./blender ./blender-bin/blender-v278-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.78 ./blender ./blender-bin/blender-v2.78-bin
 
       - name: Generate pip Packages (Blender 2.79)
-        run: bash tools/pip_package/build_pip_package.sh release 2.79 ./blender ./blender-bin/blender-v279-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.79 ./blender ./blender-bin/blender-v2.79-bin
 
       - name: Generate pip Packages (Blender 2.80)
-        run: bash tools/pip_package/build_pip_package.sh release 2.80 ./blender ./blender-bin/blender-v280-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.80 ./blender ./blender-bin/blender-v2.80-bin
 
       - name: Generate pip Packages (Blender 2.81)
-        run: bash tools/pip_package/build_pip_package.sh release 2.81 ./blender ./blender-bin/blender-v281-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.81 ./blender ./blender-bin/blender-v2.81-bin
 
       - name: Generate pip Packages (Blender 2.82)
-        run: bash tools/pip_package/build_pip_package.sh release 2.82 ./blender ./blender-bin/blender-v282-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.82 ./blender ./blender-bin/blender-v2.82-bin
 
       - name: Generate pip Packages (Blender 2.83)
-        run: bash tools/pip_package/build_pip_package.sh release 2.83 ./blender ./blender-bin/blender-v283-bin
+        run: bash tools/pip_package/build_pip_package.sh release 2.83 ./blender ./blender-bin/blender-v2.83-bin
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
