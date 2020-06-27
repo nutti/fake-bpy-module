@@ -113,6 +113,11 @@ jobs:
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
 
+      - name: Test generated pip module against Cycles addon
+        # Using a wildcard instead of ${{ needs.set_versions.outputs.module_version }} below, because the pip filenames do not respect leading zeros:
+        # For example: 00:29:45 UTC will create a file version "...dev2945-py3-none..." and not use {{ module_version}} "...dev002945-py3-none..."
+        run: bash tests/pylint_cycles.sh ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
+
   publish_modules:
     name: Upload artifacts to PyPi
     needs: build_modules
