@@ -56,8 +56,8 @@ for pkg in ${package_list}; do
     mkdir -p ${tmp_dir_path}
     unzip ${pkg} -d ${tmp_dir_path}
     pkg_dir_path=${tmp_dir_path}/${pkg_dir_name}
-    if ! ${python_bin} "${SCRIPT_DIR}/python/run_tests.py" -p "${pkg_dir_path}" -v "${blender_version}"; then
-        echo "Tests failed: ${pkg}"
+    if ! ${python_bin} "${SCRIPT_DIR}/python/import_module_test/run_tests.py" -p "${pkg_dir_path}"; then
+        echo "Import module test failed: ${pkg}"
         ((failed_test+=1))
         continue
     fi
