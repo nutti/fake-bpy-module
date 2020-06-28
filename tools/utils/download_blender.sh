@@ -52,39 +52,71 @@ declare -A NEED_MOVE_LINUX=(
     ["v2.83"]="blender-2.83.1-linux64"
 )
 
+function get_extractor() {
+    local file_extension=${1}
+    local extractor
+
+    if [ "${file_extension}" = "zip" ]; then
+        extractor="unzip"
+    elif [[ "${file_extension}" = "bz2" || "${file_extension}" = "xz" ]]; then
+        extractor="tar xf"
+    fi
+    echo "${extractor}"
+}
+
+# download Blender binary
 function download_blender() {
     ver=${1}
     blender_download_url=${2}
     move_from=${3}
 
-    # download Blender binary
-    cd ${current_dir}
+    local download_dir target
+    download_dir="$(pwd)"
     target=blender-${ver}-bin
-    mkdir -p ${output_dir}/${target}
-    cd ${output_dir}/${target}
 
+    local url file_extension filename filepath
     url=${blender_download_url}
-    filename=${target}
-    if [ ${url##*.} = "zip" ]; then
-        filename=${filename}.zip
-        curl ${url} -o ${filename}
-        unzip ${filename}
-        rm ${filename}
-    elif [ ${url##*.} = "bz2" ]; then
-        filename=${filename}.bz2
-        curl ${url} -o ${filename}
-        tar -jxvf ${filename}
-        rm ${filename}
-    elif [ ${url##*.} = "xz" ]; then
-        filename=${filename}.xz
-        curl ${url} -o ${filename}
-        tar Jxvf ${filename}
-        rm ${filename}
+    file_extension=${url##*.}
+    filename=${target}.${file_extension}
+    filepath="${download_dir}/${filename}"
+
+    local extractor
+    extractor=$(get_extractor "${file_extension}")
+    if [ -z "${extractor}" ]; then
+        echo "Error: Unknown file extension '${file_extension}'"
+        exit 1
     fi
+
+    # fetch file
+    echo "Downloading Blender ${ver}: ${blender_download_url}"
+    curl --fail -s "${url}" -o "${filepath}"
+
+    local targetpath="${output_dir}/${target}"
+
+    # cleanup existing files
+    if [ -d "${targetpath}" ]; then
+        echo "Removing old target folder \"${targetpath}\"."
+        rm -r "${targetpath}"
+    fi
+    mkdir -p "${targetpath}"
+
+    # change working directory
+    pushd "${targetpath}" 1> /dev/null
+
+    # extract file
+    echo "Extracting Blender ${ver} using \"${extractor%% *}\"."
+    ${extractor} "${filepath}"
 
     if [ ! ${move_from} = "" ]; then
+        echo "Moving downloaded Blender ${ver} files from \"${move_from}\" to \"${targetpath}\"."
         mv ${move_from}/* .
     fi
+
+    # go back to download folder
+    popd 1> /dev/null
+
+    # delete downloaded file
+    rm "${filepath}"
 }
 
 function wait_for_all() {
@@ -117,8 +149,12 @@ if [ $# -ne 2 ]; then
 fi
 
 version=${1}
-current_dir=`pwd`
 output_dir=${2}
+
+if [ -z "${output_dir}" ]; then
+    echo "Error: <output-dir> cannot be empty. Use \".\" if you wannt to use the current folder."
+    exit 1
+fi
 
 # check operating system
 os=`check_os`
@@ -204,5 +240,3 @@ else
         exit 1
     fi
 fi
-
-cd ${current_dir}
