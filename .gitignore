@@ -13,3 +13,6 @@ tools/pip_package/tmp-*
 # ignore artifacts
 release
 raw_modules
+
+# ignore blender downloads
+downloads
