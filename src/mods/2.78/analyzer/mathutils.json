@@ -1,0 +1,10 @@
+{
+  "new": [
+    {
+      "name": "STDPERLIN",
+      "type": "constant",
+      "module": "mathutils.noise.types",
+      "data_type": "int"
+    }
+  ]
+}

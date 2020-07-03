@@ -78,6 +78,14 @@ git checkout -f "${remote_git_ref}"
 cd ${current_dir}
 ${blender_bin} --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
 
+# Apply patches
+#   Note: patch is made by `diff -urpN gen_module-tmp/sphinx-in gen_module-tmp-for-patches/sphinx-in > sphinx-in.patch`
+if [ ${mod_version} = "not-specified" ]; then
+    patch -u -p1 -d ${tmp_dir} < ${SCRIPT_DIR}/patches/2.83/sphinx-in.patch
+else
+    patch -u -p1 -d ${tmp_dir} < ${SCRIPT_DIR}/patches/${mod_version}/sphinx-in.patch
+fi
+
 # generate modfiles
 startup_dir=`find ${blender_dir} -type d | egrep "/[0-9.]{4}/scripts/startup$"`
 if [ $? -ne 0 ]; then

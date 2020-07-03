@@ -16,6 +16,7 @@ SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 
+
 class MathutilsAnalyzer(fbm.AnalyzerWithModFile):
     def _modify_post_process(self, result: 'fbm.AnalysisResult'):
         for section in result.section_info:
@@ -35,15 +36,6 @@ class MathutilsAnalyzer(fbm.AnalyzerWithModFile):
                             m.set_parameter(i, converted)
 
 
-class BglAnalyzer(fbm.AnalyzerWithModFile):
-    def _modify_post_process(self, result: 'fbm.AnalysisResult'):
-        for section in result.section_info:
-            for info in section.info_list:
-                if info.type() == "function":
-                    if info.module() is None:
-                        info.set_module("bgl")
-
-
 class FreestyleAnalyzer(fbm.AnalyzerWithModFile):
     def _modify_post_process(self, result: 'fbm.AnalysisResult'):
         for section in result.section_info:
@@ -57,37 +49,15 @@ class FreestyleAnalyzer(fbm.AnalyzerWithModFile):
                             m.set_parameter(i, p.replace("=IntegrationType.MEAN", "=None"))
 
 
-class BpyAnalyzer(fbm.AnalyzerWithModFile):
-    def _modify_post_process(self, result: 'fbm.AnalysisResult'):
-        for section in result.section_info:
-            for info in section.info_list:
-                if info.type() == "function":
-                    for i, p in enumerate(info.parameters()):
-                        info.set_parameter(i, p.replace("=bpy.context.scene.frame_current", "=None"))
-                elif info.type() == "class":
-                    for m in info.methods():
-                        for i, p in enumerate(m.parameters()):
-                            m.set_parameter(i, p.replace("=bpy.context.scene.frame_current", "=None"))
-
-
 def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     all_files = glob.glob(INPUT_DIR + "/bpy*.rst")
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     files = list(set(all_files) - set(excludes_files))
     mod_files = [
-        "{}/mods/common/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_startup_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_modules_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    if config.mod_version in ["2.80"]:
-        mod_files.append("{}/mods/2.80/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    elif config.mod_version in ["2.81"]:
-        mod_files.append("{}/mods/2.81/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    elif config.mod_version in ["2.82"]:
-        mod_files.append("{}/mods/2.82/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    elif config.mod_version in ["2.83"]:
-        mod_files.append("{}/mods/2.83/analyzer/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"))
-    return fbm.PackageGenerationRule("bpy", files, BpyAnalyzer(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("bpy", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
 
 def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
@@ -95,7 +65,7 @@ def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
     mod_files = [
         "{}/mods/generated_mods/gen_bgl_modfile/bgl.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule("bgl", files, BglAnalyzer(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("bgl", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
 
 def make_blf_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
@@ -108,15 +78,16 @@ def make_mathutils_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGen
     mod_files = [
         "{}/mods/common/analyzer/mathutils.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule("mathutils", files, MathutilsAnalyzer(mod_files), fbm.BaseGenerator())
+    if config.mod_version in ["2.78", "2.79"]:
+        mod_files.append("{}/mods/{}/analyzer/mathutils.json".format(MOD_FILES_DIR, config.mod_version).replace("\\", "/"))
+        return fbm.PackageGenerationRule("mathutils", files, MathutilsAnalyzer(mod_files), fbm.BaseGenerator())
+    else:
+        return fbm.PackageGenerationRule("mathutils", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
 
 def make_gpu_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/gpu*.rst")
-    mod_files = [
-        "{}/mods/common/analyzer/gpu.json".format(MOD_FILES_DIR).replace("\\", "/"),
-    ]
-    return fbm.PackageGenerationRule("gpu", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("gpu", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
 
 def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
@@ -131,16 +102,12 @@ def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGe
 
 def make_freestyle_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/freestyle*.rst")
-    mod_files = [
-        "{}/mods/common/analyzer/freestyle.json".format(MOD_FILES_DIR).replace("\\", "/"),
-    ]
-    return fbm.PackageGenerationRule("freestyle", files, FreestyleAnalyzer(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("freestyle", files, FreestyleAnalyzer([]), fbm.BaseGenerator())
 
 
 def make_bpy_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     mod_files = [
-        "{}/mods/common/analyzer/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_modules_modfile/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/")
     ]
     return fbm.PackageGenerationRule("bpy_extras", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
@@ -153,10 +120,7 @@ def make_aud_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 def make_bmesh_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
-    mod_files = [
-        "{}/mods/common/analyzer/bmesh.json".format(MOD_FILES_DIR).replace("\\", "/"),
-    ]
-    return fbm.PackageGenerationRule("bmesh", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("bmesh", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:
