@@ -1,12 +1,4 @@
 {
-  "new": [
-    {
-      "name": "STDPERLIN",
-      "type": "constant",
-      "module": "mathutils.noise.types",
-      "data_type": "int"
-    }
-  ],
   "append": [
     {
       "name": "KDTree",
@@ -138,25 +130,6 @@
             "type": "return",
             "data_type": ""
           }
-        }
-      ]
-    }
-  ],
-  "update": [
-    {
-      "name": "Vector",
-      "type": "class",
-      "module": "mathutils",
-      "methods": [
-        {
-          "name": "Range",
-          "type": "method",
-          "module": "mathutils",
-          "parameters": [
-            "start=0",
-            "stop=-1",
-            "step=1"
-          ]
         }
       ]
     }

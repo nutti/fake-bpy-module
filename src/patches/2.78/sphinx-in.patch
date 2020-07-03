@@ -1,0 +1,132 @@
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.props.rst gen_module-tmp-new/sphinx-in/bpy.props.rst
+--- gen_module-tmp-old/sphinx-in/bpy.props.rst	2020-07-02 12:23:05.881564578 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.props.rst	2020-07-02 12:37:47.643547786 +0000
+@@ -355,7 +355,7 @@ read or written from the API.
+    :type update: function
+ 
+ 
+-.. function:: RemoveProperty(cls, attr=)
++.. function:: RemoveProperty(cls, attr)
+ 
+    Removes a dynamically defined property.
+ 
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.types.BlendData.rst gen_module-tmp-new/sphinx-in/bpy.types.BlendData.rst
+--- gen_module-tmp-old/sphinx-in/bpy.types.BlendData.rst	2020-07-02 12:23:05.882564577 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.types.BlendData.rst	2020-07-02 12:23:34.038547573 +0000
+@@ -237,7 +237,7 @@ base class --- :class:`bpy_struct`
+ 
+       :type: :class:`BlendDataWorlds` :class:`bpy_prop_collection` of :class:`World`, (readonly)
+ 
+-   .. method:: user_map([subset=(id1, id2, ...)], key_types={..}, value_types={..})
++   .. method:: user_map(subset, key_types, value_types)
+    
+       Returns a mapping of all ID datablocks in current ``bpy.data`` to a set of all datablocks using them.
+    
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.types.RenderEngine.rst gen_module-tmp-new/sphinx-in/bpy.types.RenderEngine.rst
+--- gen_module-tmp-old/sphinx-in/bpy.types.RenderEngine.rst	2020-07-02 12:23:05.901564573 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.types.RenderEngine.rst	2020-07-02 13:21:32.235541817 +0000
+@@ -289,7 +289,7 @@ subclasses ---
+ 
+       :rtype: float in [0, inf]
+ 
+-   .. method:: camera_model_matrix(camera, use_spherical_stereo=False, r_model_matrix)
++   .. method:: camera_model_matrix(camera, use_spherical_stereo=False, r_model_matrix=0.0)
+ 
+       camera_model_matrix
+ 
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.types.UILayout.rst gen_module-tmp-new/sphinx-in/bpy.types.UILayout.rst
+--- gen_module-tmp-old/sphinx-in/bpy.types.UILayout.rst	2020-07-02 12:23:05.907564571 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.types.UILayout.rst	2020-07-02 13:38:54.216559913 +0000
+@@ -1162,7 +1162,7 @@ base class --- :class:`bpy_struct`
+       :type property: string, (never None)
+       :type clip_user: :class:`MovieClipUser`, (never None)
+ 
+-   .. method:: template_list(listtype_name, list_id="", dataptr, propname, active_dataptr, active_propname, item_dyntip_propname="", rows=5, maxrows=5, type='DEFAULT', columns=9)
++   .. method:: template_list(listtype_name, list_id="", dataptr="", propname="", active_dataptr="", active_propname=0, item_dyntip_propname="", rows=5, maxrows=5, type='DEFAULT', columns=9)
+ 
+       Item. A list widget to display data, e.g. vertexgroups.
+ 
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.types.bpy_struct.rst gen_module-tmp-new/sphinx-in/bpy.types.bpy_struct.rst
+--- gen_module-tmp-old/sphinx-in/bpy.types.bpy_struct.rst	2020-07-02 12:23:05.909564571 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.types.bpy_struct.rst	2020-07-02 21:39:53.998711424 +0000
+@@ -105,7 +105,7 @@ subclasses ---
+          :class:`bpy.types.PoseBone` classes support custom properties.
+ 
+ 
+-   .. method:: keyframe_delete(data_path, index=-1, frame=bpy.context.scene.frame_current, group="")
++   .. method:: keyframe_delete(data_path, index=-1, frame=None, group="")
+    
+       Remove a keyframe from this properties fcurve.
+    
+@@ -121,7 +121,7 @@ subclasses ---
+       :rtype: boolean
+ 
+ 
+-   .. method:: keyframe_insert(data_path, index=-1, frame=bpy.context.scene.frame_current, group="")
++   .. method:: keyframe_insert(data_path, index=-1, frame=None, group="")
+    
+       Insert a keyframe on the property given, adding fcurves and animation data when necessary.
+    
+diff -urpN gen_module-tmp-old/sphinx-in/bpy.utils.rst gen_module-tmp-new/sphinx-in/bpy.utils.rst
+--- gen_module-tmp-old/sphinx-in/bpy.utils.rst	2020-07-02 12:23:05.909564571 +0000
++++ gen_module-tmp-new/sphinx-in/bpy.utils.rst	2020-07-02 22:03:10.718691708 +0000
+@@ -53,7 +53,7 @@ not associated with blenders internal da
+       subclass of a registerable blender class.
+ 
+ 
+-.. function:: resource_path(type, major=bpy.app.version[0], minor=bpy.app.version[1])
++.. function:: resource_path(type, major=2, minor="")
+ 
+    Return the base path for storing system files.
+ 
+diff -urpN gen_module-tmp-old/sphinx-in/bpy_extras.io_utils.rst gen_module-tmp-new/sphinx-in/bpy_extras.io_utils.rst
+--- gen_module-tmp-old/sphinx-in/bpy_extras.io_utils.rst	2020-07-02 12:23:05.909564571 +0000
++++ gen_module-tmp-new/sphinx-in/bpy_extras.io_utils.rst	2020-07-02 13:05:38.090565377 +0000
+@@ -59,7 +59,7 @@ bpy_extras submodule (bpy_extras.io_util
+    :return: the new filepath.
+    :rtype: string
+ 
+-.. function:: path_reference_copy(copy_set, report=<built-in function print>)
++.. function:: path_reference_copy(copy_set, report='print')
+ 
+    Execute copying files of path_reference
+    
+diff -urpN gen_module-tmp-old/sphinx-in/freestyle.utils.rst gen_module-tmp-new/sphinx-in/freestyle.utils.rst
+--- gen_module-tmp-old/sphinx-in/freestyle.utils.rst	2020-07-02 12:23:05.910564570 +0000
++++ gen_module-tmp-new/sphinx-in/freestyle.utils.rst	2020-07-02 13:37:56.368565426 +0000
+@@ -44,7 +44,7 @@ writing.
+    :rtype: int or float
+ 
+ 
+-.. function:: angle_x_normal(it: Interface0DIterator)
++.. function:: angle_x_normal(it)
+ 
+    unsigned angle between a Point's normal and the X axis, in radians
+ 
+@@ -114,12 +114,12 @@ writing.
+ 
+    get the diffuse rgba color from an FEdge
+ 
+-.. function:: normal_at_I0D(it: Interface0DIterator) -> Vector
++.. function:: normal_at_I0D(it) -> Vector
+ 
+    Normal at an Interface0D object. In contrast to Normal2DF0D this
+           function uses the actual data instead of underlying Fedge objects.
+ 
+-.. function:: pairwise(iterable, types={<class 'Stroke'>, <class 'StrokeVertexIterator'>})
++.. function:: pairwise(iterable, types={})
+ 
+    Yields a tuple containing the previous and current object 
+ 
+diff -urpN gen_module-tmp-old/sphinx-in/mathutils.rst gen_module-tmp-new/sphinx-in/mathutils.rst
+--- gen_module-tmp-old/sphinx-in/mathutils.rst	2020-07-02 12:23:05.911564570 +0000
++++ gen_module-tmp-new/sphinx-in/mathutils.rst	2020-07-02 13:22:14.471556991 +0000
+@@ -935,7 +935,7 @@ This module provides access to the math
+       :type size: int
+ 
+ 
+-   .. classmethod:: Range(start=0, stop, step=1)
++   .. classmethod:: Range(start=0, stop=-1, step=1)
+    
+       Create a filled with a range of values.
+    
