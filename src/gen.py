@@ -102,7 +102,10 @@ def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGe
 
 def make_freestyle_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/freestyle*.rst")
-    return fbm.PackageGenerationRule("freestyle", files, FreestyleAnalyzer([]), fbm.BaseGenerator())
+    mod_files = [
+        "{}/mods/common/analyzer/freestyle.json".format(MOD_FILES_DIR).replace("\\", "/"),
+    ]
+    return fbm.PackageGenerationRule("freestyle", files, FreestyleAnalyzer(mod_files), fbm.BaseGenerator())
 
 
 def make_bpy_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':

@@ -1,0 +1,13 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.ops.export_scene.rst	2020-07-05 20:45:11.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.ops.export_scene.rst	2020-07-05 20:45:55.000000000 +0900
+@@ -373,9 +373,7 @@ Export Scene Operators
+    :type export_force_sampling: boolean, (optional)
+    :arg export_nla_strips:
+ 
+-      Group by NLA Track, When on, multiple actions become part of the same glTF animation if
+-they're pushed onto NLA tracks with the same name.
+-When off, all the currently assigned actions become one glTF animation
++      Group by NLA Track, When on, multiple actions become part of the same glTF animation if they're pushed onto NLA tracks with the same name. When off, all the currently assigned actions become one glTF animation
+ 
+    :type export_nla_strips: boolean, (optional)
+    :arg export_def_bones:

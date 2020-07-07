@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bmesh.ops.rst	2020-07-06 10:26:22.858402691 +0000
++++ gen_module-tmp/sphinx-in/bmesh.ops.rst	2020-07-06 10:28:15.199405119 +0000
+@@ -643,7 +643,7 @@ This script shows how operators can be u
+    :type space: :class:`mathutils.Matrix`
+ 
+ 
+-.. function:: translate(bm, vec, space, verts)
++.. function:: translate(bm, vec, space, verts=[])
+ 
+    Translate.
+ 
+@@ -901,7 +901,7 @@ This script shows how operators can be u
+    :rtype: dict with string keys
+ 
+ 
+-.. function:: extrude_face_region(bm, geom, edges_exclude, use_keep_orig, use_normal_flip, use_normal_from_adjacent, use_select_history)
++.. function:: extrude_face_region(bm, geom=[], edges_exclude=[], use_keep_orig=False, use_normal_flip=False, use_normal_from_adjacent=False, use_select_history=False)
+ 
+    Extrude Faces.
+ 

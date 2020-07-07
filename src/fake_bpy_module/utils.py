@@ -28,7 +28,7 @@ def remove_unencodable(str_: str) -> str:
     :param str_: string to remove unencodable character
     :return: string removed unencodable character
     """
-    s = str_.replace('\xb2', '')
-    s = s.replace('\u2013', '')
-    s = s.replace('\u2019', '')
+    s = str_.replace("\xb2", "")
+    s = s.replace("\u2013", "")
+    s = s.replace("\u2019", "")
     return s

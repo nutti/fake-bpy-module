@@ -315,7 +315,7 @@ class BaseGenerator:
                                "Base class node (type={}) is not found"
                                .format(base_class.data_type()))
         sorted_nodes = topological_sort(graph)
-        sorted_class_data = [node.data for node in sorted_nodes]
+        sorted_class_data = [node.data() for node in sorted_nodes]
 
         # Sort base classes
         order = {}

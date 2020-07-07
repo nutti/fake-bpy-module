@@ -79,11 +79,16 @@ cd ${current_dir}
 ${blender_bin} --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
 
 # Apply patches
-#   Note: patch is made by `diff -urpN gen_module-tmp/sphinx-in gen_module-tmp-for-patches/sphinx-in > sphinx-in.patch`
+#   Note: patch is made by `diff -up gen_module-tmp/sphinx-in.orig/a.rst gen_module-tmp/sphinx-in/a.rst > patches/2.XX/sphinx-in/a.rst.patch`
+cp -r ${tmp_dir}/sphinx-in ${tmp_dir}/sphinx-in.orig
 if [ ${mod_version} = "not-specified" ]; then
-    patch -u -p1 -d ${tmp_dir} < ${SCRIPT_DIR}/patches/2.83/sphinx-in.patch
+    for patch_file in $(find ${SCRIPT_DIR}/patches/2.83/sphinx-in -name "*.patch"); do
+        patch -u -p2 -d ${tmp_dir}/sphinx-in < ${patch_file}
+    done
 else
-    patch -u -p1 -d ${tmp_dir} < ${SCRIPT_DIR}/patches/${mod_version}/sphinx-in.patch
+    for patch_file in $(find ${SCRIPT_DIR}/patches/${mod_version}/sphinx-in -name "*.patch"); do
+        patch -u -p2 -d ${tmp_dir}/sphinx-in < ${patch_file}
+    done
 fi
 
 # generate modfiles

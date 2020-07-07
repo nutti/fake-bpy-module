@@ -261,13 +261,29 @@ class Info:
     def __init__(self):
         self._type: str = None
 
-    def is_assinable(self, variable, data: dict, key: str, method: str):
+    def is_assignable(self, variable, data: dict, key: str, method: str):
         if method == 'NEW':
             if key in data:
                 return True
             return False
         elif method == 'APPEND':
             if (key in data) and (variable is None):
+                return True
+            return False
+        elif method == 'UPDATE':
+            if key in data:
+                return True
+            return False
+        else:
+            raise RuntimeError("Unsupported method: {}".format(method))
+
+    def is_data_type_assinable(self, variable, data: dict, key: str, method: str):
+        if method == 'NEW':
+            if key in data:
+                return True
+            return False
+        elif method == 'APPEND':
+            if (key in data) and isinstance(variable, UnknownDataType):
                 return True
             return False
         elif method == 'UPDATE':
@@ -317,6 +333,9 @@ class ParameterDetailInfo(Info):
             self._description = ""
         self._description += desc
 
+    def description(self) -> str:
+        return self._description
+
     def set_data_type(self, dtype: 'DataType'):
         self._data_type = dtype
 
@@ -332,12 +351,14 @@ class ParameterDetailInfo(Info):
 
         if check_os() == "Windows":
             data = {
+                "type": self._type,
                 "name": remove_unencodable(self._name),
                 "description": remove_unencodable(self._description),
                 "data_type": remove_unencodable(self._data_type.to_string()),
             }
         else:
             data = {
+                "type": self._type,
                 "name": self._name,
                 "description": self._description,
                 "data_type": self._data_type.to_string(),
@@ -352,11 +373,11 @@ class ParameterDetailInfo(Info):
             raise RuntimeError("Unsupported type: {}".format(data["type"]))
 
         self._type = data["type"]
-        if self.is_assinable(self._name, data, "name", method):
+        if self.is_assignable(self._name, data, "name", method):
             self._name = data["name"]
-        if self.is_assinable(self._description, data, "description", method):
+        if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
@@ -378,6 +399,9 @@ class ReturnInfo(Info):
             self._description = ""
         self._description += desc
 
+    def description(self) -> str:
+        return self._description
+
     def set_data_type(self, dtype: 'DataType'):
         self._data_type = dtype
 
@@ -387,11 +411,13 @@ class ReturnInfo(Info):
 
         if check_os() == "Windows":
             data = {
+                "type": self._type,
                 "description": remove_unencodable(self._description),
                 "data_type": remove_unencodable(self._data_type.to_string()),
             }
         else:
             data = {
+                "type": self._type,
                 "description": self._description,
                 "data_type": self._data_type.to_string(),
             }
@@ -405,9 +431,9 @@ class ReturnInfo(Info):
             raise RuntimeError("Unsupported type: {}".format(data["type"]))
 
         self._type = data["type"]
-        if self.is_assinable(self._description, data, "description", method):
+        if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
@@ -442,6 +468,9 @@ class VariableInfo(Info):
         if self._description is None:
             self._description = ""
         self._description += desc
+
+    def description(self) -> str:
+        return self._description
 
     def set_class(self, class_: str):
         self._class = class_
@@ -496,15 +525,15 @@ class VariableInfo(Info):
             raise RuntimeError("Unsupported type: {}".format(data["type"]))
 
         self._type = data["type"]
-        if self.is_assinable(self._name, data, "name", method):
+        if self.is_assignable(self._name, data, "name", method):
             self._name = data["name"]
-        if self.is_assinable(self._description, data, "description", method):
+        if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_assinable(self._class, data, "class", method):
+        if self.is_assignable(self._class, data, "class", method):
             self._class = data["class"]
-        if self.is_assinable(self._module, data, "module", method):
+        if self.is_assignable(self._module, data, "module", method):
             self._module = data["module"]
-        if self.is_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
@@ -530,9 +559,6 @@ class FunctionInfo(Info):
 
     def set_name(self, name: str):
         self._name = name
-
-    def equal_to_fullname(self, fullname: str) -> bool:
-        return self._name == fullname
 
     def parameters(self) -> List[str]:
         return self._parameters
@@ -611,6 +637,9 @@ class FunctionInfo(Info):
             self._description = ""
         self._description += desc
 
+    def description(self) -> str:
+        return self._description
+
     def to_dict(self) -> dict:
         if self._type not in self.supported_type:
             raise RuntimeError("'type' must be ({})"
@@ -671,19 +700,23 @@ class FunctionInfo(Info):
             raise RuntimeError("Unsupported type: {}".format(data["type"]))
 
         self._type = data["type"]
-        if self.is_assinable(self._name, data, "name", method):
+        if self.is_assignable(self._name, data, "name", method):
             self._name = data["name"]
-        if self.is_assinable(self._description, data, "description", method):
+        if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_assinable(self._class, data, "class", method):
+        if self.is_assignable(self._class, data, "class", method):
             self._class = data["class"]
-        if self.is_assinable(self._module, data, "module", method):
+        if self.is_assignable(self._module, data, "module", method):
             self._module = data["module"]
-        if self.is_assinable(self._parameters, data, "parameters", method):
-            self._parameters = data["parameters"]
-        if self.is_assinable(self._return, data, "return", method):
-            self._return = ReturnInfo()
-            self._return.from_dict(data["return"], method)
+
+        if "parameters" in data:
+            if method == 'NEW':
+                if len(self._parameters) == 0:
+                    self._parameters = data["parameters"]
+            elif method == 'APPEND':
+                self._parameters.extend(data["parameters"])
+            elif method == 'UPDATE':
+                self._parameters = data["parameters"]
 
         if "parameter_details" in data:
             if method == 'NEW':
@@ -709,6 +742,21 @@ class FunctionInfo(Info):
                             break
                     else:
                         raise RuntimeError("{} is not found".format(pd["name"]))
+
+        if "return" in data:
+            if method == 'NEW':
+                if self._return is None:
+                    self._return = ReturnInfo()
+                    self._return.from_dict(data["return"], 'NEW')
+            elif method == 'APPEND':
+                if self._return is not None:
+                    self._return.from_dict(data["return"], 'APPEND')
+                else:
+                    self._return = ReturnInfo()
+                    self._return.from_dict(data["return"], 'NEW')
+            elif method == 'UPDATE':
+                if self._return is not None:
+                    self._return.from_dict(data["return"], 'UPDATE')
 
 
 class ClassInfo(Info):
@@ -744,6 +792,9 @@ class ClassInfo(Info):
         if self._description is None:
             self._description = ""
         self._description += desc
+
+    def description(self) -> str:
+        return self._description
 
     def methods(self) -> List['FunctionInfo']:
         return self._methods
@@ -838,11 +889,11 @@ class ClassInfo(Info):
             raise RuntimeError("Unsupported type: {}".format(data["type"]))
 
         self._type = data["type"]
-        if self.is_assinable(self._name, data, "name", method):
+        if self.is_assignable(self._name, data, "name", method):
             self._name = data["name"]
-        if self.is_assinable(self._description, data, "description", method):
+        if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_assinable(self._module, data, "module", method):
+        if self.is_assignable(self._module, data, "module", method):
             self._module = data["module"]
 
         if "methods" in data:
@@ -912,6 +963,9 @@ class ClassInfo(Info):
 class SectionInfo:
     def __init__(self):
         self.info_list: List['Info'] = []
+
+    def same(self, other):
+        return self.to_dict() == other.to_dict()
 
     def add_info(self, info: 'Info'):
         self.info_list.append(info)

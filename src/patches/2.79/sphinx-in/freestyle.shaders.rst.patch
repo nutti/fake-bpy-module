@@ -1,0 +1,14 @@
+--- gen_module-tmp/sphinx-in.orig/freestyle.shaders.rst	2020-07-07 03:22:23.788433388 +0000
++++ gen_module-tmp/sphinx-in/freestyle.shaders.rst	2020-07-07 03:23:10.763412988 +0000
+@@ -382,10 +382,7 @@ User-defined stroke shaders inherit the
+    
+    [Geometry shader]
+    
+-   .. method:: __init__(num_iterations=100, factor_point=0.1,
+-         factor_curvature=0.0, factor_curvature_difference=0.2,
+-         aniso_point=0.0, aniso_normal=0.0, aniso_curvature=0.0,
+-         carricature_factor=1.0)
++   .. method:: __init__(num_iterations=100, factor_point=0.1, factor_curvature=0.0, factor_curvature_difference=0.2, aniso_point=0.0, aniso_normal=0.0, aniso_curvature=0.0, carricature_factor=1.0)
+    
+       Builds a SmoothingShader object.
+    
