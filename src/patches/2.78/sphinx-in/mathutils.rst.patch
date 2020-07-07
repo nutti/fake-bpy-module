@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/mathutils.rst	2020-07-06 11:38:55.329403422 +0000
++++ gen_module-tmp/sphinx-in/mathutils.rst	2020-07-06 11:43:35.700408416 +0000
+@@ -935,7 +935,7 @@ This module provides access to the math
+       :type size: int
+ 
+ 
+-   .. classmethod:: Range(start=0, stop, step=1)
++   .. classmethod:: Range(start=0, stop=-1, step=1)
+    
+       Create a filled with a range of values.
+    

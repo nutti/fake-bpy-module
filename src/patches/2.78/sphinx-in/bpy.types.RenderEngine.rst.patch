@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.RenderEngine.rst	2020-07-06 11:38:55.318403420 +0000
++++ gen_module-tmp/sphinx-in/bpy.types.RenderEngine.rst	2020-07-06 11:40:42.765411562 +0000
+@@ -289,7 +289,7 @@ subclasses ---
+ 
+       :rtype: float in [0, inf]
+ 
+-   .. method:: camera_model_matrix(camera, use_spherical_stereo=False, r_model_matrix)
++   .. method:: camera_model_matrix(camera, use_spherical_stereo=False, r_model_matrix=0.0)
+ 
+       camera_model_matrix
+ 

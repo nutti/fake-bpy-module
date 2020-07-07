@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.utils.rst	2020-07-06 07:49:13.119396709 +0000
++++ gen_module-tmp/sphinx-in/bpy.utils.rst	2020-07-06 07:53:27.129414124 +0000
+@@ -53,7 +53,7 @@ not associated with blenders internal da
+       subclass of a registerable blender class.
+ 
+ 
+-.. function:: resource_path(type, major=bpy.app.version[0], minor=bpy.app.version[1])
++.. function:: resource_path(type, major=2, minor="")
+ 
+    Return the base path for storing system files.
+ 

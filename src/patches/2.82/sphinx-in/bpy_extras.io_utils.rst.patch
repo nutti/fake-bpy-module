@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bpy_extras.io_utils.rst	2020-07-06 07:49:13.119396709 +0000
++++ gen_module-tmp/sphinx-in/bpy_extras.io_utils.rst	2020-07-06 07:53:48.045417326 +0000
+@@ -62,7 +62,7 @@ bpy_extras submodule (bpy_extras.io_util
+    :return: the new filepath.
+    :rtype: string
+ 
+-.. function:: path_reference_copy(copy_set, report=<built-in function print>)
++.. function:: path_reference_copy(copy_set, report='print')
+ 
+    Execute copying files of path_reference
+    

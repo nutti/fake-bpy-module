@@ -1,0 +1,13 @@
+{
+  "update": [
+    {
+      "name": "pairwise",
+      "type": "function",
+      "module": "freestyle.utils",
+      "parameters": [
+        "iterable",
+        "types={}"
+      ]
+    }
+  ]
+}

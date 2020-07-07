@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.bpy_struct.rst	2020-07-06 10:26:22.891402706 +0000
++++ gen_module-tmp/sphinx-in/bpy.types.bpy_struct.rst	2020-07-06 10:29:59.519397360 +0000
+@@ -113,7 +113,7 @@ subclasses ---
+          :class:`bpy.types.PoseBone` classes support custom properties.
+ 
+ 
+-   .. method:: keyframe_delete(data_path, index=-1, frame=bpy.context.scene.frame_current, group="")
++   .. method:: keyframe_delete(data_path, index=-1, frame=None, group="")
+    
+       Remove a keyframe from this properties fcurve.
+    
+@@ -129,7 +129,7 @@ subclasses ---
+       :rtype: boolean
+ 
+ 
+-   .. method:: keyframe_insert(data_path, index=-1, frame=bpy.context.scene.frame_current, group="")
++   .. method:: keyframe_insert(data_path, index=-1, frame=None, group="")
+    
+       Insert a keyframe on the property given, adding fcurves and animation data when necessary.
+    

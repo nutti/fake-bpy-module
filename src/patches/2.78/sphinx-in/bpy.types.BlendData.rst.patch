@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.BlendData.rst	2020-07-06 11:38:55.299403416 +0000
++++ gen_module-tmp/sphinx-in/bpy.types.BlendData.rst	2020-07-06 11:40:15.385411167 +0000
+@@ -237,7 +237,7 @@ base class --- :class:`bpy_struct`
+ 
+       :type: :class:`BlendDataWorlds` :class:`bpy_prop_collection` of :class:`World`, (readonly)
+ 
+-   .. method:: user_map([subset=(id1, id2, ...)], key_types={..}, value_types={..})
++   .. method:: user_map(subset, key_types, value_types)
+    
+       Returns a mapping of all ID datablocks in current ``bpy.data`` to a set of all datablocks using them.
+    

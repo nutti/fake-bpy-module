@@ -1,0 +1,15 @@
+--- gen_module-tmp/sphinx-in.orig/aud.rst	2020-07-05 20:48:41.000000000 +0900
++++ gen_module-tmp/sphinx-in/aud.rst	2020-07-05 20:49:46.000000000 +0900
+@@ -1301,9 +1301,9 @@ This script shows how to use the classes
+    
+       :arg threshold: Threshold value over which an amplitude counts
+          non-zero.
+-   :type threshold: float
+-   :return: The created :class:`Sound` object.
+-   :rtype: :class:`Sound`
++      :type threshold: float
++      :return: The created :class:`Sound` object.
++      :rtype: :class:`Sound`
+ 
+ 
+    .. classmethod:: volume(volume)

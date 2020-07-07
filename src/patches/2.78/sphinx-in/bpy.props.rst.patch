@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.props.rst	2020-07-06 11:38:55.298403416 +0000
++++ gen_module-tmp/sphinx-in/bpy.props.rst	2020-07-06 11:39:48.046410010 +0000
+@@ -355,7 +355,7 @@ read or written from the API.
+    :type update: function
+ 
+ 
+-.. function:: RemoveProperty(cls, attr=)
++.. function:: RemoveProperty(cls, attr)
+ 
+    Removes a dynamically defined property.
+ 

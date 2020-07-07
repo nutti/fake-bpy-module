@@ -1,0 +1,12 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.ops.import_scene.rst	2020-07-05 20:47:08.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.ops.import_scene.rst	2020-07-05 20:47:40.000000000 +0900
+@@ -188,8 +188,7 @@ Import Scene Operators
+    :type bone_heuristic: enum in ['BLENDER', 'TEMPERANCE', 'FORTUNE'], (optional)
+    :arg guess_original_bind_pose:
+ 
+-      Guess Original Bind Pose, Try to guess the original bind pose for skinned meshes from the inverse bind matrices.
+-When off, use default/rest pose as bind pose
++      Guess Original Bind Pose, Try to guess the original bind pose for skinned meshes from the inverse bind matrices. When off, use default/rest pose as bind pose
+ 
+    :type guess_original_bind_pose: boolean, (optional)
+ 

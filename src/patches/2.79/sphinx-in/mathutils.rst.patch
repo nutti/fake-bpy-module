@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/mathutils.rst	2020-07-06 11:05:49.863408429 +0000
++++ gen_module-tmp/sphinx-in/mathutils.rst	2020-07-06 11:10:06.232423565 +0000
+@@ -948,7 +948,7 @@ The :mod:`mathutils` module provides the
+       :type size: int
+ 
+ 
+-   .. classmethod:: Range(start=0, stop, step=1)
++   .. classmethod:: Range(start=0, stop=-1, step=1)
+    
+       Create a filled with a range of values.
+    
