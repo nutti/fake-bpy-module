@@ -897,6 +897,7 @@ class BaseAnalyzer:
                 info.add_attribute(attr)
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line):
                 next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line).group(1)
+                is_deprecated = re.search(r"\(Deprecated", line) is not None
                 if self._is_bge_supported() and is_deprecated:
                     self._skip_until_next_le_level(file, level=level.make_next_level(next_level_spaces))
                 else:
