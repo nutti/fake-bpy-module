@@ -476,6 +476,7 @@ class PackageGeneratorConfig:
         self.style_format: str = "pep8"
         self.dump: bool = False
         self.mod_version: str = "any"
+        self.support_bge: bool = False
 
 
 class PackageGenerationRule:
@@ -527,7 +528,9 @@ class PackageAnalyzer:
     def _analyze_by_rule(self, rule: 'PackageGenerationRule') -> 'AnalysisResult':
         # replace windows path separator
         target_files = [f.replace("\\", "/") for f in rule.target_files()]
-        # analyze all .xml files
+        # analyze all .rst files
+        if self._config.support_bge:
+            rule.analyzer().enable_bge_support()
         result = rule.analyzer().analyze(target_files)
 
         return result

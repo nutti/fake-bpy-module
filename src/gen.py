@@ -16,39 +16,6 @@ SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 
-
-class MathutilsAnalyzer(fbm.AnalyzerWithModFile):
-    def _modify_post_process(self, result: 'fbm.AnalysisResult'):
-        for section in result.section_info:
-            for info in section.info_list:
-                if info.type() == "function":
-                    for i, p in enumerate(info.parameters()):
-                        converted = p
-                        converted = converted.replace("=noise.types.STDPERLIN", "=types.STDPERLIN")
-                        converted = converted.replace("=noise.distance_metrics.DISTANCE", "=None")
-                        info.set_parameter(i, converted)
-                elif info.type() == "class":
-                    for m in info.methods():
-                        for i, p in enumerate(m.parameters()):
-                            converted = p
-                            converted = converted.replace("=noise.types.STDPERLIN", "=types.STDPERLIN")
-                            converted = converted.replace("=noise.distance_metrics.DISTANCE", "=None")
-                            m.set_parameter(i, converted)
-
-
-class FreestyleAnalyzer(fbm.AnalyzerWithModFile):
-    def _modify_post_process(self, result: 'fbm.AnalysisResult'):
-        for section in result.section_info:
-            for info in section.info_list:
-                if info.type() == "function":
-                    for i, p in enumerate(info.parameters()):
-                        info.set_parameter(i, p.replace("=IntegrationType.MEAN", "=None"))
-                elif info.type() == "class":
-                    for m in info.methods():
-                        for i, p in enumerate(m.parameters()):
-                            m.set_parameter(i, p.replace("=IntegrationType.MEAN", "=None"))
-
-
 def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     all_files = glob.glob(INPUT_DIR + "/bpy*.rst")
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
@@ -80,7 +47,7 @@ def make_mathutils_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGen
     ]
     if config.mod_version in ["2.78", "2.79"]:
         mod_files.append("{}/mods/{}/analyzer/mathutils.json".format(MOD_FILES_DIR, config.mod_version).replace("\\", "/"))
-        return fbm.PackageGenerationRule("mathutils", files, MathutilsAnalyzer(mod_files), fbm.BaseGenerator())
+        return fbm.PackageGenerationRule("mathutils", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
     else:
         return fbm.PackageGenerationRule("mathutils", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
@@ -105,7 +72,7 @@ def make_freestyle_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGen
     mod_files = [
         "{}/mods/common/analyzer/freestyle.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule("freestyle", files, FreestyleAnalyzer(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("freestyle", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
 
 def make_bpy_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
