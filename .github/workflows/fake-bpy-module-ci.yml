@@ -7,6 +7,10 @@ on:
       - ci_testing
       - master
   pull_request:
+  # Only trigger on released (not pre-released) events
+  release:
+    types:
+      - released
 
 jobs:
   set_versions:
@@ -16,10 +20,24 @@ jobs:
       module_version: ${{ steps.set_module_version.outputs.module_version }}
       file_version: ${{ steps.set_file_version.outputs.file_version }}
     steps:
-      # Use ISO 8601 date (in UTC) for release
+      # Use ISO 8601 date (in UTC) + timestamp (in UTC)
+      - name: Create generic module version
+        run: echo ::set-env name=MODULE_VERSION::$(date -u +%Y%m%d).dev$(date -u +%H%M%S)
+
+      # Use the tag name for a release
+      - name: Override release module version
+        if: github.event_name == 'release'
+        run: echo ::set-env name=MODULE_VERSION::${GITHUB_REF#refs/*/}
+
+      # Add addtional git sha ref
+      - name: Override PR module version
+        if: github.event_name == 'pull_request'
+        run: echo ::set-env name=MODULE_VERSION::${MODULE_VERSION}+${GITHUB_SHA::8}
+
+      # Set module version output
       - name: Set module version
         id: set_module_version
-        run: echo ::set-output name=module_version::$(date -u +%Y%m%d)
+        run: echo ::set-output name=module_version::${MODULE_VERSION}
 
       # Use ISO 8601 timestamps (in UTC) for output/file version
       - name: Set file version
@@ -91,3 +109,30 @@ jobs:
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
+
+  publish_modules:
+    name: Upload artifacts to PyPi
+    needs: build_modules
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+
+        # Publish to TestPyPi on each merge to master
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.test_pypi_token }}
+          repository_url: https://test.pypi.org/legacy/
+          packages_dir: "dist/*/*/"
+
+        # Publish to PyPi in case a Github release is created
+      - name: Publish distribution 📦 to PyPI
+        if: github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.pypi_token }}
+          packages_dir: "dist/*/*/"
