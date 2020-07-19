@@ -1,0 +1,73 @@
+[
+    {
+        "type": "class",
+        "name": "BaseClass1",
+        "description": "BaseClass1 description",
+        "module": "module_1.submodule_1",
+        "methods": [
+            {
+                "type": "method",
+                "name": "method_1",
+                "description": "method_1 description",
+                "return": {
+                    "type": "return",
+                    "description": "method_1 return description",
+                    "data_type": "int"
+                },
+                "class": "BaseClass1",
+                "module": "module_1.submodule_1",
+                "parameters": [],
+                "parameter_details": []
+            }
+        ],
+        "attributes": [
+            {
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "BaseClass1",
+                "module": "module_1.submodule_1",
+                "data_type": "float"
+            }
+        ],
+        "base_classes": []
+    },
+    {
+        "type": "function",
+        "name": "function_1",
+        "description": "function_1 description",
+        "return": {
+            "type": "return",
+            "description": "",
+            "data_type": ""
+        },
+        "class": "",
+        "module": "module_1.submodule_1",
+        "parameters": [
+            "arg_1",
+            "arg_2"
+        ],
+        "parameter_details": [
+            {
+                "type": "parameter",
+                "name": "arg_1",
+                "description": "function_1 arg_1 description",
+                "data_type": "float"
+            },
+            {
+                "type": "parameter",
+                "name": "arg_2",
+                "description": "function_1 arg_2 description",
+                "data_type": "bool"
+            }
+        ]
+    },
+    {
+        "type": "constant",
+        "name": "DATA_1",
+        "description": "DATA_1 description",
+        "class": "",
+        "module": "module_1.submodule_1",
+        "data_type": "str"
+    }
+]

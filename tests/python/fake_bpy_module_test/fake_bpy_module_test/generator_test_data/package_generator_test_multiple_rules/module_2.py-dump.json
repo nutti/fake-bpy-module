@@ -1,0 +1,32 @@
+[
+    {
+        "type": "function",
+        "name": "function_1",
+        "description": "function_1 description",
+        "return": {
+            "type": "return",
+            "description": "method_1 return description",
+            "data_type": "'module_1.submodule_1.BaseClass1'"
+        },
+        "class": "",
+        "module": "module_2",
+        "parameters": [
+            "arg_1",
+            "arg_2"
+        ],
+        "parameter_details": [
+            {
+                "type": "parameter",
+                "name": "arg_1",
+                "description": "function_1 arg_1 description",
+                "data_type": "int"
+            },
+            {
+                "type": "parameter",
+                "name": "arg_2",
+                "description": "function_1 arg_2 description",
+                "data_type": "'module_1.ClassA'"
+            }
+        ]
+    }
+]
