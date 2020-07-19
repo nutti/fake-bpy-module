@@ -2,6 +2,8 @@
 
 fake-bpy-module is the collections of the fake Blender Python API modules for the code completion in commonly used IDEs.
 
+*Note: The similar project for Blender Game Engine (BGE) is availabled on [fake-bge-module](https://github.com/nutti/fake-bge-module) which targets [UPBGE](https://upbge.org/).*
+
 ![](https://raw.githubusercontent.com/nutti/fake-bpy-module/master/docs/images/fake-bpy-module_thumbnail.png)
 
 
