@@ -1,0 +1,103 @@
+[
+    {
+        "type": "constant",
+        "name": "constant_1",
+        "description": "constant_1 description",
+        "class": "",
+        "module": "module_1",
+        "data_type": "int"
+    },
+    {
+        "type": "function",
+        "name": "function_1",
+        "description": "function_1 description",
+        "return": {
+            "type": "return",
+            "description": "return description",
+            "data_type": "bool"
+        },
+        "class": "",
+        "module": "module_1",
+        "parameters": [
+            "param_1=10",
+            "param_2"
+        ],
+        "parameter_details": [
+            {
+                "type": "parameter",
+                "name": "param_1",
+                "description": "param_1 description",
+                "data_type": "int"
+            },
+            {
+                "type": "parameter",
+                "name": "param_2",
+                "description": "param_2 description",
+                "data_type": "typing.List['ClassA']"
+            }
+        ]
+    },
+    {
+        "type": "class",
+        "name": "BaseClassA",
+        "description": "BaseClassA description",
+        "module": "module_1",
+        "methods": [],
+        "attributes": [],
+        "base_classes": []
+    },
+    {
+        "type": "class",
+        "name": "BaseClassB",
+        "description": "BaseClassB description",
+        "module": "module_1",
+        "methods": [],
+        "attributes": [],
+        "base_classes": []
+    },
+    {
+        "type": "class",
+        "name": "ClassA",
+        "description": "ClassA description",
+        "module": "module_1",
+        "methods": [
+            {
+                "type": "method",
+                "name": "method_1",
+                "description": "method_1 description",
+                "return": {
+                    "type": "return",
+                    "description": "",
+                    "data_type": ""
+                },
+                "class": "ClassA",
+                "module": "module_1",
+                "parameters": [
+                    "param_1"
+                ],
+                "parameter_details": [
+                    {
+                        "type": "parameter",
+                        "name": "param_1",
+                        "description": "param_1 description",
+                        "data_type": "int"
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "ClassA",
+                "module": "module_1",
+                "data_type": "typing.Union[str, typing.Set['custom_data_type']]"
+            }
+        ],
+        "base_classes": [
+            "'BaseClassA'",
+            "'BaseClassB'"
+        ]
+    }
+]

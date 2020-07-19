@@ -209,7 +209,7 @@ class BaseAnalyzer:
         def _parse_arg(file: IO[Any], level: 'RstLevel') -> List[dict]:
             last_pos = file.tell()
             line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:arg ([a-zA-Z0-9_, ]+)\s*(.*):(.*)"
+            pattern = r"^\s{" + str(level.num_spaces()) + r"}:arg ([a-zA-Z0-9_, ]+)\s*.*:(.*)"
             m = re.match(pattern, line)
             if m is None:
                 self._invalid_line(line, level)
@@ -712,19 +712,7 @@ class BaseAnalyzer:
             m = re.match(pattern, line)
             if m is None:
                 self._invalid_line(line, level)
-#                # Special case for freestyle.shaders.rst
-#                pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. method:: (__init__)\((num_iterations=100, factor_point=0.1),$"
-#                m = re.match(pattern, line)
-#                if m is None:
-#                    self._invalid_line(line, level)
-#
-#                # Skip until ')' is found.
-#                line = file.readline()
-#                while line:
-#                    if re.match(r"\)$", line):
-#                        break
-#                    line = file.readline()
-#
+
             info = FunctionInfo("method")
             info.set_name(self._cleanup_string(m.group(1)))
             if self.current_module is not None:

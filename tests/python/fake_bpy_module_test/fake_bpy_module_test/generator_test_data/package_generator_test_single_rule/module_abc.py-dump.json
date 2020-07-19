@@ -1,0 +1,35 @@
+[
+    {
+        "type": "class",
+        "name": "Class123",
+        "description": "Class123 description",
+        "module": "module_abc",
+        "methods": [
+            {
+                "type": "method",
+                "name": "method_1",
+                "description": "method_1 description",
+                "return": {
+                    "type": "return",
+                    "description": "method_1 return description",
+                    "data_type": "int"
+                },
+                "class": "Class123",
+                "module": "module_abc",
+                "parameters": [],
+                "parameter_details": []
+            }
+        ],
+        "attributes": [
+            {
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "Class123",
+                "module": "module_abc",
+                "data_type": "float"
+            }
+        ],
+        "base_classes": []
+    }
+]

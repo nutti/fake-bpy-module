@@ -352,7 +352,7 @@ class BaseGenerator:
         # Note: Base class must be located above derived class
         sorted_data = self._sorted_generation_info(data)
 
-        with open(filename, "w", encoding="utf-8") as file:
+        with open(filename, "w", encoding="utf-8", newline="\n") as file:
             self.print_header(file)
 
             wt = self._writer
@@ -404,7 +404,7 @@ class BaseGenerator:
 
     def dump_json(self, filename: str, data: 'GenerationInfoByTarget'):
         json_data = [info.to_dict() for info in data.data]
-        with open(filename, "w") as f:
+        with open(filename, "w", newline="\n") as f:
             json.dump(json_data, f, indent=4)
 
 
@@ -457,7 +457,11 @@ class GenerationInfoByRule:
         return self._info[target]
 
     def get_or_create_target(self, target: str):
-        info = self.get_target(target)
+        info = None
+        try:
+            info = self.get_target(target)
+        except RuntimeError as e:
+            pass
         if info is None:
             info = self.create_target(target)
         return info

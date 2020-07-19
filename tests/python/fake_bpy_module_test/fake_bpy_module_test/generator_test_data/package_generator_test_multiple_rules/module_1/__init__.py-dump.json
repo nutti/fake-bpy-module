@@ -1,0 +1,46 @@
+[
+    {
+        "type": "class",
+        "name": "ClassA",
+        "description": "ClassA description",
+        "module": "module_1",
+        "methods": [
+            {
+                "type": "method",
+                "name": "method_1",
+                "description": "method_1 description",
+                "return": {
+                    "type": "return",
+                    "description": "method_1 return description",
+                    "data_type": "int"
+                },
+                "class": "ClassA",
+                "module": "module_1",
+                "parameters": [
+                    "arg_1=5.4"
+                ],
+                "parameter_details": [
+                    {
+                        "type": "parameter",
+                        "name": "arg_1",
+                        "description": "method_1 arg_1 description",
+                        "data_type": "float"
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "ClassA",
+                "module": "module_1",
+                "data_type": "str"
+            }
+        ],
+        "base_classes": [
+            "'submodule_1.BaseClass1'"
+        ]
+    }
+]
