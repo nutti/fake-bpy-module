@@ -64,6 +64,8 @@ def has_data_type(str_: str, data_type: str) -> bool:
     start_index = 0
     end_index = len(str_)
 
+    data_type = data_type.replace(".", "\.")
+
     for m in re.finditer(data_type, str_):
         si = m.start(0)
         ei = m.end(0)
@@ -964,9 +966,6 @@ class SectionInfo:
     def __init__(self):
         self.info_list: List['Info'] = []
 
-    def same(self, other):
-        return self.to_dict() == other.to_dict()
-
     def add_info(self, info: 'Info'):
         self.info_list.append(info)
 
@@ -1017,20 +1016,6 @@ class DataTypeRefiner:
     def __init__(self, package_structure: 'ModuleStructure', entry_points: List['EntryPoint']):
         self._package_structure: 'ModuleStructure' = package_structure
         self._entry_points: List['EntryPoint'] = entry_points
-
-    def is_builtin_data_type(self, data_type: str) -> bool:
-        return data_type in BUILTIN_DATA_TYPE
-
-    def is_modifier_data_type(self, data_type: str) -> bool:
-        return data_type in MODIFIER_DATA_TYPE
-
-    def make_annotate_data_type(self, data_type: str) -> str:
-        if self.is_builtin_data_type(data_type):
-            return data_type
-        if self.is_modifier_data_type(data_type):
-            return data_type
-
-        return "'{}'".format(data_type)
 
     def get_refined_data_type(self, data_type: 'DataType', module_name: str) -> 'DataType':
         if data_type.type() == 'UNKNOWN':
@@ -1250,7 +1235,7 @@ class DataTypeRefiner:
         if data_type is None:
             return None
 
-        module_names = data_type.split(".")
+        module_names = data_type.split(".")[:-1]
 
         def search(mod_names, structure: 'ModuleStructure', dtype: str, is_first_level: bool=False):
             if len(mod_names) == 0:
@@ -1262,7 +1247,7 @@ class DataTypeRefiner:
                     return search(mod_names[1:], s, s.name)
                 else:
                     return search(mod_names[1:], s, dtype + "." + s.name)
-            return dtype
+            return ""
 
         relative_type = search(module_names, self._package_structure,
                                "", True)
@@ -1280,12 +1265,13 @@ class DataTypeRefiner:
 
         return ensured
 
-    def get_generation_data_type(self, data_type_1: str,
-                                 data_type_2: str) -> str:
-        mod_names_full_1 = self.get_module_name(data_type_1)
-        mod_names_full_2 = self.get_module_name(data_type_2)
+    def get_generation_data_type(self, data_type: str,
+                                 target_module: str) -> str:
+        mod_names_full_1 = self.get_module_name(data_type)
+        mod_names_full_2 = target_module
+
         if mod_names_full_1 is None or mod_names_full_2 is None:
-            return data_type_1      # TODO: should return better data_type
+            return data_type      # TODO: should return better data_type
 
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
@@ -1300,41 +1286,40 @@ class DataTypeRefiner:
             else:
                 match_level = len(mod_names_1)
 
-        # [Case 1] No match => Use data_type_1
-        #   data_type_1: bpy.types.Mesh
-        #   data_type_2: bgl.glCallLists()
+        # [Case 1] No match => Use data_type
+        #   data_type: bpy.types.Mesh
+        #   target_module: bgl
         #       => bpy.types.Mesh
         if match_level == 0:
-            final_data_type = self._ensure_correct_data_type(data_type_1)
+            final_data_type = self._ensure_correct_data_type(data_type)
         else:
             rest_level_1 = len(mod_names_1) - match_level
             rest_level_2 = len(mod_names_2) - match_level
 
-            # [Case 2] Match exactly => Use data_type_1 without module
-            #   data_type_1: bgl.Buffer
-            #   data_type_2: bgl.glCallLists()
+            # [Case 2] Match exactly => Use data_type without module
+            #   data_type: bgl.Buffer
+            #   target_module: bgl
             #       => Buffer
             if rest_level_1 == 0 and rest_level_2 == 0:
-                final_data_type = self.get_base_name(data_type_1)
-            # [Case 3] Match partially (Same level) => Use data_type_1
-            #   data_type_1: bpy.types.Mesh
-            #   data_type_2: bpy.ops.automerge()
+                final_data_type = self.get_base_name(data_type)
+            # [Case 3] Match partially (Same level) => Use data_type
+            #   data_type: bpy.types.Mesh
+            #   target_module: bpy.ops
             #       => bpy.types.Mesh
             elif rest_level_1 >= 1 and rest_level_2 >= 1:
-                final_data_type = self._ensure_correct_data_type(data_type_1)
-            # [Case 4] Match partially (Upper level) => Use data_type_1
-            #   data_type_1: mathutils.Vector
-            #   data_type_2: mathutils.noise.cell
+                final_data_type = self._ensure_correct_data_type(data_type)
+            # [Case 4] Match partially (Upper level) => Use data_type
+            #   data_type: mathutils.Vector
+            #   target_module: mathutils.noise
             #       => mathutils.Vector
             elif rest_level_1 == 0 and rest_level_2 >= 1:
-                final_data_type = self._ensure_correct_data_type(data_type_1)
-            # [Case 5] Match partially (Lower level) => Use relative data_type_1
-            #   data_type_1: mathutils.noise.cell
-            #   data_type_2: mathutils.Vector
-            #       => noise.cell
+                final_data_type = self._ensure_correct_data_type(data_type)
+            # [Case 5] Match partially (Lower level) => Use data_type
+            #   data_type: mathutils.noise.cell
+            #   target_module: mathutils
+            #       => mathutils.noise.cell
             elif rest_level_1 >= 1 and rest_level_2 == 0:
-                final_data_type = ".".join(mod_names_1[match_level:])
-                final_data_type += "." + self.get_base_name(data_type_1)
+                final_data_type = self._ensure_correct_data_type(data_type)
             else:
                 raise RuntimeError("Should not reach this condition. ({} vs {})"
                                    .format(rest_level_1, rest_level_2))

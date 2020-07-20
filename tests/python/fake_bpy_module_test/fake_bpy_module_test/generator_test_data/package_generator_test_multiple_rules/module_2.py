@@ -1,5 +1,7 @@
 import sys
 import typing
+import module_1
+import module_1.submodule_1
 
 
 def function_1(arg_1: int,
