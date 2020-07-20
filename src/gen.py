@@ -58,9 +58,7 @@ def make_gpu_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
 
 
 def make_gpu_extras_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    all_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
-    excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
-    files = list(set(all_files) - set(excludes_files))
+    files = glob.glob(INPUT_DIR + "/gpu_extras*.rst")
     mod_files = []
     if config.mod_version not in ["2.78", "2.79"]:
         mod_files.append("{}/mods/generated_mods/gen_modules_modfile/gpu_extras.json".format(MOD_FILES_DIR).replace("\\", "/"))
@@ -95,9 +93,11 @@ def make_bmesh_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerat
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:
     mod_files = glob.glob("{}/mods/generated_mods/gen_modules_modfile/*.json".format(MOD_FILES_DIR).replace("\\", "/"))
+    mod_files += glob.glob("{}/mods/generated_mods/gen_startup_modfile/*.json".format(MOD_FILES_DIR).replace("\\", "/"))
     mod_files = set(mod_files) - {
         "{}/mods/generated_mods/gen_modules_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_modules_modfile/bpy_extras.json".format(MOD_FILES_DIR).replace("\\", "/"),
+        "{}/mods/generated_mods/gen_startup_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
     }
 
     if config.mod_version not in ["2.78", "2.79"]:

@@ -307,6 +307,8 @@ class BaseGenerator:
             for base_class in class_.base_classes():
                 if base_class.type() == 'MIXIN':
                     raise ValueError("DataType of base class must not be MixinDataType.")
+                elif base_class.type() == 'UNKNOWN':
+                    continue
                 base_class_node = class_name_to_nodes.get(base_class.data_type())
                 if base_class_node:
                     graph.make_edge(base_class_node, class_node)
@@ -323,6 +325,8 @@ class BaseGenerator:
             order[class_.name()] = i
         for class_ in sorted_class_data:
             def sort_func(x):
+                if x.type() == 'UNKNOWN':
+                    return 0
                 if x.data_type() not in order.keys():
                     return 0
                 return -order[x.data_type()]
@@ -435,7 +439,7 @@ class Dependency:
 
 class GenerationInfoByTarget:
     def __init__(self):
-        self.name: str = None
+        self.name: str = None       # Module name
         self.data: List['Info'] = []
         self.child_modules: List[str] = []
         self.dependencies: List['Dependency'] = []
@@ -444,7 +448,7 @@ class GenerationInfoByTarget:
 
 class GenerationInfoByRule:
     def __init__(self):
-        self._info: Dict[str, 'GenerationInfoByTarget'] = {}
+        self._info: Dict[str, 'GenerationInfoByTarget'] = {}    # Key: Output file name
 
     def get_target(self, target: str) -> 'GenerationInfoByTarget':
         if target not in self._info.keys():
@@ -486,7 +490,7 @@ class PackageGeneratorConfig:
 class PackageGenerationRule:
     def __init__(self, name: str, target_files: List[str],
                  analyzer: 'BaseAnalyzer', generator: 'BaseGenerator'):
-        self._name: str = name
+        self._name: str = name      # Rule
         self._target_files: List[str] = target_files
         self._analyzer: 'BaseAnalyzer' = analyzer
         self._generator: 'BaseGenerator' = generator
@@ -669,12 +673,13 @@ class PackageAnalyzer:
             else:
                 match_level = len(mod_names_1)
 
+
         # [Case 1] No match => Need to import top level module
         #   data_type_1: bpy.types.Mesh
         #   data_type_2: bgl.glCallLists()
-        #       => bpy
+        #       => bpy.types
         if match_level == 0:
-            module_path = mod_names_1[0]
+            module_path = ".".join(mod_names_1)
         else:
             rest_level_1 = len(mod_names_1) - match_level
             rest_level_2 = len(mod_names_2) - match_level
@@ -688,21 +693,21 @@ class PackageAnalyzer:
             # [Case 3] Match partially (Same level) => Need to import top level
             #   data_type_1: bpy.types.Mesh
             #   data_type_2: bpy.ops.automerge()
-            #       => bpy
+            #       => bpy.types
             elif rest_level_1 >= 1 and rest_level_2 >= 1:
-                module_path = mod_names_1[0]
+                module_path = ".".join(mod_names_1)
             # [Case 4] Match partially (Upper level) => Need to import top level
             #   data_type_1: mathutils.Vector
             #   data_type_2: mathutils.noise.cell
             #       => mathutils
             elif rest_level_1 == 0 and rest_level_2 >= 1:
-                module_path = mod_names_1[0]
-            # [Case 5] Match partially (Lower level) => Need to import same level
+                module_path = ".".join(mod_names_1)
+            # [Case 5] Match partially (Lower level) => Need to import top level
             #   data_type_1: mathutils.noise.cell
             #   data_type_2: mathutils.Vector
-            #       => .noise
+            #       => mathutils.noise
             elif rest_level_1 >= 1 and rest_level_2 == 0:
-                module_path = "." + mod_names_1[match_level]
+                module_path = ".".join(mod_names_1)
             else:
                 raise RuntimeError("Should not reach this condition.")
 
@@ -722,27 +727,26 @@ class PackageAnalyzer:
             for d in data_type_1.data_types():
                 self._add_dependency(dependencies, refiner, d, data_type_2)
         else:
-            original_data_types = data_type_1.data_type()
+            dtype = data_type_1.data_type()
 
-            for dtype in original_data_types:
-                mod = self._get_import_module_path(refiner, dtype, data_type_2)
-                base = refiner.get_base_name(dtype)
-                if mod is None:
-                    continue
+            mod = self._get_import_module_path(refiner, dtype, data_type_2)
+            base = refiner.get_base_name(dtype)
+            if mod is None:
+                return
 
-                target_dep = None
-                for dep in dependencies:
-                    if dep.mod_name == mod:
-                        target_dep = dep
-                        break
-                if target_dep is None:
-                    target_dep = Dependency()
-                    target_dep.mod_name = mod
+            target_dep = None
+            for dep in dependencies:
+                if dep.mod_name == mod:
+                    target_dep = dep
+                    break
+            if target_dep is None:
+                target_dep = Dependency()
+                target_dep.mod_name = mod
+                target_dep.add_type(base)
+                dependencies.append(target_dep)
+            else:
+                if base not in target_dep.type_lists:
                     target_dep.add_type(base)
-                    dependencies.append(target_dep)
-                else:
-                    if base not in target_dep.type_lists:
-                        target_dep.add_type(base)
 
     def _build_dependencies(self,
                             package_structure: 'ModuleStructure',
@@ -934,7 +938,7 @@ class PackageAnalyzer:
                     if c.type() == 'CUSTOM':
                         info.set_base_class(i, rewrite_to_generation_data_type(c))
                     elif c.type() == 'MIXIN':
-                        raise ValueError("Base classes must not be MixinDataType")
+                        raise ValueError("Base classes must not be MixinDataType (Class: {}.{}, Data type: {})".format(info.module(), info.name(), c.to_string()))
 
             processed_info.data.append(info)
 

@@ -474,7 +474,7 @@ class BaseAnalyzer:
 
             # Custom data type
             params_converted.append("{}='{}'".format(param_variable, default_value))
-            print("'{}' is a parameter with custom data type".format(p))
+            output_log(LOG_LEVEL_NOTICE, "'{}' is a parameter with custom data type".format(p))
 
         return params_converted
 

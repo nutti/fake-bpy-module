@@ -99,9 +99,8 @@ if [ $? -ne 0 ]; then
 fi
 generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
 mkdir -p ${generated_mod_dir}
-${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
-mkdir -p ${generated_mod_dir}/gen_startup_modfile
-${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_startup_modfile.py -i ${startup_dir} -o ${generated_mod_dir}/gen_startup_modfile/bpy.json
+${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
+${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o ${generated_mod_dir}/gen_startup_modfile
 mkdir -p ${generated_mod_dir}/gen_bgl_modfile
 ${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
 

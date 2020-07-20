@@ -40,7 +40,7 @@
             }
         ],
         "base_classes": [
-            "'submodule_1.BaseClass1'"
+            "'module_1.submodule_1.BaseClass1'"
         ]
     }
 ]

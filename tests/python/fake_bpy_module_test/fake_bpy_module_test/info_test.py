@@ -1654,23 +1654,3 @@ class SectionInfoTest(common.FakeBpyModuleTestBase):
 
         self.assertDictEqual(expect, info.to_dict())
 
-    # TODO: delete same method and this test.
-    def test_same(self):
-        info_1 = SectionInfo()
-        info_2 = SectionInfo()
-
-        func_info = FunctionInfo("function")
-        func_info.set_name("function_1")
-        func_info.set_description("function_1 description")
-        func_info.set_module("module.a")
-
-        info_1.add_info(func_info)
-
-        func_info = FunctionInfo("function")
-        func_info.set_name("function_1")
-        func_info.set_description("function_1 description")
-        func_info.set_module("module.a")
-
-        info_2.add_info(func_info)
-
-        self.assertTrue(info_1.same(info_2))
