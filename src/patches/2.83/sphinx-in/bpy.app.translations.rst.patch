@@ -1,0 +1,38 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.app.translations.rst	2020-07-22 04:46:29.313505600 +0000
++++ gen_module-tmp/sphinx-in/bpy.app.translations.rst	2020-07-22 04:46:55.408563665 +0000
+@@ -75,7 +75,7 @@ Module References
+    :return: A tuple ``(language, country, variant, language_country, language@variant)``.
+ 
+ 
+-.. method:: pgettext(msgid, msgctxt)
++.. method:: pgettext(msgid, msgctxt=None)
+ 
+    Try to translate the given msgid (with optional msgctxt).
+ 
+@@ -98,7 +98,7 @@ Module References
+    :return: The translated string (or msgid if no translation was found).
+ 
+ 
+-.. method:: pgettext_data(msgid, msgctxt)
++.. method:: pgettext_data(msgid, msgctxt=None)
+ 
+    Try to translate the given msgid (with optional msgctxt), if new data name's translation is enabled.
+ 
+@@ -112,7 +112,7 @@ Module References
+    :return: The translated string (or ``msgid`` if no translation was found).
+ 
+ 
+-.. method:: pgettext_iface(msgid, msgctxt)
++.. method:: pgettext_iface(msgid, msgctxt=None)
+ 
+    Try to translate the given msgid (with optional msgctxt), if labels' translation is enabled.
+ 
+@@ -126,7 +126,7 @@ Module References
+    :return: The translated string (or msgid if no translation was found).
+ 
+ 
+-.. method:: pgettext_tip(msgid, msgctxt)
++.. method:: pgettext_tip(msgid, msgctxt=None)
+ 
+    Try to translate the given msgid (with optional msgctxt), if tooltips' translation is enabled.
+ 
