@@ -5,6 +5,7 @@ set -eEu
 
 SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
+    "2.90"
 )
 
 declare -A BLENDER_TAG_NAME=(
@@ -14,6 +15,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v2.81"]="v2.81a"
     ["v2.82"]="v2.82a"
     ["v2.83"]="v2.83.3"
+    ["v2.90"]="9de5adc6a1a9cd6ca18ac30180b5d35f16c8b289"
 )
 
 TMP_DIR_NAME="tmp"
