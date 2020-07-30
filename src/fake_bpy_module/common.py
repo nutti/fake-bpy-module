@@ -64,7 +64,7 @@ def has_data_type(str_: str, data_type: str) -> bool:
     start_index = 0
     end_index = len(str_)
 
-    data_type = data_type.replace(".", "\.")
+    data_type = data_type.replace(".", r"\.")
 
     for m in re.finditer(data_type, str_):
         si = m.start(0)
