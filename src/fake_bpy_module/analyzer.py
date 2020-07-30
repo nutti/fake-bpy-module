@@ -494,13 +494,16 @@ class BaseAnalyzer:
                 if re.match(r"^\s*$", line):
                     file.seek(last_pos)
                     return type_str
-                elif self._has_le_level_start(line, level):
+
+                if self._has_le_level_start(line, level):
                     file.seek(last_pos)
                     return type_str
-                elif self._has_le_level_string(line, level):
+
+                if self._has_le_level_string(line, level):
                     file.seek(last_pos)
                     return type_str
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):
+
+                if re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):
                     next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)
                     file.seek(last_pos)
                     type_str += " " + self._parse_description(file, level=level.make_next_level(next_level_spaces))
@@ -577,13 +580,16 @@ class BaseAnalyzer:
                 if re.match(r"^\s*$", line):
                     file.seek(last_pos)
                     return type_str
-                elif self._has_le_level_start(line, level):
+
+                if self._has_le_level_start(line, level):
                     file.seek(last_pos)
                     return type_str
-                elif self._has_le_level_string(line, level):
+
+                if self._has_le_level_string(line, level):
                     file.seek(last_pos)
                     return type_str
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):
+
+                if re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):
                     next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)
                     file.seek(last_pos)
                     type_str += " " + self._parse_description(file, level=level.make_next_level(next_level_spaces))
