@@ -464,7 +464,7 @@ class GenerationInfoByRule:
         info = None
         try:
             info = self.get_target(target)
-        except RuntimeError as e:
+        except RuntimeError:
             pass
         if info is None:
             info = self.create_target(target)
