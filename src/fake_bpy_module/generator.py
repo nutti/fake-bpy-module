@@ -7,18 +7,10 @@ from collections import OrderedDict
 from tqdm import tqdm
 
 from .common import (
-    DataType,
     CustomDataType,
     ModuleStructure,
     DataTypeRefiner,
     EntryPoint,
-    Info,
-    ClassInfo,
-    VariableInfo,
-)
-from .analyzer import (
-    BaseAnalyzer,
-    AnalysisResult,
 )
 from .utils import (
     remove_unencodable,

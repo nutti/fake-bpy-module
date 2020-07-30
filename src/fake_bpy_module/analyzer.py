@@ -1,11 +1,9 @@
 import re
 from typing import List, IO, Any
 import json
-import os
 
 from .common import (
     IntermidiateDataType,
-    Info,
     ParameterDetailInfo,
     ReturnInfo,
     VariableInfo,
@@ -17,7 +15,6 @@ from .utils import (
     output_log,
     LOG_LEVEL_NOTICE,
     LOG_LEVEL_WARN,
-    LOG_LEVEL_ERR
 )
 
 
@@ -106,7 +103,7 @@ class BaseAnalyzer:
         m = re.match(r"^base (class|classes) --- (.*)", line)
         if m is None:
             self._invalid_line(line, level)
-        
+
         base_classes = []
         sps = self._parse_comma_separated_string(self._cleanup_string(m.group(2)))
         for sp in sps:
