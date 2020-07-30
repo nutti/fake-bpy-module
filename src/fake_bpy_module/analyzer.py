@@ -392,9 +392,9 @@ class BaseAnalyzer:
         current = ""
         line_to_parse = line
         for c in line_to_parse:
-            if c == "(" or c == "{" or c == "[":
+            if c in ("(", "{", "["):
                 level += 1
-            elif c ==")" or c == "}" or c == "]":
+            elif c in (")", "}", "]"):
                 level -= 1
                 if level < 0:
                     raise ValueError("Level must be >= 0 but {} (File name: {}, Line: {})"
