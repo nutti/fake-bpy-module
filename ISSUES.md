@@ -8,3 +8,6 @@ You can discuss fake-bpy-module at other places.
 See the link below for further details.
 
 * [Blender Artists](https://blenderartists.org/t/fake-bpy-modules-for-code-auto-completion-on-ide/697936)
+* [fake-bpy-module](https://blender.chat/channel/fake-bpy-module) channel on [blender.chat](https://blender.chat/)
+
+*Note: Registration of blender.chat is required for accessing fake-bpy-module channel.*

@@ -4,7 +4,7 @@ fake-bpy-module is the collections of the fake Blender Python API modules for th
 
 *Note: The similar project for Blender Game Engine (BGE) is availabled on [fake-bge-module](https://github.com/nutti/fake-bge-module) which targets [UPBGE](https://upbge.org/).*
 
-![](https://raw.githubusercontent.com/nutti/fake-bpy-module/master/docs/images/fake-bpy-module_thumbnail.png)
+![](docs/images/fake-bpy-module_thumbnail.png)
 
 
 ## Requirements
@@ -62,14 +62,19 @@ See the installation processes as follows for detail.
 ### Generate Modules Manually
 
 You can also generate modules manually.
-See [Generate Module](https://github.com/nutti/fake-bpy-module/blob/master/docs/generate_modules.md) for detail.
+See [Generate Module](docs/generate_modules.md) for detail.
 
 
 ## Bug report / Feature request / Disscussions
 
-If you want to report bug, request features or discuss about this add-on, see [ISSUES.md](https://github.com/nutti/fake-bpy-module/blob/master/ISSUES.md).
+If you want to report bug, request features or discuss about this add-on, see [ISSUES.md](ISSUES.md).
+
+[fake-bpy-module](https://blender.chat/channel/fake-bpy-module) channel is available on [blender.chat](https://blender.chat/).  
+The timely discussion and release announcement about fake-bpy-module will be made in this channel.
+
+*Note: Registration of blender.chat is required for accessing fake-bpy-module channel.*
 
 
 ## Contribution
 
-If you want to contribute to this project, see [CONTRIBUTING.md](https://github.com/nutti/fake-bpy-module/blob/master/CONTRIBUTING.md).
+If you want to contribute to this project, see [CONTRIBUTING.md](CONTRIBUTING.md).
