@@ -91,7 +91,7 @@ function verify_download_integrity() {
 
     pushd "${download_dir}" 1> /dev/null
 
-    curl --fail -s "${checksum_url}" -o "${checksum_filename}"
+    curl --location --fail -s "${checksum_url}" -o "${checksum_filename}"
 
     if ! grep -q "${target_filename}" "${checksum_filename}"; then
         echo "Error: Unable to find \"${target_filename}\" in \"${checksum_filename}\""
@@ -150,7 +150,7 @@ function download_blender() {
 
         # fetch file
         echo "Downloading Blender ${ver}: ${blender_download_url}"
-        curl --fail -s "${url}" -o "${filepath}"
+        curl --location --fail -s "${url}" -o "${filepath}"
 
         # verify integrity of the download
         if ! verify_download_integrity "${ver}" "${filepath}"; then
