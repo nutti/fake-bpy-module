@@ -3,14 +3,11 @@ name: fake-bpy-module CI
 on:
   push:
     branches:
-      # Temporarily trigger only on "ci_testing" branch
       - ci_testing
       - master
+    tags:
+      - '[0-9]+'
   pull_request:
-  # Only trigger on released (not pre-released) events
-  release:
-    types:
-      - released
 
 jobs:
   set_versions:
@@ -26,7 +23,7 @@ jobs:
 
       # Use the tag name for a release
       - name: Override release module version
-        if: github.event_name == 'release'
+        if: startsWith(github.ref, 'refs/tags/')
         run: echo ::set-env name=MODULE_VERSION::${GITHUB_REF#refs/*/}
 
       # Add addtional git sha ref
@@ -118,8 +115,8 @@ jobs:
         # For example: 00:29:45 UTC will create a file version "...dev2945-py3-none..." and not use {{ module_version}} "...dev002945-py3-none..."
         run: bash tests/pylint_cycles.sh ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
 
-  publish_modules:
-    name: Upload artifacts to PyPi
+  release_test:
+    name: Release test
     needs: build_modules
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -135,12 +132,39 @@ jobs:
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: "dist/*/*/"
+          packages_dir: "dist/fake_bpy_modules_*_pip_*/*/"
 
-        # Publish to PyPi in case a Github release is created
+  release:
+    name: Release fake-bpy-module
+    needs: release_test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Fetch Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_ACTIONS }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - name: Publish fake-bpy-module to GitHub Release Page
+        uses: csexton/release-asset-action@v2
+        with:
+          release-url: ${{ steps.create_release.outputs.upload_url }}
+          pattern: "dist/fake_bpy_modules_*_raw_*/*.zip"
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+
       - name: Publish distribution 📦 to PyPI
-        if: github.event_name == 'release'
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.pypi_token }}
-          packages_dir: "dist/*/*/"
+          packages_dir: "dist/fake_bpy_modules_*_pip_*/*/"
