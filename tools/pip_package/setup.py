@@ -40,6 +40,7 @@ setup(
     long_description=long_description,
     py_modules=py_modules,
     packages=find_packages(),
+    python_requires=">=3.7",
     license="MIT",
     classifiers=[
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
