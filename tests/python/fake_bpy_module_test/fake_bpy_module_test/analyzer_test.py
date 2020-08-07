@@ -752,6 +752,38 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         self.compare_dict_and_log(result.section_info[0].to_dict(),
                                   section_info.to_dict())
 
+    def test_bpy_290_tweak(self):
+        rst_files = ["bpy_290_tweak.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BaseAnalyzer()
+        analyzer.set_blender_version("2.90")
+        result = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(result.section_info), 1)
+
+        section_info = SectionInfo()
+
+        class_info = ClassInfo()
+        class_info.from_dict({
+            "type": "class",
+            "name": "ClassA",
+            "module": "bpy.types",
+            "description": "ClassA description",
+            "attributes": [{
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "ClassA",
+                "module": "bpy.types",
+                "data_type": "attr_1 type",
+            }]
+        }, method='NEW')
+        section_info.add_info(class_info)
+
+        self.compare_dict_and_log(result.section_info[0].to_dict(),
+                                  section_info.to_dict())
+
     def test_bge_support(self):
         rst_files = ["bge_support.rst"]
         rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]

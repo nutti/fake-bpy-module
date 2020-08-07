@@ -540,7 +540,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
-        config.mod_version = "any"
+        config.mod_version = "2.80"
         config.support_bge = False
 
         analyzer = BaseAnalyzer()
@@ -603,7 +603,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
-        config.mod_version = "any"
+        config.mod_version = None
         config.support_bge = False
 
         analyzer = BaseAnalyzer()
@@ -731,7 +731,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
-        config.mod_version = "any"
+        config.mod_version = "2.80"
         config.support_bge = False
 
         pkg_generator = PackageGenerator(config)
@@ -787,7 +787,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
-        config.mod_version = "any"
+        config.mod_version = None
         config.support_bge = False
 
         pkg_generator = PackageGenerator(config)
