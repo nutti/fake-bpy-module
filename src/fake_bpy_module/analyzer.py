@@ -715,7 +715,7 @@ class BaseAnalyzer:
 
     def _parse_class(self, file: IO[Any], level: 'RstLevel') -> 'ClassInfo':
         def _parse_method(file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
-            line = file.readline()
+            line = self._get_multiline_string(file, level)
             pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. method:: ([a-zA-Z0-9_]+)\((.*)\):*$"
             m = re.match(pattern, line)
             if m is None:
