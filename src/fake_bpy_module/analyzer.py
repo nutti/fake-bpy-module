@@ -51,6 +51,10 @@ class BaseAnalyzer:
         self.current_file: str = None
         self.current_module: str = None
         self.current_base_classes: str = None
+        self.blender_version: str = None
+
+    def set_blender_version(self, version: str):
+        self.blender_version = version
 
     def enable_bge_support(self):
         self.support_bge = True
@@ -95,6 +99,13 @@ class BaseAnalyzer:
             self._invalid_line(line, level)
 
         module_name = m.group(1)
+
+        if self.blender_version is not None and self.blender_version != "":
+            version = [int(sp) for sp in self.blender_version.split(".")]
+            if not self.support_bge:
+                if version >= [2, 90]:
+                    if module_name.startswith("bpy.types."):
+                        module_name = module_name[:module_name.rfind(".")]
 
         return module_name
 
