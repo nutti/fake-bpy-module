@@ -17,6 +17,7 @@ declare -r IGNORED_PYLINT_ERRORS=(
 
 declare -r SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
+    "2.90"
 )
 
 declare -A BLENDER_TAG_NAME=(
@@ -26,6 +27,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v2.81"]="v2.81a"
     ["v2.82"]="v2.82a"
     ["v2.83"]="v2.83.3"
+    ["v2.90"]="9de5adc6a1a9cd6ca18ac30180b5d35f16c8b289"
 )
 
 version=${1}
@@ -110,7 +112,7 @@ function create_pylintrc() {
 function workaround_quirks() {
     local version=$1
 
-    if [[ $version =~ ^2.8[0-9]$ ]]; then
+    if [[ $version =~ ^2.8[0-9]$ || $version =~ ^2.9[0-9]$ ]]; then
         # The method draw_panel_header comes from the Panel class which is a base class of CYCLES_PT_sampling_presets.
         # The error "E1120: No value for argument 'layout'" is raised when calling the classmethod implicitly derived
         # from base class. It is not clear why pylint does not handle this gracefully, so "fixing" it for pylint.
