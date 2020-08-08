@@ -5,6 +5,7 @@ set -eEu
 
 SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
+    "2.90"
     "all"
 )
 
@@ -15,6 +16,7 @@ declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
     ["v2.81"]=""
     ["v2.82"]=""
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3-macOS.dmg"
+    ["v2.90"]=""
 )
 
 declare -A BLENDER_DOWNLOAD_URL_WIN64=(
@@ -24,6 +26,7 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
     ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3-windows64.zip"
+    ["v2.90"]="https://github.com/grische/blender/releases/download/v2.90.0-9de5adc6a1a9/blender-2.90.0-9de5adc6a1a9-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -33,6 +36,7 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
     ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3-linux64.tar.xz"
+    ["v2.90"]="https://github.com/grische/blender/releases/download/v2.90.0-9de5adc6a1a9/blender-2.90.0-9de5adc6a1a9-linux64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -50,6 +54,7 @@ declare -A NEED_MOVE_LINUX=(
     ["v2.81"]="blender-2.81a-linux-glibc217-x86_64"
     ["v2.82"]="blender-2.82a-linux64"
     ["v2.83"]="blender-2.83.3-linux64"
+    ["v2.90"]="blender-2.90.0-9de5adc6a1a9-linux64"
 )
 
 declare -A BLENDER_CHECKSUM_URL=(
@@ -59,6 +64,7 @@ declare -A BLENDER_CHECKSUM_URL=(
     ["v2.81"]="https://download.blender.org/release/Blender2.81/release281a.md5"
     ["v2.82"]="https://download.blender.org/release/Blender2.82/release282a.md5"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3.md5"
+    ["v2.90"]="https://github.com/grische/blender/releases/download/v2.90.0-9de5adc6a1a9/blender-v2.90.0-9de5adc6a1a9.md5"
 )
 
 function get_extractor() {

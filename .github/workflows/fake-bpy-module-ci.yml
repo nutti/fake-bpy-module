@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_version: ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83"]
+        blender_version: ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90"]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
