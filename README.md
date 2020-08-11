@@ -45,6 +45,7 @@ pip install fake-bpy-module-2.80
 |2.81|https://pypi.org/project/fake-bpy-module-2.81/|
 |2.82|https://pypi.org/project/fake-bpy-module-2.82/|
 |2.83|https://pypi.org/project/fake-bpy-module-2.83/|
+|2.90|https://pypi.org/project/fake-bpy-module-2.90/|
 
 
 ### Install via pre-generated modules
