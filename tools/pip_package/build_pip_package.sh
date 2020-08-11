@@ -15,7 +15,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v2.81"]="v2.81a"
     ["v2.82"]="v2.82a"
     ["v2.83"]="v2.83.3"
-    ["v2.90"]="9de5adc6a1a9cd6ca18ac30180b5d35f16c8b289"
+    ["v2.90"]="00162e6b7b0fbb6f11d6913362b7ae5209ea381b"
 )
 
 TMP_DIR_NAME="tmp"
