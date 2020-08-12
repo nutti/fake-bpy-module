@@ -217,17 +217,17 @@ class BaseAnalyzer:
         def _parse_arg(file: IO[Any], level: 'RstLevel') -> List[dict]:
             last_pos = file.tell()
             line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:arg ([a-zA-Z0-9_, ]+)\s*.*:(.*)"
+            pattern = r"^\s{" + str(level.num_spaces()) + r"}:(arg|param) ([a-zA-Z0-9_, ]+)\s*.*:(.*)"
             m = re.match(pattern, line)
             if m is None:
                 self._invalid_line(line, level)
 
             infos = []
-            for s in self._parse_comma_separated_string(m.group(1)):
+            for s in self._parse_comma_separated_string(m.group(2)):
                 infos.append({
                     "name": self._cleanup_string(s),
                     "type": "parameter",
-                    "description": m.group(2),
+                    "description": m.group(3),
                     "data_type": "",
                 })
 
@@ -342,12 +342,12 @@ class BaseAnalyzer:
                 break
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type):", line):
                 self._skip_until_next_le_level(file, level=level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|return|rtype)", line):
-                m = re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|return|rtype)", line)
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|param|return|rtype)", line):
+                m = re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|param|return|rtype)", line)
                 file.seek(last_pos)
                 if m.group(1) == "type":
                     parameters_types.extend(_parse_type(file, level))
-                elif m.group(1) == "arg":
+                elif m.group(1) in ["arg", "param"]:
                     parameters_args.extend(_parse_arg(file, level))
                 elif m.group(1) == "return":
                     if return_ is not None:
@@ -359,6 +359,11 @@ class BaseAnalyzer:
                         raise ValueError(":rtype must be appeared only once: {} (File name: {}, Level: {})"
                                          .format(self.current_file, line, level.level()))
                     return_type = _parse_rtype(file, level)
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(file):", line):
+                self._skip_until_next_le_level(file, level=level)
+            elif self._has_le_level_string(line, level):
+                file.seek(last_pos)
+                break
             last_pos = file.tell()
             line = file.readline()
 
@@ -686,8 +691,8 @@ class BaseAnalyzer:
             elif self._has_le_level_string(line, level):
                 file.seek(last_pos)
                 return info
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line):
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line).group(1)
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)
                 file.seek(last_pos)
                 detail = self._parse_func_detail(file, level=level.make_next_level(next_level_spaces))
                 info.add_parameter_details(detail["parameters"])
@@ -739,8 +744,8 @@ class BaseAnalyzer:
                 elif self._has_le_level_string(line, level):
                     file.seek(last_pos)
                     return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line):
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line).group(1)
+                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):
+                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)
                     file.seek(last_pos)
                     detail = self._parse_func_detail(file, level=level.make_next_level(next_level_spaces))
                     info.add_parameter_details(detail["parameters"])
@@ -785,8 +790,8 @@ class BaseAnalyzer:
                 elif self._has_le_level_start(line, level):
                     file.seek(last_pos)
                     return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line):
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line).group(1)
+                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):
+                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)
                     file.seek(last_pos)
                     detail = self._parse_func_detail(file, level=level.make_next_level(next_level_spaces))
                     info.add_parameter_details(detail["parameters"])
@@ -835,8 +840,8 @@ class BaseAnalyzer:
                 elif self._has_le_level_string(line, level):
                     file.seek(last_pos)
                     return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line):
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):", line).group(1)
+                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):
+                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)
                     file.seek(last_pos)
                     detail = self._parse_func_detail(file, level=level.make_next_level(next_level_spaces))
                     info.add_parameter_details(detail["parameters"])
@@ -1011,6 +1016,10 @@ class BaseAnalyzer:
                       re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line)):
                     self._skip_until_next_le_level(file, level=RstLevel())
                 elif re.match(r"^\.\.", line):
+                    self._invalid_line(line, 0)
+                elif re.match(r"^\s+\.\.", line):
+                    self._invalid_line(line, 0)
+                elif re.match(r"^\s+:", line):
                     self._invalid_line(line, 0)
                 last_pos = file.tell()
                 line = file.readline()

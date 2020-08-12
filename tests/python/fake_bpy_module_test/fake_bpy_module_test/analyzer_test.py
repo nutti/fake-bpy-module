@@ -739,6 +739,26 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         self.compare_dict_and_log(result.section_info[0].to_dict(),
                                   section_info.to_dict())
 
+    def test_invalid_rst_format_1(self):
+        rst_files = ["invalid_rst_format_1.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BaseAnalyzer()
+
+        with self.assertRaises(ValueError):
+            result = analyzer.analyze(rst_files)
+            self.log(json.dumps(result.section_info[0].to_dict(), indent=4))
+
+    def test_invalid_rst_format_2(self):
+        rst_files = ["invalid_rst_format_2.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BaseAnalyzer()
+
+        with self.assertRaises(ValueError):
+            result = analyzer.analyze(rst_files)
+            self.log(json.dumps(result.section_info[0].to_dict(), indent=4))
+
     def test_no_module(self):
         rst_files = ["no_module.rst"]
         rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]

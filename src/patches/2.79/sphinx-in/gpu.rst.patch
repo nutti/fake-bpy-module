@@ -1,0 +1,27 @@
+--- gen_module-tmp/sphinx-in.orig/gpu.rst	2020-08-12 03:48:48.118691347 +0000
++++ gen_module-tmp/sphinx-in/gpu.rst	2020-08-12 03:50:05.279672536 +0000
+@@ -82,11 +82,11 @@ GLSL Uniform Types
+ 
+ .. _uniform-type:
+ 
+-Constants that specify the type of uniform used in a GLSL shader.
+-The uniform type determines the data type, origin and method
+-of calculation used by Blender to compute the uniform value.
++   Constants that specify the type of uniform used in a GLSL shader.
++   The uniform type determines the data type, origin and method
++   of calculation used by Blender to compute the uniform value.
+ 
+-The calculation of some of the uniforms is based on matrices available in the scene:
++   The calculation of some of the uniforms is based on matrices available in the scene:
+ 
+    .. _mat4_cam_to_world:
+    .. _mat4_world_to_cam:
+@@ -671,7 +671,7 @@ Notes
+ 
+ .. _mat4_lamp_to_perspective:
+ 
+-#. Calculation of the ``mat4_lamp_to_perspective`` matrix for a spot lamp.
++   #. Calculation of the ``mat4_lamp_to_perspective`` matrix for a spot lamp.
+ 
+    The following pseudo code shows how the ``mat4_lamp_to_perspective`` matrix is computed
+    in blender for uniforms of :data:`gpu.GPU_DYNAMIC_LAMP_DYNPERSMAT` type:
