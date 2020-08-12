@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/gpu.select.rst	2020-08-12 03:27:28.563679894 +0000
++++ gen_module-tmp/sphinx-in/gpu.select.rst	2020-08-12 03:27:59.151687150 +0000
+@@ -5,7 +5,7 @@ GPU Select (gpu.select)
+ 
+ This module provides access to selection.
+ 
+-load_id(id)
++.. function:: load_id(id)
+ 
+    Set the selection ID.
+ 

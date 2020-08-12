@@ -22,7 +22,7 @@
 
       :arg arg_1: method_1 arg_1 description
       :type arg_1: method_1 arg_1 type
-      :arg arg_2: method_1 arg_2 description
+      :param arg_2: method_1 arg_2 description
       :type arg_2: method_1 arg_2 type
       :return: method_1 return description
       :rtype: method_1 return type
@@ -33,7 +33,7 @@
 
       :arg arg_1: classmethod_1 arg_1 description
       :type arg_1: classmethod_1 arg_1 type
-      :arg arg_2: classmethod_1 arg_2 description
+      :param arg_2: classmethod_1 arg_2 description
       :type arg_2: classmethod_1 arg_2 type
       :return: classmethod_1 return description
       :rtype: classmethod_1 return type
@@ -42,7 +42,7 @@
 
       staticmethod_1 description
 
-      :arg arg_1: staticmethod_1 arg_1 description
+      :param arg_1: staticmethod_1 arg_1 description
       :type arg_1: staticmethod_1 arg_1 type
       :arg arg_2: staticmethod_1 arg_2 description
       :type arg_2: staticmethod_1 arg_2 type
@@ -55,7 +55,7 @@
 
       :arg arg_1: function_1 arg_1 description
       :type arg_1: function_1 arg_1 type
-      :arg arg_2: function_1 arg_2 description
+      :param arg_2: function_1 arg_2 description
       :type arg_2: function_1 arg_2 type
       :return: function_1 return description
       :rtype: function_1 return type
