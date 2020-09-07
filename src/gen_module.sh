@@ -74,9 +74,42 @@ remote_git_ref="$(get_remote_git_ref "${git_ref}")"
 git fetch --depth 1 origin "${remote_git_ref}"
 git checkout -f "${remote_git_ref}"
 
+function apply_workaround() {
+    local ref=${git_ref}
+    local blender_source=${source_dir}
+
+    if [ ${ref} = "v2.90.0" ]; then
+        pushd ${blender_source} > /dev/null
+
+        # Workaround for an error of rst document generation.
+        # See https://developer.blender.org/T80364 for detail.
+        cp doc/python_api/sphinx_doc_gen.py doc/python_api/sphinx_doc_gen.py.orig
+        sed -i -e "1031s:^:#:" doc/python_api/sphinx_doc_gen.py
+        sed -i -e "1048s:^:#:" doc/python_api/sphinx_doc_gen.py
+
+        popd > /dev/null
+    fi
+}
+
+function revert_workaround() {
+    local ref=${git_ref}
+    local blender_source=${source_dir}
+
+    if [ ${ref} = "v2.90.0" ]; then
+        pushd ${blender_source} > /dev/null
+
+        cp doc/python_api/sphinx_doc_gen.py.orig doc/python_api/sphinx_doc_gen.py
+        rm doc/python_api/sphinx_doc_gen.py.orig
+
+        popd > /dev/null
+    fi
+}
+
 # generate .rst documents
 cd ${current_dir}
+apply_workaround
 ${blender_bin} --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
+revert_workaround
 
 # Apply patches
 #   Note: patch is made by `diff -up gen_module-tmp/sphinx-in.orig/a.rst gen_module-tmp/sphinx-in/a.rst > patches/2.XX/sphinx-in/a.rst.patch`
