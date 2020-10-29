@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/mathutils.rst	2020-11-07 18:26:43.831464000 +0100
++++ gen_module-tmp/sphinx-in/mathutils.rst	2020-11-07 18:26:43.971464000 +0100
+@@ -983,7 +983,7 @@
+       :type size: int
+ 
+ 
+-   .. classmethod:: Range(start=0, stop, step=1)
++   .. classmethod:: Range(start=0, stop=-1, step=1)
+    
+       Create a filled with a range of values.
+    
