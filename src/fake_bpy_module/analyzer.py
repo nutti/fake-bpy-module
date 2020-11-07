@@ -94,11 +94,11 @@ class BaseAnalyzer:
 
     def _parse_module(self, file: IO[Any], level: int) -> str:
         line = file.readline()
-        m = re.match(r"^\.\. module:: ([a-zA-Z0-9._]+)", line)
+        m = re.match(r"^\.\. (currentmodule|module):: ([a-zA-Z0-9._]+)", line)
         if m is None:
             self._invalid_line(line, level)
 
-        module_name = m.group(1)
+        module_name = m.group(2)
 
         if self.blender_version is not None and self.blender_version != "":
             version = [int(sp) for sp in self.blender_version.split(".")]
@@ -847,8 +847,8 @@ class BaseAnalyzer:
                     info.add_parameter_details(detail["parameters"])
                     if detail["return"] is not None:
                         info.set_return(detail["return"])
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. note::", line):
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. note::", line).group(1)
+                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|tip)::", line):
+                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|tip)::", line).group(1)
                     self._skip_until_next_le_level(file, level=level.make_next_level(next_level_spaces))
                 elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):
                     self._invalid_line(line, level)
@@ -968,7 +968,7 @@ class BaseAnalyzer:
                         self._invalid_line(line, 0)
                     file.seek(last_pos)
                     self.current_base_classes = self._parse_base_class(file, level=RstLevel())
-                elif re.match(r"^\.\. module::", line):
+                elif re.match(r"^\.\. (currentmodule|module)::", line):
                     if self.current_module is not None:
                         self._invalid_line(line, 0)
                     file.seek(last_pos)
@@ -1013,7 +1013,8 @@ class BaseAnalyzer:
                       re.match(r"^\.\. note:", line) or
                       re.match(r"^\.\. note,", line) or
                       re.match(r"^\.\.$", line) or
-                      re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line)):
+                      re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line) or
+                      re.match(r"^   :Attributes:", line)):
                     self._skip_until_next_le_level(file, level=RstLevel())
                 elif re.match(r"^\.\.", line):
                     self._invalid_line(line, 0)
