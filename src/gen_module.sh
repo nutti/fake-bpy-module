@@ -108,7 +108,7 @@ function revert_workaround() {
 # generate .rst documents
 cd ${current_dir}
 apply_workaround
-${blender_bin} --background --factory-startup -noaudio --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
+${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python ${source_dir}/doc/python_api/sphinx_doc_gen.py -- --output ${tmp_dir}
 revert_workaround
 
 # Apply patches
@@ -132,8 +132,8 @@ if [ $? -ne 0 ]; then
 fi
 generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
 mkdir -p ${generated_mod_dir}
-${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
-${blender_bin} --background --factory-startup -noaudio --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o ${generated_mod_dir}/gen_startup_modfile
+${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o ${generated_mod_dir}/gen_modules_modfile
+${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python ${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o ${generated_mod_dir}/gen_startup_modfile
 mkdir -p ${generated_mod_dir}/gen_bgl_modfile
 ${python_bin} ${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py -i ${source_dir}/source/blender/python/generic/bgl.c -o ${generated_mod_dir}/gen_bgl_modfile/bgl.json
 

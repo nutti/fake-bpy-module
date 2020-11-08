@@ -134,7 +134,7 @@ git checkout [branch/tag/commit]
 Generated .rst documents are located on `${BLENDER_SRC}/doc/python_api/sphinx-in`.
 
 ```bash
-${BLENDER_BIN}/blender --background --factory-startup -noaudio --python doc/python_api/sphinx_doc_gen.py
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python doc/python_api/sphinx_doc_gen.py
 ```
 
 
@@ -160,7 +160,7 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 cd fake-bpy-module/src
 
 mkdir -p mods/generated_mods
-${BLENDER_BIN}/blender --background --factory-startup -noaudio --python gen_modfile/gen_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile
 
 mkdir -p mods/generated_mods/gen_startup_modfile
 python gen_modfile/gen_startup_modfile.py -i ${BLENDER_BIN}/<blender-version>/scripts/startup -o mods/generated_mods/gen_startup_modfile/bpy.json
