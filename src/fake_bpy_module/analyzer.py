@@ -103,9 +103,12 @@ class BaseAnalyzer:
         if self.blender_version is not None and self.blender_version != "":
             version = [int(sp) for sp in self.blender_version.split(".")]
             if not self.support_bge:
-                if version >= [2, 90]:
+                if version == [2, 90]:
                     if module_name.startswith("bpy.types."):
                         module_name = module_name[:module_name.rfind(".")]
+                if version == [2, 91]:
+                    if module_name == "bpy.data":
+                        module_name = "bpy"
 
         return module_name
 
