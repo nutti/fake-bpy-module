@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bmesh.ops.rst	2020-11-07 18:26:43.771464000 +0100
++++ gen_module-tmp/sphinx-in/bmesh.ops.rst	2020-11-07 18:26:43.981464000 +0100
+@@ -625,7 +625,7 @@
+    :type space: :class:`mathutils.Matrix`
+ 
+ 
+-.. function:: translate(bm, vec, space, verts)
++.. function:: translate(bm, vec, space, verts=[])
+ 
+    Translate.
+ 
+@@ -883,7 +883,7 @@
+    :rtype: dict with string keys
+ 
+ 
+-.. function:: extrude_face_region(bm, geom, edges_exclude, use_keep_orig, use_normal_flip, use_normal_from_adjacent, use_dissolve_ortho_edges, use_select_history)
++.. function:: extrude_face_region(bm, geom=[], edges_exclude=[], use_keep_orig=False, use_normal_flip=False, use_normal_from_adjacent=False, use_dissolve_ortho_edges=False, use_select_history=False)
+ 
+    Extrude Faces.
+ 
