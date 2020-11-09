@@ -1,6 +1,6 @@
---- gen_module-tmp/sphinx-in.orig/bpy.types.BlendData.rst	2020-11-07 05:14:53.255557000 +0000
-+++ gen_module-tmp/sphinx-in/bpy.types.BlendData.rst	2020-11-07 06:54:59.660551837 +0000
-@@ -273,7 +273,7 @@ base class --- :class:`bpy_struct`
+--- gen_module-tmp/sphinx-in.orig/bpy.types.BlendData.rst	2020-11-07 18:26:43.791464000 +0100
++++ gen_module-tmp/sphinx-in/bpy.types.BlendData.rst	2020-11-07 18:26:43.991464000 +0100
+@@ -273,7 +273,7 @@
  
        :type: :class:`BlendDataWorlds` :class:`bpy_prop_collection` of :class:`World`, (readonly)
  
@@ -9,7 +9,7 @@
     
        Remove (delete) several IDs at once.
     
-@@ -309,7 +309,7 @@ base class --- :class:`bpy_struct`
+@@ -309,7 +309,7 @@
        WARNING: Considered experimental feature currently.
  
  
