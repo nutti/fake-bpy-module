@@ -50,6 +50,11 @@ LISTOF_FORMAT: Dict[str, bool] = {
     "BMEditSelSeq": True,
 }
 
+# Key is string, and value is XXX -> Dict[str, XXX]
+DICT_WITH_STRKEY_FORMAT: List[str] = {
+    "bpy_prop_collection",
+}
+
 MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "list": "typing.List",
     "dict": "typing.Dict",
@@ -151,7 +156,7 @@ class IntermidiateDataType(DataType):
 
 
 class BuiltinDataType(DataType):
-    def __init__(self, data_type: str, modifier: str=None):
+    def __init__(self, data_type: str, modifier: str=None, modifier_add_info=None):
         if not isinstance(data_type, str):
             raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
 
@@ -163,6 +168,7 @@ class BuiltinDataType(DataType):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
         self._modifier: str = modifier
+        self._modifier_add_info = modifier_add_info
 
     def type(self) -> str:
         return 'BUILTIN'
@@ -173,12 +179,26 @@ class BuiltinDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
+    def modifier_add_info(self):
+        return self._modifier_add_info
+
     def data_type(self) -> str:
         return self._data_type
 
     def to_string(self) -> str:
         if self._modifier is None:
             return self._data_type
+
+        if self._modifier == "dict":
+            if self._modifier_add_info is not None:
+                if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
+                    return "{}[{}, {}]".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                               self._modifier_add_info["dict_key"],
+                                               self._data_type)
+                else:
+                    return "{}['{}', {}]".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                                 self._modifier_add_info["dict_key"],
+                                                 self._data_type)
 
         return "{}[{}]".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
                                self._data_type)
@@ -208,7 +228,7 @@ class ModifierDataType(DataType):
 
 
 class CustomDataType(DataType):
-    def __init__(self, data_type: str, modifier: str=None):
+    def __init__(self, data_type: str, modifier: str=None, modifier_add_info=None):
         if not isinstance(data_type, str):
             raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
 
@@ -217,6 +237,7 @@ class CustomDataType(DataType):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
         self._modifier: str = modifier
+        self._modifier_add_info = modifier_add_info
 
     def type(self) -> str:
         return 'CUSTOM'
@@ -227,12 +248,26 @@ class CustomDataType(DataType):
     def modifier(self) -> str:
         return self._modifier
 
+    def modifier_add_info(self):
+        return self._modifier_add_info
+
     def data_type(self) -> str:
         return self._data_type
 
     def to_string(self) -> str:
         if self._modifier is None:
             return "'{}'".format(self._data_type)
+
+        if self._modifier == "dict":
+            if self._modifier_add_info is not None:
+                if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
+                    return "{}[{}, '{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                                 self._modifier_add_info["dict_key"],
+                                                 self._data_type)
+                else:
+                    return "{}['{}', '{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
+                                                   self._modifier_add_info["dict_key"],
+                                                   self._data_type)
 
         return "{}['{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
                                  self._data_type)
@@ -1114,6 +1149,25 @@ class DataTypeRefiner:
                 stripped_string = ""
             return dtype, stripped_string
 
+        def parse_dict_with_strkey_case(string_to_parse: str) -> (List[Dict[str, str]], str):
+            dict_case = []
+            stripped_string = string_to_parse
+            for class_ in DICT_WITH_STRKEY_FORMAT:
+                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)
+                m = re.search(regex, stripped_string)
+                if m:
+                    case = {}
+                    case["modifier"] = "dict"
+                    case["builtin_dtype"], _ = parse_builtin_dtype(m.groups()[0])
+                    case["custom_dtype"] = []
+                    case["dict_key"] = "str"
+                    if not case["builtin_dtype"]:
+                        case["custom_dtype"], _ = parse_custom_dtype(m.groups()[0])
+                        if not case["custom_dtype"]:
+                            continue
+                    dict_case.append(case)
+            return dict_case, stripped_string
+
         # Check "XXX of YYY" format
         def parse_listof_case(string_to_parse: str) -> (List[Dict[str, str]], str):
             listof_case = []
@@ -1164,6 +1218,8 @@ class DataTypeRefiner:
             return modifier, stripped_string
 
 
+        dict_case, dtype_str = parse_dict_with_strkey_case(dtype_str)
+
         listof_case, dtype_str = parse_listof_case(dtype_str)
         modifier, dtype_str = parse_modifier(dtype_str)
 
@@ -1184,6 +1240,20 @@ class DataTypeRefiner:
                        "dtype_str is still exists ({})".format(remove_unencodable(dtype_str)))
 
         dtype_list = []
+        for case in dict_case:
+            if case["builtin_dtype"]:
+                dtype_list.append(
+                    BuiltinDataType(case["builtin_dtype"][0], case["modifier"],
+                                    {"dict_key": case["dict_key"]}
+                    )
+                )
+            elif case["custom_dtype"]:
+                dtype_list.append(
+                    CustomDataType(case["custom_dtype"][0], case["modifier"],
+                                   {"dict_key": case["dict_key"]}
+                    )
+                )
+
         for case in listof_case:
             if case["builtin_dtype"]:
                 dtype_list.append(BuiltinDataType(case["builtin_dtype"][0], case["modifier"]))

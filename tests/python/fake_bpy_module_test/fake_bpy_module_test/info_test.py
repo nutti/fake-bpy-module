@@ -110,8 +110,9 @@ class BuiltinDataTypeTest(common.FakeBpyModuleTestBase):
         self.assertIsNone(data_type.modifier())
         self.assertEqual(data_type.data_type(), "int")
         self.assertEqual(data_type.to_string(), "int")
+        self.assertIsNone(data_type.modifier_add_info())
 
-    def test_valid_data_type_with_modifier(self):
+    def test_valid_data_type_with_list_modifier(self):
         data_type = BuiltinDataType("float", modifier="list")
 
         self.assertEqual(data_type.type(), 'BUILTIN')
@@ -119,6 +120,18 @@ class BuiltinDataTypeTest(common.FakeBpyModuleTestBase):
         self.assertEqual(data_type.modifier(), "list")
         self.assertEqual(data_type.data_type(), "float")
         self.assertEqual(data_type.to_string(), "typing.List[float]")
+        self.assertIsNone(data_type.modifier_add_info())
+
+    def test_valid_data_type_with_dict_modifier(self):
+        expect_info = {"dict_key": "str"}
+        data_type = BuiltinDataType("float", modifier="dict", modifier_add_info=expect_info)
+
+        self.assertEqual(data_type.type(), 'BUILTIN')
+        self.assertTrue(data_type.has_modifier())
+        self.assertEqual(data_type.modifier(), "dict")
+        self.assertEqual(data_type.data_type(), "float")
+        self.assertEqual(data_type.to_string(), "typing.Dict[str, float]")
+        self.assertDictEqual(data_type.modifier_add_info(), expect_info)
 
     def test_invalid_data_type(self):
         with self.assertRaises(ValueError):
@@ -175,8 +188,9 @@ class CustomDataTypeTest(common.FakeBpyModuleTestBase):
         self.assertIsNone(data_type.modifier())
         self.assertEqual(data_type.data_type(), "custom_data_type")
         self.assertEqual(data_type.to_string(), "'custom_data_type'")
+        self.assertIsNone(data_type.modifier_add_info())
 
-    def test_valid_with_modifier(self):
+    def test_valid_with_set_modifier(self):
         data_type = CustomDataType("custom_data_type", modifier="set")
 
         self.assertEqual(data_type.type(), 'CUSTOM')
@@ -184,6 +198,18 @@ class CustomDataTypeTest(common.FakeBpyModuleTestBase):
         self.assertEqual(data_type.modifier(), "set")
         self.assertEqual(data_type.data_type(), "custom_data_type")
         self.assertEqual(data_type.to_string(), "typing.Set['custom_data_type']")
+        self.assertIsNone(data_type.modifier_add_info())
+
+    def test_valid_with_dict_modifier(self):
+        expect_info = {"dict_key": "str"}
+        data_type = CustomDataType("custom_data_type", modifier="dict", modifier_add_info=expect_info)
+
+        self.assertEqual(data_type.type(), 'CUSTOM')
+        self.assertTrue(data_type.has_modifier())
+        self.assertEqual(data_type.modifier(), "dict")
+        self.assertEqual(data_type.data_type(), "custom_data_type")
+        self.assertEqual(data_type.to_string(), "typing.Dict[str, 'custom_data_type']")
+        self.assertDictEqual(data_type.modifier_add_info(), expect_info)
 
     def test_invalid_modifier(self):
         with self.assertRaises(ValueError):

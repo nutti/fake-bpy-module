@@ -320,6 +320,12 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
                 else:
                     if expect["data_type"] != actual.data_type():
                         return False
+                if expect["modifier_add_info"] is None:
+                    if actual.modifier_add_info():
+                        return False
+                else:
+                    if expect["modifier_add_info"] != actual.modifier_add_info():
+                        return False
                 return True
 
             self.assertEqual(len(expect), len(actual))
@@ -346,11 +352,19 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'BUILTIN',
             "modifier": "list",
             "data_type": "float",
+            "modifier_add_info": None,
+        },
+        {
+            "type": 'BUILTIN',
+            "modifier": "dict",
+            "data_type": "float",
+            "modifier_add_info": {"dict_key": "str"},
         },
         {
             "type": 'CUSTOM',
             "modifier": None,
-            "data_type": "bpy_prop_collection"
+            "data_type": "bpy_prop_collection",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
@@ -361,11 +375,19 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'BUILTIN',
             "modifier": "list",
             "data_type": "float",
+            "modifier_add_info": None,
+        },
+        {
+            "type": 'BUILTIN',
+            "modifier": "dict",
+            "data_type": "float",
+            "modifier_add_info": {"dict_key": "str"},
         },
         {
             "type": 'CUSTOM',
             "modifier": None,
-            "data_type": "bpy_prop_collection"
+            "data_type": "bpy_prop_collection",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
@@ -376,11 +398,13 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'BUILTIN',
             "modifier": None,
             "data_type": "str",
+            "modifier_add_info": None,
         },
         {
             "type": 'BUILTIN',
             "modifier": None,
-            "data_type": "int"
+            "data_type": "int",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
@@ -391,11 +415,13 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'BUILTIN',
             "modifier": None,
             "data_type": "float",
+            "modifier_add_info": None,
         },
         {
             "type": 'BUILTIN',
             "modifier": None,
-            "data_type": "int"
+            "data_type": "int",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
@@ -406,11 +432,13 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'BUILTIN',
             "modifier": None,
             "data_type": "int",
+            "modifier_add_info": None,
         },
         {
             "type": 'CUSTOM',
             "modifier": None,
-            "data_type": "module_1.ClassC"
+            "data_type": "module_1.ClassC",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
@@ -421,11 +449,13 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             "type": 'CUSTOM',
             "modifier": None,
             "data_type": "module_2.ClassE",
+            "modifier_add_info": None,
         },
         {
             "type": 'CUSTOM',
             "modifier": None,
-            "data_type": "module_1.submodule_1.ClassA"
+            "data_type": "module_1.submodule_1.ClassA",
+            "modifier_add_info": None,
         }]
         assert_equal_commutative(expect, refined_data_type.data_types())
 
