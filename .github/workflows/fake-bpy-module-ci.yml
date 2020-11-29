@@ -20,17 +20,17 @@ jobs:
     steps:
       # Use ISO 8601 date (in UTC) + timestamp (in UTC)
       - name: Create generic module version
-        run: echo ::set-env name=MODULE_VERSION::$(date -u +%Y%m%d).dev$(date -u +%H%M%S)
+        run: echo "MODULE_VERSION=$(date -u +%Y%m%d).dev$(date -u +%H%M%S)" >> $GITHUB_ENV
 
       # Use the tag name for a release
       - name: Override release module version
         if: github.event_name == 'release'
-        run: echo ::set-env name=MODULE_VERSION::${GITHUB_REF#refs/*/}
+        run: echo "MODULE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       # Add addtional git sha ref
       - name: Override PR module version
         if: github.event_name == 'pull_request'
-        run: echo ::set-env name=MODULE_VERSION::${MODULE_VERSION}+${GITHUB_SHA::8}
+        run: echo "MODULE_VERSION=${MODULE_VERSION}+${GITHUB_SHA::8}" >> $GITHUB_ENV
 
       # Set module version output
       - name: Set module version
@@ -182,9 +182,9 @@ jobs:
       - name: Store Asset Information
         run: |
           export FAKE_BPY_MODULE_FILEPATH=$(ls -1 dist/fake_bpy_modules_${{ matrix.blender_version }}_raw_*/*.zip | head -n 1) && echo ${FAKE_BPY_MODULE_FILEPATH}
-          echo "::set-env name=FAKE_BPY_MODULE_FILEPATH::${FAKE_BPY_MODULE_FILEPATH}"
-          echo "::set-env name=FAKE_BPY_MODULE_FILENAME::$(basename "${FAKE_BPY_MODULE_FILEPATH}")"
-          echo "::set-env name=MIME_TYPE::$(file --mime-type -b "${FAKE_BPY_MODULE_FILEPATH}")"
+          echo "FAKE_BPY_MODULE_FILEPATH=${FAKE_BPY_MODULE_FILEPATH}" >> $GITHUB_ENV
+          echo "FAKE_BPY_MODULE_FILENAME=$(basename "${FAKE_BPY_MODULE_FILEPATH}")" >> $GITHUB_ENV
+          echo "MIME_TYPE=$(file --mime-type -b "${FAKE_BPY_MODULE_FILEPATH}")" >> $GITHUB_ENV
 
       - name: Upload ${{ matrix.blender_version }}
         uses: actions/upload-release-asset@v1
