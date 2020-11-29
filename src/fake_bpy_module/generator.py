@@ -891,7 +891,7 @@ class PackageAnalyzer:
         def rewrite_to_generation_data_type(data_type: 'DataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
-            return CustomDataType(new_data_type, data_type.modifier())
+            return CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
 
         def rewrite(info_to_rewrite: 'Info'):
             if info_to_rewrite.data_type().type() == 'CUSTOM':
