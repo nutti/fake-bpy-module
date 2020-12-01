@@ -28,7 +28,7 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3-windows64.zip"
     ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0-windows64.zip"
-    ["v2.91"]=""
+    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0-windows64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -39,7 +39,7 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3-linux64.tar.xz"
     ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0-linux64.tar.xz"
-    ["v2.91"]="https://github.com/grische/blender/releases/download/v2.91.0-02677ec4e0fa/blender-2.91.0-02677ec4e0fa-linux64.tar.xz"
+    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0-linux64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -58,7 +58,7 @@ declare -A NEED_MOVE_LINUX=(
     ["v2.82"]="blender-2.82a-linux64"
     ["v2.83"]="blender-2.83.3-linux64"
     ["v2.90"]="blender-2.90.0-linux64"
-    ["v2.91"]="blender-2.91.0-02677ec4e0fa-linux64"
+    ["v2.91"]="blender-2.91.0-linux64"
 )
 
 declare -A BLENDER_CHECKSUM_URL=(
@@ -69,7 +69,7 @@ declare -A BLENDER_CHECKSUM_URL=(
     ["v2.82"]="https://download.blender.org/release/Blender2.82/release282a.md5"
     ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.3.md5"
     ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0.md5"
-    ["v2.91"]="https://github.com/grische/blender/releases/download/v2.91.0-02677ec4e0fa/blender-v2.91.0-02677ec4e0fa.md5"
+    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0.md5"
 )
 
 function get_extractor() {
