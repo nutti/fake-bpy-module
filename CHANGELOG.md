@@ -1,7 +1,26 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20200907...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20201216...master)
+
+
+## [20201216](https://github.com/nutti/fake-bpy-module/compare/20200907...20201216) - 2020.12.16
+
+
+### Updated Features
+
+* Support fake-bpy-module-2.91
+* Use Blender 2.83.9 for fake-bpy-module-2.83
+
+
+### Other Updates
+
+* Fix bugs
+
+
+### Contributors
+
+* [**@grische**](https://github.com/grische)
 
 
 ## [20200907](https://github.com/nutti/fake-bpy-module/compare/20200812...20200907) - 2020.9.7
