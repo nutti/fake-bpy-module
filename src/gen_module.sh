@@ -78,23 +78,28 @@ function apply_workaround() {
     local ref=${git_ref}
     local blender_source=${source_dir}
 
-    pushd "${blender_source}" > /dev/null
+    if [ ${ref} = "v2.90.0" -o ${ref} = "v2.91.0" ]; then
+        pushd "${blender_source}" > /dev/null
 
-    # Workaround for an error of rst document generation.
-    # See https://developer.blender.org/T80364 for detail.
-    cp doc/python_api/sphinx_doc_gen.py doc/python_api/sphinx_doc_gen.py.orig
-    sed -i -e "/Hair/s/^/#/" doc/python_api/sphinx_doc_gen.py
-    sed -i -e "/PointCloud/s/^/#/" doc/python_api/sphinx_doc_gen.py
+        # Workaround for an error of rst document generation.
+        # See https://developer.blender.org/T80364 for detail.
+        cp doc/python_api/sphinx_doc_gen.py doc/python_api/sphinx_doc_gen.py.orig
+        sed -i -e "/Hair/s/^/#/" doc/python_api/sphinx_doc_gen.py
+        sed -i -e "/PointCloud/s/^/#/" doc/python_api/sphinx_doc_gen.py
 
-    popd > /dev/null
+        popd > /dev/null
+    fi
 }
 
 function revert_workaround() {
+    local ref=${git_ref}
     local blender_source=${source_dir}
 
-    pushd "${blender_source}" > /dev/null
-    git checkout doc/python_api/sphinx_doc_gen.py
-    popd > /dev/null
+    if [ ${ref} = "v2.90.0" -o ${ref} = "v2.91.0" ]; then
+        pushd "${blender_source}" > /dev/null
+        git checkout doc/python_api/sphinx_doc_gen.py
+        popd > /dev/null
+    fi
 }
 
 # generate .rst documents
