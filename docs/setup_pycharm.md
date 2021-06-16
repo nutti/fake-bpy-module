@@ -14,7 +14,7 @@ Launch PyCharm and do all below procedures.
 
 1. Show *Settings* (Windows) or *Preferences* (macOS) window.
   * (Windows) Click *File* > *Settings*
-  * (macOS) Click *Pycharm Menu* > *Preferenes*
+  * (macOS) Click *Pycharm Menu* > *Preferences*
 2. Select *Project: <Your Project>* > *Project Interpreter*.
 3. Click *Gear* icon on the right next to *Project Interpreter:*, and a popup menu is shown.
 4. Click *More...* on the popped up menu.
