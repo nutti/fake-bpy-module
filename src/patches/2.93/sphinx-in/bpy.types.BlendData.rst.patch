@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.BlendData.rst	2021-06-21 09:18:25.480000000 +0000
++++ gen_module-tmp/sphinx-in/bpy.types.BlendData.rst	2021-06-21 11:17:23.640000000 +0000
+@@ -255,7 +255,7 @@ base class --- :class:`bpy_struct`
+ 
+       :type: :class:`BlendDataWorlds` :class:`bpy_prop_collection` of :class:`World`, (readonly)
+ 
+-   .. method:: batch_remove(ids=(id1, id2, ...))
++   .. method:: batch_remove(ids=())
+    
+       Remove (delete) several IDs at once.
+    
+@@ -308,7 +308,7 @@ base class --- :class:`bpy_struct`
+       :rtype: :class:`bpy.types.BlendData`
+ 
+ 
+-   .. method:: user_map([subset=(id1, id2, ...)], key_types={..}, value_types={..})
++   .. method:: user_map(subset, key_types, value_types)
+    
+       Returns a mapping of all ID data-blocks in current ``bpy.data`` to a set of all datablocks using them.
+    

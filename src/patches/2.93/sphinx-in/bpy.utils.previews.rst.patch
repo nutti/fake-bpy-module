@@ -1,0 +1,10 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.utils.previews.rst	2021-06-19 13:58:38.870000000 +0000
++++ gen_module-tmp/sphinx-in/bpy.utils.previews.rst	2021-06-20 00:35:04.890000000 +0000
+@@ -73,7 +73,6 @@ Custom Icon Example
+       :type name: string
+       :return: The Preview matching given name, or a new empty one.
+       :rtype: :class:`bpy.types.ImagePreview`
+-      :rtype: :class:`bpy.types.ImagePreview`
+       :raises KeyError: if ``name`` already exists.
+ 
+ 
