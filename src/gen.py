@@ -11,7 +11,7 @@ INPUT_DIR: str = "."
 SUPPORTED_TARGET: List[str] = ["pycharm"]
 SUPPORTED_STYLE_FORMAT: List[str] = ["none", "pep8"]
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
-    "2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92"
+    "2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92", "2.93"
 ]
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 

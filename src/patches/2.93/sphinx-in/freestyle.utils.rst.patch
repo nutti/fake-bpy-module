@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/freestyle.utils.rst	2021-06-22 11:10:43.940000000 +0000
++++ gen_module-tmp/sphinx-in/freestyle.utils.rst	2021-06-22 12:56:09.570000000 +0000
+@@ -45,7 +45,7 @@ writing.
+    :rtype: int or float
+ 
+ 
+-.. function:: angle_x_normal(it: Interface0DIterator)
++.. function:: angle_x_normal(it)
+ 
+    unsigned angle between a Point's normal and the X axis, in radians
+ 
+@@ -115,7 +115,7 @@ writing.
+ 
+    get the diffuse rgba color from an FEdge
+ 
+-.. function:: normal_at_I0D(it: Interface0DIterator) -> Vector
++.. function:: normal_at_I0D(it) -> Vector
+ 
+    Normal at an Interface0D object. In contrast to Normal2DF0D this
+           function uses the actual data instead of underlying Fedge objects.

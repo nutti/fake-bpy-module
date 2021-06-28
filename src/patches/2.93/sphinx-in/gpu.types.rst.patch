@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/gpu.types.rst	2021-06-19 13:58:38.870000000 +0000
++++ gen_module-tmp/sphinx-in/gpu.types.rst	2021-06-20 00:42:08.560000000 +0000
+@@ -467,7 +467,7 @@ GPU Types (gpu.types)
+    :arg data: Buffer object.
+    :type data: :class:`gpu.types.Buffer`
+ 
+-   .. method::update(data)
++   .. method:: update(data)
+    
+       Update the data of the uniform buffer object.
+ 
