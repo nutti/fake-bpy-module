@@ -34,6 +34,7 @@ If you install fake-bpy-module for Blender 2.8, run below command.
 pip install fake-bpy-module-2.80
 ```
 
+*Note: For PyCharm users, change the value `idea.max.intellisense.filesize` in `idea.properties` file to more than 2600 because some modules have the issue of being too big for intelliSense to work.*
 
 #### Supported Blender Version
 
