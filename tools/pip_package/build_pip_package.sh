@@ -6,6 +6,7 @@ set -eEu
 SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "2.90" "2.91" "2.92" "2.93"
+    "latest"
 )
 
 declare -A BLENDER_TAG_NAME=(
@@ -19,6 +20,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v2.91"]="v2.91.0"
     ["v2.92"]="v2.92.0"
     ["v2.93"]="v2.93.0"
+    ["vlatest"]="master"
 )
 
 TMP_DIR_NAME="tmp"
@@ -29,8 +31,8 @@ CURRENT_DIR=`pwd`
 PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check arguments
-if [ $# -ne 4 ]; then
-    echo "Usage: bash build_pip_package.sh <develop|release> <blender-version> <source-dir> <blender-dir>"
+if [ $# -ne 4 ] && [ $# -ne 5 ]; then
+    echo "Usage: bash build_pip_package.sh <develop|release> <blender-version> <source-dir> <blender-dir> [<mod-version>]"
     exit 1
 fi
 
@@ -38,6 +40,7 @@ target=${1}
 version=${2}
 source_dir=${3}
 blender_dir=${4}
+mod_version=${5:-not-specified}
 
 # check if PYTHON_BIN binary is availble
 if ! command -v ${PYTHON_BIN} > /dev/null; then
@@ -108,7 +111,11 @@ if [ ${target} = "release" ]; then
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version}
-    bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir} ${version}
+    if [ ${mod_version} = "not-specified" ]; then
+        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir}
+    else
+        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir} ${mod_version}
+    fi
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
@@ -144,7 +151,11 @@ elif [ ${target} = "develop" ]; then
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version}
-    bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${fake_module_dir}
+    if [ ${mod_version} = "not-specified" ]; then
+        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir}
+    else
+        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir} ${mod_version}
+    fi
     zip_dir="fake_bpy_modules_${version}-${release_version}"
     cp -r ${fake_module_dir} ${zip_dir}
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"

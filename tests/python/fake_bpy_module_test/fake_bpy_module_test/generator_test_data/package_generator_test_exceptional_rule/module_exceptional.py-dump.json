@@ -1,0 +1,89 @@
+[
+    {
+        "type": "class",
+        "name": "ClassExp",
+        "description": "ClassExp description",
+        "module": "module_exceptional",
+        "methods": [
+            {
+                "type": "method",
+                "name": "method_with_keyword_only_argument",
+                "description": "method_with_keyword_only_argument description",
+                "return": {
+                    "type": "return",
+                    "description": "method_with_keyword_only_argument return description",
+                    "data_type": "int"
+                },
+                "class": "ClassExp",
+                "module": "module_exceptional",
+                "parameters": [
+                    "arg_1",
+                    "arg_2=5.0",
+                    "*",
+                    "arg_3"
+                ],
+                "parameter_details": [
+                    {
+                        "type": "parameter",
+                        "name": "arg_1",
+                        "description": "method_with_keyword_only_argument arg_1 description",
+                        "data_type": "float"
+                    },
+                    {
+                        "type": "parameter",
+                        "name": "arg_2",
+                        "description": "method_with_keyword_only_argument arg_2 description",
+                        "data_type": "float"
+                    },
+                    {
+                        "type": "parameter",
+                        "name": "arg_3",
+                        "description": "method_with_keyword_only_argument arg_3 description",
+                        "data_type": "int"
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "type": "attribute",
+                "name": "attr",
+                "description": "attr description",
+                "class": "ClassExp",
+                "module": "module_exceptional",
+                "data_type": "float"
+            }
+        ],
+        "base_classes": []
+    },
+    {
+        "type": "function",
+        "name": "function_with_type_hint",
+        "description": "function_with_type_hint description",
+        "return": {
+            "type": "return",
+            "description": "function_with_type_hint return description",
+            "data_type": "int"
+        },
+        "class": "",
+        "module": "module_exceptional",
+        "parameters": [
+            "arg_1",
+            "arg_2"
+        ],
+        "parameter_details": [
+            {
+                "type": "parameter",
+                "name": "arg_1",
+                "description": "function_with_type_hint arg_1 description",
+                "data_type": "float"
+            },
+            {
+                "type": "parameter",
+                "name": "arg_2",
+                "description": "function_with_type_hint arg_2 description",
+                "data_type": "bool"
+            }
+        ]
+    }
+]

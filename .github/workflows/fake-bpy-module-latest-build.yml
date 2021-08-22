@@ -1,0 +1,130 @@
+name: fake-bpy-module Latest Build
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+  push:
+    branches:
+      - ci_testing
+
+jobs:
+  set_versions:
+    name: Set build versions
+    runs-on: ubuntu-latest
+    outputs:
+      module_version: ${{ steps.set_module_version.outputs.module_version }}
+      file_version: ${{ steps.set_file_version.outputs.file_version }}
+    steps:
+      # Use ISO 8601 date (in UTC) + timestamp (in UTC)
+      - name: Create generic module version
+        run: echo "MODULE_VERSION=$(date -u +%Y%m%d).dev$(date -u +%H%M%S)" >> $GITHUB_ENV
+
+      # Use ISO 8601 date (in UTC) for a scheduled release
+      - name: Create generic module version
+        if: github.event_name == 'schedule'
+        run: echo "MODULE_VERSION=$(date -u +%Y%m%d)" >> $GITHUB_ENV
+
+      # Set module version output
+      - name: Set module version
+        id: set_module_version
+        run: echo ::set-output name=module_version::${MODULE_VERSION}
+
+      # Use ISO 8601 timestamps (in UTC) for output/file version
+      - name: Set file version
+        id: set_file_version
+        run: echo ::set-output name=file_version::$(date -u +%Y%m%dT%H%M%SZ)
+
+  build_modules:
+    name: Build modules
+    runs-on: ubuntu-20.04
+    needs: [set_versions]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.7"
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test fake_bpy_module core module
+        run: bash tests/run_pre_tests.sh src
+
+      - name: Install Blender binary dependencies
+        run: sudo apt-get update && sudo apt-get install -y libglu1-mesa libegl1
+
+      - name: Install fake-bpy-module tools
+        run: sudo apt-get install -y pandoc
+
+      - name: Download latest Blender files from nutti/blender-daily-build artifacts
+        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTIONS }}
+
+        # alternatively to the github checkout, you can also use git.blender.org. See below.
+      - name: Checkout Blender from Github
+        uses: actions/checkout@v2
+        with:
+          repository: "blender/blender"
+          path: blender
+
+      - name: Generate pip Packages
+        env:
+          RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
+        run: bash tools/pip_package/build_pip_package.sh release latest ./blender ./blender-bin/blender-latest-bin
+
+      - name: Archive pip packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: fake_bpy_modules_latest_pip_${{ needs.set_versions.outputs.file_version }}
+          path: release
+
+      - name: Archive raw modules
+        uses: actions/upload-artifact@v2
+        with:
+          name: fake_bpy_modules_latest_raw_${{ needs.set_versions.outputs.file_version }}
+          path: "raw_modules/fake_bpy_module*"
+
+      - name: Test Generated Modules
+        run: bash tests/run_tests.sh raw_modules
+
+      - name: Test generated pip module against Cycles addon
+        run: bash tests/pylint_cycles.sh latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
+
+  pypi_release_test:
+    name: PyPI Release test
+    needs: [build_modules]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+
+        # Publish to TestPyPi on each merge to master
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.test_pypi_token }}
+          repository_url: https://test.pypi.org/legacy/
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/*/"
+
+  pypi_release:
+    name: PyPI Release fake-bpy-module
+    needs: [pypi_release_test]
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Fetch Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.pypi_token }}
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/*/"

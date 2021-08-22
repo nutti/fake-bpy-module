@@ -12,6 +12,7 @@ def function_1(arg_1: int,
     :type arg_1: int
     :param arg_2: function_1 arg_2 description
     :type arg_2: 'module_1.ClassA'
+    :rtype: 'module_1.submodule_1.BaseClass1'
     :return: method_1 return description
     '''
 
