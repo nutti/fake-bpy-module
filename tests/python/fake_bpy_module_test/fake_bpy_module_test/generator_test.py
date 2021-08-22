@@ -478,6 +478,7 @@ class PackageGeneratorConfigTest(common.FakeBpyModuleTestBase):
         config.os = "Windows"
         config.style_format = "none"
         config.dump = True
+        config.blender_version = "2.80"
         config.mod_version = "2.80"
         config.support_bge = True
 
@@ -485,6 +486,7 @@ class PackageGeneratorConfigTest(common.FakeBpyModuleTestBase):
         self.assertEqual(config.os, "Windows")
         self.assertEqual(config.style_format, "none")
         self.assertTrue(config.dump)
+        self.assertTrue(config.blender_version, "2.80")
         self.assertEqual(config.mod_version, "2.80")
         self.assertTrue(config.support_bge)
 
@@ -531,8 +533,8 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_base_dir)
 
     def test_single_rule(self):
-        rule_1_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_1_a.rst"),
+        rule_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_single_rule.rst"),
         ]
 
         config = PackageGeneratorConfig()
@@ -540,15 +542,16 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
+        config.blender_version = "2.80"
         config.mod_version = "2.80"
         config.support_bge = False
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
-                                       analyzer, generator)
+        rule = PackageGenerationRule("rule", rule_rst_files,
+                                     analyzer, generator)
 
-        pkg_analyzer = PackageAnalyzer(config, [rule_1])
+        pkg_analyzer = PackageAnalyzer(config, [rule])
         pkg_analyzer.analyze()
 
         pkg_struct = pkg_analyzer.package_structure()
@@ -571,18 +574,18 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
 
         gen_info = pkg_analyzer.generation_info()
         self.assertEqual(len(gen_info.keys()), 1)
-        actual_rule_1 = None
-        actual_gen_info_1 = None
+        actual_rule = None
+        actual_gen_info = None
         for k in gen_info.keys():
-            if k.name() == "rule_1":
-                actual_rule_1 = k
-                actual_gen_info_1 = gen_info[k]
-        self.assertIsNotNone(actual_rule_1)
-        self.assertIsNotNone(actual_gen_info_1)
+            if k.name() == "rule":
+                actual_rule = k
+                actual_gen_info = gen_info[k]
+        self.assertIsNotNone(actual_rule)
+        self.assertIsNotNone(actual_gen_info)
 
-        self.assertEquals(set(actual_gen_info_1.targets()), {"module_abc.py"})
+        self.assertEquals(set(actual_gen_info.targets()), {"module_abc.py"})
 
-        target_module_abc = actual_gen_info_1.get_target("module_abc.py")
+        target_module_abc = actual_gen_info.get_target("module_abc.py")
         self.assertEqual(len(target_module_abc.data), 1)
         self.assertEqual(target_module_abc.data[0].type(), "class")
         self.assertEqual(target_module_abc.data[0].name(), "Class123")
@@ -590,12 +593,12 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(target_module_abc.dependencies), 0)
 
     def test_multiple_rules(self):
-        rule_2_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_2_a.rst"),
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_2_b.rst"),
+        rule_1_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_1_a.rst"),
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_1_b.rst"),
         ]
-        rule_3_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_3_a.rst"),
+        rule_2_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_2.rst"),
         ]
 
         config = PackageGeneratorConfig()
@@ -603,17 +606,18 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
+        config.blender_version = "2.80"
         config.mod_version = None
         config.support_bge = False
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_1 = PackageGenerationRule("rule_2", rule_2_rst_files,
+        rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_2 = PackageGenerationRule("rule_3", rule_3_rst_files,
+        rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
 
         pkg_analyzer = PackageAnalyzer(config, [rule_1, rule_2])
@@ -652,26 +656,26 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
 
         gen_info = pkg_analyzer.generation_info()
         self.assertEqual(len(gen_info.keys()), 2)
+        actual_rule_1 = None
         actual_rule_2 = None
-        actual_rule_3 = None
+        actual_gen_info_1 = None
         actual_gen_info_2 = None
-        actual_gen_info_3 = None
         for k in gen_info.keys():
-            if k.name() == "rule_2":
+            if k.name() == "rule_1":
+                actual_rule_1 = k
+                actual_gen_info_1 = gen_info[k]
+            elif k.name() == "rule_2":
                 actual_rule_2 = k
                 actual_gen_info_2 = gen_info[k]
-            elif k.name() == "rule_3":
-                actual_rule_3 = k
-                actual_gen_info_3 = gen_info[k]
+        self.assertIsNotNone(actual_rule_1)
         self.assertIsNotNone(actual_rule_2)
-        self.assertIsNotNone(actual_rule_3)
+        self.assertIsNotNone(actual_gen_info_1)
         self.assertIsNotNone(actual_gen_info_2)
-        self.assertIsNotNone(actual_gen_info_3)
 
-        self.assertEquals(set(actual_gen_info_2.targets()), {"module_1/__init__.py", "module_1/submodule_1.py"})
-        self.assertEquals(set(actual_gen_info_3.targets()), {"module_2.py"})
+        self.assertEquals(set(actual_gen_info_1.targets()), {"module_1/__init__.py", "module_1/submodule_1.py"})
+        self.assertEquals(set(actual_gen_info_2.targets()), {"module_2.py"})
 
-        target_module_1 = actual_gen_info_2.get_target("module_1/__init__.py")
+        target_module_1 = actual_gen_info_1.get_target("module_1/__init__.py")
         self.assertEqual(len(target_module_1.data), 1)
         self.assertEqual(target_module_1.data[0].type(), "class")
         self.assertEqual(target_module_1.data[0].name(), "ClassA")
@@ -680,7 +684,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(target_module_1.dependencies[0].mod_name, "module_1.submodule_1")
         self.assertEquals(target_module_1.dependencies[0].type_lists, ["BaseClass1"])
 
-        target_module_1_submodule_1 = actual_gen_info_2.get_target("module_1/submodule_1.py")
+        target_module_1_submodule_1 = actual_gen_info_1.get_target("module_1/submodule_1.py")
         self.assertEqual(len(target_module_1_submodule_1.data), 3)
         self.assertEqual(target_module_1_submodule_1.data[0].type(), "class")
         self.assertEqual(target_module_1_submodule_1.data[0].name(), "BaseClass1")
@@ -691,7 +695,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(target_module_1_submodule_1.child_modules), 0)
         self.assertEqual(len(target_module_1_submodule_1.dependencies), 0)
 
-        target_module_2 = actual_gen_info_3.get_target("module_2.py")
+        target_module_2 = actual_gen_info_2.get_target("module_2.py")
         self.assertEqual(len(target_module_2.data), 1)
         self.assertEqual(target_module_2.data[0].type(), "function")
         self.assertEqual(target_module_2.data[0].name(), "function_1")
@@ -701,6 +705,69 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEquals(target_module_2.dependencies[0].type_lists, ["ClassA"])
         self.assertEqual(target_module_2.dependencies[1].mod_name, "module_1.submodule_1")
         self.assertEquals(target_module_2.dependencies[1].type_lists, ["BaseClass1"])
+
+    def test_exceptional_rule(self):
+        rule_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_exceptional_rule.rst"),
+        ]
+
+        config = PackageGeneratorConfig()
+        config.output_dir = self.output_dir
+        config.os = "Linux"
+        config.style_format = "none"
+        config.dump = True
+        config.blender_version = "2.80"
+        config.mod_version = None
+        config.support_bge = False
+
+        analyzer = BaseAnalyzer()
+        generator = BaseGenerator()
+        rule = PackageGenerationRule("rule", rule_rst_files,
+                                     analyzer, generator)
+
+        pkg_analyzer = PackageAnalyzer(config, [rule])
+        pkg_analyzer.analyze()
+
+        pkg_struct = pkg_analyzer.package_structure()
+        self.assertDictEqual(pkg_struct.to_dict(), {
+            "name": None,
+            "children": [
+                {
+                    "name": "module_exceptional",
+                    "children": [],
+                }
+            ]
+        })
+
+        entries = pkg_analyzer.entry_points()
+        actual_entries = set([e.fullname() for e in entries])
+        expect_entries = {
+            "module_exceptional.ClassExp",
+            "module_exceptional.function_with_type_hint",
+        }
+        self.assertSetEqual(expect_entries, actual_entries)
+
+        gen_info = pkg_analyzer.generation_info()
+        self.assertEqual(len(gen_info.keys()), 1)
+        actual_rule = None
+        actual_gen_info = None
+        for k in gen_info.keys():
+            if k.name() == "rule":
+                actual_rule = k
+                actual_gen_info = gen_info[k]
+        self.assertIsNotNone(actual_rule)
+        self.assertIsNotNone(actual_gen_info)
+
+        self.assertEquals(set(actual_gen_info.targets()), {"module_exceptional.py"})
+
+        target_module_abc = actual_gen_info.get_target("module_exceptional.py")
+        self.assertEqual(len(target_module_abc.data), 2)
+        self.assertEqual(target_module_abc.data[0].type(), "class")
+        self.assertEqual(target_module_abc.data[0].name(), "ClassExp")
+        self.assertEqual(target_module_abc.data[1].type(), "function")
+        self.assertEqual(target_module_abc.data[1].name(), "function_with_type_hint")
+        self.assertEqual(len(target_module_abc.child_modules), 0)
+        self.assertEqual(len(target_module_abc.dependencies), 0)
 
 
 class PackageGeneratorTest(common.FakeBpyModuleTestBase):
@@ -722,8 +789,8 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_base_dir)
 
     def test_single_rules(self):
-        rule_1_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_1_a.rst"),
+        rule_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_single_rule.rst"),
         ]
 
         config = PackageGeneratorConfig()
@@ -731,6 +798,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
+        config.blender_version = "2.80"
         config.mod_version = "2.80"
         config.support_bge = False
 
@@ -738,10 +806,10 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
+        rule = PackageGenerationRule("rule", rule_rst_files,
                                        analyzer, generator)
 
-        pkg_generator.add_rule(rule_1)
+        pkg_generator.add_rule(rule)
         pkg_generator.generate()
 
         expect_files_dir = "{}/package_generator_test_single_rule".format(self.data_dir)
@@ -774,12 +842,12 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertDictEqual(expect_json, actual_json)
 
     def test_multiple_rules(self):
-        rule_2_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_2_a.rst"),
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_2_b.rst"),
+        rule_1_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_1_a.rst"),
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_1_b.rst"),
         ]
-        rule_3_rst_files = [
-            "{}/{}".format(self.data_dir, "package_analyzer_test_rule_3_a.rst"),
+        rule_2_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_multiple_rules_2.rst"),
         ]
 
         config = PackageGeneratorConfig()
@@ -787,6 +855,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
+        config.blender_version = "2.80"
         config.mod_version = None
         config.support_bge = False
 
@@ -794,16 +863,16 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
+        rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
-        rule_3 = PackageGenerationRule("rule_3", rule_3_rst_files,
+        rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
 
+        pkg_generator.add_rule(rule_1)
         pkg_generator.add_rule(rule_2)
-        pkg_generator.add_rule(rule_3)
         pkg_generator.generate()
 
         expect_files_dir = "{}/package_generator_test_multiple_rules".format(self.data_dir)
@@ -826,6 +895,59 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             "module_1/__init__.py-dump.json",
             "module_1/submodule_1.py-dump.json",
             "module_2.py-dump.json",
+        ]
+        for file_ in json_files:
+            expect_file_path = "{}/{}".format(expect_files_dir, file_)
+            actual_file_path = "{}/{}".format(actual_files_dir, file_)
+            with open(expect_file_path, "r") as f:
+                expect_json = { "data": json.load(f) }
+            with open(actual_file_path, "r") as f:
+                self.log("============= {} =============".format(actual_file_path))
+                data = json.load(f)
+                self.log(str(data))
+                actual_json = { "data": data }
+            self.assertDictEqual(expect_json, actual_json)
+
+    def test_exceptional_rules(self):
+        rule_rst_files = [
+            "{}/{}".format(self.data_dir, "package_analyzer_test_exceptional_rule.rst"),
+        ]
+
+        config = PackageGeneratorConfig()
+        config.output_dir = self.output_dir
+        config.os = "Linux"
+        config.style_format = "pep8"
+        config.dump = True
+        config.blender_version = "2.80"
+        config.mod_version = None
+        config.support_bge = False
+
+        pkg_generator = PackageGenerator(config)
+
+        analyzer = BaseAnalyzer()
+        generator = BaseGenerator()
+        rule = PackageGenerationRule("rule", rule_rst_files,
+                                       analyzer, generator)
+
+        pkg_generator.add_rule(rule)
+        pkg_generator.generate()
+
+        expect_files_dir = "{}/package_generator_test_exceptional_rule".format(self.data_dir)
+        actual_files_dir = self.output_dir
+
+        py_files = [
+            "module_exceptional.py",
+        ]
+        for file_ in py_files:
+            expect_file_path = "{}/{}".format(expect_files_dir, file_)
+            actual_file_path = "{}/{}".format(actual_files_dir, file_)
+            with open(actual_file_path, "r") as f:
+                self.log("============= {} =============".format(actual_file_path))
+                self.log(f.read())
+            self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
+
+        json_files = [
+            "module_exceptional.py-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = "{}/{}".format(expect_files_dir, file_)

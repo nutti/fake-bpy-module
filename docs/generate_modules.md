@@ -70,7 +70,7 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 
 ```bash
 cd fake-bpy-module/src
-bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
+bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <blender-version> <output-dir> <mod-version>
 ```
 
 * `<source-dir>`: Specify Blender sources directory.
@@ -78,8 +78,9 @@ bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <
 * `<branch/tag/commit>`: Specify target Blender source's branch for the generating modules.
   * If you want to generate modules for 2.79, specify `v2.79`
   * If you want to generate modules for newest Blender version, specify `master`
+* `<blender-version>`: Specify blender version.
 * `<output-dir>`: Specify directory where generated modules are output.
-* `<mod_version>`: Modify APIs by using patch files located in `mods` directory.
+* `<mod-version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
   * Files located in `mods/common` directories will be used at any time.
 
@@ -160,10 +161,8 @@ https://github.com/nutti/fake-bpy-module/archive/master.zip
 cd fake-bpy-module/src
 
 mkdir -p mods/generated_mods
-${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile
-
-mkdir -p mods/generated_mods/gen_startup_modfile
-python gen_modfile/gen_startup_modfile.py -i ${BLENDER_BIN}/<blender-version>/scripts/startup -o mods/generated_mods/gen_startup_modfile/bpy.json
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o mods/generated_mods/gen_startup_modfile
 
 mkdir -p mods/generated_mods/gen_bgl_modfile
 python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.c -o mods/generated_mods/gen_bgl_modfile/bgl.json
@@ -175,7 +174,7 @@ python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/ge
 #### 7. Generate modules
 
 ```bash
-python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
+python gen.py -i <input-dir> -o <output-dir> -f <format> -b <blender-version> -m <mod-version>
 ```
 
 * `-i <input-dir>`: Specify input directory (The directory where .rst files are located in process 4). In this document, `<input-dir>` should be `${BLENDER_SRC}/doc/python_api/sphinx-in`.
@@ -183,6 +182,7 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -m <mod-version>
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with suffix `-dump.json`
 * `-f <format>`: Format the generated code by `<format>` convention.
   * `pep8`: Format generated code by pep8.
-* `-m <mod_version>`: Modify APIs by using patch files located in `mods` directory.
+* `-b <blender-version>`: Specify blender version.
+* `-m <mod-version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
   * Files located in `mods/common` directories will be used at any time.

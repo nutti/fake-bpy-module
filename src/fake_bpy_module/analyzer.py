@@ -100,21 +100,22 @@ class BaseAnalyzer:
 
         module_name = m.group(2)
 
-        if self.blender_version is not None and self.blender_version != "":
-            version = [int(sp) for sp in self.blender_version.split(".")]
-            if not self.support_bge:
-                if version == [2, 90]:
-                    if module_name.startswith("bpy.types."):
-                        module_name = module_name[:module_name.rfind(".")]
-                if version == [2, 91]:
-                    if module_name == "bpy.data":
-                        module_name = "bpy"
-                if version == [2, 92]:
-                    if module_name == "bpy.data":
-                        module_name = "bpy"
-                if version == [2, 93]:
-                    if module_name == "bpy.data":
-                        module_name = "bpy"
+        if not self.support_bge:
+            if self.blender_version == "2.90":
+                if module_name.startswith("bpy.types."):
+                    module_name = module_name[:module_name.rfind(".")]
+            elif self.blender_version == "2.91":
+                if module_name == "bpy.data":
+                    module_name = "bpy"
+            elif self.blender_version == "2.92":
+                if module_name == "bpy.data":
+                    module_name = "bpy"
+            elif self.blender_version == "2.93":
+                if module_name == "bpy.data":
+                    module_name = "bpy"
+            elif self.blender_version == "latest":
+                if module_name == "bpy.data":
+                    module_name = "bpy"
 
         return module_name
 
@@ -806,8 +807,8 @@ class BaseAnalyzer:
                     info.add_parameter_details(detail["parameters"])
                     if detail["return"] is not None:
                         info.set_return(detail["return"])
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning)::", line):
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning)::", line).group(1)
+                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning|literalinclude)::", line):
+                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning|literalinclude)::", line).group(1)
                     self._skip_until_next_le_level(file, level=level.make_next_level(next_level_spaces))
                 elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):
                     next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line).group(1)

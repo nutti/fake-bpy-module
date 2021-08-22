@@ -127,6 +127,8 @@ class BaseGenerator:
                     wt.addln(":param {}: {}".format(p["name"], p["description"]))
                 if p["data_type"] != "":
                     wt.addln(":type {}: {}".format(p["name"], p["data_type"]))
+            if data["return"]["data_type"] != "":
+                wt.addln(":rtype: {}".format(data["return"]["data_type"]))
             if data["return"]["description"] != "":
                 wt.addln(":return: {}".format(data["return"]["description"]))
             wt.addln("'''")
@@ -475,6 +477,7 @@ class PackageGeneratorConfig:
         self.os: str = "Linux"
         self.style_format: str = "pep8"
         self.dump: bool = False
+        self.blender_version: str = None
         self.mod_version: str = None
         self.support_bge: bool = False
 
@@ -531,9 +534,8 @@ class PackageAnalyzer:
         # analyze all .rst files
         if self._config.support_bge:
             rule.analyzer().enable_bge_support()
-        # TODO: introduce blender_version to PackageGeneratorConfig
-        if self._config.mod_version is not None:
-            rule.analyzer().set_blender_version(self._config.mod_version)
+        if self._config.blender_version is not None:
+            rule.analyzer().set_blender_version(self._config.blender_version)
         result = rule.analyzer().analyze(target_files)
 
         return result
@@ -939,6 +941,74 @@ class PackageAnalyzer:
 
         return processed_info
 
+    def _add_keyword_only_argument(self,
+                                   gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+        processed_info = GenerationInfoByTarget()
+        processed_info.name = gen_info.name
+        processed_info.external_modules = gen_info.external_modules
+        processed_info.dependencies = gen_info.dependencies
+        processed_info.child_modules = gen_info.child_modules
+
+        def fix(params: List[str]) -> List[str]:
+            found_default_arg = False
+            keyword_only_arg_position = -1
+            for i, p in enumerate(params):
+                if "=" in p:
+                    found_default_arg = True
+                else:
+                    if found_default_arg and keyword_only_arg_position == -1:
+                        keyword_only_arg_position = i - 1
+
+            fixed_params = []
+            for i, p in enumerate(params):
+                fixed_params.append(p)
+                if i == keyword_only_arg_position:
+                    fixed_params.append("*")
+
+            return fixed_params
+
+        for info in gen_info.data:
+            if info.type() == "function":
+                info.set_parameters(fix(info.parameters()))
+
+            elif info.type() == "class":
+                for m in info.methods():
+                    m.set_parameters(fix(m.parameters()))
+
+            processed_info.data.append(info)
+
+        return processed_info
+
+    def _remove_type_hint(self, gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+        processed_info = GenerationInfoByTarget()
+        processed_info.name = gen_info.name
+        processed_info.external_modules = gen_info.external_modules
+        processed_info.dependencies = gen_info.dependencies
+        processed_info.child_modules = gen_info.child_modules
+
+        def fix(params: List[str]) -> List[str]:
+            fixed_params = []
+            for p in params:
+                m = re.search(r"[a-zA-Z0-9]+: [a-zA-Z0-9]", p)
+                if m:
+                    fixed_params.append(p[:m.start()+1])
+                else:
+                    fixed_params.append(p)
+
+            return fixed_params
+
+        for info in gen_info.data:
+            if info.type() == "function":
+                info.set_parameters(fix(info.parameters()))
+
+            elif info.type() == "class":
+                for m in info.methods():
+                    m.set_parameters(fix(m.parameters()))
+
+            processed_info.data.append(info)
+
+        return processed_info
+
     # map between result of analyze and module structure
     def _build_generation_info(self,
                                package_structure: 'ModuleStructure',
@@ -955,6 +1025,8 @@ class PackageAnalyzer:
             for target in generation_info[rule].targets():
                 info = self._remove_duplicate(generation_info[rule].get_target(target))
                 info = self._rewrite_data_type(refiner, info)
+                info = self._add_keyword_only_argument(info)
+                info = self._remove_type_hint(info)
                 generation_info[rule].update_target(target, info)
 
         return generation_info

@@ -28,10 +28,16 @@ You can install it as a pip package.
 pip install fake-bpy-module-<version>
 ```
 
-If you install fake-bpy-module for Blender 2.8, run below command.
+If you install fake-bpy-module for Blender 2.93, run below command.
 
 ```sh
-pip install fake-bpy-module-2.80
+pip install fake-bpy-module-2.93
+```
+
+If you install fake-bpy-module for Blender latest build (master branch daily build powered by [nutti/blender-daily-build](https://github.com/nutti/blender-daily-build)), run below command.
+
+```sh
+pip install fake-bpy-module-latest
 ```
 
 *Note: For PyCharm users, change the value `idea.max.intellisense.filesize` in `idea.properties` file to more than 2600 because some modules have the issue of being too big for intelliSense to work.*
@@ -50,6 +56,7 @@ pip install fake-bpy-module-2.80
 |2.91|https://pypi.org/project/fake-bpy-module-2.91/|
 |2.92|https://pypi.org/project/fake-bpy-module-2.92/|
 |2.93|https://pypi.org/project/fake-bpy-module-2.93/|
+|latest|https://pypi.org/project/fake-bpy-module-latest/|
 
 
 ### Install via pre-generated modules

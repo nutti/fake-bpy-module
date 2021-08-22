@@ -47,6 +47,7 @@ def function_1(param_1: int = 10, param_2: typing.List['ClassA']) -> bool:
     :type param_1: int
     :param param_2: param_2 description
     :type param_2: typing.List['ClassA']
+    :rtype: bool
     :return: return description
     '''
 
