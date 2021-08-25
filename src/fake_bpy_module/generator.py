@@ -1064,6 +1064,7 @@ class PackageGenerator:
                     if len(item.children()) >= 1:
                         dir_path = path + "/" + item.name
                         pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+                        self._create_py_typed_file(dir_path)
                         if dir_path == base_path:
                             continue
                         make_dir(dir_path, item)
@@ -1091,6 +1092,11 @@ class PackageGenerator:
                   generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule']):
         for rule in generation_info.keys():
             self._generate_by_rule(rule, package_strcuture, generation_info[rule])
+
+    def _create_py_typed_file(self, directory: str):
+        filename = "{}/py.typed".format(directory)
+        with open(filename, "w", encoding="utf-8", newline="\n") as file:
+            file.write("")
 
     def add_rule(self, rule: 'PackageGenerationRule'):
         self._rules.append(rule)

@@ -32,7 +32,13 @@ def parse_options(config: ImportModuleTestConfig):
 def generate_tests(config: ImportModuleTestConfig) -> list:
     # Search modules to test.
     files = glob.glob("{}/*".format(config.modules_path), recursive=False)
-    module_names = [os.path.splitext(os.path.basename(f))[0] for f in files]
+    module_names = []
+    for f in files:
+        basename = os.path.basename(f)
+        if basename == "py.typed":
+            continue
+        module_name = os.path.splitext(basename)[0]
+        module_names.append(module_name)
 
     # Load template.
     script_dir = os.path.dirname(__file__)

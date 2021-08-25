@@ -28,6 +28,10 @@ except IOError:
 py_modules = list(set(glob.glob("*.py")) - {"setup.py"})
 py_modules = [os.path.splitext(m)[0] for m in py_modules]
 
+# find python packages and setup package data
+packages = find_packages()
+package_data = {pkg:["py.typed"] for pkg in packages}
+
 setup(
     name=module_name,
     version=release_version,
@@ -39,7 +43,9 @@ setup(
     description="Collection of the fake Blender Python API module for the code completion.",
     long_description=long_description,
     py_modules=py_modules,
-    packages=find_packages(),
+    package_data=package_data,
+    packages=packages,
+    zip_safe=False,
     python_requires=">=3.7",
     license="MIT",
     classifiers=[
