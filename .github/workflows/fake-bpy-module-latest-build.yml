@@ -63,7 +63,7 @@ jobs:
         run: sudo apt-get install -y pandoc
 
       - name: Download latest Blender files from nutti/blender-daily-build artifacts
-        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTIONS }}
+        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTION_BLENDER_DAILY_BUILD }}
 
         # alternatively to the github checkout, you can also use git.blender.org. See below.
       - name: Checkout Blender from Github
