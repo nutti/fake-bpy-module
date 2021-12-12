@@ -1,7 +1,22 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20210701...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20211212...master)
+
+
+## [20211212](https://github.com/nutti/fake-bpy-module/compare/20210701...20211212) - 2021.12.12
+
+
+### Updated Features
+
+* Support fake-bpy-module-3.0
+* Support fake-bpy-module-latest
+* Include py.typed file in the module
+
+
+### Contributors
+
+* [**@kant**](https://github.com/kant)
 
 
 ## [20210701](https://github.com/nutti/fake-bpy-module/compare/20210304...20210701) - 2021.7.1
