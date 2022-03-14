@@ -125,6 +125,9 @@ function workaround_quirks() {
         # from base class. It is not clear why pylint does not handle this gracefully, so "fixing" it for pylint.
         echo "Fixing pylint quirk: \".draw_panel_header(self.layout)\""
         sed -i 's/.draw_panel_header(self.layout)/.draw_panel_header(self, layout)/' intern/cycles/blender/addon/ui.py
+
+        echo "Fixing pylint quirk: \"draw_hair_settings(self, context)\""
+        sed -i 's/draw_hair_settings(self, context)/draw_hair_settings(context)/' intern/cycles/blender/addon/ui.py
     fi
 
     if [[ $version =~ ^2.7[89]$ ]]; then
