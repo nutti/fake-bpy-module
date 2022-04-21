@@ -1027,7 +1027,8 @@ class BaseAnalyzer:
                       re.match(r"^\.\. note,", line) or
                       re.match(r"^\.\.$", line) or
                       re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line) or
-                      re.match(r"^   :Attributes:", line)):
+                      re.match(r"^   :Attributes:", line) or
+                      re.match(r"^\s+\.\. deprecated::", line)):
                     self._skip_until_next_le_level(file, level=RstLevel())
                 elif re.match(r"^\.\.", line):
                     self._invalid_line(line, 0)
