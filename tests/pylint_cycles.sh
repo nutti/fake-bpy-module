@@ -128,6 +128,9 @@ function workaround_quirks() {
 
         echo "Fixing pylint quirk: \"draw_hair_settings(self, context)\""
         sed -i 's/draw_hair_settings(self, context)/draw_hair_settings(context)/' intern/cycles/blender/addon/ui.py
+
+        echo "Fixing pylint quirk: \"draw_curves_settings(self, context)\""
+        sed -i 's/draw_curves_settings(self, context)/draw_curves_settings(context)/' intern/cycles/blender/addon/ui.py
     fi
 
     if [[ $version =~ ^2.7[89]$ ]]; then
