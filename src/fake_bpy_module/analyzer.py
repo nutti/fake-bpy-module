@@ -116,6 +116,9 @@ class BaseAnalyzer:
             elif self.blender_version == "3.0":
                 if module_name == "bpy.data":
                     module_name = "bpy"
+            elif self.blender_version == "3.1":
+                if module_name == "bpy.data":
+                    module_name = "bpy"
             elif self.blender_version == "latest":
                 if module_name == "bpy.data":
                     module_name = "bpy"
