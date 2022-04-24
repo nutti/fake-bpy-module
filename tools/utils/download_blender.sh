@@ -6,7 +6,7 @@ set -eEu
 SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "2.90" "2.91" "2.92" "2.93"
-    "3.0"
+    "3.0" "3.1"
     "all"
 )
 
@@ -22,6 +22,7 @@ declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
     ["v2.92"]=""
     ["v2.93"]=""
     ["v3.0"]=""
+    ["v3.1"]=""
 )
 
 declare -A BLENDER_DOWNLOAD_URL_WIN64=(
@@ -36,6 +37,7 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0-windows64.zip"
     ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.0-windows64.zip"
     ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0-windows-x64.zip"
+    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0-windows-x64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -50,6 +52,7 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0-linux64.tar.xz"
     ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.1-linux-x64.tar.xz"
     ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0-linux-x64.tar.xz"
+    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0-linux-x64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -72,6 +75,7 @@ declare -A NEED_MOVE_LINUX=(
     ["v2.92"]="blender-2.92.0-linux64"
     ["v2.93"]="blender-2.93.1-linux-x64"
     ["v3.0"]="blender-3.0.0-linux-x64"
+    ["v3.1"]="blender-3.1.0-linux-x64"
 )
 
 declare -A BLENDER_CHECKSUM_URL=(
@@ -86,6 +90,7 @@ declare -A BLENDER_CHECKSUM_URL=(
     ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0.md5"
     ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.1.md5"
     ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0.md5"
+    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0.md5"
 )
 
 function get_extractor() {
