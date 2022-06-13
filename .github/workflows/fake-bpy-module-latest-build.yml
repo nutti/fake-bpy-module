@@ -95,6 +95,17 @@ jobs:
       - name: Test generated pip module against Cycles addon
         run: bash tests/pylint_cycles.sh latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
 
+      - name: Collect failure state
+        if: failure()
+        run: bash tools/collect_failure_state/collect_failure_state.sh failure_state
+
+      - name: Store failure state
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: failure_state
+          path: failure_state
+
   pypi_release_test:
     name: PyPI Release test
     needs: [build_modules]
