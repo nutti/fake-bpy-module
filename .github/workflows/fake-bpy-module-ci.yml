@@ -117,6 +117,17 @@ jobs:
         # For example: 00:29:45 UTC will create a file version "...dev2945-py3-none..." and not use {{ module_version}} "...dev002945-py3-none..."
         run: bash tests/pylint_cycles.sh ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
 
+      - name: Collect failure state
+        if: failure()
+        run: bash tools/collect_failure_state/collect_failure_state.sh failure_state_${{ matrix.blender_version}}
+
+      - name: Store failure state
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: failure_state_${{ matrix.blender_version}}
+          path: failure_state_${{ matrix.blender_version}}
+
   pypi_release_test:
     name: PyPI Release test
     needs: [build_modules]
