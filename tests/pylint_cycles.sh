@@ -18,7 +18,7 @@ declare -r IGNORED_PYLINT_ERRORS=(
 declare -r SUPPORTED_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "2.90" "2.91" "2.92" "2.93"
-    "3.0" "3.1"
+    "3.0" "3.1" "3.2"
     "latest"
 )
 
@@ -35,6 +35,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v2.93"]="v2.93.0"
     ["v3.0"]="v3.0.0"
     ["v3.1"]="v3.1.0"
+    ["v3.2"]="v3.2.0"
     ["vlatest"]="master"
 )
 
