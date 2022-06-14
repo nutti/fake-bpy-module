@@ -58,6 +58,7 @@ pip install fake-bpy-module-latest
 |2.93|https://pypi.org/project/fake-bpy-module-2.93/|
 |3.0|https://pypi.org/project/fake-bpy-module-3.0/|
 |3.1|https://pypi.org/project/fake-bpy-module-3.1/|
+|3.2|https://pypi.org/project/fake-bpy-module-3.2/|
 |latest|https://pypi.org/project/fake-bpy-module-latest/|
 
 
