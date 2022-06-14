@@ -684,7 +684,7 @@ class BaseAnalyzer:
 
     def _parse_function(self, file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
         line = self._get_multiline_string(file, level)
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (function|method):: ([a-zA-Z0-9_]+)\s*\((.*)\)"
+        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (function|method|staticmethod):: ([a-zA-Z0-9_]+)\s*\((.*)\)"
         m = re.match(pattern, line)
         if m is None:
             self._invalid_line(line, level)
@@ -1001,7 +1001,7 @@ class BaseAnalyzer:
                         file.seek(last_pos)
                         function_info = self._parse_function(file, level=RstLevel())
                         section.add_info(function_info)
-                elif re.match(r"^\.\. method::", line):
+                elif re.match(r"^\.\. (method|staticmethod)::", line):
                     file.seek(last_pos)
                     function_info = self._parse_function(file, level=RstLevel())
                     section.add_info(function_info)
