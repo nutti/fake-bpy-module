@@ -1,7 +1,21 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20211212...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20220615...master)
+
+
+## [20220615](https://github.com/nutti/fake-bpy-module/compare/20211212...20220615) - 2022.6.15
+
+
+### Updated Features
+
+* Support fake-bpy-module-3.1
+* Support fake-bpy-module-3.2
+
+
+### Other Updates
+
+* Fix bugs
 
 
 ## [20211212](https://github.com/nutti/fake-bpy-module/compare/20210701...20211212) - 2021.12.12
