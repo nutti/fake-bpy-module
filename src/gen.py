@@ -106,7 +106,10 @@ def make_imbuf_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerat
 
 def make_bl_math_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bl_math*.rst")
-    return fbm.PackageGenerationRule("bl_math", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    mod_files = []
+    if config.mod_version in ["2.90", "2.91", "2.92", "2.93"]:
+         mod_files.append("{}/mods/{}/analyzer/bl_math.json".format(MOD_FILES_DIR, config.mod_version).replace("\\", "/"))
+    return fbm.PackageGenerationRule("bl_math", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:
     mod_files = glob.glob("{}/mods/generated_mods/gen_modules_modfile/*.json".format(MOD_FILES_DIR).replace("\\", "/"))
