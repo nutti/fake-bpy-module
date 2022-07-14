@@ -1,0 +1,25 @@
+{
+    "update": [
+      {
+        "name": "lerp",
+        "type": "function",
+        "module": "bl_math",
+        "parameters": [
+          "from_value",
+          "to_value",
+          "factor"
+        ]
+      },
+      {
+        "name": "smoothstep",
+        "type": "function",
+        "module": "bl_math",
+        "parameters": [
+          "from_value",
+          "to_value",
+          "factor"
+        ]
+      }
+    ]
+  }
+  
