@@ -96,6 +96,17 @@ def make_bmesh_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerat
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
     return fbm.PackageGenerationRule("bmesh", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
+def make_idprop_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+    files = glob.glob(INPUT_DIR + "/idprop*.rst")
+    return fbm.PackageGenerationRule("idprop", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+
+def make_imbuf_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+    files = glob.glob(INPUT_DIR + "/imbuf*.rst")
+    return fbm.PackageGenerationRule("imbuf", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+
+def make_bl_math_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+    files = glob.glob(INPUT_DIR + "/bl_math*.rst")
+    return fbm.PackageGenerationRule("bl_math", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:
     mod_files = glob.glob("{}/mods/generated_mods/gen_modules_modfile/*.json".format(MOD_FILES_DIR).replace("\\", "/"))
@@ -192,6 +203,9 @@ def main():
     pkg_generator.add_rule(make_bpy_extras_rule(config))
     pkg_generator.add_rule(make_aud_rule(config))
     pkg_generator.add_rule(make_bmesh_rule(config))
+    pkg_generator.add_rule(make_idprop_rule(config))
+    pkg_generator.add_rule(make_imbuf_rule(config))
+    pkg_generator.add_rule(make_bl_math_rule(config))
     for rule in make_other_rules(config):
         pkg_generator.add_rule(rule)
     pkg_generator.generate()
