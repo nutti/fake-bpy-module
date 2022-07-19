@@ -1176,3 +1176,42 @@ class AnalyzerWithModFile(BaseAnalyzer):
     def _modify(self, result: 'AnalysisResult'):
         self._modify_with_mod_files(result)
         self._modify_post_process(result)
+
+class BpyModuleAnalyzer(AnalyzerWithModFile):
+    def __init__(self, mod_files: List[str]):
+        super(BpyModuleAnalyzer, self).__init__(mod_files)
+
+    def _add_bpy_ops_override_parameters(self, result: 'AnalysisResult'):
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bpy.ops", info.module()):
+                    continue
+                if info.type() != "function":
+                    continue
+
+                func_info: 'FunctionInfo' = info
+
+                func_info.add_parameter("override_context=None", 0)
+                param_detail = ParameterDetailInfo()
+                param_detail.set_name("override_context")
+                param_detail.set_data_type(IntermidiateDataType("dict"))
+                func_info.add_parameter_detail(param_detail, 0)
+
+                func_info.add_parameter("execution_context=None", 1)
+                param_detail = ParameterDetailInfo()
+                param_detail.set_name("execution_context")
+                param_detail.set_data_type(IntermidiateDataType("str, int"))
+                func_info.add_parameter_detail(param_detail, 1)
+
+                func_info.add_parameter("undo=None", 2)
+                param_detail = ParameterDetailInfo()
+                param_detail.set_name("undo")
+                param_detail.set_data_type(IntermidiateDataType("bool"))
+                func_info.add_parameter_detail(param_detail, 2)
+
+                if len(func_info.parameters()) >= 4:
+                    func_info.add_parameter("*", 3)
+
+    def _modify(self, result: 'AnalysisResult'):
+        super(BpyModuleAnalyzer, self)._modify(result)
+        self._add_bpy_ops_override_parameters(result)
