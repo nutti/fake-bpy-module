@@ -620,13 +620,16 @@ class FunctionInfo(Info):
             raise RuntimeError("Out of range")
         self._parameters[idx] = param
 
-    def add_parameter(self, param: str):
+    def add_parameter(self, param: str, pos: int=-1):
         if param in self._parameters:
             output_log(LOG_LEVEL_WARN,
                        "Parameter {} is already registered in ({}), so skip to add this parameter."
                        .format(param, " | ".join(self._parameters)))
             return
-        self._parameters.append(param)
+        if pos == -1:
+            self._parameters.append(param)
+        else:
+            self._parameters.insert(pos, param)
 
     def add_parameters(self, params: List[str]):
         for p in params:
@@ -637,11 +640,14 @@ class FunctionInfo(Info):
             raise RuntimeError("Out of range")
         del self._parameters[idx]
 
-    def add_parameter_detail(self, param: 'ParameterDetailInfo'):
+    def add_parameter_detail(self, param: 'ParameterDetailInfo', pos: int=-1):
         if param.type() != "parameter":
             raise RuntimeError("Expected Info.type() is {} but {}."
                                .format("parameter", param.type()))
-        self._parameter_details.append(param)
+        if pos == -1:
+            self._parameter_details.append(param)
+        else:
+            self._parameter_details.insert(pos, param)
 
     def add_parameter_details(self, params: List['ParameterDetailInfo']):
         for p in params:

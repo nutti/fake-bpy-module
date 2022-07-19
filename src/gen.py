@@ -30,7 +30,7 @@ def make_bpy_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGeneratio
         "{}/mods/generated_mods/gen_startup_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
         "{}/mods/generated_mods/gen_modules_modfile/bpy.json".format(MOD_FILES_DIR).replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule("bpy", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
+    return fbm.PackageGenerationRule("bpy", files, fbm.BpyModuleAnalyzer(mod_files), fbm.BaseGenerator())
 
 
 def make_bgl_rule(config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
