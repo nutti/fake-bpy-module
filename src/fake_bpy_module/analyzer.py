@@ -1,9 +1,11 @@
 import re
 from typing import List, IO, Any
 import json
+import copy
 
 from .common import (
     IntermidiateDataType,
+    Info,
     ParameterDetailInfo,
     ReturnInfo,
     VariableInfo,
@@ -1194,7 +1196,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                 func_info.add_parameter("override_context=None", 0)
                 param_detail = ParameterDetailInfo()
                 param_detail.set_name("override_context")
-                param_detail.set_data_type(IntermidiateDataType("dict"))
+                param_detail.set_data_type(IntermidiateDataType("dict, bpy.types.Context"))
                 func_info.add_parameter_detail(param_detail, 0)
 
                 func_info.add_parameter("execution_context=None", 1)
@@ -1212,6 +1214,46 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                 if len(func_info.parameters()) >= 4:
                     func_info.add_parameter("*", 3)
 
+    def _make_bpy_context_variable(self, result: 'AnalysisResult'):
+        bpy_context_module_infos: List['VariableInfo'] = []
+        bpy_context_class_info: 'ClassInfo' = None
+        for section in result.section_info:
+            info_list_copied = copy.copy(section.info_list)
+            for info in info_list_copied:
+                if info.module() == "bpy.context":
+                    bpy_context_module_infos.append(info)
+                    section.info_list.remove(info)
+                if info.module() == "bpy.types" and info.type() == "class" and info.name() == "Context":
+                    bpy_context_class_info = info
+
+        if bpy_context_class_info is None:
+            output_log(LOG_LEVEL_WARN, "Failed to find bpy.types.Context")
+            return
+
+        attribute_names = [attr.name() for attr in bpy_context_class_info.attributes()]
+        for info_to_add in bpy_context_module_infos:
+            if info_to_add.type() != "constant":
+                raise Exception(f"{info_to_add.name()} (module: {info_to_add.module()}) must be constant")
+            if info_to_add.name() in attribute_names:
+                output_log(LOG_LEVEL_WARN, f"Attribute {info_to_add.name()} has already registered in bpy.types.Context")
+                continue
+            var_info = VariableInfo("attribute")
+            var_info.set_name(info_to_add.name())
+            var_info.set_module(bpy_context_class_info.module())
+            var_info.set_description(info_to_add.description())
+            var_info.set_class(bpy_context_class_info.name())
+            var_info.set_data_type(info_to_add.data_type())
+            bpy_context_class_info.add_attribute(var_info)
+
+        info = VariableInfo("constant")
+        info.set_name("context")
+        info.set_module("bpy")
+        info.set_data_type(IntermidiateDataType("bpy.types.Context"))
+        section = SectionInfo()
+        section.add_info(info)
+        result.section_info.append(section)
+
     def _modify(self, result: 'AnalysisResult'):
         super(BpyModuleAnalyzer, self)._modify(result)
         self._add_bpy_ops_override_parameters(result)
+        self._make_bpy_context_variable(result)

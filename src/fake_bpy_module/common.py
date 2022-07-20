@@ -623,8 +623,8 @@ class FunctionInfo(Info):
     def add_parameter(self, param: str, pos: int=-1):
         if param in self._parameters:
             output_log(LOG_LEVEL_WARN,
-                       "Parameter {} is already registered in ({}), so skip to add this parameter."
-                       .format(param, " | ".join(self._parameters)))
+                    "Parameter {} is already registered in ({}), so skip to add this parameter. (module: {}, name: {})"
+                       .format(param, " | ".join(self._parameters), self._module, self._name))
             return
         if pos == -1:
             self._parameters.append(param)
