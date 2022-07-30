@@ -30,6 +30,11 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
+    "Generic",
+]
+
+CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
+    "bpy.types.bpy_prop_collection",
 ]
 
 MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
@@ -59,6 +64,7 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "list": "typing.List",
     "dict": "typing.Dict",
     "set": "typing.Set",
+    "Generic": "typing.Generic"
 }
 
 
@@ -228,7 +234,7 @@ class ModifierDataType(DataType):
 
 
 class CustomDataType(DataType):
-    def __init__(self, data_type: str, modifier: str=None, modifier_add_info=None):
+    def __init__(self, data_type: str, modifier: str=None, modifier_add_info=None, skip_refine=False):
         if not isinstance(data_type, str):
             raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
 
@@ -238,9 +244,13 @@ class CustomDataType(DataType):
                              .format(MODIFIER_DATA_TYPE, modifier))
         self._modifier: str = modifier
         self._modifier_add_info = modifier_add_info
+        self._skip_refine = skip_refine
 
     def type(self) -> str:
         return 'CUSTOM'
+
+    def skip_refine(self):
+        return self._skip_refine
 
     def has_modifier(self) -> bool:
         return self._modifier is not None
@@ -271,6 +281,33 @@ class CustomDataType(DataType):
 
         return "{}['{}']".format(MODIFIER_DATA_TYPE_TO_TYPING[self._modifier],
                                  self._data_type)
+
+
+class CustomModifierDataType(CustomDataType):
+    def __init__(self, data_type: str, modifier: str=None, modifier_add_info=None, skip_refine=False):
+        if not isinstance(data_type, str):
+            raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
+
+        self._data_type: str = data_type
+        if (modifier is not None) and (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
+            raise ValueError("modifier must be {} but {}"
+                             .format(CUSTOM_MODIFIER_MODIFIER_DATA_TYPE, modifier))
+        self._modifier: str = modifier
+        self._modifier_add_info = modifier_add_info
+        self._skip_refine = skip_refine
+        self._output_modifier_name = modifier
+
+    def type(self) -> str:
+        return 'CUSTOM_MODIFIER'
+
+    def output_modifier_name(self) -> str:
+        return self._output_modifier_name
+
+    def set_output_modifier_name(self, modifier_name: str):
+        self._output_modifier_name = modifier_name
+
+    def to_string(self) -> str:
+        return "{}['{}']".format(self._output_modifier_name, self._data_type)
 
 
 class MixinDataType(DataType):
@@ -1187,7 +1224,7 @@ class DataTypeRefiner:
             if s1 and s2:
                 dtypes = [
                     CustomDataType(s1),
-                    CustomDataType(s2, "list")    # TODO: handle bpy_prop_collection
+                    CustomModifierDataType(s2, "bpy.types.bpy_prop_collection")
                 ]
                 return MixinDataType(dtypes)
 
@@ -1202,7 +1239,7 @@ class DataTypeRefiner:
         if m:
             s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, "list")    # TODO: handle bpy_prop_collection
+                return CustomModifierDataType(s, "bpy.types.bpy_prop_collection")
         # Ex: List of FEdge objects
         m = re.match(r"^List of ([A-Za-z0-9]+) objects$", dtype_str)
         if m:
@@ -1231,7 +1268,21 @@ class DataTypeRefiner:
         if m:
             s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, "list")   # TODO: handle BMElemSeq
+                dtypes = [
+                    CustomDataType(s, "list"),
+                    CustomDataType("bmesh.types.BMElemSeq")
+                ]
+                return MixinDataType(dtypes)
+
+        m = re.match(r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$", dtype_str)
+        if m:
+            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                dtypes = [
+                    CustomDataType(s.rstrip("Seq"), "list"),
+                    CustomDataType(s)
+                ]
+                return MixinDataType(dtypes)
 
         m = re.match(r"^dict with string keys$", dtype_str)
         if m:
@@ -1308,7 +1359,7 @@ class DataTypeRefiner:
                 s = s.strip()
                 result = self.new_get_refined_data_type_internal(s, uniq_full_names, uniq_module_names, module_name)
                 if result is not None:
-                    if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
+                    if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER', 'CUSTOM_MODIFIER']:
                         dtypes.append(result)
                     elif result.type() =='MIXIN':
                         dtypes.append(result.data_types())
@@ -1561,6 +1612,9 @@ class DataTypeRefiner:
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
 
+        if (data_type.type() in ['CUSTOM', 'CUSTOM_MODIFIER']) and data_type.skip_refine():
+            return data_type
+
         if data_type.type() != 'INTERMIDIATE':
             output_log(LOG_LEVEL_WARN, "data_type should be 'INTERMIDIATE' but {}".format(data_type.type()))
 
@@ -1580,7 +1634,7 @@ class DataTypeRefiner:
                 s = s.strip()
                 result = self._get_refined_data_type_fast(s, uniq_full_names, uniq_module_names, module_name)
                 if result is not None:
-                    if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
+                    if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER', 'CUSTOM_MODIFIER']:
                         dtypes.append(result)
                     elif result.type() =='MIXIN':
                         dtypes.append(result.data_types())

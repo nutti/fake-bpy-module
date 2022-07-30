@@ -1,6 +1,8 @@
 import sys
 import typing
 
+GenericType = typing.TypeVar("GenericType")
+
 
 class BaseClass1:
     ''' BaseClass1 description
