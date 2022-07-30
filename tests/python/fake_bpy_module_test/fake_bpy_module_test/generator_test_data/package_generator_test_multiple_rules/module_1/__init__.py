@@ -4,6 +4,8 @@ import module_1.submodule_1
 
 from . import submodule_1
 
+GenericType = typing.TypeVar("GenericType")
+
 
 class ClassA(module_1.submodule_1.BaseClass1):
     ''' ClassA description

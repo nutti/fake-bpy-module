@@ -4,8 +4,8 @@ import json
 import copy
 
 from .common import (
+    CustomDataType,
     IntermidiateDataType,
-    Info,
     ParameterDetailInfo,
     ReturnInfo,
     VariableInfo,
@@ -1253,7 +1253,42 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         section.add_info(info)
         result.section_info.append(section)
 
+    def _tweak_bpy_prop_collection(self, result: 'AnalysisResult'):
+        bpy_prop_collection_class_info: 'ClassInfo' = None
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bpy.types", info.module()):
+                    continue
+                if info.type() != "class":
+                    continue
+                if info.name() != "bpy_prop_collection":
+                    continue
+
+                bpy_prop_collection_class_info = info
+
+        # class bpy_prop_collection(Generic[GenericType]):
+        #     def __getitem__(self, key: Union[str, int]) -> GenericType:
+        info = FunctionInfo("method")
+        info.set_name("__getitem__")
+        info.set_parameters(["key"])
+        param_detail_info = ParameterDetailInfo()
+        param_detail_info.set_name("key")
+        param_detail_info.set_description("")
+        param_detail_info.set_data_type(IntermidiateDataType("int, str"))
+        info.set_parameter_details([param_detail_info])
+        info.set_class("bpy_prop_collection")
+        info.set_module("bpy.types")
+        return_info = ReturnInfo()
+        return_info.set_description("")
+        return_info.set_data_type(CustomDataType("GenericType", skip_refine=True))
+        info.set_return(return_info)
+        bpy_prop_collection_class_info.add_method(info)
+        bpy_prop_collection_class_info.add_base_class(
+            CustomDataType("GenericType", "Generic", skip_refine=True)
+        )
+
     def _modify(self, result: 'AnalysisResult'):
         super(BpyModuleAnalyzer, self)._modify(result)
         self._add_bpy_ops_override_parameters(result)
         self._make_bpy_context_variable(result)
+        self._tweak_bpy_prop_collection(result)

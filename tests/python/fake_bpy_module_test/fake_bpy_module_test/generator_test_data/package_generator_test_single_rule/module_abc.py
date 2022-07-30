@@ -1,6 +1,8 @@
 import sys
 import typing
 
+GenericType = typing.TypeVar("GenericType")
+
 
 class Class123:
     ''' Class123 description
