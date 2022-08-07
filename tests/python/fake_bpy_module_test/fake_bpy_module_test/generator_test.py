@@ -23,6 +23,7 @@ from fake_bpy_module.common import (
     BuiltinDataType,
     CustomDataType,
     MixinDataType,
+    ModifierDataType,
     VariableInfo,
     FunctionInfo,
     ParameterDetailInfo,
@@ -178,7 +179,7 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         param_info_1.set_description("param_1 description")
         param_info_1.set_data_type(param_data_type_1)
 
-        param_data_type_2 = CustomDataType("ClassA", modifier="list")
+        param_data_type_2 = CustomDataType("ClassA", modifier=ModifierDataType("list"))
         param_info_2 = ParameterDetailInfo()
         param_info_2.set_name("param_2")
         param_info_2.set_description("param_2 description")
@@ -218,7 +219,7 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         info.set_description("ClassA description")
 
         data_type_1 = BuiltinDataType("str")
-        data_type_2 = CustomDataType("custom_data_type", modifier="set")
+        data_type_2 = CustomDataType("custom_data_type", modifier=ModifierDataType("set"))
         mixin_data_type = MixinDataType([data_type_1, data_type_2])
         attr_info_1 = VariableInfo("attribute")
         attr_info_1.set_name("attr_1")
