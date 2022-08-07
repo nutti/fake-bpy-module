@@ -1200,6 +1200,10 @@ class DataTypeRefiner:
         m = re.match(r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1), ModifierDataType("list"))
+        # Ex: float triplet
+        m = re.match(r"^float triplet$", dtype_str)
+        if m:
+            return BuiltinDataType("float", ModifierDataType("tuple"))
         # Ex: int in [-inf, inf], default 0, (readonly)
         m = re.match(r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
         if m:
