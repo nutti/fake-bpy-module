@@ -252,18 +252,18 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         intermidiate_data_type = IntermidiateDataType("list of int")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
         self.assertEqual(refined_data_type.type(), 'BUILTIN')
-        self.assertEqual(refined_data_type.modifier(), "list")
+        self.assertEqual(refined_data_type.modifier().modifier_data_type(), "list")
         self.assertEqual(refined_data_type.data_type(), "int")
 
         intermidiate_data_type = IntermidiateDataType("dict")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
         self.assertEqual(refined_data_type.type(), 'MODIFIER')
-        self.assertEqual(refined_data_type.modifier(), "dict")
+        self.assertEqual(refined_data_type.modifier_data_type(), "dict")
 
         intermidiate_data_type = IntermidiateDataType("sequence ")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
         self.assertEqual(refined_data_type.type(), 'MODIFIER')
-        self.assertEqual(refined_data_type.modifier(), "list")
+        self.assertEqual(refined_data_type.modifier_data_type(), "list")
 
         intermidiate_data_type = IntermidiateDataType("float")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
@@ -286,7 +286,7 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         intermidiate_data_type = IntermidiateDataType("list of module_1.ClassC")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
         self.assertEqual(refined_data_type.type(), 'CUSTOM')
-        self.assertEqual(refined_data_type.modifier(), "list")
+        self.assertEqual(refined_data_type.modifier().modifier_data_type(), "list")
         self.assertEqual(refined_data_type.data_type(), "module_1.ClassC")
 
         intermidiate_data_type = IntermidiateDataType("module_1.ClassC")
@@ -312,7 +312,7 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
                     if actual.has_modifier():
                         return False
                 else:
-                    if expect["modifier"] != actual.modifier():
+                    if expect["modifier"] != actual.modifier().modifier_data_type():
                         return False
                 if expect["data_type"] is None:
                     if actual.has_modifier():
@@ -342,8 +342,6 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
                 for a in actual:
                     self.log("{}".format(a.to_string()))
             self.assertEqual(len(actual_copied), 0)
-
-
 
         intermidiate_data_type = IntermidiateDataType("(bpy_prop_collection of float)")
         refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")

@@ -6,6 +6,7 @@ import copy
 from .common import (
     CustomDataType,
     IntermidiateDataType,
+    ModifierDataType,
     ParameterDetailInfo,
     ReturnInfo,
     VariableInfo,
@@ -1284,7 +1285,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         info.set_return(return_info)
         bpy_prop_collection_class_info.add_method(info)
         bpy_prop_collection_class_info.add_base_class(
-            CustomDataType("GenericType", "Generic", skip_refine=True)
+            CustomDataType("GenericType", ModifierDataType("Generic"), skip_refine=True)
         )
 
     def _modify(self, result: 'AnalysisResult'):

@@ -753,8 +753,8 @@ class PackageAnalyzer:
             for d in data_type_1.data_types():
                 self._add_dependency(dependencies, refiner, d, data_type_2)
         else:
-            if data_type_1.type() == 'CUSTOM_MODIFIER':
-                register_dependency(data_type_1.modifier())
+            if data_type_1.has_modifier() and data_type_1.modifier().type() == 'CUSTOM_MODIFIER':
+                register_dependency(data_type_1.modifier().modifier_data_type())
             register_dependency(data_type_1.data_type())
 
     def _build_dependencies(self,
@@ -911,23 +911,26 @@ class PackageAnalyzer:
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
             new_modifier_name = refiner.get_generation_data_type(
-                data_type.output_modifier_name(), gen_info.name)
-            dt = CustomModifierDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
-            dt.set_output_modifier_name(new_modifier_name)
+                data_type.modifier().output_modifier_name(), gen_info.name)
+            dt = CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
+            dt.modifier().set_output_modifier_name(new_modifier_name)
             return dt
 
         def rewrite(info_to_rewrite: 'Info'):
             if info_to_rewrite.data_type().type() == 'CUSTOM':
-                info_to_rewrite.set_data_type(rewrite_to_generation_custom_data_type(info_to_rewrite.data_type()))
-            elif info_to_rewrite.data_type().type() == 'CUSTOM_MODIFIER':
-                info_to_rewrite.set_data_type(rewrite_to_generation_custom_modifier_data_type(info_to_rewrite.data_type()))
+                if info_to_rewrite.data_type().has_modifier() and info_to_rewrite.data_type().modifier().type() == 'CUSTOM_MODIFIER':
+                    info_to_rewrite.set_data_type(rewrite_to_generation_custom_modifier_data_type(info_to_rewrite.data_type()))
+                else:
+                    info_to_rewrite.set_data_type(rewrite_to_generation_custom_data_type(info_to_rewrite.data_type()))
             elif info_to_rewrite.data_type().type() == 'MIXIN':
                 mixin_dt = info_to_rewrite.data_type()
                 for i, d in enumerate(mixin_dt.data_types()):
                     if d.type() == 'CUSTOM':
-                        mixin_dt.set_data_type(i, rewrite_to_generation_custom_data_type(d))
-                    elif d.type() == 'CUSTOM_MODIFIER':
-                        mixin_dt.set_data_type(i, rewrite_to_generation_custom_modifier_data_type(d))
+                        if d.has_modifier() and d.modifier().type() == 'CUSTOM_MODIFIER':
+                            mixin_dt.set_data_type(i, rewrite_to_generation_custom_modifier_data_type(d))
+                        else:
+                            mixin_dt.set_data_type(i, rewrite_to_generation_custom_data_type(d))
+
 
         for info in gen_info.data:
             # rewrite function parameters and return value
@@ -958,9 +961,10 @@ class PackageAnalyzer:
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':
-                        info.set_base_class(i, rewrite_to_generation_custom_data_type(c))
-                    elif c.type() == 'CUSTOM_MODIFIER':
-                        info.set_base_class(i, rewrite_to_generation_custom_modifier_data_type(c))
+                        if c.has_modifier() and c.modifier().type() == 'CUSTOM_MODIFIER':
+                            info.set_base_class(i, rewrite_to_generation_custom_modifier_data_type(c))
+                        else:
+                            info.set_base_class(i, rewrite_to_generation_custom_data_type(c))
                     elif c.type() == 'MIXIN':
                         raise ValueError("Base classes must not be MixinDataType (Class: {}.{}, Data type: {})".format(info.module(), info.name(), c.to_string()))
 
