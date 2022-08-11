@@ -1239,6 +1239,15 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
 
+        # Ex: sequence of string tuples or a function
+        m = re.match(r"^sequence of string tuples or a function$", dtype_str)
+        if m:
+            dtypes = [
+                BuiltinDataType("int"),
+                BuiltinDataType("str"),
+                BuiltinDataType("str", ModifierDataType("set"))
+            ]
+            return MixinDataType(dtypes)
         # Ex: sequence of bpy.types.Action
         m = re.match(r"^sequence of ([a-zA-Z0-9_.]+)$", dtype_str)
         if m:
