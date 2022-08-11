@@ -5,6 +5,7 @@ import copy
 
 from .common import (
     CustomDataType,
+    DataType,
     IntermidiateDataType,
     ModifierDataType,
     ParameterDetailInfo,
@@ -1254,21 +1255,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         section.add_info(info)
         result.section_info.append(section)
 
-    def _tweak_bpy_prop_collection(self, result: 'AnalysisResult'):
-        bpy_prop_collection_class_info: 'ClassInfo' = None
-        for section in result.section_info:
-            for info in section.info_list:
-                if not re.match(r"^bpy.types", info.module()):
-                    continue
-                if info.type() != "class":
-                    continue
-                if info.name() != "bpy_prop_collection":
-                    continue
-
-                bpy_prop_collection_class_info = info
-
-        # class bpy_prop_collection(Generic[GenericType]):
-        #     def __getitem__(self, key: Union[str, int]) -> GenericType:
+    def _add_getitem_and_setitem(self, class_info: 'ClassInfo', type: str):
         info = FunctionInfo("method")
         info.set_name("__getitem__")
         info.set_parameters(["key"])
@@ -1277,19 +1264,55 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         param_detail_info.set_description("")
         param_detail_info.set_data_type(IntermidiateDataType("int, str"))
         info.set_parameter_details([param_detail_info])
-        info.set_class("bpy_prop_collection")
+        info.set_class(class_info.name())
         info.set_module("bpy.types")
         return_info = ReturnInfo()
         return_info.set_description("")
-        return_info.set_data_type(CustomDataType("GenericType", skip_refine=True))
+        return_info.set_data_type(CustomDataType(type, skip_refine=True))
         info.set_return(return_info)
-        bpy_prop_collection_class_info.add_method(info)
-        bpy_prop_collection_class_info.add_base_class(
-            CustomDataType("GenericType", ModifierDataType("Generic"), skip_refine=True)
-        )
+        class_info.add_method(info)
+
+        info = FunctionInfo("method")
+        info.set_name("__setitem__")
+        info.set_parameters(["key", "value"])
+        param_detail_info_key = ParameterDetailInfo()
+        param_detail_info_key.set_name("key")
+        param_detail_info_key.set_description("")
+        param_detail_info_key.set_data_type(IntermidiateDataType("int, str"))
+        param_detail_info_value = ParameterDetailInfo()
+        param_detail_info_value.set_name("value")
+        param_detail_info_value.set_description("")
+        param_detail_info_value.set_data_type(CustomDataType(type, skip_refine=True))
+        info.set_parameter_details([param_detail_info_key, param_detail_info_value])
+        info.set_class(class_info.name())
+        info.set_module("bpy.types")
+        class_info.add_method(info)
+
+    def _tweak_bpy_types_classes(self, result: 'AnalysisResult'):
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bpy.types", info.module()):
+                    continue
+                if info.type() != "class":
+                    continue
+                if info.name() == "bpy_prop_collection":
+                    # class bpy_prop_collection(Generic[GenericType]):
+                    #     def __getitem__(self, key: Union[str, int]) -> GenericType:
+                    #     def __setitem__(self, key: Union[str, int], value: GenericType):
+                    self._add_getitem_and_setitem(info, "GenericType")
+                    info.add_base_class(
+                        CustomDataType("GenericType", ModifierDataType("Generic"), skip_refine=True)
+                    )
+                elif info.name() == "bpy_struct":
+                    # class bpy_struct():
+                    #     def __getitem__(self, key: Union[str, int]) -> Any:
+                    #     def __setitem__(self, key: Union[str, int], value: Any):
+                    self._add_getitem_and_setitem(info, "typing.Any")
 
     def _modify(self, result: 'AnalysisResult'):
         super(BpyModuleAnalyzer, self)._modify(result)
         self._add_bpy_ops_override_parameters(result)
         self._make_bpy_context_variable(result)
-        self._tweak_bpy_prop_collection(result)
+
+        # After this, we could not infer data types as ItermidiateDataType
+        self._tweak_bpy_types_classes(result)

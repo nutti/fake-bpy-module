@@ -18,6 +18,7 @@ from .common import (
     EntryPoint,
 )
 from .utils import (
+    LOG_LEVEL_DEBUG,
     remove_unencodable,
     output_log,
     LOG_LEVEL_WARN,
@@ -285,16 +286,20 @@ class BaseGenerator:
         class_data : List['ClassInfo'] = []
         function_data : List['FunctionInfo'] = []
         constant_data : List['VariableInfo'] = []
+        high_priority_class_data : List['ClassInfo'] = []
         for d in data.data:
             if d.type() == "class":         # TODO: use class variable instead of "class", "function", "constant"
-                class_data.append(d)
+                if d.name() in ["bpy_prop_collection", "bpy_struct"]:
+                    high_priority_class_data.append(d)
+                else:
+                    class_data.append(d)
             elif d.type() == "function":
                 function_data.append(d)
             elif d.type() == "constant":
                 constant_data.append(d)
             else:
                 raise ValueError("Invalid data type. ({})".format(d.type))
-        class_data = sorted(class_data, key=lambda x: x.name())
+        class_data = high_priority_class_data + sorted(class_data, key=lambda x: x.name())
 
         # Sort class data (with class inheritance dependencies)
         graph = DAG()
@@ -307,6 +312,9 @@ class BaseGenerator:
                 if base_class.type() == 'MIXIN':
                     raise ValueError("DataType of base class must not be MixinDataType.")
                 elif base_class.type() == 'UNKNOWN':
+                    continue
+                if base_class.data_type() == class_.name():
+                    output_log(LOG_LEVEL_DEBUG, f"Self dependency {base_class.data_type()} is found.")
                     continue
                 base_class_node = class_name_to_nodes.get(base_class.data_type())
                 if base_class_node:
