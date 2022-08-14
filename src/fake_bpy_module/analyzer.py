@@ -1181,6 +1181,7 @@ class AnalyzerWithModFile(BaseAnalyzer):
         self._modify_with_mod_files(result)
         self._modify_post_process(result)
 
+
 class BpyModuleAnalyzer(AnalyzerWithModFile):
     def __init__(self, mod_files: List[str]):
         super(BpyModuleAnalyzer, self).__init__(mod_files)

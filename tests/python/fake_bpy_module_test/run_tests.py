@@ -32,6 +32,7 @@ def main():
     test_cases = [
         fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,
         fake_bpy_module_test.analyzer_test.AnalyzerWithModFileTest,
+        fake_bpy_module_test.analyzer_test.BpyModuleAnalyzerTest,
         fake_bpy_module_test.dag_test.DAGTest,
         fake_bpy_module_test.generator_test.CodeWriterIndentTest,
         fake_bpy_module_test.generator_test.CodeWriterTest,

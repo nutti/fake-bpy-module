@@ -1,5 +1,6 @@
 from . import common
 from fake_bpy_module.common import (
+    MixinDataType,
     ModuleStructure,
     EntryPoint,
     DataTypeRefiner,
@@ -464,3 +465,25 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         intermidiate_data_type = IntermidiateDataType("module_1.ClassZ")
         refined_data_type = refiner.get_refined_data_type(unknown_data_type, "module_1")
         self.assertEqual(refined_data_type.type(), 'UNKNOWN')
+
+    def test_get_refined_data_type_for_custom_modifier(self):
+        package = ModuleStructure()
+        module = ModuleStructure()
+        module.name = "module_1"
+        package.add_child(module)
+
+        entry_point = EntryPoint()
+        entry_point.type = "class"
+        entry_point.module = "module"
+        entry_point.name = "ClassA"
+
+        refiner = DataTypeRefiner(package, [entry_point])
+
+        intermidiate_data_type = IntermidiateDataType("bpy_prop_collection of ClassA , (readonly)")
+        refined_data_type = refiner.get_refined_data_type(intermidiate_data_type, "module_1")
+        self.assertEqual(refined_data_type.type(), 'CUSTOM')
+        self.assertEqual(refined_data_type.data_type(),"module.ClassA")
+        self.assertTrue(refined_data_type.has_modifier())
+        self.assertEqual(refined_data_type.modifier().type(), 'CUSTOM_MODIFIER')
+        self.assertEqual(refined_data_type.modifier().modifier_data_type(), "bpy.types.bpy_prop_collection")
+        self.assertEqual(refined_data_type.to_string(), "bpy.types.bpy_prop_collection['module.ClassA']")
