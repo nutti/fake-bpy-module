@@ -22,6 +22,7 @@ from fake_bpy_module.generator import (
 from fake_bpy_module.common import (
     BuiltinDataType,
     CustomDataType,
+    CustomModifierDataType,
     MixinDataType,
     ModifierDataType,
     VariableInfo,
@@ -281,6 +282,46 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         generator.generate(self.output_file_path, info, "pep8")
 
         expect_file_path = "{}/{}".format(self.data_dir, "base_generator_test_generate.py")
+        actual_file_path = self.output_file_path
+        with open(actual_file_path, "r") as f:
+            self.log(f.read())
+        self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
+
+    def test_generate_custom_modifier(self):
+        info = GenerationInfoByTarget()
+        info.name = "bpy.types"
+
+        bpy_struct_info = ClassInfo()
+        bpy_struct_info.set_name("bpy_prop_collection")
+        bpy_struct_info.set_module("bpy.types")
+        bpy_struct_info.add_base_class(CustomDataType("GenericType", ModifierDataType("Generic"), skip_refine=True))
+        info.data.append(bpy_struct_info)
+
+        attr_info = VariableInfo("attribute")
+        attr_info.set_name("attr_1")
+        attr_info.set_description("attr_1 description")
+        attr_info.set_data_type(CustomDataType("ClassB", CustomModifierDataType("bpy.types.bpy_prop_collection")))
+        attr_info.set_class("ClassA")
+        attr_info.set_module("bpy.types")
+
+        class_info = ClassInfo()
+        class_info.set_name("ClassA")
+        class_info.set_module("bpy.types")
+        class_info.add_attribute(attr_info)
+        info.data.append(class_info)
+
+        dep = Dependency()
+        dep.mod_name = "bpy.types"
+        dep.add_type("bpy_prop_collection")
+        dep.add_type("ClassB")
+        info.dependencies.append(dep)
+
+        info.external_modules.append("os")
+
+        generator = BaseGenerator()
+        generator.generate(self.output_file_path, info, "pep8")
+
+        expect_file_path = "{}/{}".format(self.data_dir, "base_generator_test_generate_custom_modifier.py")
         actual_file_path = self.output_file_path
         with open(actual_file_path, "r") as f:
             self.log(f.read())

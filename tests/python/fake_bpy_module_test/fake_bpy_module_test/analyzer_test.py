@@ -6,6 +6,7 @@ from . import common
 from fake_bpy_module.analyzer import (
     BaseAnalyzer,
     AnalyzerWithModFile,
+    BpyModuleAnalyzer,
 )
 from fake_bpy_module.common import (
     SectionInfo,
@@ -1963,3 +1964,274 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
         self.compare_dict_and_log(result.section_info[0].to_dict(),
                                   section_info.to_dict())
+
+
+class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
+
+    name = "BpyModuleAnalyzerTest"
+    module_name = __module__
+    data_dir = os.path.abspath("{}/analyzer_test_data".format(os.path.dirname(__file__)))
+
+    def setUp(self):
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+
+    def compare_dict_and_log(self, d1, d2):
+        json1 = json.dumps(d1, indent=4).split("\n")
+        json2 = json.dumps(d2, indent=4).split("\n")
+        diff = difflib.unified_diff(json1, json2)
+        self.log("\n".join(diff))
+        self.assertDictEqual(d1, d2)
+
+    def test_add_bpy_ops_override_parameters(self):
+        rst_files = ["add_bpy_ops_override_parameters.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BpyModuleAnalyzer([])
+        result = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(result.section_info), 1)
+
+        section_info = SectionInfo()
+
+        function_info = FunctionInfo("function")
+        function_info.from_dict({
+            "type": "function",
+            "name": "function_1",
+            "description": "function_1 description",
+            "module": "bpy.ops",
+            "parameters": ["override_context=None", "execution_context=None", "undo=None", "*", "arg_1"],
+            "parameter_details": [{
+                "type": "parameter",
+                "name": "override_context",
+                "description": "",
+                "data_type": "dict, bpy.types.Context",
+            },
+            {
+                "type": "parameter",
+                "name": "execution_context",
+                "description": "",
+                "data_type": "str, int",
+            },
+            {
+                "type": "parameter",
+                "name": "undo",
+                "description": "",
+                "data_type": "bool",
+            },
+            {
+                "type": "parameter",
+                "name": "arg_1",
+                "description": "function_1 arg_1 description",
+                "data_type": "function_1 arg_1 type",
+            }]
+        }, method='NEW')
+        section_info.add_info(function_info)
+
+        function_info = FunctionInfo("function")
+        function_info.from_dict({
+            "type": "function",
+            "name": "function_2",
+            "description": "function_2 description",
+            "module": "bpy.ops",
+            "parameters": ["override_context=None", "execution_context=None", "undo=None"],
+            "parameter_details": [{
+                "type": "parameter",
+                "name": "override_context",
+                "description": "",
+                "data_type": "dict, bpy.types.Context",
+            },
+            {
+                "type": "parameter",
+                "name": "execution_context",
+                "description": "",
+                "data_type": "str, int",
+            },
+            {
+                "type": "parameter",
+                "name": "undo",
+                "description": "",
+                "data_type": "bool",
+            }]
+        }, method='NEW')
+        section_info.add_info(function_info)
+
+        self.compare_dict_and_log(result.section_info[0].to_dict(),
+                                  section_info.to_dict())
+
+    def test_make_bpy_context_variable(self):
+        rst_files = ["make_bpy_context_variable_1.rst", "make_bpy_context_variable_2.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BpyModuleAnalyzer([])
+        result = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(result.section_info), 3)
+
+        section_info_bpy_types = SectionInfo()
+
+        class_info = ClassInfo()
+        class_info.from_dict({
+            "type": "class",
+            "name": "Context",
+            "module": "bpy.types",
+            "description": "context",
+            "attributes": [{
+                "type": "attribute",
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "class": "Context",
+                "module": "bpy.types",
+                "data_type": "attr_1 type",
+            },
+            {
+                "type": "attribute",
+                "name": "attr_2",
+                "description": "attr_2 description",
+                "class": "Context",
+                "module": "bpy.types",
+                "data_type": "attr_2 type",
+            }],
+            "methods": []
+        }, method='NEW')
+        section_info_bpy_types.add_info(class_info)
+
+        section_info_bpy_context = SectionInfo()
+
+        variable_info = VariableInfo("constant")
+        variable_info.from_dict({
+            "type": "constant",
+            "name": "context",
+            "description": "",
+            "module": "bpy",
+            "data_type": "bpy.types.Context",
+        }, method='NEW')
+        section_info_bpy_context.add_info(variable_info)
+
+        self.compare_dict_and_log(result.section_info[0].to_dict(),
+                                  section_info_bpy_types.to_dict())
+        self.assertEqual(len(result.section_info[1].info_list), 0)
+        self.compare_dict_and_log(result.section_info[2].to_dict(),
+                                  section_info_bpy_context.to_dict())
+
+    def test_tweak_bpy_types_classes(self):
+        rst_files = ["tweak_bpy_types_classes_1.rst", "tweak_bpy_types_classes_2.rst"]
+        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+
+        analyzer = BpyModuleAnalyzer([])
+        result = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(result.section_info), 2)
+
+        section_info_bpy_prop_collection = SectionInfo()
+
+        class_info = ClassInfo()
+        class_info.from_dict({
+            "type": "class",
+            "name": "bpy_prop_collection",
+            "module": "bpy.types",
+            "description": "bpy_prop_collection description",
+            "base_classes": [
+                "typing.Generic['GenericType']",
+            ],
+            "attributes": [],
+            "methods": [{
+                "type": "method",
+                "name": "__getitem__",
+                "description": "",
+                "class": "bpy_prop_collection",
+                "module": "bpy.types",
+                "parameters": ["key"],
+                "parameter_details": [{
+                    "type": "parameter",
+                    "name": "key",
+                    "description": "",
+                    "data_type": "int, str",
+                }],
+                "return": {
+                    "type": "return",
+                    "description": "",
+                    "data_type": "'GenericType'",
+                }
+            },
+            {
+                "type": "method",
+                "name": "__setitem__",
+                "description": "",
+                "class": "bpy_prop_collection",
+                "module": "bpy.types",
+                "parameters": ["key", "value"],
+                "parameter_details": [{
+                    "type": "parameter",
+                    "name": "key",
+                    "description": "",
+                    "data_type": "int, str",
+                },
+                {
+                    "type": "parameter",
+                    "name": "value",
+                    "description": "",
+                    "data_type": "'GenericType'",
+                }]
+            }]
+        }, method='NEW')
+        section_info_bpy_prop_collection.add_info(class_info)
+
+        section_info_bpy_struct = SectionInfo()
+
+        class_info = ClassInfo()
+        class_info.from_dict({
+            "type": "class",
+            "name": "bpy_struct",
+            "module": "bpy.types",
+            "description": "bpy_struct description",
+            "base_classes": [],
+            "attributes": [],
+            "methods": [{
+                "type": "method",
+                "name": "__getitem__",
+                "description": "",
+                "class": "bpy_struct",
+                "module": "bpy.types",
+                "parameters": ["key"],
+                "parameter_details": [{
+                    "type": "parameter",
+                    "name": "key",
+                    "description": "",
+                    "data_type": "int, str",
+                }],
+                "return": {
+                    "type": "return",
+                    "description": "",
+                    "data_type": "'typing.Any'",
+                }
+            },
+            {
+                "type": "method",
+                "name": "__setitem__",
+                "description": "",
+                "class": "bpy_struct",
+                "module": "bpy.types",
+                "parameters": ["key", "value"],
+                "parameter_details": [{
+                    "type": "parameter",
+                    "name": "key",
+                    "description": "",
+                    "data_type": "int, str",
+                },
+                {
+                    "type": "parameter",
+                    "name": "value",
+                    "description": "",
+                    "data_type": "'typing.Any'",
+                }]
+            }]
+        }, method='NEW')
+        section_info_bpy_struct.add_info(class_info)
+
+        self.compare_dict_and_log(result.section_info[0].to_dict(),
+                                  section_info_bpy_prop_collection.to_dict())
+        self.compare_dict_and_log(result.section_info[1].to_dict(),
+                                  section_info_bpy_struct.to_dict())
