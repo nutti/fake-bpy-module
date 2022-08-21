@@ -913,15 +913,18 @@ class PackageAnalyzer:
         def rewrite_to_generation_custom_data_type(data_type: 'CustomDataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
-            return CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
+            dt = CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
+            dt.set_is_optional(data_type.is_optional())
+            return dt
 
-        def rewrite_to_generation_custom_modifier_data_type(data_type: 'CustomModifierDataType'):
+        def rewrite_to_generation_custom_modifier_data_type(data_type: 'CustomDataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
             new_modifier_name = refiner.get_generation_data_type(
                 data_type.modifier().output_modifier_name(), gen_info.name)
             dt = CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
             dt.modifier().set_output_modifier_name(new_modifier_name)
+            dt.set_is_optional(data_type.is_optional())
             return dt
 
         def rewrite(info_to_rewrite: 'Info'):

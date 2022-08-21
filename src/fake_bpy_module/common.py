@@ -106,6 +106,24 @@ FROM_DICT_METHOD: List[str] = [
 
 
 class DataType:
+    def __init__(self):
+        self._is_optional: bool = False
+
+    @staticmethod
+    def output_typing_optional(func):
+        def wrapper(self, *args, **kwargs):
+            inner_str: str = func(self, *args, **kwargs)
+            if self.is_optional():
+                return f"typing.Optional[{inner_str}]"
+            return inner_str
+        return wrapper
+
+    def set_is_optional(self, is_optional: bool):
+        self._is_optional = is_optional
+
+    def is_optional(self) -> bool:
+        return self._is_optional
+
     def type(self) -> str:
         raise NotImplementedError()
 
@@ -124,7 +142,7 @@ class DataType:
 
 class UnknownDataType(DataType):
     def __init__(self):
-        pass
+        super().__init__()
 
     def type(self) -> str:
         return 'UNKNOWN'
@@ -144,6 +162,8 @@ class UnknownDataType(DataType):
 
 class IntermidiateDataType(DataType):
     def __init__(self, data_type: str):
+        super().__init__()
+
         self._data_type: str = data_type
 
     def type(self) -> str:
@@ -164,6 +184,8 @@ class IntermidiateDataType(DataType):
 
 class BuiltinDataType(DataType):
     def __init__(self, data_type: str, modifier: 'ModifierDataType'=None, modifier_add_info=None):
+        super().__init__()
+
         assert (modifier is None) or (not isinstance(modifier, str))
 
         if not isinstance(data_type, str):
@@ -191,6 +213,7 @@ class BuiltinDataType(DataType):
     def data_type(self) -> str:
         return self._data_type
 
+    @DataType.output_typing_optional
     def to_string(self) -> str:
         if self._modifier is None:
             return self._data_type
@@ -211,6 +234,8 @@ class BuiltinDataType(DataType):
 
 class ModifierDataType(DataType):
     def __init__(self, modifier: str):
+        super().__init__()
+
         if (modifier is None) or (modifier not in MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(MODIFIER_DATA_TYPE, modifier))
@@ -231,12 +256,15 @@ class ModifierDataType(DataType):
     def modifier_data_type(self) -> str:
         return self._modifier
 
+    @DataType.output_typing_optional
     def to_string(self) -> str:
         return MODIFIER_DATA_TYPE_TO_TYPING[self._modifier]
 
 
 class CustomDataType(DataType):
     def __init__(self, data_type: str, modifier: 'ModifierDataType'=None, modifier_add_info=None, skip_refine=False):
+        super().__init__()
+
         assert (modifier is None) or (not isinstance(modifier, str))
 
         if not isinstance(data_type, str):
@@ -265,6 +293,7 @@ class CustomDataType(DataType):
     def data_type(self) -> str:
         return self._data_type
 
+    @DataType.output_typing_optional
     def to_string(self) -> str:
         if self._modifier is None:
             return "'{}'".format(self._data_type)
@@ -286,6 +315,8 @@ class CustomDataType(DataType):
 
 class CustomModifierDataType(ModifierDataType):
     def __init__(self, modifier: str):
+        self._is_optional: bool = False
+
         if (modifier is None) or (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
             raise ValueError("modifier must be {} but {}"
                              .format(CUSTOM_MODIFIER_MODIFIER_DATA_TYPE, modifier))
@@ -313,12 +344,15 @@ class CustomModifierDataType(ModifierDataType):
     def set_output_modifier_name(self, modifier_name: str):
         self._output_modifier_name = modifier_name
 
+    @DataType.output_typing_optional
     def to_string(self) -> str:
         return self._output_modifier_name
 
 
 class MixinDataType(DataType):
     def __init__(self, data_types: List['DataType']):
+        super().__init__()
+
         if len(data_types) <= 1:
             raise ValueError("length of data_types must be >= 2 but {}"
                              .format(len(data_types)))
@@ -334,6 +368,7 @@ class MixinDataType(DataType):
         s = [dt.to_string() for dt in self._data_types]
         return "typing.Union[{}]".format(", ".join(s))
 
+    @DataType.output_typing_optional
     def set_data_type(self, index, data_type: 'DataType'):
         self._data_types[index] = data_type
 
@@ -1613,10 +1648,12 @@ class DataTypeRefiner:
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
+        is_optional = data_type.is_optional()
         dtype_str = data_type.to_string()
 
         result = self._get_refined_data_type_fast(dtype_str, uniq_full_names, uniq_module_names, module_name)
         if result is not None:
+            result.set_is_optional(is_optional)
             return result
 
         if "," in dtype_str:
@@ -1631,13 +1668,18 @@ class DataTypeRefiner:
                     elif result.type() =='MIXIN':
                         dtypes.append(result.data_types())
             if len(dtypes) == 1:
+                dtypes[0].set_is_optional(is_optional)
                 return dtypes[0]
             elif len(dtypes) >= 2:
-                return MixinDataType(dtypes)
+                result = MixinDataType(dtypes)
+                result.set_is_optional(is_optional)
+                return result
 
         output_log(LOG_LEVEL_DEBUG, f"Slow data type refining: {data_type.to_string()}")
 
-        return self._get_refined_data_type_slow(data_type, module_name)
+        result = self._get_refined_data_type_slow(data_type, module_name)
+        result.set_is_optional(is_optional)
+        return result
 
     def get_base_name(self, data_type: str) -> str:
         if data_type is None:
