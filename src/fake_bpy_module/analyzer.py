@@ -399,11 +399,18 @@ class BaseAnalyzer:
         for pt in parameters_types:
             param_info = ParameterDetailInfo()
             param_info.set_name(self._cleanup_string(pt["name"]))
-            param_info.set_data_type(IntermidiateDataType(self._cleanup_string(pt["data_type"])))
             for pa in parameters_args:
                 if pt["name"] == pa["name"]:
                     param_info.append_description(" " + self._cleanup_string(pa["description"]))
                     param_info.set_description(self._cleanup_string(param_info.description()))
+
+            is_optional = False
+            if (param_info.description() is not None) and ("optional" in param_info.description()):
+                is_optional = True
+            dt = IntermidiateDataType(self._cleanup_string(pt["data_type"]))
+            dt.set_is_optional(is_optional)
+            param_info.set_data_type(dt)
+
             info["parameters"].append(param_info)
         for pa in parameters_args:
             for pi in parameters_types:
@@ -412,7 +419,15 @@ class BaseAnalyzer:
             else:
                 param_info = ParameterDetailInfo()
                 param_info.set_name(self._cleanup_string(pa["name"]))
-                param_info.set_data_type(IntermidiateDataType(self._cleanup_string(pa["data_type"])))
+                param_info.append_description(" " + self._cleanup_string(pa["description"]))
+
+                is_optional = False
+                if (param_info.description() is not None) and ("optional" in param_info.description()):
+                    is_optional = True
+                dt = IntermidiateDataType(self._cleanup_string(pa["data_type"]))
+                dt.set_is_optional(is_optional)
+                param_info.set_data_type(dt)
+
                 info["parameters"].append(param_info)
 
         if return_ is not None and return_type is not None:

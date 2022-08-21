@@ -170,7 +170,7 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
     def _create_function_info(self):
         info = FunctionInfo("function")
         info.set_name("function_1")
-        info.set_parameters(["param_1=10", "param_2"])
+        info.set_parameters(["param_1=10", "param_2", "param_3=4.5"])
         info.set_description("function_1 description")
         info.set_module("module_1")
 
@@ -186,7 +186,14 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         param_info_2.set_description("param_2 description")
         param_info_2.set_data_type(param_data_type_2)
 
-        info.set_parameter_details([param_info_1, param_info_2])
+        param_data_type_3 = BuiltinDataType("float")
+        param_data_type_3.set_is_optional(True)
+        param_info_3 = ParameterDetailInfo()
+        param_info_3.set_name("param_3")
+        param_info_3.set_description("param_3 description")
+        param_info_3.set_data_type(param_data_type_3)
+
+        info.set_parameter_details([param_info_1, param_info_2, param_info_3])
 
         return_data_type = BuiltinDataType("bool")
         return_info = ReturnInfo()

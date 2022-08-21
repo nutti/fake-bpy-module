@@ -42,13 +42,17 @@ class ClassA(BaseClassB, BaseClassA):
         pass
 
 
-def function_1(param_1: int = 10, param_2: typing.List['ClassA']) -> bool:
+def function_1(param_1: int = 10,
+               param_2: typing.List['ClassA'],
+               param_3: typing.Optional[float] = 4.5) -> bool:
     ''' function_1 description
 
     :param param_1: param_1 description
     :type param_1: int
     :param param_2: param_2 description
     :type param_2: typing.List['ClassA']
+    :param param_3: param_3 description
+    :type param_3: typing.Optional[float]
     :rtype: bool
     :return: return description
     '''

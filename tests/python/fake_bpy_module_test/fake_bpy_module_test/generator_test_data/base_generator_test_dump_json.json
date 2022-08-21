@@ -20,7 +20,8 @@
         "module": "module_1",
         "parameters": [
             "param_1=10",
-            "param_2"
+            "param_2",
+            "param_3=4.5"
         ],
         "parameter_details": [
             {
@@ -34,6 +35,12 @@
                 "name": "param_2",
                 "description": "param_2 description",
                 "data_type": "typing.List['ClassA']"
+            },
+            {
+                "type": "parameter",
+                "name": "param_3",
+                "description": "param_3 description",
+                "data_type": "typing.Optional[float]"
             }
         ]
     },
