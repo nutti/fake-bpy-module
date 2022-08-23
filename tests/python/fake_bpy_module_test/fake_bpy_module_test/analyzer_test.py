@@ -2175,6 +2175,34 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                     "description": "",
                     "data_type": "'GenericType'",
                 }]
+            },
+            {
+                "type": "method",
+                "name": "__iter__",
+                "description": "",
+                "class": "bpy_prop_collection",
+                "module": "bpy.types",
+                "parameters": [],
+                "parameter_details": [],
+                "return": {
+                    "type": "return",
+                    "data_type": "typing.Iterator['GenericType']",
+                    "description": ""
+                }
+            },
+            {
+                "type": "method",
+                "name": "__next__",
+                "description": "",
+                "class": "bpy_prop_collection",
+                "module": "bpy.types",
+                "parameters": [],
+                "parameter_details": [],
+                "return": {
+                    "type": "return",
+                    "data_type": "'GenericType'",
+                    "description": ""
+                }
             }]
         }, method='NEW')
         section_info_bpy_prop_collection.add_info(class_info)

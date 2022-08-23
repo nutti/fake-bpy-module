@@ -1281,7 +1281,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         param_detail_info.set_data_type(IntermidiateDataType("int, str"))
         info.set_parameter_details([param_detail_info])
         info.set_class(class_info.name())
-        info.set_module("bpy.types")
+        info.set_module(class_info.module())
         return_info = ReturnInfo()
         return_info.set_description("")
         return_info.set_data_type(CustomDataType(type, skip_refine=True))
@@ -1301,7 +1301,32 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         param_detail_info_value.set_data_type(CustomDataType(type, skip_refine=True))
         info.set_parameter_details([param_detail_info_key, param_detail_info_value])
         info.set_class(class_info.name())
-        info.set_module("bpy.types")
+        info.set_module(class_info.module())
+        class_info.add_method(info)
+
+    def _add_iter_and_next(self, class_info: 'ClassInfo', type: str):
+        info = FunctionInfo("method")
+        info.set_name("__iter__")
+        info.set_parameters([])
+        info.set_parameter_details([])
+        info.set_class(class_info.name())
+        info.set_module(class_info.module())
+        return_info = ReturnInfo()
+        return_info.set_description("")
+        return_info.set_data_type(CustomDataType("GenericType", ModifierDataType("typing.Iterator"), skip_refine=True))
+        info.set_return(return_info)
+        class_info.add_method(info)
+
+        info = FunctionInfo("method")
+        info.set_name("__next__")
+        info.set_parameters([])
+        info.set_parameter_details([])
+        info.set_class(class_info.name())
+        info.set_module(class_info.module())
+        return_info = ReturnInfo()
+        return_info.set_description("")
+        return_info.set_data_type(CustomDataType(type, skip_refine=True))
+        info.set_return(return_info)
         class_info.add_method(info)
 
     def _tweak_bpy_types_classes(self, result: 'AnalysisResult'):
@@ -1316,6 +1341,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #     def __getitem__(self, key: Union[str, int]) -> GenericType:
                     #     def __setitem__(self, key: Union[str, int], value: GenericType):
                     self._add_getitem_and_setitem(info, "GenericType")
+                    self._add_iter_and_next(info, "GenericType")
                     info.add_base_class(
                         CustomDataType("GenericType", ModifierDataType("Generic"), skip_refine=True)
                     )

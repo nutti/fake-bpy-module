@@ -30,7 +30,7 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
-    "Generic",
+    "Generic", "typing.Iterator"
 ]
 
 CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
@@ -65,7 +65,8 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "dict": "typing.Dict",
     "set": "typing.Set",
     "tuple": "typing.Tuple",
-    "Generic": "typing.Generic"
+    "Generic": "typing.Generic",
+    "typing.Iterator": "typing.Iterator"
 }
 
 
