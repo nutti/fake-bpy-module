@@ -3,8 +3,8 @@ name: fake-bpy-module CI
 on:
   push:
     branches:
-      - ci_testing
       - master
+      - 'run-ci/**'
   pull_request:
   release:
     types:

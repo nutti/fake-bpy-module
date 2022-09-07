@@ -6,7 +6,7 @@ on:
     - cron: "0 6 * * *"
   push:
     branches:
-      - ci_testing
+      - 'run-ci/**'
 
 jobs:
   set_versions:
