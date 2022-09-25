@@ -6,23 +6,26 @@ from setuptools import setup, find_packages
 # module name
 cur_dir = os.getcwd().replace("\\", "/")
 blender_version = cur_dir.split('/')[-1].split('-')[-1]
-module_name = "fake-bpy-module-{}".format(blender_version)
+module_name = f"fake-bpy-module-{blender_version}"
 
 # release version
 if "RELEASE_VERSION" in os.environ:
-    print("Environment variable 'RELEASE_VERSION' exists, so use it as release version")
+    print("Environment variable 'RELEASE_VERSION' exists, "
+          "so use it as release version")
     release_version = os.environ["RELEASE_VERSION"]
 else:
-    print("Environment variable 'RELEASE_VERSION' does not exist, so use date as release version")
+    print("Environment variable 'RELEASE_VERSION' does not exist, "
+          "so use date as release version")
     release_version = datetime.datetime.today().strftime("%Y%m%d")
 
 # long_description
 try:
-    readme_path = "{}/README.rst".format(os.path.dirname(os.path.abspath(__file__)).replace("\\", "/"))
-    with open(readme_path, "r") as f:
+    readme_path = "{}/README.rst".format(
+        os.path.dirname(os.path.abspath(__file__)).replace("\\", "/"))
+    with open(readme_path, "r", encoding="utf-8") as f:
         long_description = f.read()
 except IOError:
-    long_description = ""
+    long_description = ""   # pylint: disable=C0103
 
 # find python module.
 py_modules = list(set(glob.glob("*.py")) - {"setup.py"})
@@ -30,7 +33,7 @@ py_modules = [os.path.splitext(m)[0] for m in py_modules]
 
 # find python packages and setup package data
 packages = find_packages()
-package_data = {pkg:["py.typed"] for pkg in packages}
+package_data = {pkg: ["py.typed"] for pkg in packages}
 
 setup(
     name=module_name,
@@ -40,7 +43,8 @@ setup(
     author_email="nutti.metro@gmail.com",
     maintainer="nutti",
     maintainer_email="nutti.metro@gmail.com",
-    description="Collection of the fake Blender Python API module for the code completion.",
+    description="Collection of the fake Blender Python API module for "
+                "the code completion.",
     long_description=long_description,
     py_modules=py_modules,
     package_data=package_data,

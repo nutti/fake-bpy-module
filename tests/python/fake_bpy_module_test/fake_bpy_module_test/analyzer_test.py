@@ -2,31 +2,26 @@ import os
 import difflib
 import json
 
-from . import common
-from fake_bpy_module.analyzer import (
+from fake_bpy_module.analyzer import (  # pylint: disable=E0401
     BaseAnalyzer,
     AnalyzerWithModFile,
     BpyModuleAnalyzer,
 )
-from fake_bpy_module.common import (
+from fake_bpy_module.common import (    # pylint: disable=E0401
     SectionInfo,
     ClassInfo,
     FunctionInfo,
     VariableInfo,
 )
+from . import common
 
 
 class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     name = "BaseAnalyzerTest"
     module_name = __module__
-    data_dir = os.path.abspath("{}/analyzer_test_data".format(os.path.dirname(__file__)))
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/analyzer_test_data")
 
     def compare_dict_and_log(self, d1, d2):
         json1 = json.dumps(d1, indent=4).split("\n")
@@ -37,7 +32,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_no_contents(self):
         rst_files = ["no_contents.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -51,7 +46,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_only_base_class(self):
         rst_files = ["only_base_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -65,7 +60,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_only_module_name(self):
         rst_files = ["only_module_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -79,7 +74,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_single_constant(self):
         rst_files = ["single_constant.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -103,7 +98,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_multiple_constants(self):
         rst_files = ["multiple_constants.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -135,7 +130,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_single_function(self):
         rst_files = ["single_function.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -151,24 +146,26 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=\"test\"", "arg_3=1234"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_3",
-                "description": "function_1 arg_3 description",
-                "data_type": "function_1 arg_3 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_3",
+                    "description": "function_1 arg_3 description",
+                    "data_type": "function_1 arg_3 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_1 return description",
@@ -182,7 +179,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_multiple_functions(self):
         rst_files = ["multiple_functions.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -198,18 +195,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            }]
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -234,7 +233,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_single_class(self):
         rst_files = ["single_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -249,122 +248,134 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "name": "ClassA",
             "module": "module.a",
             "description": "ClassA description",
-            "attributes": [{
-                "type": "attribute",
-                "name": "attr_1",
-                "description": "attr_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "attr_1 type",
-            },
-            {
-                "type": "attribute",
-                "name": "data_1",
-                "description": "data_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "data_1 type",
-            }],
-            "methods": [{
-                "type": "method",
-                "name": "method_1",
-                "description": "method_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=\"test\""],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_1 arg_1 description",
-                    "data_type": "method_1 arg_1 type",
+            "attributes": [
+                {
+                    "type": "attribute",
+                    "name": "attr_1",
+                    "description": "attr_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "attr_1 type",
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "method_1 arg_2 description",
-                    "data_type": "method_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "method_1 return description",
-                    "data_type": "method_1 return type",
+                    "type": "attribute",
+                    "name": "data_1",
+                    "description": "data_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "data_1 type",
                 }
-            },
-            {
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=123"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "classmethod_1 arg_1 description",
-                    "data_type": "classmethod_1 arg_1 type",
+            ],
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "method_1",
+                    "description": "method_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=\"test\""],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "method_1 arg_1 description",
+                            "data_type": "method_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "method_1 arg_2 description",
+                            "data_type": "method_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "method_1 return description",
+                        "data_type": "method_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "classmethod_1 arg_2 description",
-                    "data_type": "classmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "classmethod_1 return description",
-                    "data_type": "classmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=(0, 0)"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "staticmethod_1 arg_1 description",
-                    "data_type": "staticmethod_1 arg_1 type",
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=123"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "classmethod_1 arg_1 description",
+                            "data_type": "classmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "classmethod_1 arg_2 description",
+                            "data_type": "classmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "classmethod_1 return description",
+                        "data_type": "classmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "staticmethod_1 arg_2 description",
-                    "data_type": "staticmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "staticmethod_1 return description",
-                    "data_type": "staticmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "function_1",
-                "description": "function_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2='MAX_INT'"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "function_1 arg_1 description",
-                    "data_type": "function_1 arg_1 type",
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=(0, 0)"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "staticmethod_1 arg_1 description",
+                            "data_type": "staticmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "staticmethod_1 arg_2 description",
+                            "data_type": "staticmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "staticmethod_1 return description",
+                        "data_type": "staticmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "function_1 arg_2 description",
-                    "data_type": "function_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "function_1 return description",
-                    "data_type": "function_1 return type",
+                    "type": "staticmethod",
+                    "name": "function_1",
+                    "description": "function_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2='MAX_INT'"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "function_1 arg_1 description",
+                            "data_type": "function_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "function_1 arg_2 description",
+                            "data_type": "function_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "function_1 return description",
+                        "data_type": "function_1 return type",
+                    }
                 }
-            }]
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -373,7 +384,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_multiple_classes(self):
         rst_files = ["multiple_classes.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -457,7 +468,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_noisy_1(self):
         rst_files = ["noisy_1.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -484,24 +495,26 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
                 "module": "module.a",
                 "data_type": "attr_1 type, long",
             }],
-            "methods": [{
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": [],
-                "parameter_details": [],
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["a", "b"],
-                "parameter_details": [],
-            }]
+            "methods": [
+                {
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": [],
+                    "parameter_details": [],
+                },
+                {
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["a", "b"],
+                    "parameter_details": [],
+                }
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -581,7 +594,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_noisy_2(self):
         rst_files = ["noisy_2.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -608,24 +621,26 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
                 "module": "module.a",
                 "data_type": "attr_1 type, long",
             }],
-            "methods": [{
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": [],
-                "parameter_details": [],
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["a", "b"],
-                "parameter_details": [],
-            }]
+            "methods": [
+                {
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": [],
+                    "parameter_details": [],
+                },
+                {
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["a", "b"],
+                    "parameter_details": [],
+                }
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -717,18 +732,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_2 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=\"test\""],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_2 arg_1 description",
-                "data_type": "function_2 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_2 arg_2 description",
-                "data_type": "str",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_2 arg_1 description",
+                    "data_type": "function_2 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_2 arg_2 description",
+                    "data_type": "str",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "",
@@ -742,7 +759,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_invalid_rst_format_1(self):
         rst_files = ["invalid_rst_format_1.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
 
@@ -752,7 +769,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_invalid_rst_format_2(self):
         rst_files = ["invalid_rst_format_2.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
 
@@ -762,7 +779,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_no_module(self):
         rst_files = ["no_module.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -775,7 +792,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_bpy_290_tweak(self):
         rst_files = ["bpy_290_tweak.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         analyzer.set_blender_version("2.90")
@@ -807,7 +824,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_bge_support(self):
         rst_files = ["bge_support.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         analyzer.enable_bge_support()
@@ -824,18 +841,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            }]
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -853,7 +872,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_bge_support_no_module(self):
         rst_files = ["bge.types.NoModule.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         analyzer.enable_bge_support()
@@ -870,18 +889,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "bge.types",
             "parameters": ["arg_1", "arg_2"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            }]
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -906,18 +927,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
                 "class": "ClassA",
                 "module": "bge.types",
                 "parameters": ["arg_1", "arg_2=\"test\""],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_1 arg_1 description",
-                    "data_type": "method_1 arg_1 type",
-                },
-                {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "method_1 arg_2 description",
-                    "data_type": "method_1 arg_2 type",
-                }],
+                "parameter_details": [
+                    {
+                        "type": "parameter",
+                        "name": "arg_1",
+                        "description": "method_1 arg_1 description",
+                        "data_type": "method_1 arg_1 type",
+                    },
+                    {
+                        "type": "parameter",
+                        "name": "arg_2",
+                        "description": "method_1 arg_2 description",
+                        "data_type": "method_1 arg_2 type",
+                    }
+                ],
                 "return": {
                     "type": "return",
                     "description": "method_1 return description",
@@ -932,7 +955,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_multiple_sections(self):
         rst_files = ["single_constant.rst", "single_function.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
         result = analyzer.analyze(rst_files)
@@ -967,24 +990,26 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=\"test\"", "arg_3=1234"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_3",
-                "description": "function_1 arg_3 description",
-                "data_type": "function_1 arg_3 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_3",
+                    "description": "function_1 arg_3 description",
+                    "data_type": "function_1 arg_3 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_1 return description",
@@ -1001,13 +1026,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     name = "AnalyzerWithModFileTest"
     module_name = __module__
-    data_dir = os.path.abspath("{}/analyzer_test_data".format(os.path.dirname(__file__)))
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/analyzer_test_data")
 
     def compare_dict_and_log(self, d1, d2):
         json1 = json.dumps(d1, indent=4).split("\n")
@@ -1017,10 +1037,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_remove_constant(self):
         rst_files = ["multiple_constants.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["remove_constant.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1043,10 +1063,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_remove_function(self):
         rst_files = ["multiple_functions.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["remove_function.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1062,18 +1082,20 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            }]
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -1082,10 +1104,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_remove_class(self):
         rst_files = ["multiple_classes.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["remove_class.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1129,10 +1151,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_new_constant(self):
         rst_files = ["single_constant.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["new_constant.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1156,7 +1178,6 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         self.compare_dict_and_log(result.section_info[0].to_dict(),
                                   section_info.to_dict())
 
-
         self.log("Second section:")
 
         section_info = SectionInfo()
@@ -1176,10 +1197,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_new_function(self):
         rst_files = ["single_function.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["new_function.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1197,24 +1218,26 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=\"test\"", "arg_3=1234"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_3",
-                "description": "function_1 arg_3 description",
-                "data_type": "function_1 arg_3 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_3",
+                    "description": "function_1 arg_3 description",
+                    "data_type": "function_1 arg_3 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_1 return description",
@@ -1225,7 +1248,6 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
         self.compare_dict_and_log(result.section_info[0].to_dict(),
                                   section_info.to_dict())
-
 
         self.log("Second section:")
 
@@ -1238,18 +1260,20 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "description": "function_2 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=TEST"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_2 arg_1 description",
-                "data_type": "function_2 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_2 arg_2 description",
-                "data_type": "function_2 arg_2 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_2 arg_1 description",
+                    "data_type": "function_2 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_2 arg_2 description",
+                    "data_type": "function_2 arg_2 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_2 return description",
@@ -1263,10 +1287,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_new_class(self):
         rst_files = ["single_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["new_class.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1283,122 +1307,134 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "name": "ClassA",
             "module": "module.a",
             "description": "ClassA description",
-            "attributes": [{
-                "type": "attribute",
-                "name": "attr_1",
-                "description": "attr_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "attr_1 type",
-            },
-            {
-                "type": "attribute",
-                "name": "data_1",
-                "description": "data_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "data_1 type",
-            }],
-            "methods": [{
-                "type": "method",
-                "name": "method_1",
-                "description": "method_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=\"test\""],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_1 arg_1 description",
-                    "data_type": "method_1 arg_1 type",
+            "attributes": [
+                {
+                    "type": "attribute",
+                    "name": "attr_1",
+                    "description": "attr_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "attr_1 type",
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "method_1 arg_2 description",
-                    "data_type": "method_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "method_1 return description",
-                    "data_type": "method_1 return type",
+                    "type": "attribute",
+                    "name": "data_1",
+                    "description": "data_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "data_1 type",
                 }
-            },
-            {
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=123"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "classmethod_1 arg_1 description",
-                    "data_type": "classmethod_1 arg_1 type",
+            ],
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "method_1",
+                    "description": "method_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=\"test\""],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "method_1 arg_1 description",
+                            "data_type": "method_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "method_1 arg_2 description",
+                            "data_type": "method_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "method_1 return description",
+                        "data_type": "method_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "classmethod_1 arg_2 description",
-                    "data_type": "classmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "classmethod_1 return description",
-                    "data_type": "classmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=(0, 0)"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "staticmethod_1 arg_1 description",
-                    "data_type": "staticmethod_1 arg_1 type",
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=123"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "classmethod_1 arg_1 description",
+                            "data_type": "classmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "classmethod_1 arg_2 description",
+                            "data_type": "classmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "classmethod_1 return description",
+                        "data_type": "classmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "staticmethod_1 arg_2 description",
-                    "data_type": "staticmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "staticmethod_1 return description",
-                    "data_type": "staticmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "function_1",
-                "description": "function_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=MAX_INT"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "function_1 arg_1 description",
-                    "data_type": "function_1 arg_1 type",
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=(0, 0)"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "staticmethod_1 arg_1 description",
+                            "data_type": "staticmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "staticmethod_1 arg_2 description",
+                            "data_type": "staticmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "staticmethod_1 return description",
+                        "data_type": "staticmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "function_1 arg_2 description",
-                    "data_type": "function_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "function_1 return description",
-                    "data_type": "function_1 return type",
+                    "type": "staticmethod",
+                    "name": "function_1",
+                    "description": "function_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=MAX_INT"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "function_1 arg_1 description",
+                            "data_type": "function_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "function_1 arg_2 description",
+                            "data_type": "function_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "function_1 return description",
+                        "data_type": "function_1 return type",
+                    }
                 }
-            }]
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -1423,54 +1459,58 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
                 "module": "module.a",
                 "data_type": "attr_1 type",
             }],
-            "methods": [{
-                "type": "method",
-                "name": "method_1",
-                "description": "method_1 description",
-                "class": "ClassB",
-                "module": "module.a",
-                "parameters": [],
-                "parameter_details": [],
-                "return": {
-                    "type": "return",
-                    "description": "method_1 return description",
-                    "data_type": "method_1 return type",
-                }
-            },
-            {
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassB",
-                "module": "module.a",
-                "parameters": ["arg_1"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "classmethod_1 arg_1 description",
-                    "data_type": "classmethod_1 arg_1 type",
-                }]
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassB",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=(0, 0)"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "staticmethod_1 arg_1 description",
-                    "data_type": "staticmethod_1 arg_1 type",
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "method_1",
+                    "description": "method_1 description",
+                    "class": "ClassB",
+                    "module": "module.a",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "description": "method_1 return description",
+                        "data_type": "method_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "staticmethod_1 arg_2 description",
-                    "data_type": "staticmethod_1 arg_2 type",
-                }]
-            }]
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassB",
+                    "module": "module.a",
+                    "parameters": ["arg_1"],
+                    "parameter_details": [{
+                        "type": "parameter",
+                        "name": "arg_1",
+                        "description": "classmethod_1 arg_1 description",
+                        "data_type": "classmethod_1 arg_1 type",
+                    }]
+                },
+                {
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassB",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=(0, 0)"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "staticmethod_1 arg_1 description",
+                            "data_type": "staticmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "staticmethod_1 arg_2 description",
+                            "data_type": "staticmethod_1 arg_2 type",
+                        }
+                    ]
+                }
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -1479,10 +1519,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_append_constant(self):
         rst_files = ["multiple_constants.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["append_constant.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1515,10 +1555,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_append_function(self):
         rst_files = ["multiple_functions.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["append_function.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1534,18 +1574,20 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_1 return description",
@@ -1580,10 +1622,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_append_class(self):
         rst_files = ["single_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["append_class.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1598,148 +1640,160 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "name": "ClassA",
             "module": "module.a",
             "description": "ClassA description",
-            "attributes": [{
-                "type": "attribute",
-                "name": "attr_1",
-                "description": "attr_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "attr_1 type",
-            },
-            {
-                "type": "attribute",
-                "name": "data_1",
-                "description": "data_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "data_1 type",
-            },
-            {
-                "name": "attr_2",
-                "type": "attribute",
-                "description": "attr_2 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "attr_2 type",
-            }],
-            "methods": [{
-                "type": "method",
-                "name": "method_1",
-                "description": "method_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=\"test\""],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_1 arg_1 description",
-                    "data_type": "method_1 arg_1 type",
+            "attributes": [
+                {
+                    "type": "attribute",
+                    "name": "attr_1",
+                    "description": "attr_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "attr_1 type",
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "method_1 arg_2 description",
-                    "data_type": "method_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "method_1 return description",
-                    "data_type": "method_1 return type",
-                }
-            },
-            {
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=123"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "classmethod_1 arg_1 description",
-                    "data_type": "classmethod_1 arg_1 type",
+                    "type": "attribute",
+                    "name": "data_1",
+                    "description": "data_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "data_1 type",
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "classmethod_1 arg_2 description",
-                    "data_type": "classmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "classmethod_1 return description",
-                    "data_type": "classmethod_1 return type",
+                    "name": "attr_2",
+                    "type": "attribute",
+                    "description": "attr_2 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "attr_2 type",
                 }
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=(0, 0)"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "staticmethod_1 arg_1 description",
-                    "data_type": "staticmethod_1 arg_1 type",
+            ],
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "method_1",
+                    "description": "method_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=\"test\""],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "method_1 arg_1 description",
+                            "data_type": "method_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "method_1 arg_2 description",
+                            "data_type": "method_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "method_1 return description",
+                        "data_type": "method_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "staticmethod_1 arg_2 description",
-                    "data_type": "staticmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "staticmethod_1 return description",
-                    "data_type": "staticmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "function_1",
-                "description": "function_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=MAX_INT"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "function_1 arg_1 description",
-                    "data_type": "function_1 arg_1 type",
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=123"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "classmethod_1 arg_1 description",
+                            "data_type": "classmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "classmethod_1 arg_2 description",
+                            "data_type": "classmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "classmethod_1 return description",
+                        "data_type": "classmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "function_1 arg_2 description",
-                    "data_type": "function_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "function_1 return description",
-                    "data_type": "function_1 return type",
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=(0, 0)"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "staticmethod_1 arg_1 description",
+                            "data_type": "staticmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "staticmethod_1 arg_2 description",
+                            "data_type": "staticmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "staticmethod_1 return description",
+                        "data_type": "staticmethod_1 return type",
+                    }
+                },
+                {
+                    "type": "staticmethod",
+                    "name": "function_1",
+                    "description": "function_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=MAX_INT"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "function_1 arg_1 description",
+                            "data_type": "function_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "function_1 arg_2 description",
+                            "data_type": "function_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "function_1 return description",
+                        "data_type": "function_1 return type",
+                    }
+                },
+                {
+                    "name": "method_2",
+                    "type": "function",
+                    "description": "method_2 description",
+                    "module": "module.a",
+                    "parameters": ["arg_1"],
+                    "parameter_details": [{
+                        "type": "parameter",
+                        "name": "arg_1",
+                        "description": "method_2 arg_1 description",
+                        "data_type": "method_2 arg_1 type",
+                    }],
+                    "return": {
+                        "type": "return",
+                        "description": "method_2 return description",
+                        "data_type": "method_2 return type",
+                    }
                 }
-            },
-            {
-                "name": "method_2",
-                "type": "function",
-                "description": "method_2 description",
-                "module": "module.a",
-                "parameters": ["arg_1"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_2 arg_1 description",
-                    "data_type": "method_2 arg_1 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "method_2 return description",
-                    "data_type": "method_2 return type",
-                }
-            }]
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -1748,10 +1802,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_update_constant(self):
         rst_files = ["single_constant.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["update_constant.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1775,10 +1829,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_update_function(self):
         rst_files = ["single_function.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["update_function.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1794,24 +1848,26 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "description": "function_1 description updated",
             "module": "module.a",
             "parameters": ["arg_1", "arg_2=\"test\"", "arg_3=12345"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description updated",
-                "data_type": "function_1 arg_1 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_2",
-                "description": "function_1 arg_2 description",
-                "data_type": "function_1 arg_2 type",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_3",
-                "description": "function_1 arg_3 description",
-                "data_type": "function_1 arg_3 type",
-            }],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description updated",
+                    "data_type": "function_1 arg_1 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_2",
+                    "description": "function_1 arg_2 description",
+                    "data_type": "function_1 arg_2 type",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_3",
+                    "description": "function_1 arg_3 description",
+                    "data_type": "function_1 arg_3 type",
+                }
+            ],
             "return": {
                 "type": "return",
                 "description": "function_1 return description",
@@ -1825,10 +1881,10 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
 
     def test_update_class(self):
         rst_files = ["single_class.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         mod_files = ["update_class.mod"]
-        mod_files = ["{}/{}".format(self.data_dir, f) for f in mod_files]
+        mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
         result = analyzer.analyze(rst_files)
@@ -1843,122 +1899,134 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
             "name": "ClassA",
             "module": "module.a",
             "description": "ClassA description updated",
-            "attributes": [{
-                "type": "attribute",
-                "name": "attr_1",
-                "description": "attr_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "attr_1 type updated",
-            },
-            {
-                "type": "attribute",
-                "name": "data_1",
-                "description": "data_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "data_type": "data_1 type",
-            }],
-            "methods": [{
-                "type": "method",
-                "name": "method_1",
-                "description": "method_1 description updated",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=\"test2\""],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "method_1 arg_1 description",
-                    "data_type": "method_1 arg_1 type updated",
+            "attributes": [
+                {
+                    "type": "attribute",
+                    "name": "attr_1",
+                    "description": "attr_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "attr_1 type updated",
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "method_1 arg_2 description",
-                    "data_type": "method_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "method_1 return description updated",
-                    "data_type": "method_1 return type",
+                    "type": "attribute",
+                    "name": "data_1",
+                    "description": "data_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "data_type": "data_1 type",
                 }
-            },
-            {
-                "type": "classmethod",
-                "name": "classmethod_1",
-                "description": "classmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=123"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "classmethod_1 arg_1 description",
-                    "data_type": "classmethod_1 arg_1 type",
+            ],
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "method_1",
+                    "description": "method_1 description updated",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=\"test2\""],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "method_1 arg_1 description",
+                            "data_type": "method_1 arg_1 type updated",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "method_1 arg_2 description",
+                            "data_type": "method_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "method_1 return description updated",
+                        "data_type": "method_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "classmethod_1 arg_2 description",
-                    "data_type": "classmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "classmethod_1 return description",
-                    "data_type": "classmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "staticmethod_1",
-                "description": "staticmethod_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=(0, 0)"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "staticmethod_1 arg_1 description",
-                    "data_type": "staticmethod_1 arg_1 type",
+                    "type": "classmethod",
+                    "name": "classmethod_1",
+                    "description": "classmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=123"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "classmethod_1 arg_1 description",
+                            "data_type": "classmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "classmethod_1 arg_2 description",
+                            "data_type": "classmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "classmethod_1 return description",
+                        "data_type": "classmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "staticmethod_1 arg_2 description",
-                    "data_type": "staticmethod_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "staticmethod_1 return description",
-                    "data_type": "staticmethod_1 return type",
-                }
-            },
-            {
-                "type": "staticmethod",
-                "name": "function_1",
-                "description": "function_1 description",
-                "class": "ClassA",
-                "module": "module.a",
-                "parameters": ["arg_1", "arg_2=MAX_INT"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "arg_1",
-                    "description": "function_1 arg_1 description",
-                    "data_type": "function_1 arg_1 type",
+                    "type": "staticmethod",
+                    "name": "staticmethod_1",
+                    "description": "staticmethod_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=(0, 0)"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "staticmethod_1 arg_1 description",
+                            "data_type": "staticmethod_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "staticmethod_1 arg_2 description",
+                            "data_type": "staticmethod_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "staticmethod_1 return description",
+                        "data_type": "staticmethod_1 return type",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "arg_2",
-                    "description": "function_1 arg_2 description",
-                    "data_type": "function_1 arg_2 type",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "function_1 return description",
-                    "data_type": "function_1 return type",
+                    "type": "staticmethod",
+                    "name": "function_1",
+                    "description": "function_1 description",
+                    "class": "ClassA",
+                    "module": "module.a",
+                    "parameters": ["arg_1", "arg_2=MAX_INT"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "arg_1",
+                            "description": "function_1 arg_1 description",
+                            "data_type": "function_1 arg_1 type",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "arg_2",
+                            "description": "function_1 arg_2 description",
+                            "data_type": "function_1 arg_2 type",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "function_1 return description",
+                        "data_type": "function_1 return type",
+                    }
                 }
-            }]
+            ]
         }, method='NEW')
         section_info.add_info(class_info)
 
@@ -1970,13 +2038,8 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
 
     name = "BpyModuleAnalyzerTest"
     module_name = __module__
-    data_dir = os.path.abspath("{}/analyzer_test_data".format(os.path.dirname(__file__)))
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/analyzer_test_data")
 
     def compare_dict_and_log(self, d1, d2):
         json1 = json.dumps(d1, indent=4).split("\n")
@@ -1987,7 +2050,7 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
 
     def test_add_bpy_ops_override_parameters(self):
         rst_files = ["add_bpy_ops_override_parameters.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
         result = analyzer.analyze(rst_files)
@@ -2002,31 +2065,39 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
             "name": "function_1",
             "description": "function_1 description",
             "module": "bpy.ops",
-            "parameters": ["override_context=None", "execution_context=None", "undo=None", "*", "arg_1"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "override_context",
-                "description": "",
-                "data_type": "dict, bpy.types.Context",
-            },
-            {
-                "type": "parameter",
-                "name": "execution_context",
-                "description": "",
-                "data_type": "str, int",
-            },
-            {
-                "type": "parameter",
-                "name": "undo",
-                "description": "",
-                "data_type": "bool",
-            },
-            {
-                "type": "parameter",
-                "name": "arg_1",
-                "description": "function_1 arg_1 description",
-                "data_type": "function_1 arg_1 type",
-            }]
+            "parameters": [
+                "override_context=None",
+                "execution_context=None",
+                "undo=None",
+                "*",
+                "arg_1"
+            ],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "override_context",
+                    "description": "",
+                    "data_type": "dict, bpy.types.Context",
+                },
+                {
+                    "type": "parameter",
+                    "name": "execution_context",
+                    "description": "",
+                    "data_type": "str, int",
+                },
+                {
+                    "type": "parameter",
+                    "name": "undo",
+                    "description": "",
+                    "data_type": "bool",
+                },
+                {
+                    "type": "parameter",
+                    "name": "arg_1",
+                    "description": "function_1 arg_1 description",
+                    "data_type": "function_1 arg_1 type",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -2036,25 +2107,31 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
             "name": "function_2",
             "description": "function_2 description",
             "module": "bpy.ops",
-            "parameters": ["override_context=None", "execution_context=None", "undo=None"],
-            "parameter_details": [{
-                "type": "parameter",
-                "name": "override_context",
-                "description": "",
-                "data_type": "dict, bpy.types.Context",
-            },
-            {
-                "type": "parameter",
-                "name": "execution_context",
-                "description": "",
-                "data_type": "str, int",
-            },
-            {
-                "type": "parameter",
-                "name": "undo",
-                "description": "",
-                "data_type": "bool",
-            }]
+            "parameters": [
+                "override_context=None",
+                "execution_context=None",
+                "undo=None"
+            ],
+            "parameter_details": [
+                {
+                    "type": "parameter",
+                    "name": "override_context",
+                    "description": "",
+                    "data_type": "dict, bpy.types.Context",
+                },
+                {
+                    "type": "parameter",
+                    "name": "execution_context",
+                    "description": "",
+                    "data_type": "str, int",
+                },
+                {
+                    "type": "parameter",
+                    "name": "undo",
+                    "description": "",
+                    "data_type": "bool",
+                }
+            ]
         }, method='NEW')
         section_info.add_info(function_info)
 
@@ -2062,8 +2139,11 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                                   section_info.to_dict())
 
     def test_make_bpy_context_variable(self):
-        rst_files = ["make_bpy_context_variable_1.rst", "make_bpy_context_variable_2.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [
+            "make_bpy_context_variable_1.rst",
+            "make_bpy_context_variable_2.rst"
+        ]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
         result = analyzer.analyze(rst_files)
@@ -2078,22 +2158,24 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
             "name": "Context",
             "module": "bpy.types",
             "description": "context",
-            "attributes": [{
-                "type": "attribute",
-                "name": "attr_1",
-                "description": "attr_1 description",
-                "class": "Context",
-                "module": "bpy.types",
-                "data_type": "attr_1 type",
-            },
-            {
-                "type": "attribute",
-                "name": "attr_2",
-                "description": "attr_2 description",
-                "class": "Context",
-                "module": "bpy.types",
-                "data_type": "attr_2 type",
-            }],
+            "attributes": [
+                {
+                    "type": "attribute",
+                    "name": "attr_1",
+                    "description": "attr_1 description",
+                    "class": "Context",
+                    "module": "bpy.types",
+                    "data_type": "attr_1 type",
+                },
+                {
+                    "type": "attribute",
+                    "name": "attr_2",
+                    "description": "attr_2 description",
+                    "class": "Context",
+                    "module": "bpy.types",
+                    "data_type": "attr_2 type",
+                }
+            ],
             "methods": []
         }, method='NEW')
         section_info_bpy_types.add_info(class_info)
@@ -2117,8 +2199,11 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                                   section_info_bpy_context.to_dict())
 
     def test_tweak_bpy_types_classes(self):
-        rst_files = ["tweak_bpy_types_classes_1.rst", "tweak_bpy_types_classes_2.rst"]
-        rst_files = ["{}/{}".format(self.data_dir, f) for f in rst_files]
+        rst_files = [
+            "tweak_bpy_types_classes_1.rst",
+            "tweak_bpy_types_classes_2.rst"
+        ]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
         result = analyzer.analyze(rst_files)
@@ -2137,73 +2222,77 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                 "typing.Generic['GenericType']",
             ],
             "attributes": [],
-            "methods": [{
-                "type": "method",
-                "name": "__getitem__",
-                "description": "",
-                "class": "bpy_prop_collection",
-                "module": "bpy.types",
-                "parameters": ["key"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "key",
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "__getitem__",
                     "description": "",
-                    "data_type": "int, str",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "",
-                    "data_type": "'GenericType'",
-                }
-            },
-            {
-                "type": "method",
-                "name": "__setitem__",
-                "description": "",
-                "class": "bpy_prop_collection",
-                "module": "bpy.types",
-                "parameters": ["key", "value"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "key",
-                    "description": "",
-                    "data_type": "int, str",
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": ["key"],
+                    "parameter_details": [{
+                        "type": "parameter",
+                        "name": "key",
+                        "description": "",
+                        "data_type": "int, str",
+                    }],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'GenericType'",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "value",
+                    "type": "method",
+                    "name": "__setitem__",
                     "description": "",
-                    "data_type": "'GenericType'",
-                }]
-            },
-            {
-                "type": "method",
-                "name": "__iter__",
-                "description": "",
-                "class": "bpy_prop_collection",
-                "module": "bpy.types",
-                "parameters": [],
-                "parameter_details": [],
-                "return": {
-                    "type": "return",
-                    "data_type": "typing.Iterator['GenericType']",
-                    "description": ""
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": ["key", "value"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int, str",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "value",
+                            "description": "",
+                            "data_type": "'GenericType'",
+                        }
+                    ]
+                },
+                {
+                    "type": "method",
+                    "name": "__iter__",
+                    "description": "",
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "typing.Iterator['GenericType']",
+                        "description": ""
+                    }
+                },
+                {
+                    "type": "method",
+                    "name": "__next__",
+                    "description": "",
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "'GenericType'",
+                        "description": ""
+                    }
                 }
-            },
-            {
-                "type": "method",
-                "name": "__next__",
-                "description": "",
-                "class": "bpy_prop_collection",
-                "module": "bpy.types",
-                "parameters": [],
-                "parameter_details": [],
-                "return": {
-                    "type": "return",
-                    "data_type": "'GenericType'",
-                    "description": ""
-                }
-            }]
+            ]
         }, method='NEW')
         section_info_bpy_prop_collection.add_info(class_info)
 
@@ -2217,45 +2306,51 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
             "description": "bpy_struct description",
             "base_classes": [],
             "attributes": [],
-            "methods": [{
-                "type": "method",
-                "name": "__getitem__",
-                "description": "",
-                "class": "bpy_struct",
-                "module": "bpy.types",
-                "parameters": ["key"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "key",
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "__getitem__",
                     "description": "",
-                    "data_type": "int, str",
-                }],
-                "return": {
-                    "type": "return",
-                    "description": "",
-                    "data_type": "'typing.Any'",
-                }
-            },
-            {
-                "type": "method",
-                "name": "__setitem__",
-                "description": "",
-                "class": "bpy_struct",
-                "module": "bpy.types",
-                "parameters": ["key", "value"],
-                "parameter_details": [{
-                    "type": "parameter",
-                    "name": "key",
-                    "description": "",
-                    "data_type": "int, str",
+                    "class": "bpy_struct",
+                    "module": "bpy.types",
+                    "parameters": ["key"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int, str",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'typing.Any'",
+                    }
                 },
                 {
-                    "type": "parameter",
-                    "name": "value",
+                    "type": "method",
+                    "name": "__setitem__",
                     "description": "",
-                    "data_type": "'typing.Any'",
-                }]
-            }]
+                    "class": "bpy_struct",
+                    "module": "bpy.types",
+                    "parameters": ["key", "value"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int, str",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "value",
+                            "description": "",
+                            "data_type": "'typing.Any'",
+                        }
+                    ]
+                }
+            ]
         }, method='NEW')
         section_info_bpy_struct.add_info(class_info)
 

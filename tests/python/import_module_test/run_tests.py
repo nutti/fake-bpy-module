@@ -20,9 +20,10 @@ class ImportModuleTestConfig:
 
 
 def parse_options(config: ImportModuleTestConfig):
-    usage = "Usage: python {} [-p <modules_path>]".format(__file__)
+    usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
-    parser.add_argument("-p", dest="modules_path", type=str, help="fake-bpy-module path")
+    parser.add_argument(
+        "-p", dest="modules_path", type=str, help="fake-bpy-module path")
 
     args = parser.parse_args()
     if args.modules_path:
@@ -31,7 +32,7 @@ def parse_options(config: ImportModuleTestConfig):
 
 def generate_tests(config: ImportModuleTestConfig) -> list:
     # Search modules to test.
-    files = glob.glob("{}/*".format(config.modules_path), recursive=False)
+    files = glob.glob(f"{config.modules_path}/*", recursive=False)
     module_names = []
     for f in files:
         basename = os.path.basename(f)
@@ -42,42 +43,58 @@ def generate_tests(config: ImportModuleTestConfig) -> list:
 
     # Load template.
     script_dir = os.path.dirname(__file__)
-    with open("{}/{}".format(script_dir, TESTS_TEMPLATE_FILE), "r") as f:
+    with open(f"{script_dir}/{TESTS_TEMPLATE_FILE}", "r",
+              encoding="utf-8") as f:
         template_content = f.readlines()
 
     # Generate test codes.
-    tests_dir = "{}/{}".format(script_dir, GENERATED_TESTS_DIR)
+    tests_dir = f"{script_dir}/{GENERATED_TESTS_DIR}"
     os.makedirs(tests_dir, exist_ok=False)
-    init_file = open("{}/__init__.py".format(tests_dir), "w")
+    init_file = open(f"{tests_dir}/__init__.py", "w",   # pylint: disable=R1732
+                     encoding="utf-8")
 
-    def replace_template_content(content: List[str], module_name: str) -> List[str]:
+    def replace_template_content(
+            content: List[str], module_name: str) -> List[str]:
         output = []
         for line in content:
-            line = re.sub(r"<%% CLASS_NAME %%>",
-                          "{}ImportTest".format(re.sub(r"_(.)", lambda x: x.group(1).upper(), module_name.capitalize())),
-                          line)
+            line = re.sub(
+                r"<%% CLASS_NAME %%>",
+                "{}ImportTest".format(  # pylint: disable=C0209
+                    re.sub(
+                        r"_(.)",
+                        lambda x: x.group(1).upper(),
+                        module_name.capitalize()
+                    )
+                ),
+                line)
             line = re.sub(r"<%% MODULE_NAME %%>", module_name, line)
             output.append(line)
         return output
 
     for mod_name in module_names:
         test_codes = replace_template_content(template_content, mod_name)
-        with open("{}/{}_test.py".format(tests_dir, mod_name), "w") as f:
+        with open(f"{tests_dir}/{mod_name}_test.py", "w",
+                  encoding="utf-8") as f:
             f.writelines(test_codes)
-        init_file.write("from . import {}_test\n".format(mod_name))
+        init_file.write(f"from . import {mod_name}_test\n")
     init_file.close()
 
     # Load generated modules.
     # After this time, we can delete generated test codes.
     sys.path.append(os.path.dirname(__file__))
-    exec("import {}".format(GENERATED_TESTS_DIR))
+    # pylint: disable=W0122
+    exec(f"import {GENERATED_TESTS_DIR}")
 
     # Get test cases.
     generated_tests_package = sys.modules[GENERATED_TESTS_DIR]
-    tests_modules = [m[1] for m in inspect.getmembers(generated_tests_package, inspect.ismodule)]
+    tests_modules = [
+        m[1]
+        for m in inspect.getmembers(generated_tests_package, inspect.ismodule)]
     test_cases = []
     for m in tests_modules:
-        test_cases.extend([m[1] for m in inspect.getmembers(m, inspect.isclass)])
+        test_cases.extend([
+            m[1]
+            for m in inspect.getmembers(m, inspect.isclass)])
 
     # Delete generated test codes.
     shutil.rmtree(tests_dir)

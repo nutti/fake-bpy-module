@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Tuple
 
 from .utils import (
     check_os,
@@ -87,13 +87,16 @@ def has_data_type(str_: str, data_type: str) -> bool:
         if (si == start_index) and (ei == end_index):
             return True
         # example: "int or float"
-        if (si == start_index) and ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
+        if (si == start_index) and \
+                ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
             return True
         # example: "list of int"
-        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and (ei == end_index):
+        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and \
+                (ei == end_index):
             return True
         # example: "list of int or float"
-        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
+        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and \
+                ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
             return True
 
     return False
@@ -143,8 +146,6 @@ class DataType:
 
 
 class UnknownDataType(DataType):
-    def __init__(self):
-        super().__init__()
 
     def type(self) -> str:
         return 'UNKNOWN'
@@ -172,30 +173,33 @@ class IntermidiateDataType(DataType):
         return 'INTERMIDIATE'
 
     def has_modifier(self) -> bool:
-        raise RuntimeError("has_modifier() is not callable ({})".format(self._data_type))
+        raise RuntimeError(
+            f"has_modifier() is not callable ({self._data_type})")
 
     def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError("module() is not callable ({})".format(self._data_type))
+        raise RuntimeError(f"module() is not callable ({self._data_type})")
 
     def data_type(self) -> str:
-        raise RuntimeError("data_type() is not callable ({})".format(self._data_type))
+        raise RuntimeError(f"data_type() is not callable ({self._data_type})")
 
     def to_string(self) -> str:
         return self._data_type
 
 
 class BuiltinDataType(DataType):
-    def __init__(self, data_type: str, modifier: 'ModifierDataType'=None, modifier_add_info=None):
+    def __init__(
+            self, data_type: str, modifier: 'ModifierDataType' = None,
+            modifier_add_info=None):
         super().__init__()
 
         assert (modifier is None) or (not isinstance(modifier, str))
 
         if not isinstance(data_type, str):
-            raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
+            raise ValueError(f"Argument 'data_type' must be str ({data_type})")
 
         if data_type not in BUILTIN_DATA_TYPE:
-            raise ValueError("data_type must be {} but {}"
-                             .format(BUILTIN_DATA_TYPE, data_type))
+            raise ValueError(
+                f"data_type must be {BUILTIN_DATA_TYPE} but {data_type}")
         self._data_type: str = data_type
         self._modifier: 'ModifierDataType' = modifier
         self._modifier_add_info = modifier_add_info
@@ -223,26 +227,26 @@ class BuiltinDataType(DataType):
         if self._modifier.modifier_data_type() == "dict":
             if self._modifier_add_info is not None:
                 if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
-                    return "{}[{}, {}]".format(self._modifier.to_string(),
-                                               self._modifier_add_info["dict_key"],
-                                               self._data_type)
-                else:
-                    return "{}['{}', {}]".format(self._modifier.to_string(),
-                                                 self._modifier_add_info["dict_key"],
-                                                 self._data_type)
+                    return f"{self._modifier.to_string()}[" \
+                        f"{self._modifier_add_info['dict_key']}, " \
+                        f"{self._data_type}]"
+                return f"{self._modifier.to_string()}[" \
+                    f"'{self._modifier_add_info['dict_key']}', " \
+                    f"{self._data_type}]"
         elif self._modifier.modifier_data_type() == "tuple":
             if self._modifier_add_info is not None:
-                return "{}[{}]".format(self._modifier.to_string(), ", ".join(self._modifier_add_info["tuple_elms"]))
+                return f"{self._modifier.to_string()}[" \
+                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]"
         elif self._modifier.modifier_data_type() == "tupletuple":
             if self._modifier_add_info is not None:
                 inner_str = []
                 for elms in self._modifier_add_info["tuple_elms"]:
-                    inner_str.append("typing.Tuple[{}]".format(", ".join(elms)))
-                return "typing.Tuple[{}]".format(", ".join(inner_str))
+                    inner_str.append(f"typing.Tuple[{', '.join(elms)}]")
+                return f"typing.Tuple[{', '.join(inner_str)}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List[{self._data_type}]]"
 
-        return "{}[{}]".format(self._modifier.to_string(), self._data_type)
+        return f"{self._modifier.to_string()}[{self._data_type}]"
 
 
 class ModifierDataType(DataType):
@@ -250,21 +254,22 @@ class ModifierDataType(DataType):
         super().__init__()
 
         if (modifier is None) or (modifier not in MODIFIER_DATA_TYPE):
-            raise ValueError("modifier must be {} but {}"
-                             .format(MODIFIER_DATA_TYPE, modifier))
+            raise ValueError(
+                f"modifier must be {MODIFIER_DATA_TYPE} but {modifier}")
         self._modifier: str = modifier
 
     def type(self) -> str:
         return 'MODIFIER'
 
     def has_modifier(self) -> bool:
-        raise RuntimeError("has_modifier() is not callable ({})".format(self._modifier))
+        raise RuntimeError(
+            f"has_modifier() is not callable ({self._modifier})")
 
     def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError("modifier() is not callable ({})".format(self._modifier))
+        raise RuntimeError(f"modifier() is not callable ({self._modifier})")
 
     def data_type(self) -> str:
-        raise RuntimeError("data_type is not callable ({})".format(self._modifier))
+        raise RuntimeError(f"data_type is not callable ({self._modifier})")
 
     def modifier_data_type(self) -> str:
         return self._modifier
@@ -275,13 +280,15 @@ class ModifierDataType(DataType):
 
 
 class CustomDataType(DataType):
-    def __init__(self, data_type: str, modifier: 'ModifierDataType'=None, modifier_add_info=None, skip_refine=False):
+    def __init__(
+            self, data_type: str, modifier: 'ModifierDataType' = None,
+            modifier_add_info=None, skip_refine=False):
         super().__init__()
 
         assert (modifier is None) or (not isinstance(modifier, str))
 
         if not isinstance(data_type, str):
-            raise ValueError("Argument 'data_type' must be str ({})".format(data_type))
+            raise ValueError(f"Argument 'data_type' must be str ({data_type})")
 
         self._data_type: str = data_type
         self._modifier: 'ModifierDataType' = modifier
@@ -309,32 +316,33 @@ class CustomDataType(DataType):
     @DataType.output_typing_optional
     def to_string(self) -> str:
         if self._modifier is None:
-            return "'{}'".format(self._data_type)
+            return f"'{self._data_type}'"
 
         if self._modifier.modifier_data_type() == "dict":
             if self._modifier_add_info is not None:
                 if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
-                    return "{}[{}, '{}']".format(self._modifier.to_string(),
-                                                 self._modifier_add_info["dict_key"],
-                                                 self._data_type)
-                else:
-                    return "{}['{}', '{}']".format(self._modifier.to_string(),
-                                                   self._modifier_add_info["dict_key"],
-                                                   self._data_type)
+                    return f"{self._modifier.to_string()}" \
+                        f"[{self._modifier_add_info['dict_key']}, " \
+                        f"'{self._data_type}']"
+                return f"{self._modifier.to_string()}['" \
+                    f"{self._modifier_add_info['dict_key']}', " \
+                    f"'{self._data_type}']"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List['{self._data_type}']]"
 
-        return "{}['{}']".format(self._modifier.to_string(),
-                                 self._data_type)
+        return f"{self._modifier.to_string()}['{self._data_type}']"
 
 
 class CustomModifierDataType(ModifierDataType):
+    # pylint: disable=W0231
     def __init__(self, modifier: str):
         self._is_optional: bool = False
 
-        if (modifier is None) or (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
-            raise ValueError("modifier must be {} but {}"
-                             .format(CUSTOM_MODIFIER_MODIFIER_DATA_TYPE, modifier))
+        if (modifier is None) or \
+                (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
+            raise ValueError(
+                f"modifier must be {CUSTOM_MODIFIER_MODIFIER_DATA_TYPE} but "
+                f"{modifier}")
         self._modifier: str = modifier
         self._output_modifier_name = modifier
 
@@ -342,13 +350,14 @@ class CustomModifierDataType(ModifierDataType):
         return 'CUSTOM_MODIFIER'
 
     def has_modifier(self) -> bool:
-        raise RuntimeError("has_modifier() is not callable ({})".format(self._modifier))
+        raise RuntimeError(
+            f"has_modifier() is not callable ({self._modifier})")
 
     def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError("modifier() is not callable ({})".format(self._modifier))
+        raise RuntimeError(f"modifier() is not callable ({self._modifier})")
 
     def data_type(self) -> str:
-        raise RuntimeError("data_type() is not callable ({})".format(self._modifier))
+        raise RuntimeError(f"data_type() is not callable ({self._modifier})")
 
     def modifier_data_type(self) -> str:
         return self._modifier
@@ -369,19 +378,28 @@ class MixinDataType(DataType):
         super().__init__()
 
         if len(data_types) <= 1:
-            raise ValueError("length of data_types must be >= 2 but {}"
-                             .format(len(data_types)))
+            raise ValueError(
+                f"length of data_types must be >= 2 but {len(data_types)}")
         self._data_types: List['DataType'] = data_types
 
     def type(self) -> str:
         return 'MIXIN'
+
+    def data_type(self) -> str:
+        raise RuntimeError("data_type() is not callable")
+
+    def has_modifier(self) -> bool:
+        raise RuntimeError("has_modifier() is not callable")
+
+    def modifier(self) -> 'ModifierDataType':
+        raise RuntimeError("modifier() is not callable")
 
     def data_types(self) -> List['DataType']:
         return self._data_types
 
     def to_string(self) -> str:
         s = [dt.to_string() for dt in self._data_types]
-        return "typing.Union[{}]".format(", ".join(s))
+        return f"typing.Union[{', '.join(s)}]"
 
     @DataType.output_typing_optional
     def set_data_type(self, index, data_type: 'DataType'):
@@ -397,32 +415,33 @@ class Info:
             if key in data:
                 return True
             return False
-        elif method == 'APPEND':
+        if method == 'APPEND':
             if (key in data) and (variable is None):
                 return True
             return False
-        elif method == 'UPDATE':
+        if method == 'UPDATE':
             if key in data:
                 return True
             return False
-        else:
-            raise RuntimeError("Unsupported method: {}".format(method))
 
-    def is_data_type_assinable(self, variable, data: dict, key: str, method: str):
+        raise RuntimeError(f"Unsupported method: {method}")
+
+    def is_data_type_assinable(
+            self, variable, data: dict, key: str, method: str):
         if method == 'NEW':
             if key in data:
                 return True
             return False
-        elif method == 'APPEND':
+        if method == 'APPEND':
             if (key in data) and isinstance(variable, UnknownDataType):
                 return True
             return False
-        elif method == 'UPDATE':
+        if method == 'UPDATE':
             if key in data:
                 return True
             return False
-        else:
-            raise RuntimeError("Unsupported method: {}".format(method))
+
+        raise RuntimeError(f"Unsupported method: {method}")
 
     def name(self) -> str:
         raise NotImplementedError()
@@ -438,13 +457,13 @@ class Info:
     def to_dict(self) -> dict:
         raise NotImplementedError()
 
-    def from_dict(self, data: dict, method: str=False):
+    def from_dict(self, data: dict, method: str = False):
         raise NotImplementedError()
 
 
 class ParameterDetailInfo(Info):
     def __init__(self):
-        super(ParameterDetailInfo, self).__init__()
+        super().__init__()
         self._type: str = "parameter"
         self._name: str = None
         self._description: str = None
@@ -452,6 +471,9 @@ class ParameterDetailInfo(Info):
 
     def name(self) -> str:
         return self._name
+
+    def module(self) -> str:
+        raise RuntimeError("module() is not callable")
 
     def set_name(self, name: str):
         self._name = name
@@ -497,27 +519,34 @@ class ParameterDetailInfo(Info):
 
         return data
 
-    def from_dict(self, data: dict, method: str='NONE'):
+    def from_dict(self, data: dict, method: str = 'NONE'):
         if "type" not in data:
             raise RuntimeError("data must have type")
         if data["type"] != "parameter":
-            raise RuntimeError("Unsupported type: {}".format(data["type"]))
+            raise RuntimeError(f"Unsupported type: {data['type']}")
 
         self._type = data["type"]
         if self.is_assignable(self._name, data, "name", method):
             self._name = data["name"]
         if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(
+                self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
 class ReturnInfo(Info):
     def __init__(self):
-        super(ReturnInfo, self).__init__()
+        super().__init__()
         self._type: str = "return"
         self._description: str = None
         self._data_type: 'DataType' = UnknownDataType()
+
+    def name(self) -> str:
+        raise RuntimeError("name() is not callable")
+
+    def module(self) -> str:
+        raise RuntimeError("module() is not callable")
 
     def data_type(self) -> 'DataType':
         return self._data_type
@@ -555,16 +584,17 @@ class ReturnInfo(Info):
 
         return data
 
-    def from_dict(self, data: dict, method: str='NONE'):
+    def from_dict(self, data: dict, method: str = 'NONE'):
         if "type" not in data:
             raise RuntimeError("data must have type")
         if data["type"] != "return":
-            raise RuntimeError("Unsupported type: {}".format(data["type"]))
+            raise RuntimeError(f"Unsupported type: {data['type']}")
 
         self._type = data["type"]
         if self.is_assignable(self._description, data, "description", method):
             self._description = data["description"]
-        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(
+                self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
@@ -572,10 +602,11 @@ class VariableInfo(Info):
     supported_type: List[str] = ["constant", "attribute"]
 
     def __init__(self, type_: str):
-        super(VariableInfo, self).__init__()
+        super().__init__()
         if type_ not in self.supported_type:
-            raise RuntimeError("VariableInfo must be type {} but {}"
-                               .format(self.supported_type, type_))
+            raise RuntimeError(
+                f"VariableInfo must be type {self.supported_type} "
+                f"but {type_}")
         self._type: str = type_
         self._name: str = None
         self._description: str = None
@@ -649,11 +680,11 @@ class VariableInfo(Info):
 
         return data
 
-    def from_dict(self, data: dict, method: str='NONE'):
+    def from_dict(self, data: dict, method: str = 'NONE'):
         if "type" not in data:
             raise RuntimeError("data must have type")
         if data["type"] not in self.supported_type:
-            raise RuntimeError("Unsupported type: {}".format(data["type"]))
+            raise RuntimeError(f"Unsupported type: {data['type']}")
 
         self._type = data["type"]
         if self.is_assignable(self._name, data, "name", method):
@@ -664,18 +695,20 @@ class VariableInfo(Info):
             self._class = data["class"]
         if self.is_assignable(self._module, data, "module", method):
             self._module = data["module"]
-        if self.is_data_type_assinable(self._data_type, data, "data_type", method):
+        if self.is_data_type_assinable(
+                self._data_type, data, "data_type", method):
             self._data_type = IntermidiateDataType(data["data_type"])
 
 
 class FunctionInfo(Info):
-    supported_type: List[str] = ["function", "method", "classmethod", "staticmethod"]
+    supported_type: List[str] = [
+        "function", "method", "classmethod", "staticmethod"]
 
     def __init__(self, type_: str):
-        super(FunctionInfo, self).__init__()
+        super().__init__()
         if type_ not in self.supported_type:
-            raise RuntimeError("FunctionInfo must be type {} but {}"
-                               .format(self.supported_type, type_))
+            raise RuntimeError(
+                f"FunctionInfo must be type {self.supported_type} but {type_}")
         self._type: str = type_
         self._name: str = None
         self._parameters: List[str] = []
@@ -714,11 +747,13 @@ class FunctionInfo(Info):
             raise RuntimeError("Out of range")
         self._parameters[idx] = param
 
-    def add_parameter(self, param: str, pos: int=-1):
+    def add_parameter(self, param: str, pos: int = -1):
         if param in self._parameters:
-            output_log(LOG_LEVEL_WARN,
-                    "Parameter {} is already registered in ({}), so skip to add this parameter. (module: {}, name: {})"
-                       .format(param, " | ".join(self._parameters), self._module, self._name))
+            output_log(
+                LOG_LEVEL_WARN,
+                f"Parameter {param} is already registered in "
+                f"({' | '.join(self._parameters)}, so skip to add this "
+                f"parameter. (module: {self._module}, name: {self._name})")
             return
         if pos == -1:
             self._parameters.append(param)
@@ -734,10 +769,11 @@ class FunctionInfo(Info):
             raise RuntimeError("Out of range")
         del self._parameters[idx]
 
-    def add_parameter_detail(self, param: 'ParameterDetailInfo', pos: int=-1):
+    def add_parameter_detail(
+            self, param: 'ParameterDetailInfo', pos: int = -1):
         if param.type() != "parameter":
-            raise RuntimeError("Expected Info.type() is {} but {}."
-                               .format("parameter", param.type()))
+            raise RuntimeError(
+                f"Expected Info.type() is parameter but {param.type()}.")
         if pos == -1:
             self._parameter_details.append(param)
         else:
@@ -746,8 +782,8 @@ class FunctionInfo(Info):
     def add_parameter_details(self, params: List['ParameterDetailInfo']):
         for p in params:
             if p.type() != "parameter":
-                raise RuntimeError("Expected Info.type() is {} but {}."
-                                   .format("parameter", p.type()))
+                raise RuntimeError(
+                    f"Expected Info.type() is parameter but {p.type()}.")
             self.add_parameter_detail(p)
 
     def set_parameter_details(self, params: List['ParameterDetailInfo']):
@@ -779,8 +815,7 @@ class FunctionInfo(Info):
 
     def to_dict(self) -> dict:
         if self._type not in self.supported_type:
-            raise RuntimeError("'type' must be ({})"
-                               .format(self.supported_type))
+            raise RuntimeError(f"'type' must be ({self.supported_type})")
 
         if self._name is None:
             raise RuntimeError("'name' is empty")
@@ -811,7 +846,7 @@ class FunctionInfo(Info):
                 "return": self._return.to_dict(),
                 "class": remove_unencodable(self._class),
                 "module": remove_unencodable(self._module),
-                "parameters": [p for p in self._parameters],
+                "parameters": list(self._parameters),
                 "parameter_details": [p.to_dict()
                                       for p in self._parameter_details],
             }
@@ -823,18 +858,18 @@ class FunctionInfo(Info):
                 "return": self._return.to_dict(),
                 "class": self._class,
                 "module": self._module,
-                "parameters": [p for p in self._parameters],
+                "parameters": list(self._parameters),
                 "parameter_details": [p.to_dict()
                                       for p in self._parameter_details],
             }
 
         return data
 
-    def from_dict(self, data: dict, method: str='NONE'):
+    def from_dict(self, data: dict, method: str = 'NONE'):
         if "type" not in data:
             raise RuntimeError("data must have type")
         if data["type"] not in self.supported_type:
-            raise RuntimeError("Unsupported type: {}".format(data["type"]))
+            raise RuntimeError(f"Unsupported type: {data['type']}")
 
         self._type = data["type"]
         if self.is_assignable(self._name, data, "name", method):
@@ -878,7 +913,7 @@ class FunctionInfo(Info):
                             update_pd.from_dict(pd, 'UPDATE')
                             break
                     else:
-                        raise RuntimeError("{} is not found".format(pd["name"]))
+                        raise RuntimeError(f"{pd['name']} is not found")
 
         if "return" in data:
             if method == 'NEW':
@@ -898,7 +933,7 @@ class FunctionInfo(Info):
 
 class ClassInfo(Info):
     def __init__(self):
-        super(ClassInfo, self).__init__()
+        super().__init__()
         self._type: str = "class"
         self._name: str = None
         self._description: str = None
@@ -942,16 +977,16 @@ class ClassInfo(Info):
     def add_method(self, method: 'FunctionInfo'):
         supported = ["method", "classmethod", "staticmethod"]
         if method.type() not in supported:
-            raise RuntimeError("Expected Info.type() is {} but {}."
-                               .format(supported, method.type()))
+            raise RuntimeError(
+                f"Expected Info.type() is {supported} but {method.type()}.")
         self._methods.append(method)
 
     def add_methods(self, methods: List['FunctionInfo']):
         supported = ["method", "classmethod", "staticmethod"]
         for m in methods:
             if m.type() not in supported:
-                raise RuntimeError("Expected Info.type() is {} but {}."
-                                   .format(supported, m.type()))
+                raise RuntimeError(
+                    f"Expected Info.type() is {supported} but {m.type()}.")
             self.add_method(m)
 
     def set_methods(self, methods: List['FunctionInfo']):
@@ -960,15 +995,15 @@ class ClassInfo(Info):
 
     def add_attribute(self, attr: 'VariableInfo'):
         if attr.type() != "attribute":
-            raise RuntimeError("Expected Info.type() is {} but {}."
-                               .format("attribute", attr.type()))
+            raise RuntimeError(
+                f"Expected Info.type() is attribute but {attr.type()}.")
         self._attributes.append(attr)
 
     def add_attributes(self, attrs: List['VariableInfo']):
         for a in attrs:
             if a.type() != "attribute":
-                raise RuntimeError("Expected Info.type() is {} but {}."
-                                   .format("attribute", a.type()))
+                raise RuntimeError(
+                    f"Expected Info.type() is attribute but {a.type()}.")
             self.add_attribute(a)
 
     def set_attributes(self, attrs: List['VariableInfo']):
@@ -1019,11 +1054,11 @@ class ClassInfo(Info):
 
         return data
 
-    def from_dict(self, data: dict, method: str='NONE'):
+    def from_dict(self, data: dict, method: str = 'NONE'):
         if "type" not in data:
             raise RuntimeError("data must have type")
         if data["type"] != "class":
-            raise RuntimeError("Unsupported type: {}".format(data["type"]))
+            raise RuntimeError(f"Unsupported type: {data['type']}")
 
         self._type = data["type"]
         if self.is_assignable(self._name, data, "name", method):
@@ -1056,10 +1091,11 @@ class ClassInfo(Info):
                             update_m.from_dict(m, 'UPDATE')
                             break
                     else:
-                        raise RuntimeError("Method '{}' is not found at class '{}.{}'"
-                                           .format(m["name"], self._module, self._name))
+                        raise RuntimeError(
+                            f"Method '{m['name']}' is not found at class "
+                            f"'{self._module}.{self._name}'")
             else:
-                raise RuntimeError("Unsupported method: {}".format(method))
+                raise RuntimeError(f"Unsupported method: {method}")
 
         if "attributes" in data:
             if method == 'NEW':
@@ -1084,9 +1120,9 @@ class ClassInfo(Info):
                             update_a.from_dict(a, 'UPDATE')
                             break
                     else:
-                        raise RuntimeError("{} is not found".format(a["name"]))
+                        raise RuntimeError(f"{a['name']} is not found")
             else:
-                raise RuntimeError("Unsupported method: {}".format(method))
+                raise RuntimeError(f"Unsupported method: {method}")
 
         if "base_classes" in data:
             if method == 'NEW':
@@ -1094,7 +1130,7 @@ class ClassInfo(Info):
                     new_c = IntermidiateDataType(c)
                     self._base_classes.append(new_c)
             else:
-                raise RuntimeError("Unsupported method: {}".format(method))
+                raise RuntimeError(f"Unsupported method: {method}")
 
 
 class SectionInfo:
@@ -1148,32 +1184,39 @@ class ModuleStructure:
 
 class DataTypeRefiner:
 
-    def __init__(self, package_structure: 'ModuleStructure', entry_points: List['EntryPoint']):
+    def __init__(
+            self, package_structure: 'ModuleStructure',
+            entry_points: List['EntryPoint']):
         self._package_structure: 'ModuleStructure' = package_structure
         self._entry_points: List['EntryPoint'] = entry_points
 
-        self._entry_points_cache : Dict[str, Set] = {}
-        self._entry_points_cache["uniq_full_names"] = set([e.fullname() for e in self._entry_points])
-        self._entry_points_cache["uniq_module_names"] = set([e.module for e in self._entry_points])
+        self._entry_points_cache: Dict[str, Set] = {}
+        self._entry_points_cache["uniq_full_names"] = {
+            e.fullname() for e in self._entry_points}
+        self._entry_points_cache["uniq_module_names"] = {
+            e.module for e in self._entry_points}
 
-    def _parse_custom_data_type(self, string_to_parse: str, uniq_full_names: Set[str],
-                                uniq_module_names: Set[str], module_name: str) -> str:
+    def _parse_custom_data_type(
+            self, string_to_parse: str, uniq_full_names: Set[str],
+            uniq_module_names: Set[str], module_name: str) -> str:
         dtype_str = string_to_parse
         if dtype_str in uniq_full_names:
             return dtype_str
-        dtype_str = "{}.{}".format(module_name, string_to_parse)
+        dtype_str = f"{module_name}.{string_to_parse}"
         if dtype_str in uniq_full_names:
             return dtype_str
-        
+
         for mod in list(uniq_module_names):
-            dtype_str = "{}.{}".format(mod, string_to_parse)
+            dtype_str = f"{mod}.{string_to_parse}"
             if dtype_str in uniq_full_names:
                 return dtype_str
 
         return None
 
-    def _get_refined_data_type_fast(self, dtype_str: str, uniq_full_names: Set[str],
-                                    uniq_module_names: Set[str], module_name: str) -> 'DataType':
+    def _get_refined_data_type_fast(
+            self, dtype_str: str, uniq_full_names: Set[str],
+            uniq_module_names: Set[str], module_name: str) -> 'DataType':
+        # pylint: disable=R0912,R0911,R0915
         if re.match(r"^\s*$", dtype_str):
             return UnknownDataType()
 
@@ -1184,11 +1227,13 @@ class DataTypeRefiner:
             return UnknownDataType()
 
         if re.match(r"^[23][dD] [Vv]ector$", dtype_str):
-            s = self._parse_custom_data_type("Vector", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
         if re.match(r"^4x4 mathutils.Matrix$", dtype_str):
-            s = self._parse_custom_data_type("Matrix", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
@@ -1247,15 +1292,25 @@ class DataTypeRefiner:
             return BuiltinDataType("bytes")
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
-        m = re.match(r"^int array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
+        m = re.match(
+            r"^int array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
+            dtype_str)
         if m:
             return BuiltinDataType("int", ModifierDataType("list"))
-        m = re.match(r"^float array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
+        m = re.match(
+            r"^float array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
+            dtype_str)
         if m:
-            s = self._parse_custom_data_type("mathutils.Vector", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "mathutils.Vector", uniq_full_names, uniq_module_names,
+                module_name)
             dtypes = [
                 BuiltinDataType("float", ModifierDataType("list")),
-                BuiltinDataType("float", ModifierDataType("tuple"), modifier_add_info={"tuple_elms": ["float"] * int(m.group(1))}),
+                BuiltinDataType(
+                    "float", ModifierDataType("tuple"),
+                    modifier_add_info={
+                        "tuple_elms": ["float"] * int(m.group(1))
+                    }),
                 CustomDataType(s)
             ]
             return MixinDataType(dtypes)
@@ -1264,7 +1319,8 @@ class DataTypeRefiner:
         if m:
             return BuiltinDataType("float", ModifierDataType("tuple"))
         # Ex: int in [-inf, inf], default 0, (readonly)
-        m = re.match(r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
+        m = re.match(
+            r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1))
         m = re.match(r"(int|float)$", dtype_str)
@@ -1275,14 +1331,22 @@ class DataTypeRefiner:
             return BuiltinDataType("int")
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
-        m = re.match(r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
+        m = re.match(
+            r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in "
+            r"\[([-einf+0-9,. ]+)\](, .+)*$",
+            dtype_str)
         if m:
-            s = self._parse_custom_data_type("mathutils.Matrix", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "mathutils.Matrix", uniq_full_names, uniq_module_names,
+                module_name)
             dtypes = [
                 BuiltinDataType("float", ModifierDataType("listlist")),
-                BuiltinDataType("float", ModifierDataType("tupletuple"), modifier_add_info={
-                    "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))
-                }),
+                BuiltinDataType(
+                    "float", ModifierDataType("tupletuple"),
+                    modifier_add_info={
+                        "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))   # noqa # pylint: disable=C0301
+                    }
+                ),
                 CustomDataType(s)
             ]
             return MixinDataType(dtypes)
@@ -1295,14 +1359,22 @@ class DataTypeRefiner:
         if re.match(r"^tuple$", dtype_str):
             return ModifierDataType("tuple")
 
-        m = re.match(r"^([a-zA-Z0-9]+) bpy_prop_collection of ([a-zA-Z0-9]+) , \(readonly\)$", dtype_str)
+        m = re.match(
+            r"^([a-zA-Z0-9]+) bpy_prop_collection of ([a-zA-Z0-9]+) , "
+            r"\(readonly\)$",
+            dtype_str)
         if m:
-            s1 = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
-            s2 = self._parse_custom_data_type(m.group(2), uniq_full_names, uniq_module_names, module_name)
+            s1 = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s2 = self._parse_custom_data_type(
+                m.group(2), uniq_full_names, uniq_module_names, module_name)
             if s1 and s2:
                 dtypes = [
                     CustomDataType(s1),
-                    CustomDataType(s2, CustomModifierDataType("bpy.types.bpy_prop_collection"))
+                    CustomDataType(
+                        s2,
+                        CustomModifierDataType("bpy.types.bpy_prop_collection")
+                    )
                 ]
                 return MixinDataType(dtypes)
 
@@ -1318,19 +1390,24 @@ class DataTypeRefiner:
         # Ex: sequence of bpy.types.Action
         m = re.match(r"^sequence of ([a-zA-Z0-9_.]+)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("list"))
         # Ex: bpy_prop_collection of ThemeStripColor , (readonly, never None)
-        m = re.match(r"^bpy_prop_collection of ([a-zA-Z0-9]+) , \((.+)\)$", dtype_str)
+        m = re.match(
+            r"^bpy_prop_collection of ([a-zA-Z0-9]+) , \((.+)\)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, CustomModifierDataType("bpy.types.bpy_prop_collection"))
+                return CustomDataType(
+                    s, CustomModifierDataType("bpy.types.bpy_prop_collection"))
         # Ex: List of FEdge objects
         m = re.match(r"^List of ([A-Za-z0-9]+) objects$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("list"))
         # Ex: list of ints
@@ -1343,17 +1420,19 @@ class DataTypeRefiner:
             items = m.group(1).split(",")
             dtypes = []
             for item in items:
-                s = self._parse_custom_data_type(item, uniq_full_names, uniq_module_names, module_name)
+                s = self._parse_custom_data_type(
+                    item, uniq_full_names, uniq_module_names, module_name)
                 if s:
                     dtypes.append(CustomDataType(s, ModifierDataType("list")))
             if len(dtypes) == 1:
                 return dtypes[0]
-            elif len(dtypes) > 1:
+            if len(dtypes) > 1:
                 return CustomDataType(dtypes)
         # Ex: BMElemSeq of BMEdge
         m = re.match(r"BMElemSeq of ([a-zA-Z0-9]+)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 dtypes = [
                     CustomDataType(s, ModifierDataType("list")),
@@ -1361,9 +1440,12 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
 
-        m = re.match(r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$", dtype_str)
+        m = re.match(
+            r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$",
+            dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 dtypes = [
                     CustomDataType(s.rstrip("Seq"), ModifierDataType("list")),
@@ -1381,24 +1463,32 @@ class DataTypeRefiner:
         # Ex: bpy.types.Struct subclass
         m = re.match(r"^bpy.types.Struct subclass$", dtype_str)
         if m:
-            s = self._parse_custom_data_type("bpy.types.Struct", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "bpy.types.Struct", uniq_full_names, uniq_module_names,
+                module_name)
             if s:
                 return CustomDataType(s)
 
         m = re.match(r"^[A-Z]([a-zA-Z]+)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(0), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(0), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
         m = re.match(r"^bpy_struct$", dtype_str)
         if m:
-            s = self._parse_custom_data_type("bpy_struct", uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                "bpy_struct", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^([A-Z][a-zA-Z0-9_]+) , \((optional|readonly|never None|readonly, never None)\)$", dtype_str)
+        m = re.match(
+            r"^([A-Z][a-zA-Z0-9_]+) , "
+            r"\((optional|readonly|never None|readonly, never None)\)$",
+            dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
@@ -1406,32 +1496,38 @@ class DataTypeRefiner:
         m = re.match(r"^([A-Z]+)_OT_([a-z_]+) , \(optional\)$", dtype_str)
         if m:
             idname = f"bpy.ops.{m.group(1).lower()}.{m.group(2)}"
-            s = self._parse_custom_data_type(idname, uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                idname, uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
         m = re.match(r"^([a-zA-Z0-9_]+)\.([a-zA-Z0-9_.]+)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(0), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(0), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
         m = re.match(r"^([a-zA-Z0-9_.]+) , \(readonly\)$", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
+        # pylint: disable=W0511
         # TODO: need to split ,
         m = re.match(r"^([a-zA-Z0-9_.]+) ", dtype_str)
         if m:
-            s = self._parse_custom_data_type(m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
-        
+
         return None
 
-    def _get_refined_data_type_slow(self, data_type: 'DataType', module_name: str) -> 'DataType':
+    def _get_refined_data_type_slow(
+            self, data_type: 'DataType', module_name: str) -> 'DataType':
         # convert to aliased data type string
         dtype_str = data_type.to_string()
         for (key, value) in REPLACE_DATA_TYPE.items():
@@ -1469,7 +1565,7 @@ class DataTypeRefiner:
                     return False
             return True
 
-        def parse_builtin_dtype(string_to_parse: str) -> (List[str], str):
+        def parse_builtin_dtype(string_to_parse: str) -> Tuple[List[str], str]:
             dtype = []
             stripped_string = string_to_parse
             for type_ in BUILTIN_DATA_TYPE:
@@ -1484,7 +1580,7 @@ class DataTypeRefiner:
                 stripped_string = ""
             return dtype, stripped_string
 
-        def parse_custom_dtype(string_to_parse: str) -> (List[str], str):
+        def parse_custom_dtype(string_to_parse: str) -> Tuple[List[str], str]:
             dtype = []
             stripped_string = string_to_parse
             for entry in self._entry_points:
@@ -1494,11 +1590,12 @@ class DataTypeRefiner:
                     continue
                 if has_data_type(stripped_string, entry.fullname()):
                     dtype.append(entry.fullname())
-                    stripped_string = stripped_string.replace(entry.fullname(), "")
+                    stripped_string = stripped_string.replace(
+                        entry.fullname(), "")
                     if only_nonsense_chars(stripped_string):
                         stripped_string = ""
                     continue
-                full_data_type = "{}.{}".format(module_name, stripped_string)
+                full_data_type = f"{module_name}.{stripped_string}"
                 if has_data_type(full_data_type, entry.fullname()):
                     dtype.append(entry.fullname())
                     stripped_string = stripped_string.replace(entry.name, "")
@@ -1522,40 +1619,46 @@ class DataTypeRefiner:
                 stripped_string = ""
             return dtype, stripped_string
 
-        def parse_dict_with_strkey_case(string_to_parse: str) -> (List[Dict[str, str]], str):
+        def parse_dict_with_strkey_case(
+                string_to_parse: str) -> Tuple[List[Dict[str, str]], str]:
             dict_case = []
             stripped_string = string_to_parse
             for class_ in DICT_WITH_STRKEY_FORMAT:
-                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)
+                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)     # noqa # pylint: disable=C0209
                 m = re.search(regex, stripped_string)
                 if m:
                     case = {}
                     case["modifier"] = "dict"
-                    case["builtin_dtype"], _ = parse_builtin_dtype(m.groups()[0])
+                    case["builtin_dtype"], _ = parse_builtin_dtype(
+                        m.groups()[0])
                     case["custom_dtype"] = []
                     case["dict_key"] = "str"
                     if not case["builtin_dtype"]:
-                        case["custom_dtype"], _ = parse_custom_dtype(m.groups()[0])
+                        case["custom_dtype"], _ = parse_custom_dtype(
+                            m.groups()[0])
                         if not case["custom_dtype"]:
                             continue
                     dict_case.append(case)
             return dict_case, stripped_string
 
         # Check "XXX of YYY" format
-        def parse_listof_case(string_to_parse: str) -> (List[Dict[str, str]], str):
+        def parse_listof_case(
+                string_to_parse: str) -> Tuple[List[Dict[str, str]], str]:
             listof_case = []
             stripped_string = string_to_parse
             for class_, need_to_add in LISTOF_FORMAT.items():
-                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)
+                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)     # noqa # pylint: disable=C0209
                 m = re.search(regex, stripped_string)
                 if m:
                     case = {}
                     case["modifier"] = "list"
-                    case["builtin_dtype"], _ = parse_builtin_dtype(m.groups()[0])
+                    case["builtin_dtype"], _ = parse_builtin_dtype(
+                        m.groups()[0])
                     case["custom_dtype"] = []
                     case["self_dtype"] = None
                     if not case["builtin_dtype"]:
-                        case["custom_dtype"], _ = parse_custom_dtype(m.groups()[0])
+                        case["custom_dtype"], _ = parse_custom_dtype(
+                            m.groups()[0])
                         if not case["custom_dtype"]:
                             continue
                     if need_to_add:
@@ -1566,13 +1669,14 @@ class DataTypeRefiner:
                 stripped_string = ""
             return listof_case, stripped_string
 
-        def parse_modifier(string_to_parse: str) -> (List[str], str):
+        def parse_modifier(string_to_parse: str) -> Tuple[List[str], str]:
             modifier = None
             stripped_string = string_to_parse
             for type_ in MODIFIER_DATA_TYPE:
                 if has_data_type(stripped_string, type_):
                     modifier = type_
                     # remove modifier from stripped_string
+                    # pylint: disable=W0511
                     # TODO: need to clip only modifier string
                     #       (issue ex. hogelist -> hoge)
                     stripped_string = stripped_string.replace(type_, "")
@@ -1582,6 +1686,7 @@ class DataTypeRefiner:
                     if has_data_type(stripped_string, key):
                         modifier = value
                         # remove modifier from stripped_string
+                        # pylint: disable=W0511
                         # TODO: need to clip only modifier string
                         #       (issue ex. hogelist -> hoge)
                         stripped_string = stripped_string.replace(key, "")
@@ -1589,7 +1694,6 @@ class DataTypeRefiner:
             if only_nonsense_chars(stripped_string):
                 stripped_string = ""
             return modifier, stripped_string
-
 
         dict_case, dtype_str = parse_dict_with_strkey_case(dtype_str)
 
@@ -1602,36 +1706,42 @@ class DataTypeRefiner:
 
         # and then, search from package entry points
         custom_dtypes, dtype_str = parse_custom_dtype(dtype_str)
-        if not builtin_dtypes and not custom_dtypes and not modifier and not listof_case:
+        if not builtin_dtypes and not custom_dtypes and not modifier and \
+                not listof_case:
             output_log(LOG_LEVEL_WARN,
-                       "Could not find any data type ({})"
-                       .format(remove_unencodable(data_type.to_string())))
+                       f"Could not find any data type "
+                       f"({remove_unencodable(data_type.to_string())})")
         custom_dtypes = list(set(custom_dtypes))
 
         if dtype_str:
-            output_log(LOG_LEVEL_DEBUG,
-                       "dtype_str is still exists ({})".format(remove_unencodable(dtype_str)))
+            output_log(
+                LOG_LEVEL_DEBUG,
+                f"dtype_str is still exists ({remove_unencodable(dtype_str)})")
 
         dtype_list = []
         for case in dict_case:
             if case["builtin_dtype"]:
                 dtype_list.append(
-                    BuiltinDataType(case["builtin_dtype"][0], ModifierDataType(case["modifier"]),
-                                    {"dict_key": case["dict_key"]}
-                    )
-                )
+                    BuiltinDataType(
+                        case["builtin_dtype"][0],
+                        ModifierDataType(case["modifier"]),
+                        {"dict_key": case["dict_key"]}))
             elif case["custom_dtype"]:
                 dtype_list.append(
-                    CustomDataType(case["custom_dtype"][0], ModifierDataType(case["modifier"]),
-                                   {"dict_key": case["dict_key"]}
-                    )
-                )
+                    CustomDataType(
+                        case["custom_dtype"][0],
+                        ModifierDataType(case["modifier"]),
+                        {"dict_key": case["dict_key"]}))
 
         for case in listof_case:
             if case["builtin_dtype"]:
-                dtype_list.append(BuiltinDataType(case["builtin_dtype"][0], ModifierDataType(case["modifier"])))
+                dtype_list.append(BuiltinDataType(
+                    case["builtin_dtype"][0],
+                    ModifierDataType(case["modifier"])))
             elif case["custom_dtype"]:
-                dtype_list.append(CustomDataType(case["custom_dtype"][0], ModifierDataType(case["modifier"])))
+                dtype_list.append(CustomDataType(
+                    case["custom_dtype"][0],
+                    ModifierDataType(case["modifier"])))
             if case["self_dtype"]:
                 dtype_list.append(CustomDataType(case["self_dtype"]))
 
@@ -1642,32 +1752,34 @@ class DataTypeRefiner:
                 dtype_list.append(CustomDataType(d))
         else:
             for d in builtin_dtypes:
-                if (modifier != "list") and (modifier != "set"):
+                if modifier not in ("list", "set"):
                     output_log(LOG_LEVEL_WARN,
-                               "Modifier '{}' does not support element type inference ({})"
-                               .format(modifier, d))
+                               f"Modifier '{modifier}' does not support "
+                               f"element type inference ({d})")
                     dtype_list.append(ModifierDataType(modifier))
                 else:
-                    dtype_list.append(BuiltinDataType(d, ModifierDataType(modifier)))
+                    dtype_list.append(BuiltinDataType(
+                        d, ModifierDataType(modifier)))
             for d in custom_dtypes:
-                if (modifier != "list") and (modifier != "set"):
+                if modifier not in ("list", "set"):
                     output_log(LOG_LEVEL_WARN,
-                               "Modifier '{}' does not support element type inference ({})"
-                               .format(modifier, d))
+                               f"Modifier '{modifier}' does not support "
+                               f"element type inference ({d})")
                     dtype_list.append(ModifierDataType(modifier))
                 else:
-                    dtype_list.append(CustomDataType(d, ModifierDataType(modifier)))
+                    dtype_list.append(CustomDataType(
+                        d, ModifierDataType(modifier)))
             if not builtin_dtypes and not custom_dtypes:
                 dtype_list.append(ModifierDataType(modifier))
 
         if len(dtype_list) == 1:
             return dtype_list[0]
-        elif len(dtype_list) >= 2:
+        if len(dtype_list) >= 2:
             return MixinDataType(dtype_list)
-        else:
-            return UnknownDataType()
+        return UnknownDataType()
 
-    def get_refined_data_type(self, data_type: 'DataType', module_name: str) -> 'DataType':
+    def get_refined_data_type(
+            self, data_type: 'DataType', module_name: str) -> 'DataType':
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
 
@@ -1675,7 +1787,9 @@ class DataTypeRefiner:
             return data_type
 
         if data_type.type() != 'INTERMIDIATE':
-            output_log(LOG_LEVEL_WARN, "data_type should be 'INTERMIDIATE' but {}".format(data_type.type()))
+            output_log(
+                LOG_LEVEL_WARN,
+                f"data_type should be 'INTERMIDIATE' but {data_type.type()}")
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
@@ -1683,7 +1797,8 @@ class DataTypeRefiner:
         is_optional = data_type.is_optional()
         dtype_str = data_type.to_string()
 
-        result = self._get_refined_data_type_fast(dtype_str, uniq_full_names, uniq_module_names, module_name)
+        result = self._get_refined_data_type_fast(
+            dtype_str, uniq_full_names, uniq_module_names, module_name)
         if result is not None:
             result.set_is_optional(is_optional)
             return result
@@ -1693,21 +1808,24 @@ class DataTypeRefiner:
             dtypes = []
             for s in sp:
                 s = s.strip()
-                result = self._get_refined_data_type_fast(s, uniq_full_names, uniq_module_names, module_name)
+                result = self._get_refined_data_type_fast(
+                    s, uniq_full_names, uniq_module_names, module_name)
                 if result is not None:
                     if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
                         dtypes.append(result)
-                    elif result.type() =='MIXIN':
+                    elif result.type() == 'MIXIN':
                         dtypes.append(result.data_types())
             if len(dtypes) == 1:
                 dtypes[0].set_is_optional(is_optional)
                 return dtypes[0]
-            elif len(dtypes) >= 2:
+            if len(dtypes) >= 2:
                 result = MixinDataType(dtypes)
                 result.set_is_optional(is_optional)
                 return result
 
-        output_log(LOG_LEVEL_DEBUG, f"Slow data type refining: {data_type.to_string()}")
+        output_log(
+            LOG_LEVEL_DEBUG,
+            f"Slow data type refining: {data_type.to_string()}")
 
         result = self._get_refined_data_type_slow(data_type, module_name)
         result.set_is_optional(is_optional)
@@ -1726,7 +1844,9 @@ class DataTypeRefiner:
 
         module_names = data_type.split(".")[:-1]
 
-        def search(mod_names, structure: 'ModuleStructure', dtype: str, is_first_level: bool=False):
+        def search(
+                mod_names, structure: 'ModuleStructure', dtype: str,
+                is_first_level: bool = False):
             if len(mod_names) == 0:
                 return dtype
             for s in structure.children():
@@ -1734,12 +1854,10 @@ class DataTypeRefiner:
                     continue
                 if is_first_level:
                     return search(mod_names[1:], s, s.name)
-                else:
-                    return search(mod_names[1:], s, dtype + "." + s.name)
+                return search(mod_names[1:], s, dtype + "." + s.name)
             return ""
 
-        relative_type = search(module_names, self._package_structure,
-                               "", True)
+        relative_type = search(module_names, self._package_structure, "", True)
 
         return relative_type if relative_type != "" else None
 
@@ -1747,10 +1865,10 @@ class DataTypeRefiner:
         mod_name = self.get_module_name(data_type)
         base_name = self.get_base_name(data_type)
 
-        ensured = "{}.{}".format(mod_name, base_name)
+        ensured = f"{mod_name}.{base_name}"
         if ensured != data_type:
-            raise RuntimeError("Invalid data type: ({} vs {})"
-                               .format(data_type, ensured))
+            raise RuntimeError(
+                f"Invalid data type: ({data_type} vs {ensured})")
 
         return ensured
 
@@ -1760,7 +1878,9 @@ class DataTypeRefiner:
         mod_names_full_2 = target_module
 
         if mod_names_full_1 is None or mod_names_full_2 is None:
-            return data_type      # TODO: should return better data_type
+            # pylint: disable=W0511
+            # TODO: should return better data_type
+            return data_type
 
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
@@ -1810,8 +1930,9 @@ class DataTypeRefiner:
             elif rest_level_1 >= 1 and rest_level_2 == 0:
                 final_data_type = self._ensure_correct_data_type(data_type)
             else:
-                raise RuntimeError("Should not reach this condition. ({} vs {})"
-                                   .format(rest_level_1, rest_level_2))
+                raise RuntimeError(
+                    f"Should not reach this condition. ({rest_level_1} vs "
+                    f"{rest_level_2})")
 
         return final_data_type
 
@@ -1847,4 +1968,4 @@ class EntryPoint:
         self._module = value
 
     def fullname(self) -> str:
-        return "{}.{}".format(self._module, self._name)
+        return f"{self._module}.{self._name}"

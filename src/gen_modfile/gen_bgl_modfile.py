@@ -1,4 +1,4 @@
-################################################################################
+##############################################################################
 #
 # gen_bgl_modfile.py
 #
@@ -20,7 +20,7 @@
 #     output_file:
 #       Generated definitions are output to specified file.
 #
-################################################################################
+##############################################################################
 
 import argparse
 import re
@@ -38,7 +38,7 @@ def get_function_name(line: str) -> str:
     pattern = re.compile(regex)
     match = re.match(pattern, line)
     if match:
-        return "gl{}".format(match.group(1))
+        return f"gl{match.group(1)}"
 
     return None
 
@@ -68,7 +68,7 @@ def get_function_info(line: str) -> Dict:
         return_type = match.group(2)
         args_list = match.group(3)
         return {
-            "func_name": "gl{}".format(func_name),
+            "func_name": f"gl{func_name}",
             "return_type": return_type,
             "arg_types": args_list[1:-1].split(",")
         }
@@ -120,7 +120,8 @@ def gltype_to_pytype(gltype: str) -> str:
     return type_map[gltype]
 
 
-def create_function_def(func_name: str, return_type: str, arg_types: List[str]) -> Dict:
+def create_function_def(
+        func_name: str, return_type: str, arg_types: List[str]) -> Dict:
     function_def = {
         "name": func_name,
         "type": "function",
@@ -133,9 +134,9 @@ def create_function_def(func_name: str, return_type: str, arg_types: List[str]) 
         "parameter_details": [],
     }
     for i, arg_type in enumerate(arg_types):
-        function_def["parameters"].append("p{}".format(i))
+        function_def["parameters"].append(f"p{i}")
         function_def["parameter_details"].append({
-            "name": "p{}".format(i),
+            "name": f"p{i}",
             "type": "parameter",
             "data_type": gltype_to_pytype(arg_type)
         })
@@ -145,7 +146,7 @@ def create_function_def(func_name: str, return_type: str, arg_types: List[str]) 
 
 def analyze(config: 'GenerationConfig') -> Dict:
     func_info = {}
-    with open(config.bgl_c_file, "r") as f:
+    with open(config.bgl_c_file, "r", encoding="utf-8") as f:
         data = f.read()
         regex = r"BGL_Wrap\([A-Za-z0-9]+,\s+[A-Za-z]+,\s+\([A-Za-z0-9, ]+\)\);"
         matched = re.findall(regex, data)
@@ -159,19 +160,19 @@ def analyze(config: 'GenerationConfig') -> Dict:
     # read and query function and constant list.
     func_lists = []
     const_lists = []
-    with open(config.bgl_c_file, "r") as f:
-        l = f.readline()
-        while l:
-            func_name = get_function_name(l)
-            if func_name in func_info.keys():
+    with open(config.bgl_c_file, "r", encoding="utf-8") as f:
+        line = f.readline()
+        while line:
+            func_name = get_function_name(line)
+            if func_name in func_info:
                 func_lists.append(func_name)
-            const_name = get_const_name(l)
+            const_name = get_const_name(line)
             if const_name:
                 const_lists.append(const_name)
-            l = f.readline()
+            line = f.readline()
 
     # Create data to write.
-    data = { "new": [] }
+    data = {"new": []}
     for const in const_lists:
         data["new"].append(create_constant_def(const))
     for func in func_lists:
@@ -202,7 +203,7 @@ def parse_options() -> 'GenerationConfig':
 
 
 def write_to_modfile(info: Dict, config: 'GenerationConfig'):
-    with open(config.output_file, "w") as f:
+    with open(config.output_file, "w", encoding="utf-8") as f:
         json.dump(info, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 

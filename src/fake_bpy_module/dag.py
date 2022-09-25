@@ -4,8 +4,8 @@ from typing import List, Dict
 class Node:
     def __init__(self, data=None):
         self._data = data
-        self._in_edges : List['Edge'] = []
-        self._out_edges : List['Edge'] = []
+        self._in_edges: List['Edge'] = []
+        self._out_edges: List['Edge'] = []
 
     def in_edges(self) -> List['Edge']:
         return self._in_edges
@@ -24,7 +24,7 @@ class Node:
 
 
 class Edge:
-    def __init__(self, src : 'Node', dst : 'Node'):
+    def __init__(self, src: 'Node', dst: 'Node'):
         self._src = src
         self._dst = dst
         src._out_edges.append(self)
@@ -39,9 +39,9 @@ class Edge:
 
 class DAG:
     def __init__(self):
-        self._root_node : 'Node' = Node()
-        self._nodes : List['Node'] = [self._root_node]
-        self._edges : List['Edge'] = []
+        self._root_node: 'Node' = Node()
+        self._nodes: List['Node'] = [self._root_node]
+        self._edges: List['Edge'] = []
 
     def make_node(self, data=None) -> 'Node':
         new_node = Node(data)
@@ -50,7 +50,7 @@ class DAG:
 
         return new_node
 
-    def make_edge(self, src : 'Node', dst : 'Node') -> 'Edge':
+    def make_edge(self, src: 'Node', dst: 'Node') -> 'Edge':
         new_edge = Edge(src, dst)
         self._edges.append(new_edge)
 
@@ -59,13 +59,13 @@ class DAG:
     def root_node(self) -> 'Node':
         return self._root_node
 
-    def nodes(self, with_root : bool=False) -> List['Node']:
+    def nodes(self, with_root: bool = False) -> List['Node']:
         if with_root:
             return self._nodes
 
-        return list(set(self._nodes) - {self._root_node,})
+        return list(set(self._nodes) - {self._root_node, })
 
-    def edges(self, with_root : bool=False) -> List['Edge']:
+    def edges(self, with_root: bool = False) -> List['Edge']:
         if with_root:
             return self._edges
 
@@ -76,17 +76,17 @@ class DAG:
 
         return edges
 
-    def num_nodes(self, with_root : bool=False) -> int:
+    def num_nodes(self, with_root: bool = False) -> int:
         if with_root:
             return len(self._nodes)
 
         return len(self._nodes) - 1
 
-    def num_edges(self, with_root : bool=False) -> int:
+    def num_edges(self, with_root: bool = False) -> int:
         if with_root:
             return len(self._edges)
 
-        count= 0
+        count = 0
         for e in self._edges:
             if e.src() != self._root_node:
                 count += 1
@@ -94,13 +94,13 @@ class DAG:
         return count
 
 
-def topological_sort(graph : 'DAG') -> List['Node']:
-    ref_counts : Dict['Node', int] = {}
+def topological_sort(graph: 'DAG') -> List['Node']:
+    ref_counts: Dict['Node', int] = {}
     for node in graph.nodes(with_root=True):
         ref_counts[node] = node.num_in_edges()
 
-    sorted_nodes : List['Node'] = []
-    ready : List['Node'] = [graph.root_node()]
+    sorted_nodes: List['Node'] = []
+    ready: List['Node'] = [graph.root_node()]
     while ready:
         node = ready.pop(0)
 
@@ -113,8 +113,9 @@ def topological_sort(graph : 'DAG') -> List['Node']:
                 ready.append(e.dst())
 
     if graph.num_nodes(with_root=True) != len(sorted_nodes) + 1:
-        diff = set(graph.nodes(with_root=True)) - set(sorted_nodes) - set([graph.root_node()])
+        diff = set(graph.nodes(with_root=True)) \
+             - set(sorted_nodes) - set([graph.root_node()])
         node_data_list = {n.data() for n in diff}
-        raise ValueError("Cycle is detected. ({})".format(", ".join(node_data_list)))
+        raise ValueError(f"Cycle is detected. ({', '.join(node_data_list)})")
 
     return sorted_nodes
