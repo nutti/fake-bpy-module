@@ -1,18 +1,22 @@
 import json
 import re
 import pathlib
-from yapf.yapflib.yapf_api import FormatCode
 from typing import List, Dict
 from collections import OrderedDict
+from yapf.yapflib.yapf_api import FormatCode
 from tqdm import tqdm
 
+from .analyzer import (
+    BaseAnalyzer,
+    AnalysisResult,
+)
 from .common import (
     Info,
     VariableInfo,
     FunctionInfo,
     ClassInfo,
+    DataType,
     CustomDataType,
-    CustomModifierDataType,
     ModuleStructure,
     DataTypeRefiner,
     EntryPoint,
@@ -34,39 +38,43 @@ INDENT = "    "
 class CodeWriterIndent:
     indent_stack: List[int] = [0]
 
-    def __init__(self, indent: int=0):
+    def __init__(self, indent: int = 0):
         self._indent: int = indent
 
     def __enter__(self):
-        self.indent_stack.append(self._indent)
+        cls = self.__class__
+        cls.indent_stack.append(self._indent)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.indent_stack.pop()
+        cls = self.__class__
+        cls.indent_stack.pop()
 
     @classmethod
-    def current_indent(self) -> int:
-        return self.indent_stack[-1]
+    def current_indent(cls) -> int:
+        return cls.indent_stack[-1]
 
 
 class CodeWriter:
     def __init__(self):
-        self.reset()
+        self._code_data: str = ""
+        self._buffer: str = ""
 
-    def add(self, code: str, new_line: bool=False):
+    def add(self, code: str, new_line: bool = False):
         self._buffer += code
         if new_line:
             indent = CodeWriterIndent.current_indent()
-            self._code_data += "{}{}\n".format(INDENT * indent, self._buffer)
+            self._code_data += f"{INDENT * indent}{self._buffer}\n"
             self._buffer = ""
 
     def addln(self, code: str):
         self.add(code, True)
 
-    def new_line(self, num: int=1):
+    def new_line(self, num: int = 1):
         indent = CodeWriterIndent.current_indent()
         if self._buffer != "":
-            self._code_data += "{}{}{}".format(INDENT * indent, self._buffer, "\n" * num)
+            line_break = "\n" * num
+            self._code_data += f"{INDENT * indent}{self._buffer}{line_break}"
         else:
             self._code_data += "\n" * num
         self._buffer = ""
@@ -79,14 +87,15 @@ class CodeWriter:
         self._buffer: str = ""
 
     def format(self, style_config: str):
-        self._code_data = FormatCode(self._code_data, style_config=style_config)[0]
+        self._code_data = FormatCode(
+            self._code_data, style_config=style_config)[0]
 
 
 class BaseGenerator:
     def __init__(self):
         self._writer: 'CodeWriter' = CodeWriter()
 
-    def _gen_function_code(self, info: 'Info'):
+    def _gen_function_code(self, info: Info):
         data = info.to_dict()
         wt = self._writer
 
@@ -100,20 +109,19 @@ class BaseGenerator:
             elif len(sp) == 1:
                 name = sp[0]
             else:
-                raise RuntimeError("Invalid format of parameter '{}'".format(p))
+                raise RuntimeError(f"Invalid format of parameter '{p}'")
             pd_matched = None
             for pd in data["parameter_details"]:
-                if (pd["name"] == name) and (pd["data_type"] is not None) and (pd["data_type"] != ""):
+                if (pd["name"] == name) and (pd["data_type"] is not None) and \
+                        (pd["data_type"] != ""):
                     pd_matched = pd
                     break
             if pd_matched is not None:
                 if default_value is not None:
-                    wt.add("{}: {}={}"
-                           .format(pd_matched["name"], pd_matched["data_type"],
-                                   default_value))
+                    wt.add(f"{pd_matched['name']}: "
+                           f"{pd_matched['data_type']}={default_value}")
                 else:
-                    wt.add("{}: {}"
-                           .format(pd_matched["name"], pd_matched["data_type"]))
+                    wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
             else:
                 wt.add(p)
 
@@ -122,52 +130,53 @@ class BaseGenerator:
         if data["return"]["data_type"] == "":
             wt.addln("):")
         else:
-            wt.addln(") -> {}:".format(data["return"]["data_type"]))
+            wt.addln(f") -> {data['return']['data_type']}:")
 
         with CodeWriterIndent(1):
             # documentation
-            wt.add("''' {}".format(data["description"]))
+            wt.add(f"''' {data['description']}")
             wt.new_line(2)
             for p in data["parameter_details"]:
                 if p["description"] != "":
-                    wt.addln(":param {}: {}".format(p["name"], p["description"]))
+                    wt.addln(f":param {p['name']}: {p['description']}")
                 if p["data_type"] != "":
-                    wt.addln(":type {}: {}".format(p["name"], p["data_type"]))
+                    wt.addln(f":type {p['name']}: {p['data_type']}")
             if data["return"]["data_type"] != "":
-                wt.addln(":rtype: {}".format(data["return"]["data_type"]))
+                wt.addln(f":rtype: {data['return']['data_type']}")
             if data["return"]["description"] != "":
-                wt.addln(":return: {}".format(data["return"]["description"]))
+                wt.addln(f":return: {data['return']['description']}")
             wt.addln("'''")
             wt.new_line(1)
             wt.addln("pass")
             wt.new_line(2)
 
-    def _gen_class_code(self, info: 'Info'):
+    def _gen_class_code(self, info: Info):
         data = info.to_dict()
         wt = self._writer
 
         if len(data["base_classes"]) == 0:
-            wt.addln("class {}:".format(data["name"]))
+            wt.addln(f"class {data['name']}:")
         else:
-            wt.addln("class {}({}):".format(data["name"], ", ".join(data["base_classes"]).replace("'", "")))
+            base_classes = ", ".join(data["base_classes"]).replace("'", "")
+            wt.addln(f"class {data['name']}({base_classes}):")
 
         with CodeWriterIndent(1):
             if data["description"] != "":
-                wt.addln("''' {}".format(data["description"]))
+                wt.addln(f"''' {data['description']}")
                 wt.addln("'''")
                 wt.new_line(1)
 
             for a in data["attributes"]:
                 if a["data_type"] != "":
-                    wt.addln("{}: {} = None".format(a["name"], a["data_type"]))
+                    wt.addln(f"{a['name']}: {a['data_type']} = None")
                 else:
-                    wt.addln("{} = None".format(a["name"]))
+                    wt.addln(f"{a['name']} = None")
                 wt.add("''' ")
                 if a["description"] != "":
-                    wt.add("{}".format(a["description"]))
+                    wt.add(f"{a['description']}")
                 if a["data_type"] != "":
                     wt.new_line(2)
-                    wt.addln(":type: {}".format(a["data_type"]))
+                    wt.addln(f":type: {a['data_type']}")
                 wt.addln("'''")
                 wt.new_line(1)
             if len(data["attributes"]) > 0:
@@ -176,23 +185,23 @@ class BaseGenerator:
             for m in data["methods"]:
                 if m["type"] == "method":
                     if len(m["parameters"]) > 0:
-                        wt.add("def {}(self, ".format(m["name"]))
+                        wt.add(f"def {m['name']}(self, ")
                     else:
-                        wt.add("def {}(self".format(m["name"]))
+                        wt.add(f"def {m['name']}(self")
                 elif m["type"] == "classmethod":
                     if len(m["parameters"]) > 0:
                         wt.addln("@classmethod")
-                        wt.add("def {}(cls, ".format(m["name"]))
+                        wt.add(f"def {m['name']}(cls, ")
                     else:
                         wt.addln("@classmethod")
-                        wt.add("def {}(cls".format(m["name"]))
+                        wt.add(f"def {m['name']}(cls")
                 elif m["type"] == "staticmethod":
                     if len(m["parameters"]) > 0:
                         wt.addln("@staticmethod")
-                        wt.add("def {}(".format(m["name"]))
+                        wt.add(f"def {m['name']}(")
                     else:
                         wt.addln("@staticmethod")
-                        wt.add("def {}(".format(m["name"]))
+                        wt.add(f"def {m['name']}(")
                 for i, p in enumerate(m["parameters"]):
                     sp = p.split("=")
                     default_value = None
@@ -202,20 +211,23 @@ class BaseGenerator:
                     elif len(sp) == 1:
                         name = sp[0]
                     else:
-                        raise RuntimeError("Invalid format of parameter '{}'".format(p))
+                        raise RuntimeError(
+                            f"Invalid format of parameter '{p}'")
                     pd_matched = None
                     for pd in m["parameter_details"]:
-                        if (pd["name"] == name) and ((pd["data_type"] is not None) and (pd["data_type"] != "")):
+                        if (pd["name"] == name) and \
+                                (pd["data_type"] is not None) and \
+                                (pd["data_type"] != ""):
                             pd_matched = pd
                             break
                     if pd_matched is not None:
                         if default_value is not None:
-                            wt.add("{}: {}={}"
-                                   .format(pd_matched["name"], pd_matched["data_type"],
-                                           default_value))
+                            wt.add(
+                                f"{pd_matched['name']}: "
+                                f"{pd_matched['data_type']}={default_value}")
                         else:
-                            wt.add("{}: {}"
-                                   .format(pd_matched["name"], pd_matched["data_type"]))
+                            wt.add(f"{pd_matched['name']}: "
+                                   f"{pd_matched['data_type']}")
                     else:
                         wt.add(p)
 
@@ -224,23 +236,19 @@ class BaseGenerator:
                 if m["return"]["data_type"] == "":
                     wt.addln("):")
                 else:
-                    wt.addln(") -> {}:".format(m["return"]["data_type"]))
+                    wt.addln(f") -> {m['return']['data_type']}:")
 
                 with CodeWriterIndent(2):
-                # documentation
-                    wt.addln("''' {}".format(m["description"]))
+                    # documentation
+                    wt.addln(f"''' {m['description']}")
                     wt.new_line(1)
                     for p in m["parameter_details"]:
-                        wt.addln(":param {}: {}"
-                                 .format(p["name"], p["description"]))
-                        wt.addln(":type {}: {}"
-                                 .format(p["name"], p["data_type"]))
+                        wt.addln(f":param {p['name']}: {p['description']}")
+                        wt.addln(f":type {p['name']}: {p['data_type']}")
                     if m["return"]["data_type"] != "":
-                        wt.addln(":rtype: {}"
-                                 .format(m["return"]["data_type"]))
+                        wt.addln(f":rtype: {m['return']['data_type']}")
                     if m["return"]["description"] != "":
-                        wt.addln(":return: {}"
-                                 .format(m["return"]["description"]))
+                        wt.addln(f":return: {m['return']['description']}")
                     wt.addln("'''")
 
                     wt.addln("pass")
@@ -250,17 +258,16 @@ class BaseGenerator:
                 wt.addln("pass")
                 wt.new_line(2)
 
-    def _gen_constant_code(self, info: 'Info'):
+    def _gen_constant_code(self, info: Info):
         data = info.to_dict()
         wt = self._writer
 
         if data["data_type"] != "":
-            wt.addln("{}: {} = None".format(data["name"], data["data_type"]))
+            wt.addln(f"{data['name']}: {data['data_type']} = None")
         else:
-            wt.addln("{} = None".format(data["name"]))
+            wt.addln(f"{data['name']} = None")
         if data["description"] != "":
-            wt.addln("''' {}"
-                   .format(remove_unencodable(data["description"])))
+            wt.addln(f"''' {remove_unencodable(data['description'])}")
             wt.addln("'''")
         wt.new_line(2)
 
@@ -270,7 +277,7 @@ class BaseGenerator:
     def _is_relative_import(self, mod_name: str):
         return mod_name[0] == "."
 
-    def pre_process(self, target: str, gen_info: 'GenerationInfoByTarget'):
+    def pre_process(self, _: str, gen_info: 'GenerationInfoByTarget'):
         processed = GenerationInfoByTarget()
         processed.name = gen_info.name
         processed.child_modules = gen_info.child_modules
@@ -282,13 +289,16 @@ class BaseGenerator:
 
         return processed
 
-    def _sorted_generation_info(self, data: 'GenerationInfoByTarget') -> List['Info']:
-        class_data : List['ClassInfo'] = []
-        function_data : List['FunctionInfo'] = []
-        constant_data : List['VariableInfo'] = []
-        high_priority_class_data : List['ClassInfo'] = []
+    def _sorted_generation_info(
+            self, data: 'GenerationInfoByTarget') -> List[Info]:
+        class_data: List[ClassInfo] = []
+        function_data: List[FunctionInfo] = []
+        constant_data: List[VariableInfo] = []
+        high_priority_class_data: List[ClassInfo] = []
         for d in data.data:
-            if d.type() == "class":         # TODO: use class variable instead of "class", "function", "constant"
+            # TODO: use class variable instead of "class", "function",
+            #       "constant"
+            if d.type() == "class":
                 if d.name() in ["bpy_prop_collection", "bpy_struct"]:
                     high_priority_class_data.append(d)
                 else:
@@ -298,8 +308,9 @@ class BaseGenerator:
             elif d.type() == "constant":
                 constant_data.append(d)
             else:
-                raise ValueError("Invalid data type. ({})".format(d.type))
-        class_data = high_priority_class_data + sorted(class_data, key=lambda x: x.name())
+                raise ValueError(f"Invalid data type. ({d.type})")
+        class_data = high_priority_class_data \
+            + sorted(class_data, key=lambda x: x.name())
 
         # Sort class data (with class inheritance dependencies)
         graph = DAG()
@@ -310,19 +321,26 @@ class BaseGenerator:
             class_node = class_name_to_nodes[class_.name()]
             for base_class in class_.base_classes():
                 if base_class.type() == 'MIXIN':
-                    raise ValueError("DataType of base class must not be MixinDataType.")
-                elif base_class.type() == 'UNKNOWN':
+                    raise ValueError(
+                        "DataType of base class must not be MixinDataType.")
+                if base_class.type() == 'UNKNOWN':
                     continue
+
                 if base_class.data_type() == class_.name():
-                    output_log(LOG_LEVEL_DEBUG, f"Self dependency {base_class.data_type()} is found.")
+                    output_log(
+                        LOG_LEVEL_DEBUG,
+                        f"Self dependency {base_class.data_type()} is found.")
                     continue
-                base_class_node = class_name_to_nodes.get(base_class.data_type())
+
+                base_class_node = class_name_to_nodes.get(
+                    base_class.data_type())
                 if base_class_node:
                     graph.make_edge(base_class_node, class_node)
                 else:
-                    output_log(LOG_LEVEL_WARN,
-                               "Base class node (type={}) is not found"
-                               .format(base_class.data_type()))
+                    output_log(
+                        LOG_LEVEL_WARN,
+                        f"Base class node (type={base_class.data_type()}) is "
+                        "not found")
         sorted_nodes = topological_sort(graph)
         sorted_class_data = [node.data() for node in sorted_nodes]
 
@@ -334,7 +352,7 @@ class BaseGenerator:
             def sort_func(x):
                 if x.type() == 'UNKNOWN':
                     return 0
-                if x.data_type() not in order.keys():
+                if x.data_type() not in order:
                     return 0
                 return -order[x.data_type()]
 
@@ -358,7 +376,7 @@ class BaseGenerator:
     def generate(self,
                  filename: str,
                  data: 'GenerationInfoByTarget',
-                 style_config: str='pep8'):
+                 style_config: str = 'pep8'):
         # At first, sort data to avoid generating large diff.
         # Note: Base class must be located above derived class
         sorted_data = self._sorted_generation_info(data)
@@ -371,13 +389,13 @@ class BaseGenerator:
 
             # import external depended modules
             for ext in data.external_modules:
-                wt.addln("import {}".format(ext))
+                wt.addln(f"import {ext}")
 
             # import depended modules
             for dep in data.dependencies:
                 mod_name = dep.mod_name
                 if self._is_relative_import(mod_name):
-                    wt.add("from {} import (".format(mod_name))
+                    wt.add(f"from {mod_name} import (")
                     for i, type_ in enumerate(dep.type_lists):
                         wt.add(type_)
                         if i == len(dep.type_lists) - 1:
@@ -385,14 +403,14 @@ class BaseGenerator:
                         else:
                             wt.add(", ")
                 else:
-                    wt.addln("import {}".format(dep.mod_name))
+                    wt.addln(f"import {dep.mod_name}")
 
             if len(data.dependencies) > 0:
                 wt.new_line()
 
             # import child module to search child modules
             for mod in data.child_modules:
-                wt.addln("from . import {}".format(mod))
+                wt.addln(f"from . import {mod}")
             if len(data.child_modules) > 0:
                 wt.new_line()
 
@@ -419,7 +437,7 @@ class BaseGenerator:
 
     def dump_json(self, filename: str, data: 'GenerationInfoByTarget'):
         json_data = [info.to_dict() for info in data.data]
-        with open(filename, "w", newline="\n") as f:
+        with open(filename, "w", newline="\n", encoding="utf-8") as f:
             json.dump(json_data, f, indent=4)
 
 
@@ -441,7 +459,8 @@ class Dependency:
     @property
     def type_lists(self) -> List[str]:
         if not self._type_lists:
-            raise RuntimeError("At least 1 element must be added to type lists")
+            raise RuntimeError(
+                "At least 1 element must be added to type lists")
         return self._type_lists
 
     def add_type(self, type_: str):
@@ -451,7 +470,7 @@ class Dependency:
 class GenerationInfoByTarget:
     def __init__(self):
         self.name: str = None       # Module name
-        self.data: List['Info'] = []
+        self.data: List[Info] = []
         self.child_modules: List[str] = []
         self.dependencies: List['Dependency'] = []
         self.external_modules: List[str] = ["sys", "typing"]
@@ -459,12 +478,13 @@ class GenerationInfoByTarget:
 
 class GenerationInfoByRule:
     def __init__(self):
-        self._info: Dict[str, 'GenerationInfoByTarget'] = {}    # Key: Output file name
+        # Key: Output file name
+        self._info: Dict[str, 'GenerationInfoByTarget'] = {}
 
     def get_target(self, target: str) -> 'GenerationInfoByTarget':
-        if target not in self._info.keys():
+        if target not in self._info:
             raise RuntimeError("Could not find target in GenerationInfoByRule "
-                               "(target: {})".format(target))
+                               f"(target: {target})")
         return self._info[target]
 
     def create_target(self, target: str) -> 'GenerationInfoByTarget':
@@ -501,10 +521,10 @@ class PackageGeneratorConfig:
 
 class PackageGenerationRule:
     def __init__(self, name: str, target_files: List[str],
-                 analyzer: 'BaseAnalyzer', generator: 'BaseGenerator'):
+                 analyzer: BaseAnalyzer, generator: 'BaseGenerator'):
         self._name: str = name      # Rule
         self._target_files: List[str] = target_files
-        self._analyzer: 'BaseAnalyzer' = analyzer
+        self._analyzer: BaseAnalyzer = analyzer
         self._generator: 'BaseGenerator' = generator
 
     def name(self) -> str:
@@ -513,7 +533,7 @@ class PackageGenerationRule:
     def target_files(self) -> List[str]:
         return self._target_files
 
-    def analyzer(self) -> 'BaseAnalyzer':
+    def analyzer(self) -> BaseAnalyzer:
         return self._analyzer
 
     def generator(self) -> 'BaseGenerator':
@@ -521,11 +541,13 @@ class PackageGenerationRule:
 
 
 class PackageAnalyzer:
-    def __init__(self, config: 'PackageGeneratorConfig', rules: List['PackageGenerationRule']):
+    def __init__(
+            self, config: 'PackageGeneratorConfig',
+            rules: List['PackageGenerationRule']):
         self._config: 'PackageGeneratorConfig' = config
         self._rules: List['PackageGenerationRule'] = rules
         self._package_structure: 'ModuleStructure' = None
-        self._generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}
+        self._generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}   # noqa # pylint: disable=C0301
         self._entry_points: List['EntryPoint'] = []
 
     # build package structure
@@ -538,14 +560,15 @@ class PackageAnalyzer:
             module_list.extend(self._collect_module_list(result))
         return self._build_module_structure(module_list)
 
-    def _analyze(self) -> Dict['PackageGenerationRule', 'AnalysisResult']:
+    def _analyze(self) -> Dict['PackageGenerationRule', AnalysisResult]:
         result = {}
         for rule in self._rules:
             result[rule] = self._analyze_by_rule(rule)
 
         return result
 
-    def _analyze_by_rule(self, rule: 'PackageGenerationRule') -> 'AnalysisResult':
+    def _analyze_by_rule(
+            self, rule: 'PackageGenerationRule') -> AnalysisResult:
         # replace windows path separator
         target_files = [f.replace("\\", "/") for f in rule.target_files()]
         # analyze all .rst files
@@ -580,12 +603,14 @@ class PackageAnalyzer:
         return structure
 
     # collect module list
-    def _collect_module_list(self, analyze_result: 'AnalysisResult') -> List[str]:
+    def _collect_module_list(
+            self, analyze_result: AnalysisResult) -> List[str]:
         module_list = []
         for section in analyze_result.section_info:
             for info in section.info_list:
                 if info.module() is None:
-                    output_log(LOG_LEVEL_WARN, "{}'s module is None".format(info.name()))
+                    output_log(
+                        LOG_LEVEL_WARN, f"{info.name()}'s module is None")
                     continue
                 if info.module() not in module_list:
                     module_list.append(info.module())
@@ -594,18 +619,19 @@ class PackageAnalyzer:
 
     def _build_entry_points(self) -> List['EntryPoint']:
         # at first analyze without DataTypeRefiner
-        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}
+        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
         for rule in self._rules:
             analyze_result = self._analyze_by_rule(rule)
-            module_structure = self._build_module_structure(self._collect_module_list(analyze_result))
+            module_structure = self._build_module_structure(
+                self._collect_module_list(analyze_result))
             generation_info[rule] = self._build_generation_info_internal(
                 analyze_result, module_structure)
 
         # build entry points
         entry_points = []
-        for rule in generation_info.keys():
-            for target in generation_info[rule].targets():
-                info = generation_info[rule].get_target(target)
+        for gen_info in generation_info.values():
+            for target in gen_info.targets():
+                info = gen_info.get_target(target)
                 for data in info.data:
                     if data.type() not in ["class", "constant", "function"]:
                         continue
@@ -616,16 +642,17 @@ class PackageAnalyzer:
                     entry_points.append(entry)
         return entry_points
 
-    def _build_generation_info_internal(self, analyze_result: 'AnalysisResult',
-                                        module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
-        def find_target_file(name: str, structure: 'ModuleStructure', target: str) -> str:
+    def _build_generation_info_internal(
+            self, analyze_result: AnalysisResult,
+            module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
+        def find_target_file(
+                name: str, structure: 'ModuleStructure', target: str) -> str:
             for m in structure.children():
                 mod_name = name + m.name
                 if mod_name == target:
                     if len(m.children()) == 0:
                         return mod_name + ".py"
-                    else:
-                        return mod_name + "/__init__.py"
+                    return mod_name + "/__init__.py"
 
                 if len(m.children()) > 0:
                     ret = find_target_file(mod_name + "/", m, target)
@@ -633,7 +660,9 @@ class PackageAnalyzer:
                         return ret
             return None
 
-        def build_child_modules(gen_info: 'GenerationInfoByRule', name: str, structure: 'ModuleStructure'):
+        def build_child_modules(
+                gen_info: 'GenerationInfoByRule', name: str,
+                structure: 'ModuleStructure'):
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
@@ -660,8 +689,8 @@ class PackageAnalyzer:
                 target = find_target_file("", module_structure,
                                           re.sub(r"\.", "/", info.module()))
                 if target is None:
-                    raise RuntimeError("Could not find target file to generate "
-                                       "(target: {})".format(info.module()))
+                    raise RuntimeError("Could not find target file to "
+                                       f"generate (target: {info.module()})")
                 gen_info = generator_info.get_target(target)
                 gen_info.data.append(info)
 
@@ -687,7 +716,6 @@ class PackageAnalyzer:
             else:
                 match_level = len(mod_names_1)
 
-
         # [Case 1] No match => Need to import top level module
         #   data_type_1: bpy.types.Mesh
         #   data_type_2: bgl.glCallLists()
@@ -704,19 +732,22 @@ class PackageAnalyzer:
             #       => None
             if rest_level_1 == 0 and rest_level_2 == 0:
                 module_path = None
-            # [Case 3] Match partially (Same level) => Need to import top level
+            # [Case 3] Match partially (Same level)
+            #               => Need to import top level
             #   data_type_1: bpy.types.Mesh
             #   data_type_2: bpy.ops.automerge()
             #       => bpy.types
             elif rest_level_1 >= 1 and rest_level_2 >= 1:
                 module_path = ".".join(mod_names_1)
-            # [Case 4] Match partially (Upper level) => Need to import top level
+            # [Case 4] Match partially (Upper level)
+            #               => Need to import top level
             #   data_type_1: mathutils.Vector
             #   data_type_2: mathutils.noise.cell
             #       => mathutils
             elif rest_level_1 == 0 and rest_level_2 >= 1:
                 module_path = ".".join(mod_names_1)
-            # [Case 5] Match partially (Lower level) => Need to import top level
+            # [Case 5] Match partially (Lower level)
+            #               => Need to import top level
             #   data_type_1: mathutils.noise.cell
             #   data_type_2: mathutils.Vector
             #       => mathutils.noise
@@ -729,7 +760,7 @@ class PackageAnalyzer:
 
     def _add_dependency(self, dependencies: List['Dependency'],
                         refiner: 'DataTypeRefiner',
-                        data_type_1: 'DataType', data_type_2: str):
+                        data_type_1: DataType, data_type_2: str):
         if data_type_1.type() == 'UNKNOWN':
             return
         if data_type_1.type() == 'BUILTIN':
@@ -761,65 +792,62 @@ class PackageAnalyzer:
             for d in data_type_1.data_types():
                 self._add_dependency(dependencies, refiner, d, data_type_2)
         else:
-            if data_type_1.has_modifier() and data_type_1.modifier().type() == 'CUSTOM_MODIFIER':
-                register_dependency(data_type_1.modifier().modifier_data_type())
+            if data_type_1.has_modifier() and \
+                    data_type_1.modifier().type() == 'CUSTOM_MODIFIER':
+                register_dependency(
+                    data_type_1.modifier().modifier_data_type())
             register_dependency(data_type_1.data_type())
 
-    def _build_dependencies(self,
-                            package_structure: 'ModuleStructure',
-                            entry_points: List['EntryPoint'],
-                            info: 'GenerationInfoByTarget') -> List['Dependency']:
+    def _build_dependencies(
+            self, package_structure: 'ModuleStructure',
+            entry_points: List['EntryPoint'],
+            info: 'GenerationInfoByTarget') -> List['Dependency']:
         refiner = DataTypeRefiner(package_structure, entry_points)
 
         dependencies = []
         for data in info.data:
             if data.type() == "function":
                 for p in data.parameter_details():
-                    self._add_dependency(dependencies,
-                                         refiner,
-                                         p.data_type(),
-                                         data.module() + "." + data.name())
+                    self._add_dependency(
+                        dependencies, refiner, p.data_type(),
+                        data.module() + "." + data.name())
                 r = data.return_()
                 if r is not None:
-                    self._add_dependency(dependencies,
-                                        refiner,
-                                        r.data_type(),
-                                        data.module() + "." + data.name())
+                    self._add_dependency(
+                        dependencies, refiner, r.data_type(),
+                        data.module() + "." + data.name())
             elif data.type() == "constant":
-                self._add_dependency(dependencies,
-                                     refiner,
-                                     data.data_type(),
-                                     data.module() + "." + data.name())
+                self._add_dependency(
+                    dependencies, refiner, data.data_type(),
+                    data.module() + "." + data.name())
             elif data.type() == "class":
                 for m in data.methods():
                     for p in m.parameter_details():
-                        self._add_dependency(dependencies,
-                                             refiner,
-                                             p.data_type(),
-                                             data.module() + "." + data.name())
+                        self._add_dependency(
+                            dependencies, refiner, p.data_type(),
+                            data.module() + "." + data.name())
                     r = m.return_()
                     if r is not None:
-                        self._add_dependency(dependencies,
-                                            refiner,
-                                            r.data_type(),
-                                            data.module() + "." + data.name())
+                        self._add_dependency(
+                            dependencies, refiner, r.data_type(),
+                            data.module() + "." + data.name())
                 for a in data.attributes():
-                    self._add_dependency(dependencies,
-                                         refiner,
-                                         a.data_type(),
-                                         data.module() + "." + data.name())
+                    self._add_dependency(
+                        dependencies, refiner, a.data_type(),
+                        data.module() + "." + data.name())
                 for c in data.base_classes():
-                    self._add_dependency(dependencies,
-                                         refiner,
-                                         c,
-                                         data.module() + "." + data.name())                
+                    self._add_dependency(
+                        dependencies, refiner, c,
+                        data.module() + "." + data.name())
 
         return dependencies
 
-    def _refine_data_type(self, refiner: 'DataTypeRefiner', analysis_result: 'AnalysisResult'):
+    def _refine_data_type(
+            self, refiner: 'DataTypeRefiner',
+            analysis_result: AnalysisResult):
         data_to_refine = []
         for section in analysis_result.section_info:
-            data_to_refine.extend([l for l in section.info_list])
+            data_to_refine.extend(list(section.info_list))
         for info in tqdm(data_to_refine):
             # refine function parameters and return value
             if info.type() == "function":
@@ -860,7 +888,9 @@ class PackageAnalyzer:
                         c, info.module())
                     info.set_base_class(i, refined_type)
 
-    def _remove_duplicate(self, gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+    def _remove_duplicate(
+            self,
+            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
         processed_info.name = gen_info.name
         processed_info.external_modules = gen_info.external_modules
@@ -886,7 +916,7 @@ class PackageAnalyzer:
             if d.type() != "class":
                 continue
 
-            new_attributes: List['VariableInfo'] = []
+            new_attributes: List[VariableInfo] = []
             for a1 in d.attributes():
                 found = False
                 for a2 in new_attributes:
@@ -897,51 +927,63 @@ class PackageAnalyzer:
                     new_attributes.append(a1)
             d.set_attributes(new_attributes)
 
-        # TODO: check class-method/function as well. But be careful to remove duplicate
-        #       because of override method is allowed
+        # TODO: check class-method/function as well. But be careful to remove
+        # duplicate because of override method is allowed
 
         return processed_info
 
-    def _rewrite_data_type(self, refiner: 'DataTypeRefiner',
-                           gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+    def _rewrite_data_type(
+            self, refiner: 'DataTypeRefiner',
+            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
         processed_info.name = gen_info.name
         processed_info.external_modules = gen_info.external_modules
         processed_info.dependencies = gen_info.dependencies
         processed_info.child_modules = gen_info.child_modules
 
-        def rewrite_to_generation_custom_data_type(data_type: 'CustomDataType'):
+        def rewrite_for_custom(
+                data_type: 'CustomDataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
-            dt = CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
+            dt = CustomDataType(
+                new_data_type, data_type.modifier(),
+                data_type.modifier_add_info())
             dt.set_is_optional(data_type.is_optional())
             return dt
 
-        def rewrite_to_generation_custom_modifier_data_type(data_type: 'CustomDataType'):
+        def rewrite_for_custom_modifier(
+                data_type: 'CustomDataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
             new_modifier_name = refiner.get_generation_data_type(
                 data_type.modifier().output_modifier_name(), gen_info.name)
-            dt = CustomDataType(new_data_type, data_type.modifier(), data_type.modifier_add_info())
+            dt = CustomDataType(
+                new_data_type, data_type.modifier(),
+                data_type.modifier_add_info())
             dt.modifier().set_output_modifier_name(new_modifier_name)
             dt.set_is_optional(data_type.is_optional())
             return dt
 
-        def rewrite(info_to_rewrite: 'Info'):
-            if info_to_rewrite.data_type().type() == 'CUSTOM':
-                if info_to_rewrite.data_type().has_modifier() and info_to_rewrite.data_type().modifier().type() == 'CUSTOM_MODIFIER':
-                    info_to_rewrite.set_data_type(rewrite_to_generation_custom_modifier_data_type(info_to_rewrite.data_type()))
+        def rewrite(info_to_rewrite: Info):
+            dtype_to_rewrite = info_to_rewrite.data_type()
+            if dtype_to_rewrite.type() == 'CUSTOM':
+                if dtype_to_rewrite.has_modifier() and \
+                   dtype_to_rewrite.modifier().type() == 'CUSTOM_MODIFIER':
+                    info_to_rewrite.set_data_type(rewrite_for_custom_modifier(
+                        dtype_to_rewrite))
                 else:
-                    info_to_rewrite.set_data_type(rewrite_to_generation_custom_data_type(info_to_rewrite.data_type()))
-            elif info_to_rewrite.data_type().type() == 'MIXIN':
-                mixin_dt = info_to_rewrite.data_type()
+                    info_to_rewrite.set_data_type(rewrite_for_custom(
+                        dtype_to_rewrite))
+            elif dtype_to_rewrite.type() == 'MIXIN':
+                mixin_dt = dtype_to_rewrite
                 for i, d in enumerate(mixin_dt.data_types()):
                     if d.type() == 'CUSTOM':
-                        if d.has_modifier() and d.modifier().type() == 'CUSTOM_MODIFIER':
-                            mixin_dt.set_data_type(i, rewrite_to_generation_custom_modifier_data_type(d))
+                        if d.has_modifier() and \
+                                d.modifier().type() == 'CUSTOM_MODIFIER':
+                            mixin_dt.set_data_type(
+                                i, rewrite_for_custom_modifier(d))
                         else:
-                            mixin_dt.set_data_type(i, rewrite_to_generation_custom_data_type(d))
-
+                            mixin_dt.set_data_type(i, rewrite_for_custom(d))
 
         for info in gen_info.data:
             # rewrite function parameters and return value
@@ -972,19 +1014,25 @@ class PackageAnalyzer:
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':
-                        if c.has_modifier() and c.modifier().type() == 'CUSTOM_MODIFIER':
-                            info.set_base_class(i, rewrite_to_generation_custom_modifier_data_type(c))
+                        if c.has_modifier() and \
+                                c.modifier().type() == 'CUSTOM_MODIFIER':
+                            info.set_base_class(
+                                i, rewrite_for_custom_modifier(c))
                         else:
-                            info.set_base_class(i, rewrite_to_generation_custom_data_type(c))
+                            info.set_base_class(i, rewrite_for_custom(c))
                     elif c.type() == 'MIXIN':
-                        raise ValueError("Base classes must not be MixinDataType (Class: {}.{}, Data type: {})".format(info.module(), info.name(), c.to_string()))
+                        raise ValueError(
+                            "Base classes must not be MixinDataType (Class: "
+                            f"{info.module()}.{info.name()}, "
+                            f"Data type: {c.to_string()})")
 
             processed_info.data.append(info)
 
         return processed_info
 
-    def _add_keyword_only_argument(self,
-                                   gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+    def _add_keyword_only_argument(
+            self,
+            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
         processed_info.name = gen_info.name
         processed_info.external_modules = gen_info.external_modules
@@ -1021,7 +1069,9 @@ class PackageAnalyzer:
 
         return processed_info
 
-    def _remove_type_hint(self, gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
+    def _remove_type_hint(
+            self,
+            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
         processed_info = GenerationInfoByTarget()
         processed_info.name = gen_info.name
         processed_info.external_modules = gen_info.external_modules
@@ -1052,20 +1102,24 @@ class PackageAnalyzer:
         return processed_info
 
     # map between result of analyze and module structure
-    def _build_generation_info(self,
-                               package_structure: 'ModuleStructure',
-                               entry_points: List['EntryPoint']) -> Dict['PackageGenerationRule', 'GenerationInfoByRule']:
-        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}
+    def _build_generation_info(
+            self, package_structure: 'ModuleStructure',
+            entry_points: List['EntryPoint']) -> Dict[
+                'PackageGenerationRule', 'GenerationInfoByRule']:
+        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
         for rule in self._rules:
             refiner = DataTypeRefiner(package_structure, entry_points)
             analyze_result = self._analyze_by_rule(rule)
             self._refine_data_type(refiner, analyze_result)
 
-            module_structure = self._build_module_structure(self._collect_module_list(analyze_result))
-            generation_info[rule] = self._build_generation_info_internal(analyze_result, module_structure)
+            module_structure = self._build_module_structure(
+                self._collect_module_list(analyze_result))
+            generation_info[rule] = self._build_generation_info_internal(
+                analyze_result, module_structure)
 
             for target in generation_info[rule].targets():
-                info = self._remove_duplicate(generation_info[rule].get_target(target))
+                info = self._remove_duplicate(
+                    generation_info[rule].get_target(target))
                 info = self._rewrite_data_type(refiner, info)
                 info = self._add_keyword_only_argument(info)
                 info = self._remove_type_hint(info)
@@ -1079,18 +1133,20 @@ class PackageAnalyzer:
     def entry_points(self) -> List['EntryPoint']:
         return self._entry_points
 
-    def generation_info(self) -> Dict['PackageGenerationRule', 'GenerationInfoByRule']:
+    def generation_info(self) -> Dict['PackageGenerationRule', 'GenerationInfoByRule']:     # noqa # pylint: disable=C0301
         return self._generation_info
 
     def analyze(self):
         self._package_structure = self._build_package_structure()
         self._entry_points = self._build_entry_points()
 
-        self._generation_info = self._build_generation_info(self._package_structure, self._entry_points)
-        for rule in self._generation_info.keys():
-            for target in self._generation_info[rule].targets():
-                info = self._generation_info[rule].get_target(target)
-                info.dependencies = self._build_dependencies(self._package_structure, self._entry_points, info)
+        self._generation_info = self._build_generation_info(
+            self._package_structure, self._entry_points)
+        for gen_info in self._generation_info.values():
+            for target in gen_info.targets():
+                info = gen_info.get_target(target)
+                info.dependencies = self._build_dependencies(
+                    self._package_structure, self._entry_points, info)
 
 
 class PackageGenerator:
@@ -1105,7 +1161,8 @@ class PackageGenerator:
                 for item in structure_.children():
                     if len(item.children()) >= 1:
                         dir_path = path + "/" + item.name
-                        pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+                        pathlib.Path(dir_path).mkdir(
+                            parents=True, exist_ok=True)
                         self._create_py_typed_file(dir_path)
                         if dir_path == base_path:
                             continue
@@ -1117,7 +1174,7 @@ class PackageGenerator:
 
     def _generate_by_rule(self,
                           rule: 'PackageGenerationRule',
-                          package_structure: 'ModuleStructure',
+                          _: 'ModuleStructure',
                           gen_info: 'GenerationInfoByRule'):
         for target in gen_info.targets():
             info = gen_info.get_target(target)
@@ -1125,18 +1182,22 @@ class PackageGenerator:
             info = rule.generator().pre_process(target, info)
             # dump if necessary
             if self._config.dump:
-                rule.generator().dump_json(self._config.output_dir + "/" + target + "-dump.json", info)
+                rule.generator().dump_json(
+                    f"{self._config.output_dir}/{target}-dump.json", info)
             # generate python code
-            rule.generator().generate(self._config.output_dir + "/" + target, info, self._config.style_format)
+            rule.generator().generate(
+                f"{self._config.output_dir}/{target}", info,
+                self._config.style_format)
 
-    def _generate(self,
-                  package_strcuture: 'ModuleStructure',
-                  generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule']):
+    def _generate(
+            self, package_strcuture: 'ModuleStructure',
+            generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule']):    # noqa # pylint: disable=C0301
         for rule in generation_info.keys():
-            self._generate_by_rule(rule, package_strcuture, generation_info[rule])
+            self._generate_by_rule(
+                rule, package_strcuture, generation_info[rule])
 
     def _create_py_typed_file(self, directory: str):
-        filename = "{}/py.typed".format(directory)
+        filename = f"{directory}/py.typed"
         with open(filename, "w", encoding="utf-8", newline="\n") as file:
             file.write("")
 
@@ -1148,4 +1209,5 @@ class PackageGenerator:
         analyzer.analyze()
 
         self._create_empty_modules(analyzer.package_structure())
-        self._generate(analyzer.package_structure(), analyzer.generation_info())
+        self._generate(
+            analyzer.package_structure(), analyzer.generation_info())

@@ -1,7 +1,6 @@
 import os
 
-from . import common
-from fake_bpy_module.utils import (
+from fake_bpy_module.utils import (     # pylint: disable=E0401
     check_os,
     output_log,
     remove_unencodable,
@@ -11,18 +10,13 @@ from fake_bpy_module.utils import (
     LOG_LEVEL_WARN,
     LOG_LEVEL_ERR,
 )
+from . import common
 
 
 class UtilsTest(common.FakeBpyModuleTestBase):
 
     name = "UtilsTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_check_os(self):
         to_osname = {

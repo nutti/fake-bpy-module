@@ -1,5 +1,4 @@
-from . import common
-from fake_bpy_module.common import (
+from fake_bpy_module.common import (    # pylint: disable=E0401
     DataType,
     UnknownDataType,
     IntermidiateDataType,
@@ -15,18 +14,13 @@ from fake_bpy_module.common import (
     ClassInfo,
     SectionInfo,
 )
+from . import common
 
 
 class DataTypeTest(common.FakeBpyModuleTestBase):
 
     name = "DataTypeTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_all(self):
         data_type = DataType()
@@ -48,12 +42,6 @@ class UnknownDataTypeTest(common.FakeBpyModuleTestBase):
     name = "UnknownDataTypeTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_all(self):
         data_type = UnknownDataType()
 
@@ -72,12 +60,6 @@ class IntermidiateDataTypeTest(common.FakeBpyModuleTestBase):
     name = "IntermidiateDataTypeTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_all(self):
         data_type = IntermidiateDataType("data_type_1")
 
@@ -95,12 +77,6 @@ class BuiltinDataTypeTest(common.FakeBpyModuleTestBase):
 
     name = "BuiltinDataTypeTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_valid_data_type_without_modifier(self):
         data_type = BuiltinDataType("int")
@@ -127,7 +103,9 @@ class BuiltinDataTypeTest(common.FakeBpyModuleTestBase):
     def test_valid_data_type_with_dict_modifier(self):
         expect_info = {"dict_key": "str"}
         modifier_data_type = ModifierDataType("dict")
-        data_type = BuiltinDataType("float", modifier=modifier_data_type, modifier_add_info=expect_info)
+        data_type = BuiltinDataType(
+            "float", modifier=modifier_data_type,
+            modifier_add_info=expect_info)
 
         self.assertEqual(data_type.type(), 'BUILTIN')
         self.assertTrue(data_type.has_modifier())
@@ -143,19 +121,14 @@ class BuiltinDataTypeTest(common.FakeBpyModuleTestBase):
 
     def test_invalid_modifier(self):
         with self.assertRaises(ValueError):
-            BuiltinDataType("float", modifier=ModifierDataType("invalid_modifier"))
+            BuiltinDataType(
+                "float", modifier=ModifierDataType("invalid_modifier"))
 
 
 class ModifierDataTypeTest(common.FakeBpyModuleTestBase):
 
     name = "ModifierDataTypeTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_valid_modifier(self):
         data_type = ModifierDataType("dict")
@@ -180,12 +153,6 @@ class CustomDataTypeTest(common.FakeBpyModuleTestBase):
     name = "CustomDataTypeTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_valid_without_modifier(self):
         data_type = CustomDataType("custom_data_type")
 
@@ -198,32 +165,39 @@ class CustomDataTypeTest(common.FakeBpyModuleTestBase):
 
     def test_valid_with_set_modifier(self):
         modifier_data_type = ModifierDataType("set")
-        data_type = CustomDataType("custom_data_type", modifier=modifier_data_type)
+        data_type = CustomDataType(
+            "custom_data_type", modifier=modifier_data_type)
 
         self.assertEqual(data_type.type(), 'CUSTOM')
         self.assertTrue(data_type.has_modifier())
         self.assertEqual(data_type.modifier(), modifier_data_type)
         self.assertEqual(data_type.modifier().modifier_data_type(), "set")
         self.assertEqual(data_type.data_type(), "custom_data_type")
-        self.assertEqual(data_type.to_string(), "typing.Set['custom_data_type']")
+        self.assertEqual(
+            data_type.to_string(), "typing.Set['custom_data_type']")
         self.assertIsNone(data_type.modifier_add_info())
 
     def test_valid_with_dict_modifier(self):
         expect_info = {"dict_key": "str"}
         modifier_data_type = ModifierDataType("dict")
-        data_type = CustomDataType("custom_data_type", modifier=modifier_data_type, modifier_add_info=expect_info)
+        data_type = CustomDataType(
+            "custom_data_type", modifier=modifier_data_type,
+            modifier_add_info=expect_info)
 
         self.assertEqual(data_type.type(), 'CUSTOM')
         self.assertTrue(data_type.has_modifier())
         self.assertEqual(data_type.modifier(), modifier_data_type)
         self.assertEqual(data_type.modifier().modifier_data_type(), "dict")
         self.assertEqual(data_type.data_type(), "custom_data_type")
-        self.assertEqual(data_type.to_string(), "typing.Dict[str, 'custom_data_type']")
+        self.assertEqual(
+            data_type.to_string(), "typing.Dict[str, 'custom_data_type']")
         self.assertDictEqual(data_type.modifier_add_info(), expect_info)
 
     def test_invalid_modifier(self):
         with self.assertRaises(ValueError):
-            CustomDataType("custom_data_type", modifier=ModifierDataType("invalid_modifier"))
+            CustomDataType(
+                "custom_data_type",
+                modifier=ModifierDataType("invalid_modifier"))
 
 
 class MixinDataTypeTest(common.FakeBpyModuleTestBase):
@@ -231,43 +205,38 @@ class MixinDataTypeTest(common.FakeBpyModuleTestBase):
     name = "MixinDataTypeTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_single_data_type(self):
         data_type_1 = BuiltinDataType("float")
 
         with self.assertRaises(ValueError):
-            mixin_data_type = MixinDataType([data_type_1])
+            _ = MixinDataType([data_type_1])
 
     def test_multiple_data_type(self):
         data_type_1 = BuiltinDataType("str")
-        data_type_2 = CustomDataType("custom_data_type", modifier=ModifierDataType("set"))
+        data_type_2 = CustomDataType(
+            "custom_data_type", modifier=ModifierDataType("set"))
         mixin_data_type = MixinDataType([data_type_1, data_type_2])
 
         self.assertEqual(mixin_data_type.type(), 'MIXIN')
-        self.assertSetEqual(set(mixin_data_type.data_types()), {data_type_1, data_type_2})
-        self.assertEqual(mixin_data_type.to_string(), "typing.Union[str, typing.Set['custom_data_type']]")
+        self.assertSetEqual(
+            set(mixin_data_type.data_types()), {data_type_1, data_type_2})
+        self.assertEqual(
+            mixin_data_type.to_string(),
+            "typing.Union[str, typing.Set['custom_data_type']]")
 
         data_type_3 = ModifierDataType("list")
         mixin_data_type.set_data_type(0, data_type_3)
-        self.assertSetEqual(set(mixin_data_type.data_types()), {data_type_3, data_type_2})
-        self.assertEqual(mixin_data_type.to_string(), "typing.Union[typing.List, typing.Set['custom_data_type']]")
+        self.assertSetEqual(
+            set(mixin_data_type.data_types()), {data_type_3, data_type_2})
+        self.assertEqual(
+            mixin_data_type.to_string(),
+            "typing.Union[typing.List, typing.Set['custom_data_type']]")
 
 
 class InfoTest(common.FakeBpyModuleTestBase):
 
     name = "InfoTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_is_assinable(self):
         info = Info()
@@ -279,7 +248,8 @@ class InfoTest(common.FakeBpyModuleTestBase):
         self.assertTrue(info.is_assignable(None, data, "key_1", 'NEW'))
         self.assertFalse(info.is_assignable(None, data, "key_3", 'NEW'))
         self.assertTrue(info.is_assignable(None, data, "key_2", 'APPEND'))
-        self.assertFalse(info.is_assignable("variable", data, "key_1", 'APPEND'))
+        self.assertFalse(
+            info.is_assignable("variable", data, "key_1", 'APPEND'))
         self.assertFalse(info.is_assignable(None, data, "key_3", 'APPEND'))
         self.assertTrue(info.is_assignable(None, data, "key_2", 'UPDATE'))
         self.assertFalse(info.is_assignable(None, data, "key_3", 'UPDATE'))
@@ -293,13 +263,20 @@ class InfoTest(common.FakeBpyModuleTestBase):
             "key_2": ModifierDataType("dict"),
         }
 
-        self.assertTrue(info.is_data_type_assinable(None, data, "key_1", 'NEW'))
-        self.assertFalse(info.is_data_type_assinable(None, data, "key_3", 'NEW'))
-        self.assertTrue(info.is_data_type_assinable(UnknownDataType(), data, "key_1", 'APPEND'))
-        self.assertFalse(info.is_data_type_assinable("variable", data, "key_1", 'APPEND'))
-        self.assertFalse(info.is_data_type_assinable(UnknownDataType(), data, "key_3", 'APPEND'))
-        self.assertTrue(info.is_data_type_assinable(None, data, "key_1", 'UPDATE'))
-        self.assertFalse(info.is_data_type_assinable(None, data, "key_3", 'UPDATE'))
+        self.assertTrue(info.is_data_type_assinable(
+            None, data, "key_1", 'NEW'))
+        self.assertFalse(info.is_data_type_assinable(
+            None, data, "key_3", 'NEW'))
+        self.assertTrue(info.is_data_type_assinable(
+            UnknownDataType(), data, "key_1", 'APPEND'))
+        self.assertFalse(info.is_data_type_assinable(
+            "variable", data, "key_1", 'APPEND'))
+        self.assertFalse(info.is_data_type_assinable(
+            UnknownDataType(), data, "key_3", 'APPEND'))
+        self.assertTrue(info.is_data_type_assinable(
+            None, data, "key_1", 'UPDATE'))
+        self.assertFalse(info.is_data_type_assinable(
+            None, data, "key_3", 'UPDATE'))
         with self.assertRaises(RuntimeError):
             info.is_data_type_assinable(None, data, "key_1", 'INVALID_METHOD')
 
@@ -323,12 +300,6 @@ class ParameterDetailTest(common.FakeBpyModuleTestBase):
     name = "ParameterDetailTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_setter_getter_methods(self):
         data_type = BuiltinDataType("int")
         info = ParameterDetailInfo()
@@ -341,11 +312,10 @@ class ParameterDetailTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.description(), "param_1 description")
         self.assertEqual(info.data_type(), data_type)
 
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(RuntimeError):
             info.module()
 
     def test_append_description(self):
-        data_type = BuiltinDataType("int")
         info = ParameterDetailInfo()
         info.set_description("param_1 description")
 
@@ -354,7 +324,8 @@ class ParameterDetailTest(common.FakeBpyModuleTestBase):
         info.append_description(" appended")
         info.append_description(" more")
 
-        self.assertEqual(info.description(), "param_1 description appended more")
+        self.assertEqual(
+            info.description(), "param_1 description appended more")
 
     def test_to_dict(self):
         data_type = BuiltinDataType("int")
@@ -446,12 +417,6 @@ class ReturnInfoTest(common.FakeBpyModuleTestBase):
     name = "ReturnInfo"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_setter_getter_methods(self):
         data_type = BuiltinDataType("int")
         info = ReturnInfo()
@@ -462,13 +427,12 @@ class ReturnInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.description(), "return description")
         self.assertEqual(info.data_type(), data_type)
 
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(RuntimeError):
             info.name()
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(RuntimeError):
             info.module()
 
     def test_append_description(self):
-        data_type = BuiltinDataType("int")
         info = ReturnInfo()
         info.set_description("return description")
 
@@ -477,7 +441,8 @@ class ReturnInfoTest(common.FakeBpyModuleTestBase):
         info.append_description(" appended")
         info.append_description(" more")
 
-        self.assertEqual(info.description(), "return description appended more")
+        self.assertEqual(
+            info.description(), "return description appended more")
 
     def test_to_dict(self):
         data_type = BuiltinDataType("int")
@@ -559,12 +524,6 @@ class VariableInfoTest(common.FakeBpyModuleTestBase):
     name = "VariableInfoTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_setter_getter_methods(self):
         data_type = BuiltinDataType("int")
         info = VariableInfo("constant")
@@ -581,7 +540,6 @@ class VariableInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.module(), "module.a")
 
     def test_append_description(self):
-        data_type = BuiltinDataType("int")
         info = VariableInfo("constant")
         info.set_description("constant_1 description")
 
@@ -590,7 +548,8 @@ class VariableInfoTest(common.FakeBpyModuleTestBase):
         info.append_description(" appended")
         info.append_description(" more")
 
-        self.assertEqual(info.description(), "constant_1 description appended more")
+        self.assertEqual(
+            info.description(), "constant_1 description appended more")
 
     def test_to_dict(self):
         data_type = BuiltinDataType("int")
@@ -693,12 +652,6 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
     name = "FunctionInfoTest"
     module_name = __module__
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_setter_getter_methods_case_1(self):
         info = FunctionInfo("function")
         info.set_name("function_1")
@@ -734,7 +687,8 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.parameter(0), "param_1")
         self.assertEqual(info.parameter(1), "param_2")
         self.assertEqual(len(info.parameter_details()), 2)
-        self.assertSetEqual(set(info.parameter_details()), {param_info_1, param_info_2})
+        self.assertSetEqual(
+            set(info.parameter_details()), {param_info_1, param_info_2})
         self.assertEqual(info.return_(), return_info)
         self.assertEqual(info.module(), "module.a")
         self.assertEqual(info.description(), "function_1 description")
@@ -777,14 +731,18 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.type(), "method")
         self.assertEqual(info.name(), "method_1")
         self.assertEqual(len(info.parameters()), 3)
-        self.assertSetEqual(set(info.parameters()), {"param_1", "param_5", "param_3"})
+        self.assertSetEqual(
+            set(info.parameters()), {"param_1", "param_5", "param_3"})
         self.assertEqual(info.parameter(0), "param_1")
         self.assertEqual(info.parameter(1), "param_5")
         self.assertEqual(info.parameter(2), "param_3")
         self.assertEqual(len(info.parameter_details()), 3)
-        self.assertSetEqual(set(info.parameter_details()), {param_info_1, param_info_2, param_info_3})
+        self.assertSetEqual(
+            set(info.parameter_details()),
+            {param_info_1, param_info_2, param_info_3})
         self.assertEqual(info.module(), "module.a")
-        self.assertEqual(info.description(), "method_1 description appended more")
+        self.assertEqual(
+            info.description(), "method_1 description appended more")
 
     def test_to_dict(self):
         info = FunctionInfo("function")
@@ -884,12 +842,14 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.parameter(0), "param_1")
         self.assertEqual(info.parameter(1), "param_2")
         self.assertEqual(len(info.parameter_details()), 2)
-        self.assertEqual(info.parameter_details()[0].name(), "param_1")
-        self.assertEqual(info.parameter_details()[0].description(), "param_1 description")
-        self.assertEqual(info.parameter_details()[0].data_type().to_string(), "int")
-        self.assertEqual(info.parameter_details()[1].name(), "param_2")
-        self.assertEqual(info.parameter_details()[1].description(), "param_2 description")
-        self.assertEqual(info.parameter_details()[1].data_type().to_string(), "float")
+        param_detail = info.parameter_details()[0]
+        self.assertEqual(param_detail.name(), "param_1")
+        self.assertEqual(param_detail.description(), "param_1 description")
+        self.assertEqual(param_detail.data_type().to_string(), "int")
+        param_detail = info.parameter_details()[1]
+        self.assertEqual(param_detail.name(), "param_2")
+        self.assertEqual(param_detail.description(), "param_2 description")
+        self.assertEqual(param_detail.data_type().to_string(), "float")
         self.assertEqual(info.module(), "module.a")
         self.assertEqual(info.description(), "function_1 description")
         self.assertEqual(info.return_().description(), "return description")
@@ -944,20 +904,25 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(info.name(), "function_1")
         self.assertEqual(len(info.parameters()), 3)
-        self.assertSetEqual(set(info.parameters()), {"param_1", "param_2", "param_3"})
+        self.assertSetEqual(
+            set(info.parameters()), {"param_1", "param_2", "param_3"})
         self.assertEqual(info.parameter(0), "param_1")
         self.assertEqual(info.parameter(1), "param_2")
         self.assertEqual(info.parameter(2), "param_3")
         self.assertEqual(len(info.parameter_details()), 3)
-        self.assertEqual(info.parameter_details()[0].name(), "param_1")
-        self.assertEqual(info.parameter_details()[0].description(), "param_1 description")
-        self.assertEqual(info.parameter_details()[0].data_type().to_string(), "int")
-        self.assertEqual(info.parameter_details()[1].name(), "param_2")
-        self.assertEqual(info.parameter_details()[1].description(), "param_2 description updated")
-        self.assertEqual(info.parameter_details()[1].data_type().to_string(), "float")
-        self.assertEqual(info.parameter_details()[2].name(), "param_3")
-        self.assertEqual(info.parameter_details()[2].description(), "param_3 description")
-        self.assertEqual(info.parameter_details()[2].data_type().to_string(), "bool")
+        param_detail = info.parameter_details()[0]
+        self.assertEqual(param_detail.name(), "param_1")
+        self.assertEqual(param_detail.description(), "param_1 description")
+        self.assertEqual(param_detail.data_type().to_string(), "int")
+        param_detail = info.parameter_details()[1]
+        self.assertEqual(param_detail.name(), "param_2")
+        self.assertEqual(
+            param_detail.description(), "param_2 description updated")
+        self.assertEqual(param_detail.data_type().to_string(), "float")
+        param_detail = info.parameter_details()[2]
+        self.assertEqual(param_detail.name(), "param_3")
+        self.assertEqual(param_detail.description(), "param_3 description")
+        self.assertEqual(param_detail.data_type().to_string(), "bool")
         self.assertEqual(info.module(), "module.a")
         self.assertEqual(info.description(), "function_1 description")
         self.assertEqual(info.return_().description(), "return description")
@@ -1050,21 +1015,27 @@ class FunctionInfoTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(info.name(), "function_1")
         self.assertEqual(len(info.parameters()), 3)
-        self.assertSetEqual(set(info.parameters()), {"param_1", "param_2", "param_3"})
+        self.assertSetEqual(
+            set(info.parameters()), {"param_1", "param_2", "param_3"})
         self.assertEqual(info.parameter(0), "param_1")
         self.assertEqual(info.parameter(1), "param_2")
         self.assertEqual(info.parameter(2), "param_3")
         self.assertEqual(len(info.parameter_details()), 2)
-        self.assertEqual(info.parameter_details()[0].name(), "param_1")
-        self.assertEqual(info.parameter_details()[0].description(), "param_1 description updated")
-        self.assertEqual(info.parameter_details()[0].data_type().to_string(), "float")
-        self.assertEqual(info.parameter_details()[1].name(), "param_2")
-        self.assertEqual(info.parameter_details()[1].description(), "param_2 description")
-        self.assertEqual(info.parameter_details()[1].data_type().to_string(), "float")
+        param_detail = info.parameter_details()[0]
+        self.assertEqual(param_detail.name(), "param_1")
+        self.assertEqual(
+            param_detail.description(), "param_1 description updated")
+        self.assertEqual(param_detail.data_type().to_string(), "float")
+        param_detail = info.parameter_details()[1]
+        self.assertEqual(param_detail.name(), "param_2")
+        self.assertEqual(param_detail.description(), "param_2 description")
+        self.assertEqual(param_detail.data_type().to_string(), "float")
         self.assertEqual(info.module(), "module.a")
-        self.assertEqual(info.description(), "function_1 description updated")
-        self.assertEqual(info.return_().description(), "return description updated")
-        self.assertEqual(info.return_().data_type().to_string(), "custom_data_type")
+        self.assertEqual(
+            info.description(), "function_1 description updated")
+        return_ = info.return_()
+        self.assertEqual(return_.description(), "return description updated")
+        self.assertEqual(return_.data_type().to_string(), "custom_data_type")
 
         expect = {
             "type": "function",
@@ -1101,12 +1072,6 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
 
     name = "ClassInfoTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_setter_getter_methods_case_1(self):
         info = ClassInfo()
@@ -1160,10 +1125,10 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.type(), "class")
         self.assertEqual(info.name(), "ClassA")
         self.assertEqual(info.module(), "module.a")
-        self.assertEquals(info.attributes(), [attr_info_1, attr_info_2])
+        self.assertEqual(info.attributes(), [attr_info_1, attr_info_2])
         self.assertEqual(info.description(), "ClassA description")
-        self.assertEquals(info.methods(), [method_info_1, method_info_2])
-        self.assertEquals(info.base_classes(), [base_class_1, base_class_3])
+        self.assertEqual(info.methods(), [method_info_1, method_info_2])
+        self.assertEqual(info.base_classes(), [base_class_1, base_class_3])
 
     def test_setter_getter_methods_case_2(self):
         info = ClassInfo()
@@ -1234,10 +1199,13 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.type(), "class")
         self.assertEqual(info.name(), "ClassA")
         self.assertEqual(info.module(), "module.a")
-        self.assertEquals(info.attributes(), [attr_info_1, attr_info_2, attr_info_3])
-        self.assertEqual(info.description(), "ClassA description appended more")
-        self.assertEquals(info.methods(), [method_info_1, method_info_2, method_info_3])
-        self.assertEquals(info.base_classes(), [base_class_1])
+        self.assertEqual(
+            info.attributes(), [attr_info_1, attr_info_2, attr_info_3])
+        self.assertEqual(
+            info.description(), "ClassA description appended more")
+        self.assertEqual(
+            info.methods(), [method_info_1, method_info_2, method_info_3])
+        self.assertEqual(info.base_classes(), [base_class_1])
 
     def test_to_dict(self):
         info = ClassInfo()
@@ -1370,21 +1338,24 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(info.base_classes()), 1)
         self.assertEqual(info.base_classes()[0].to_string(), "BaseClassA")
         self.assertEqual(len(info.attributes()), 1)
-        self.assertEqual(info.attributes()[0].name(), "attr_1")
-        self.assertEqual(info.attributes()[0].description(), "attr_1 description")
-        self.assertEqual(info.attributes()[0].data_type().to_string(), "int")
-        self.assertEqual(info.attributes()[0].module(), "module.a")
+        attr = info.attributes()[0]
+        self.assertEqual(attr.name(), "attr_1")
+        self.assertEqual(attr.description(), "attr_1 description")
+        self.assertEqual(attr.data_type().to_string(), "int")
+        self.assertEqual(attr.module(), "module.a")
         self.assertEqual(len(info.methods()), 1)
-        self.assertEqual(info.methods()[0].name(), "method_1")
-        self.assertEquals(info.methods()[0].parameters(), ["param_1"])
-        self.assertEqual(info.methods()[0].description(), "method_1 description")
-        self.assertEqual(info.methods()[0].module(), "module.a")
-        self.assertEqual(len(info.methods()[0].parameter_details()), 1)
-        self.assertEqual(info.methods()[0].parameter_details()[0].name(), "param_1")
-        self.assertEqual(info.methods()[0].parameter_details()[0].description(), "param_1 description")
-        self.assertEqual(info.methods()[0].parameter_details()[0].data_type().to_string(), "float")
-        self.assertEqual(info.methods()[0].return_().description(), "return description")
-        self.assertEqual(info.methods()[0].return_().data_type().to_string(), "bool")
+        method = info.methods()[0]
+        self.assertEqual(method.name(), "method_1")
+        self.assertEqual(method.parameters(), ["param_1"])
+        self.assertEqual(method.description(), "method_1 description")
+        self.assertEqual(method.module(), "module.a")
+        self.assertEqual(len(method.parameter_details()), 1)
+        param_detail = method.parameter_details()[0]
+        self.assertEqual(param_detail.name(), "param_1")
+        self.assertEqual(param_detail.description(), "param_1 description")
+        self.assertEqual(param_detail.data_type().to_string(), "float")
+        self.assertEqual(method.return_().description(), "return description")
+        self.assertEqual(method.return_().data_type().to_string(), "bool")
 
     def test_from_dict_method_append(self):
         info = ClassInfo()
@@ -1455,21 +1426,25 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.base_classes()[0].to_string(), "'BaseClassA'")
         self.assertEqual(len(info.attributes()), 2)
         self.assertEqual(info.attributes()[0].name(), "attr_1")
-        self.assertEqual(info.attributes()[0].description(), "attr_1 description")
+        self.assertEqual(
+            info.attributes()[0].description(), "attr_1 description")
         self.assertEqual(info.attributes()[0].data_type().to_string(), "float")
         self.assertEqual(info.attributes()[0].module(), "module.a")
         self.assertEqual(info.attributes()[1].name(), "attr_2")
-        self.assertEqual(info.attributes()[1].description(), "attr_2 description")
+        self.assertEqual(
+            info.attributes()[1].description(), "attr_2 description")
         self.assertEqual(info.attributes()[1].data_type().to_string(), "int")
         self.assertEqual(info.attributes()[1].module(), "module.a")
         self.assertEqual(len(info.methods()), 2)
         self.assertEqual(info.methods()[0].name(), "method_1")
-        self.assertEquals(info.methods()[0].parameters(), [])
-        self.assertEqual(info.methods()[0].description(), "method_1 description")
+        self.assertEqual(info.methods()[0].parameters(), [])
+        self.assertEqual(
+            info.methods()[0].description(), "method_1 description")
         self.assertEqual(info.methods()[0].module(), "module.a")
         self.assertEqual(info.methods()[1].name(), "method_2")
-        self.assertEquals(info.methods()[1].parameters(), [])
-        self.assertEqual(info.methods()[1].description(), "method_2 description")
+        self.assertEqual(info.methods()[1].parameters(), [])
+        self.assertEqual(
+            info.methods()[1].description(), "method_2 description")
         self.assertEqual(info.methods()[1].module(), "module.a")
 
         expect = {
@@ -1587,13 +1562,15 @@ class ClassInfoTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.base_classes()[0].to_string(), "'BaseClassA'")
         self.assertEqual(len(info.attributes()), 1)
         self.assertEqual(info.attributes()[0].name(), "attr_1")
-        self.assertEqual(info.attributes()[0].description(), "attr_1 description updated")
+        self.assertEqual(
+            info.attributes()[0].description(), "attr_1 description updated")
         self.assertEqual(info.attributes()[0].data_type().to_string(), "float")
         self.assertEqual(info.attributes()[0].module(), "module.a")
         self.assertEqual(len(info.methods()), 1)
         self.assertEqual(info.methods()[0].name(), "method_1")
-        self.assertEquals(info.methods()[0].parameters(), [])
-        self.assertEqual(info.methods()[0].description(), "method_1 description updated")
+        self.assertEqual(info.methods()[0].parameters(), [])
+        self.assertEqual(
+            info.methods()[0].description(), "method_1 description updated")
         self.assertEqual(info.methods()[0].module(), "module.a")
 
         expect = {
@@ -1637,12 +1614,6 @@ class SectionInfoTest(common.FakeBpyModuleTestBase):
 
     name = "SectionInfoTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_to_dict(self):
         info = SectionInfo()
@@ -1689,4 +1660,3 @@ class SectionInfoTest(common.FakeBpyModuleTestBase):
         }
 
         self.assertDictEqual(expect, info.to_dict())
-

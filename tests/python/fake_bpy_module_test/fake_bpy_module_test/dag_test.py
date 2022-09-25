@@ -1,22 +1,16 @@
-from . import common
-from fake_bpy_module.dag import (
+from fake_bpy_module.dag import (   # pylint: disable=E0401
     Node,
     Edge,
     DAG,
     topological_sort,
 )
+from . import common
 
 
 class DAGTest(common.FakeBpyModuleTestBase):
 
     name = "DAGTest"
     module_name = __module__
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_node(self):
         node = Node("A")
@@ -60,22 +54,22 @@ class DAGTest(common.FakeBpyModuleTestBase):
         node_1 = dag.make_node("A")
         node_2 = dag.make_node("B")
         node_3 = dag.make_node("C")
-        edge_1 = dag.make_edge(node_2, node_1)
-        edge_2 = dag.make_edge(node_1, node_3)
+        _ = dag.make_edge(node_2, node_1)
+        _ = dag.make_edge(node_1, node_3)
 
         sorted_nodes = topological_sort(dag)
-        self.assertEquals(sorted_nodes, [node_2, node_1, node_3])
+        self.assertEqual(sorted_nodes, [node_2, node_1, node_3])
 
     def test_topological_sort_2(self):
         dag = DAG()
         node_1 = dag.make_node("A")
         node_2 = dag.make_node("B")
         node_3 = dag.make_node("C")
-        edge_1 = dag.make_edge(node_1, node_2)
-        edge_2 = dag.make_edge(node_1, node_3)
+        _ = dag.make_edge(node_1, node_2)
+        _ = dag.make_edge(node_1, node_3)
 
         sorted_nodes = topological_sort(dag)
-        self.assertEquals(sorted_nodes, [node_1, node_2, node_3])
+        self.assertEqual(sorted_nodes, [node_1, node_2, node_3])
 
     def test_topological_sort_3(self):
         dag = DAG()
@@ -83,21 +77,21 @@ class DAGTest(common.FakeBpyModuleTestBase):
         node_2 = dag.make_node("B")
         node_3 = dag.make_node("C")
         node_4 = dag.make_node("C")
-        edge_1 = dag.make_edge(node_1, node_2)
-        edge_2 = dag.make_edge(node_2, node_3)
-        edge_2 = dag.make_edge(node_1, node_4)
+        _ = dag.make_edge(node_1, node_2)
+        _ = dag.make_edge(node_2, node_3)
+        _ = dag.make_edge(node_1, node_4)
 
         sorted_nodes = topological_sort(dag)
-        self.assertEquals(sorted_nodes, [node_1, node_2, node_4, node_3])
+        self.assertEqual(sorted_nodes, [node_1, node_2, node_4, node_3])
 
     def test_topological_sort_detect_cycle(self):
         dag = DAG()
         node_1 = dag.make_node("A")
         node_2 = dag.make_node("B")
         node_3 = dag.make_node("C")
-        edge_1 = dag.make_edge(node_1, node_2)
-        edge_2 = dag.make_edge(node_2, node_3)
-        edge_3 = dag.make_edge(node_3, node_1)
+        _ = dag.make_edge(node_1, node_2)
+        _ = dag.make_edge(node_2, node_3)
+        _ = dag.make_edge(node_3, node_1)
 
         with self.assertRaises(ValueError):
             topological_sort(dag)

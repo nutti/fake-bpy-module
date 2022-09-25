@@ -18,19 +18,19 @@ class FakeBpyModuleTestBase(unittest.TestCase):
         if cls.name is None:
             raise ValueError("name must set")
 
-        cls.log_dir = "{}/{}".format(LOG_DIR, cls.module_name)
+        cls.log_dir = f"{LOG_DIR}/{cls.module_name}"
         os.makedirs(cls.log_dir, exist_ok=True)
 
-        filename = "{}/{}.log".format(cls.log_dir, cls.name)
-        cls.file_ = open(filename, "w")
+        filename = f"{cls.log_dir}/{cls.name}.log"
+        cls.file_ = open(filename, "w", encoding="utf-8")   # noqa # pylint: disable=R1732
 
     @classmethod
     def tearDownClass(cls):
         cls.file_.close()
 
     def setUp(self):
-        self.maxDiff = None
-        self.log("========== Test: {} ==========".format(self.id()))
+        self.maxDiff = None     # pylint: disable=C0103
+        self.log(f"========== Test: {self.id()} ==========")
 
     def tearDown(self):
         pass

@@ -9,17 +9,19 @@ LOG_LEVEL_ERR = 4
 
 LOG_LEVEL = LOG_LEVEL_WARN
 
+
 def check_os():
     if os.name == "nt":
         return "Windows"
-    elif os.name == "posix":
+    if os.name == "posix":
         return "Linux"
+    return ""
 
 
 def output_log(level: int, message: str):
     LOG_LEVEL_LABEL: List[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]
     if level >= LOG_LEVEL:
-        print("[{0}] {1}".format(LOG_LEVEL_LABEL[level], message))
+        print(f"[{LOG_LEVEL_LABEL[level]}] {message}")
 
 
 def remove_unencodable(str_: str) -> str:
