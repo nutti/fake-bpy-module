@@ -2,18 +2,17 @@
 
 ![Code Completion (Visual Studio Code)](images/code_completion_visual_studio_code.png)
 
-
-#### 1. Check the generated modules location
+## 1. Check the generated modules location
 
 Check the location of the generated modules.  
 
+## 2. Download the visual studio code extension
 
-#### 2. Download the visual studio code extension
+Download
+[the visual studio code extension for Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+and restart the visual studio code.
 
-Download [the visual studio code extension for Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) and restart the visual studio code.
-
-
-#### 3. Add Auto Complete path
+## 3. Add Auto Complete path
 
 Add the path for the auto completion from Visual Studio.
 
