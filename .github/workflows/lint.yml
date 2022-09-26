@@ -58,3 +58,18 @@ jobs:
 
       - name: pylint test
         run: bash tests/lint/pylint/run.sh .
+
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-latest
+    container:
+      image: node:15
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install npm dependencies
+        run: npm install -g markdownlint-cli
+
+      - name: markdownlint test
+        run: bash tests/lint/markdownlint/run.sh .
