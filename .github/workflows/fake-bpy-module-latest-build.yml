@@ -1,6 +1,8 @@
+---
+# yamllint disable rule:line-length
 name: fake-bpy-module Latest Build
 
-on:
+on:   # yamllint disable-line rule:truthy
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * *"
@@ -116,7 +118,7 @@ jobs:
         with:
           path: dist
 
-        # Publish to TestPyPi on each merge to master
+      # Publish to TestPyPi on each merge to master
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
