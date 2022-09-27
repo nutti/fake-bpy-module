@@ -1,6 +1,8 @@
+---
+# yamllint disable rule:line-length
 name: fake-bpy-module CI
 
-on:
+on:   # yamllint disable-line rule:truthy
   push:
     branches:
       - master
@@ -50,7 +52,12 @@ jobs:
       fail-fast: false
       matrix:
         blender_version:
-          ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92", "2.93", "3.0", "3.1", "3.2"]
+          [
+            "2.78", "2.79",
+            "2.80", "2.81", "2.82", "2.83",
+            "2.90", "2.91", "2.92", "2.93",
+            "3.0", "3.1", "3.2"
+          ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -85,7 +92,8 @@ jobs:
         if: steps.blender-bin-cache.outputs.cache-hit != 'true'
         run: bash tools/utils/download_blender.sh ${{ matrix.blender_version }} blender-bin
 
-        # alternatively to the github checkout, you can also use git.blender.org. See below.
+        # alternatively to the github checkout, you can also use
+        # git.blender.org. See below.
       - name: Checkout Blender from Github
         uses: actions/checkout@v2
         with:
@@ -113,8 +121,13 @@ jobs:
         run: bash tests/run_tests.sh raw_modules
 
       - name: Test generated pip module against Cycles addon
-        # Using a wildcard instead of ${{ needs.set_versions.outputs.module_version }} below, because the pip filenames do not respect leading zeros:
-        # For example: 00:29:45 UTC will create a file version "...dev2945-py3-none..." and not use {{ module_version}} "...dev002945-py3-none..."
+        # Using a wildcard instead of
+        # ${{ needs.set_versions.outputs.module_version }} below, because the
+        # pip filenames do not respect leading zeros:
+        #
+        # For example: 00:29:45 UTC will create a file version
+        #   "...dev2945-py3-none..." and not use {{ module_version }}
+        #   "...dev002945-py3-none..."
         run: bash tests/pylint_cycles.sh ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
 
       - name: Collect failure state
@@ -137,14 +150,19 @@ jobs:
       fail-fast: false
       matrix:
         blender_version:
-          ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92", "2.93", "3.0", "3.1", "3.2"]
+          [
+            "2.78", "2.79",
+            "2.80", "2.81", "2.82", "2.83",
+            "2.90", "2.91", "2.92", "2.93",
+            "3.0", "3.1", "3.2"
+          ]
     steps:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           path: dist
 
-        # Publish to TestPyPi on each merge to master
+      # Publish to TestPyPi on each merge to master
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
@@ -161,7 +179,12 @@ jobs:
       fail-fast: false
       matrix:
         blender_version:
-          ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92", "2.93", "3.0", "3.1", "3.2"]
+          [
+            "2.78", "2.79",
+            "2.80", "2.81", "2.82", "2.83",
+            "2.90", "2.91", "2.92", "2.93",
+            "3.0", "3.1", "3.2"
+          ]
     steps:
       - name: Fetch Artifacts
         uses: actions/download-artifact@v2
@@ -183,7 +206,12 @@ jobs:
       fail-fast: false
       matrix:
         blender_version:
-          ["2.78", "2.79", "2.80", "2.81", "2.82", "2.83", "2.90", "2.91", "2.92", "2.93", "3.0", "3.1", "3.2"]
+          [
+            "2.78", "2.79",
+            "2.80", "2.81", "2.82", "2.83",
+            "2.90", "2.91", "2.92", "2.93",
+            "3.0", "3.1", "3.2"
+          ]
     steps:
       - name: Fetch Artifacts
         uses: actions/download-artifact@v2
