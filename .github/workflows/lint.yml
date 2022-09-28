@@ -91,3 +91,16 @@ jobs:
 
       - name: yamllint test
         run: bash tests/lint/yamllint/run.sh .
+
+  jsonlint:
+    name: jsonlint
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install npm dependencies
+        run: npm install -g jsonlint
+
+      - name: jsonlint test
+        run: bash tests/lint/jsonlint/run.sh .
