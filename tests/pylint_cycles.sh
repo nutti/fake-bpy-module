@@ -82,7 +82,7 @@ function get_remote_git_ref() {
     # 2. If multiple are found, take first one (head -n 1)
     # 3. Only save hash (cut -f1)
     local remote_ref
-    remote_ref="$(git ls-remote origin $ref | head -n 1 | cut -f1)"
+    remote_ref="$(git ls-remote origin "$ref" | head -n 1 | cut -f1)"
 
     # if remote ref was not found, it probably was a git hash
     if [ -z "${remote_ref}" ]; then
@@ -110,6 +110,7 @@ function create_pylintrc() {
     echo "Generating ${pylintrc}"
 
     echo > "${pylintrc}"
+    # shellcheck disable=SC2129
     echo "[MESSAGES CONTROL]" >> "${pylintrc}"
     echo "disable=${disabled_pylint_warning}" >> "${pylintrc}"
 
@@ -193,7 +194,7 @@ cat "${pylintrcpath}"
 echo
 
 # Fixing addon code to workaround some quirks
-workaround_quirks ${version}
+workaround_quirks "${version}"
 echo
 
 # Expect failure before fake-bpy-module is installed, otherwise following test has no meaning

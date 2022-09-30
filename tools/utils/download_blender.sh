@@ -215,9 +215,9 @@ function download_blender() {
     echo "Extracting Blender ${ver} using \"${extractor%% *}\"."
     ${extractor} "${filepath}"
 
-    if [ ! ${move_from} = "" ]; then
+    if [ ! "${move_from}" = "" ]; then
         echo "Moving downloaded Blender ${ver} files from \"${move_from}\" to \"${targetpath}\"."
-        mv ${move_from}/* .
+        mv "${move_from}"/* .
     fi
 
     # go back to download folder
@@ -226,8 +226,8 @@ function download_blender() {
 
 function wait_for_all() {
     local status=0
-    for pid in $@; do
-        wait ${pid} &&:
+    for pid in "$@"; do
+        wait "${pid}" &&:
         (exit $?) && (exit ${status}) &&:; status=$?
     done
     if [ ${status} -ne 0 ]; then
@@ -236,6 +236,7 @@ function wait_for_all() {
 }
 
 function check_os() {
+    # shellcheck disable=SC2003,SC2308,SC2046
     if [ "$(uname)" == "Darwin" ]; then
         echo "Mac"
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
@@ -262,84 +263,84 @@ if [ -z "${output_dir}" ]; then
 fi
 
 # check operating system
-os=`check_os`
+os=$(check_os)
 echo "Operating System is ${os}"
 
 # check if the specified version is supported
 supported=0
 for v in "${SUPPORTED_VERSIONS[@]}"; do
-    if [ ${v} = ${version} ]; then
+    if [ "${v}" = "${version}" ]; then
         supported=1
     fi
 done
 if [ ${supported} -eq 0 ]; then
     echo "${version} is not supported."
-    echo "Supported version is ${SUPPORTED_VERSIONS[@]}."
+    echo "Supported version is ${SUPPORTED_VERSIONS[*]}."
     exit 1
 fi
 
-if [ ${version} = "all" ]; then
+if [ "${version}" = "all" ]; then
     pids=()
-    if [ ${os} == "Mac" ]; then
-        for KEY in ${!BLENDER_DOWNLOAD_URL_MACOSX[@]}; do
+    if [ "${os}" == "Mac" ]; then
+        for KEY in "${!BLENDER_DOWNLOAD_URL_MACOSX[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_MACOSX[${KEY}]}
             move_from=""
             if [[ "${NEED_MOVE_MACOSX[${KEY}]+_}" == "_" ]]; then
                 move_from=${NEED_MOVE_MACOSX[${KEY}]}
             fi
-            download_blender ${KEY} ${url} ${move_from} &
+            download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
         done
-    elif [ ${os} == "Cygwin64" ]; then
-        for KEY in ${!BLENDER_DOWNLOAD_URL_WIN64[@]}; do
+    elif [ "${os}" == "Cygwin64" ]; then
+        for KEY in "${!BLENDER_DOWNLOAD_URL_WIN64[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_WIN64[${KEY}]}
             move_from=""
             if [[ "${NEED_MOVE_WIN64[${KEY}]+_}" == "_" ]]; then
                 move_from=${NEED_MOVE_WIN64[${KEY}]}
             fi
-            download_blender ${KEY} ${url} ${move_from} &
+            download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
         done
-    elif [ ${os} == "Linux" ]; then
-        for KEY in ${!BLENDER_DOWNLOAD_URL_LINUX[@]}; do
+    elif [ "${os}" == "Linux" ]; then
+        for KEY in "${!BLENDER_DOWNLOAD_URL_LINUX[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_LINUX[${KEY}]}
             move_from=""
             if [[ "${NEED_MOVE_LINUX[${KEY}]+_}" == "_" ]]; then
                 move_from=${NEED_MOVE_LINUX[${KEY}]}
             fi
-            download_blender ${KEY} ${url} ${move_from} &
+            download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
         done
     else
         echo "Not supported operating system (OS=${os})"
         exit 1
     fi
-    wait_for_all ${pids[@]}
+    wait_for_all "${pids[@]}"
 else
-    if [ ${os} == "Mac" ]; then
+    if [ "${os}" == "Mac" ]; then
         ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_MACOSX[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_MACOSX[${ver}]+_}" == "_" ]]; then
             move_from=${NEED_MOVE_MACOSX[${ver}]}
         fi
-        download_blender ${ver} ${url} ${move_from}
-    elif [ ${os} == "Cygwin64" ]; then
+        download_blender "${ver}" "${url}" "${move_from}"
+    elif [ "${os}" == "Cygwin64" ]; then
         ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_WIN64[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_WIN64[${ver}]+_}" == "_" ]]; then
             move_from=${NEED_MOVE_WIN64[${ver}]}
         fi
-        download_blender ${ver} ${url} ${move_from}
-    elif [ ${os} == "Linux" ]; then
+        download_blender "${ver}" "${url}" "${move_from}"
+    elif [ "${os}" == "Linux" ]; then
         ver=v${version}
         url=${BLENDER_DOWNLOAD_URL_LINUX[${ver}]}
         move_from=""
         if [[ "${NEED_MOVE_LINUX[${ver}]+_}" == "_" ]]; then
             move_from=${NEED_MOVE_LINUX[${ver}]}
         fi
-        download_blender ${ver} ${url} ${move_from}
+        download_blender "${ver}" "${url}" "${move_from}"
     else
         echo "Not supported operating system (OS=${os})"
         exit 1

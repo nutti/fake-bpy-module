@@ -30,8 +30,11 @@ declare -A BLENDER_TAG_NAME=(
 TMP_DIR_NAME="tmp"
 RAW_MODULES_DIR="raw_modules"
 RELEASE_DIR="release"
-SCRIPT_DIR=$(cd $(dirname $0); pwd)
-CURRENT_DIR=`pwd`
+# shellcheck disable=SC2046,SC2155,SC2164
+{
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+}
+CURRENT_DIR=$(pwd)
 PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check arguments
@@ -47,22 +50,22 @@ blender_dir=${4}
 mod_version=${5:-not-specified}
 
 # check if PYTHON_BIN binary is availble
-if ! command -v ${PYTHON_BIN} > /dev/null; then
+if ! command -v "${PYTHON_BIN}" > /dev/null; then
     echo "Error: Cannot find ${PYTHON_BIN} binary."
     exit 1
 fi
-python_bin=$(command -v ${PYTHON_BIN})
+python_bin=$(command -v "${PYTHON_BIN}")
 
 # check if python version meets our requirements
 IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
-if [ ${python_version[0]} -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 7 ]]; then
+if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 7 ]]; then
     echo "Error: Unsupported python version \"${python_version[0]}.${python_version[1]}\". Requiring python 3.7 or higher."
     exit 1
 fi
 
-if [ ${RELEASE_VERSION:-not_exist} = "not_exist" ]; then
+if [ "${RELEASE_VERSION:-not_exist}" = "not_exist" ]; then
     echo "Environment variable 'RELEASE_VERSION' does not exist, so use date as release version"
-    release_version=`date '+%Y%m%d'`
+    release_version=$(date '+%Y%m%d')
 else
     echo "Environment variable 'RELEASE_VERSION' exists, so use it as release version"
     release_version="${RELEASE_VERSION}"
@@ -76,7 +79,7 @@ if ! ${python_bin} -c "from setuptools._vendor.packaging.version import Version;
 fi
 
 # check if the target is develop or release
-if [ ! ${target} = "release" ] && [ ! ${target} = "develop" ]; then
+if [ ! "${target}" = "release" ] && [ ! "${target}" = "develop" ]; then
     echo "target must be release or develop"
     exit 1
 fi
@@ -85,13 +88,13 @@ fi
 # check if the specified version is supported
 supported=0
 for v in "${SUPPORTED_VERSIONS[@]}"; do
-    if [ ${v} = ${version} ]; then
+    if [ "${v}" = "${version}" ]; then
         supported=1
     fi
 done
 if [ ${supported} -eq 0 ]; then
     echo "${version} is not supported."
-    echo "Supported version is ${SUPPORTED_VERSIONS[@]}."
+    echo "Supported version is ${SUPPORTED_VERSIONS[*]}."
     exit 1
 fi
 
@@ -100,38 +103,38 @@ fi
 tmp_dir=${SCRIPT_DIR}/${TMP_DIR_NAME}-${version}
 raw_modules_dir=${CURRENT_DIR}/${RAW_MODULES_DIR}
 release_dir=${CURRENT_DIR}/${RELEASE_DIR}
-if [ -e ${tmp_dir} ]; then
+if [ -e "${tmp_dir}" ]; then
     echo "${tmp_dir} is already exists."
     exit 1
 fi
 
 
-if [ ${target} = "release" ]; then
+if [ "${target}" = "release" ]; then
     # setup pre-generated-modules/release/temp directories
-    mkdir -p ${raw_modules_dir}
-    mkdir -p ${release_dir}
-    mkdir -p ${tmp_dir} && cd ${tmp_dir}
+    mkdir -p "${raw_modules_dir}"
+    mkdir -p "${release_dir}"
+    mkdir -p "${tmp_dir}" && cd "${tmp_dir}"
 
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version}
-    if [ ${mod_version} = "not-specified" ]; then
-        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir}
+    if [ "${mod_version}" = "not-specified" ]; then
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}"
     else
-        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir} ${mod_version}
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}" "${mod_version}"
     fi
     zip_dir="fake_bpy_modules_${version}-${release_version}"
-    cp -r ${fake_module_dir} ${zip_dir}
+    cp -r ${fake_module_dir} "${zip_dir}"
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
-    zip -r ${zip_file_name} ${zip_dir}
-    mv ${zip_file_name} ${raw_modules_dir}
+    zip -r "${zip_file_name}" "${zip_dir}"
+    mv "${zip_file_name}" "${raw_modules_dir}"
     mv ${fake_module_dir}/* .
-    rm -r ${zip_dir}
+    rm -r "${zip_dir}"
     rm -r ${fake_module_dir}
 
     # build pip package
-    cp ${SCRIPT_DIR}/setup.py .
-    cp ${SCRIPT_DIR}/../../README.md .
+    cp "${SCRIPT_DIR}/setup.py" .
+    cp "${SCRIPT_DIR}/../../README.md" .
     pandoc -f markdown -t rst -o README.rst README.md
     rm README.md
     rm -rf fake_bpy_module*.egg-info/ dist/ build/
@@ -140,33 +143,33 @@ if [ ${target} = "release" ]; then
     ${python_bin} setup.py bdist_wheel
 
     # move the generated package to releaes directory
-    mv dist ${release_dir}/${version}
+    mv dist "${release_dir}/${version}"
 
     # clean up
-    cd ${CURRENT_DIR}
-    rm -rf ${tmp_dir}
+    cd "${CURRENT_DIR}"
+    rm -rf "${tmp_dir}"
 
-elif [ ${target} = "develop" ]; then
+elif [ "${target}" = "develop" ]; then
     # setup pre-generated-modules/release/temp directories
-    mkdir -p ${raw_modules_dir}
-    mkdir -p ${release_dir} && cd ${release_dir}
-    cp ${SCRIPT_DIR}/setup.py .
+    mkdir -p "${raw_modules_dir}"
+    mkdir -p "${release_dir}" && cd "${release_dir}"
+    cp "${SCRIPT_DIR}/setup.py" .
 
     # generate fake bpy module
     fake_module_dir="out"
     ver=v${version}
-    if [ ${mod_version} = "not-specified" ]; then
-        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir}
+    if [ "${mod_version}" = "not-specified" ]; then
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}"
     else
-        bash ${SCRIPT_DIR}/../../src/gen_module.sh ${CURRENT_DIR}/${source_dir} ${CURRENT_DIR}/${blender_dir} ${BLENDER_TAG_NAME[${ver}]} ${version} ${fake_module_dir} ${mod_version}
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}" "${mod_version}"
     fi
     zip_dir="fake_bpy_modules_${version}-${release_version}"
-    cp -r ${fake_module_dir} ${zip_dir}
+    cp -r ${fake_module_dir} "${zip_dir}"
     zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
-    zip -r ${zip_file_name} ${fake_module_dir}
-    mv ${zip_file_name} ${raw_modules_dir}
+    zip -r "${zip_file_name}" ${fake_module_dir}
+    mv "${zip_file_name}" "${raw_modules_dir}"
     mv ${fake_module_dir}/* .
-    rm -r ${zip_dir}
+    rm -r "${zip_dir}"
     rm -r ${fake_module_dir}
 
     # build and install package
@@ -174,8 +177,8 @@ elif [ ${target} = "develop" ]; then
     ${python_bin} setup.py develop
 
     # clean up
-    cd ${CURRENT_DIR}
-    rm -rf ${tmp_dir}
+    cd "${CURRENT_DIR}"
+    rm -rf "${tmp_dir}"
 fi
 
 exit 0
