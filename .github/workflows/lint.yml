@@ -104,3 +104,17 @@ jobs:
 
       - name: jsonlint test
         run: bash tests/lint/jsonlint/run.sh .
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install required packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+      - name: shellcheck test
+        run: bash tests/lint/shellcheck/run.sh .

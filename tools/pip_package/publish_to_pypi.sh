@@ -19,21 +19,22 @@ if [ -e ${RELEASE_DIR} ]; then
 fi
 
 target=$1
-if [ ${target} != "release" ] && [ ${target} != "test" ]; then
+if [ "${target}" != "release" ] && [ "${target}" != "test" ]; then
     echo "Target must be 'release' or 'test.'"
     exit 1
 fi
 
 tar xvfz ${RELEASE_FILE}
 
-for dir in `find ${RELEASE_DIR} -type d`; do
-    if [ ${dir} = ${RELEASE_DIR} ]; then
+# shellcheck disable=SC2044
+for dir in $(find ${RELEASE_DIR} -type d); do
+    if [ "${dir}" = ${RELEASE_DIR} ]; then
         continue
     fi
-    if [ ${target} = "release" ]; then
-        twine upload --repository pypi ${dir}/*
-    elif [ ${target} = "test" ]; then
-        twine upload --repository testpypi ${dir}/*
+    if [ "${target}" = "release" ]; then
+        twine upload --repository pypi "${dir}"/*
+    elif [ "${target}" = "test" ]; then
+        twine upload --repository testpypi "${dir}"/*
     else
         echo "Internal error: Invalid target."
         exit 1

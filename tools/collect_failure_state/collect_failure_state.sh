@@ -9,13 +9,16 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-SCRIPT_DIR=$(cd $(dirname $0); pwd)
+# shellcheck disable=SC2046,SC2155,SC2164
+{
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+}
 
 OUTPUT_DIR=${1}
 
-mkdir -p ${OUTPUT_DIR}
+mkdir -p "${OUTPUT_DIR}"
 
 INTERMIDIATE_DIR="${SCRIPT_DIR}/../pip_package"
-if [ -d ${INTERMIDIATE_DIR} ]; then
-    cp -r ${INTERMIDIATE_DIR} ${OUTPUT_DIR}
+if [ -d "${INTERMIDIATE_DIR}" ]; then
+    cp -r "${INTERMIDIATE_DIR}" "${OUTPUT_DIR}"
 fi
