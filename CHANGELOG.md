@@ -2,7 +2,23 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20220615...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20221006...master)
+
+<!-- markdownlint-disable-next-line MD013 -->
+## [20221006](https://github.com/nutti/fake-bpy-module/compare/20220615...20221006) - 2022.10.6
+
+### Updated Features
+
+* Support fake-bpy-module-3.3
+
+### Other Updates
+
+* Optimize code for module generation
+* Fix bugs
+
+### Contributors
+
+* [**@theoryshaw**](https://github.com/theoryshaw)
 
 <!-- markdownlint-disable-next-line MD013 -->
 ## [20220615](https://github.com/nutti/fake-bpy-module/compare/20211212...20220615) - 2022.6.15
