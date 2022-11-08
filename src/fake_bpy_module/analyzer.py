@@ -4,6 +4,7 @@ import json
 import copy
 
 from .common import (
+    BuiltinDataType,
     CustomDataType,
     DataType,
     IntermidiateDataType,
@@ -1391,7 +1392,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         info.set_module(class_info.module())
         class_info.add_method(info)
 
-    def _add_iter_and_next(self, class_info: 'ClassInfo', dtype: str):
+    def _add_iter_next_len(self, class_info: 'ClassInfo', dtype: str):
         info = FunctionInfo("method")
         info.set_name("__iter__")
         info.set_parameters([])
@@ -1418,6 +1419,18 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         info.set_return(return_info)
         class_info.add_method(info)
 
+        info = FunctionInfo("method")
+        info.set_name("__len__")
+        info.set_parameters([])
+        info.set_parameter_details([])
+        info.set_class(class_info.name())
+        info.set_module(class_info.module())
+        return_info = ReturnInfo()
+        return_info.set_description("")
+        return_info.set_data_type(BuiltinDataType("int"))
+        info.set_return(return_info)
+        class_info.add_method(info)
+
     def _tweak_bpy_types_classes(self, result: 'AnalysisResult'):
         for section in result.section_info:
             for info in section.info_list:
@@ -1432,7 +1445,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #     def __setitem__(self, key: Union[str, int],
                     #                     value: GenericType):
                     self._add_getitem_and_setitem(info, "GenericType")
-                    self._add_iter_and_next(info, "GenericType")
+                    self._add_iter_next_len(info, "GenericType")
                     info.add_base_class(
                         CustomDataType(
                             "GenericType", ModifierDataType("Generic"),

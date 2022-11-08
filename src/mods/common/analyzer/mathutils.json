@@ -323,6 +323,17 @@
           }
         },
         {
+          "name": "__len__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [],
+          "parameter_details": [],
+          "return": {
+            "type": "return",
+            "data_type": "int"
+          }
+        },
+        {
           "name": "__add__",
           "type": "method",
           "module": "mathutils",

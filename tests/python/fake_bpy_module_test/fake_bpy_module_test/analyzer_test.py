@@ -2291,6 +2291,20 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                         "data_type": "'GenericType'",
                         "description": ""
                     }
+                },
+                {
+                    "type": "method",
+                    "name": "__len__",
+                    "description": "",
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "int",
+                        "description": ""
+                    }
                 }
             ]
         }, method='NEW')
