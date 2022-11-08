@@ -1517,7 +1517,7 @@ class DataTypeRefiner:
 
         # pylint: disable=W0511
         # TODO: need to split ,
-        m = re.match(r"^([a-zA-Z0-9_.]+) ", dtype_str)
+        m = re.match(r"^([a-zA-Z0-9_.]+) [^,]", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -1803,10 +1803,13 @@ class DataTypeRefiner:
             result.set_is_optional(is_optional)
             return result
 
-        if "," in dtype_str:
+        if ("," in dtype_str) or ("or" in dtype_str):
             sp = dtype_str.split(",")
-            dtypes = []
+            splist = []
             for s in sp:
+                splist.extend(s.split("or"))
+            dtypes = []
+            for s in splist:
                 s = s.strip()
                 result = self._get_refined_data_type_fast(
                     s, uniq_full_names, uniq_module_names, module_name)
