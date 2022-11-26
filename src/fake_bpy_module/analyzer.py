@@ -1356,7 +1356,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         section.add_info(info)
         result.section_info.append(section)
 
-    def _add_getitem_and_setitem(self, class_info: 'ClassInfo', dtype: str):
+    def _add_getitem_and_setitem_delitem(
+            self, class_info: 'ClassInfo', dtype: str):
         info = FunctionInfo("method")
         info.set_name("__getitem__")
         info.set_parameters(["key"])
@@ -1389,6 +1390,22 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
             param_detail_info_key, param_detail_info_value])
         info.set_class(class_info.name())
         info.set_module(class_info.module())
+        class_info.add_method(info)
+
+        info = FunctionInfo("method")
+        info.set_name("__delitem__")
+        info.set_parameters(["key"])
+        param_detail_info_key = ParameterDetailInfo()
+        param_detail_info_key.set_name("key")
+        param_detail_info_key.set_description("")
+        param_detail_info_key.set_data_type(IntermidiateDataType("int, str"))
+        info.set_parameter_details([param_detail_info_key])
+        info.set_class(class_info.name())
+        info.set_module(class_info.module())
+        return_info = ReturnInfo()
+        return_info.set_description("")
+        return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+        info.set_return(return_info)
         class_info.add_method(info)
 
     def _add_iter_next_len(self, class_info: 'ClassInfo', dtype: str):
@@ -1443,7 +1460,9 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #         -> GenericType:
                     #     def __setitem__(self, key: Union[str, int],
                     #                     value: GenericType):
-                    self._add_getitem_and_setitem(info, "GenericType")
+                    #     def __delitem__(self, key: Union[str, int])
+                    #         -> GenericType:
+                    self._add_getitem_and_setitem_delitem(info, "GenericType")
                     self._add_iter_next_len(info, "GenericType")
                     info.add_base_class(
                         CustomDataType(
@@ -1454,7 +1473,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #     def __getitem__(self, key: Union[str, int]) -> Any:
                     #     def __setitem__(self, key: Union[str, int],
                     #                     value: Any):
-                    self._add_getitem_and_setitem(info, "typing.Any")
+                    #     def __delitem__(self, key: Union[str, int]) -> Any:
+                    self._add_getitem_and_setitem_delitem(info, "typing.Any")
 
     def _modify(self, result: 'AnalysisResult'):
         super()._modify(result)
