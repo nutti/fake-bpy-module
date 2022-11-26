@@ -2266,6 +2266,27 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                 },
                 {
                     "type": "method",
+                    "name": "__delitem__",
+                    "description": "",
+                    "class": "bpy_prop_collection",
+                    "module": "bpy.types",
+                    "parameters": ["key"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int, str",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'GenericType'",
+                    }
+                },
+                {
+                    "type": "method",
                     "name": "__iter__",
                     "description": "",
                     "class": "bpy_prop_collection",
@@ -2363,6 +2384,27 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                             "data_type": "'typing.Any'",
                         }
                     ]
+                },
+                {
+                    "type": "method",
+                    "name": "__delitem__",
+                    "description": "",
+                    "class": "bpy_struct",
+                    "module": "bpy.types",
+                    "parameters": ["key"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int, str",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'typing.Any'",
+                    }
                 }
             ]
         }, method='NEW')
