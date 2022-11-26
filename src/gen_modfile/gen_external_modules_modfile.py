@@ -243,7 +243,7 @@ def get_alias_to_bpy_types(results):
                     "type": "constant",
                     "name": c["name"],
                     "module": "bpy.types",
-                    "data_type": "{}.{}".format(c["module"], c["name"]),    # noqa # pylint: disable=C0209
+                    "data_type": "`{}.{}`".format(c["module"], c["name"]),    # noqa # pylint: disable=C0209
                 }
                 alias["constants"].append(constant_def)
 

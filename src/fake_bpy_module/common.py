@@ -31,7 +31,9 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
     "listlist", "tupletuple",
-    "Generic", "typing.Iterator"
+    "Generic", "typing.Iterator",
+    "typing.Callable",
+    "typing.Any"
 ]
 
 CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
@@ -67,7 +69,9 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "set": "typing.Set",
     "tuple": "typing.Tuple",
     "Generic": "typing.Generic",
-    "typing.Iterator": "typing.Iterator"
+    "typing.Iterator": "typing.Iterator",
+    "typing.Callable": "typing.Callable",
+    "typing.Any": "typing.Any",
 }
 
 
@@ -327,6 +331,10 @@ class CustomDataType(DataType):
                 return f"{self._modifier.to_string()}['" \
                     f"{self._modifier_add_info['dict_key']}', " \
                     f"'{self._data_type}']"
+        elif self._modifier.modifier_data_type() == "tuple":
+            if self._modifier_add_info is not None:
+                return f"{self._modifier.to_string()}[" \
+                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List['{self._data_type}']]"
 
@@ -1226,6 +1234,9 @@ class DataTypeRefiner:
         if re.match(r"^Depends on function prototype", dtype_str):
             return UnknownDataType()
 
+        if re.match(r"^(any|Any type.)$", dtype_str):
+            return ModifierDataType("typing.Any")
+
         if re.match(r"^[23][dD] [Vv]ector$", dtype_str):
             s = self._parse_custom_data_type(
                 "Vector", uniq_full_names, uniq_module_names, module_name)
@@ -1262,6 +1273,15 @@ class DataTypeRefiner:
             ]
             return MixinDataType(dtypes)
 
+        # Ex: enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
+        m = re.match(r"^enum in :ref:`rna.*`", dtype_str)
+        if m:
+            dtypes = [
+                BuiltinDataType("str"),
+                BuiltinDataType("int")
+            ]
+            return MixinDataType(dtypes)
+
         # Ex: Enumerated constant
         m = re.match(r"^Enumerated constant$", dtype_str)
         if m:
@@ -1290,6 +1310,13 @@ class DataTypeRefiner:
         m = re.match(r"^bytes$", dtype_str)
         if m:
             return BuiltinDataType("bytes")
+        m = re.match(r"^byte sequence", dtype_str)
+        if m:
+            return BuiltinDataType("bytes", ModifierDataType("list"))
+
+        m = re.match(r"^[cC]allable.*", dtype_str)
+        if m:
+            return ModifierDataType("typing.Callable")
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         m = re.match(
@@ -1329,6 +1356,9 @@ class DataTypeRefiner:
         m = re.match(r"^unsigned int$", dtype_str)
         if m:
             return BuiltinDataType("int")
+        m = re.match(r"^int \(boolean\)$", dtype_str)
+        if m:
+            return BuiltinDataType("int")
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         m = re.match(
@@ -1353,14 +1383,24 @@ class DataTypeRefiner:
         m = re.match(r"^double$", dtype_str)
         if m:
             return BuiltinDataType("float")
+        m = re.match(r"^double \(float\)", dtype_str)
+        if m:
+            return BuiltinDataType("float")
 
-        if re.match(r"^(str|string|strings)$", dtype_str):
+        if re.match(r"^(str|string|strings|string)\.*$", dtype_str):
             return BuiltinDataType("str")
         if re.match(r"^tuple$", dtype_str):
             return ModifierDataType("tuple")
+        if re.match(r"^sequence$", dtype_str):
+            return ModifierDataType("list")
+
+        if re.match(r"^`bgl.Buffer` ", dtype_str):
+            s1 = self._parse_custom_data_type(
+                "bgl.Buffer", uniq_full_names, uniq_module_names, module_name)
+            return CustomDataType(s1)
 
         m = re.match(
-            r"^([a-zA-Z0-9]+) bpy_prop_collection of ([a-zA-Z0-9]+) , "
+            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, "
             r"\(readonly\)$",
             dtype_str)
         if m:
@@ -1378,6 +1418,10 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
 
+        m = re.match(r"^set of strings", dtype_str)
+        if m:
+            return BuiltinDataType("str", ModifierDataType("set"))
+
         # Ex: sequence of string tuples or a function
         m = re.match(r"^sequence of string tuples or a function$", dtype_str)
         if m:
@@ -1388,15 +1432,17 @@ class DataTypeRefiner:
             ]
             return MixinDataType(dtypes)
         # Ex: sequence of bpy.types.Action
-        m = re.match(r"^sequence of ([a-zA-Z0-9_.]+)$", dtype_str)
+        m = re.match(r"^sequence of `([a-zA-Z0-9_.]+)`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("list"))
-        # Ex: bpy_prop_collection of ThemeStripColor , (readonly, never None)
+        # Ex: `bpy_prop_collection` of `ThemeStripColor`,
+        #     (readonly, never None)
         m = re.match(
-            r"^bpy_prop_collection of ([a-zA-Z0-9]+) , \((.+)\)$", dtype_str)
+            r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`, \((.+)\)$",
+            dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -1404,7 +1450,14 @@ class DataTypeRefiner:
                 return CustomDataType(
                     s, CustomModifierDataType("bpy.types.bpy_prop_collection"))
         # Ex: List of FEdge objects
-        m = re.match(r"^List of ([A-Za-z0-9]+) objects$", dtype_str)
+        m = re.match(r"^List of `([A-Za-z0-9]+)` objects$", dtype_str)
+        if m:
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return CustomDataType(s, ModifierDataType("list"))
+        # Ex: list of FEdge
+        m = re.match(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -1414,8 +1467,8 @@ class DataTypeRefiner:
         m = re.match(r"^(list|sequence) of (float|int|str)", dtype_str)
         if m:
             return BuiltinDataType(m.group(2), ModifierDataType("list"))
-        # Ex: list of ( bmesh.types.BMVert )
-        m = re.match(r"^list of \( ([a-zA-Z., ]+) \)", dtype_str)
+        # Ex: list of (bmesh.types.BMVert)
+        m = re.match(r"^list of \(`([a-zA-Z., ]+)`\)", dtype_str)
         if m:
             items = m.group(1).split(",")
             dtypes = []
@@ -1429,7 +1482,7 @@ class DataTypeRefiner:
             if len(dtypes) > 1:
                 return CustomDataType(dtypes)
         # Ex: BMElemSeq of BMEdge
-        m = re.match(r"BMElemSeq of ([a-zA-Z0-9]+)$", dtype_str)
+        m = re.match(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -1439,6 +1492,15 @@ class DataTypeRefiner:
                     CustomDataType("bmesh.types.BMElemSeq")
                 ]
                 return MixinDataType(dtypes)
+        # Ex: tuple of mathutils.Vector's
+        m = re.match(r"^tuple of `([a-zA-Z0-9.]+)`'s$", dtype_str)
+        if m:
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            dd = CustomDataType(
+                s, ModifierDataType("tuple"), modifier_add_info=s,
+                skip_refine=True)
+            return dd
 
         m = re.match(
             r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$",
@@ -1456,12 +1518,15 @@ class DataTypeRefiner:
         m = re.match(r"^dict with string keys$", dtype_str)
         if m:
             return ModifierDataType("dict")
-        m = re.match(r"^(list|dict|set)$", dtype_str)
+        m = re.match(r"^iterable object$", dtype_str)
+        if m:
+            return ModifierDataType("list")
+        m = re.match(r"^`*(list|dict|set|tuple)`*\.*$", dtype_str)
         if m:
             return ModifierDataType(m.group(1))
 
         # Ex: bpy.types.Struct subclass
-        m = re.match(r"^bpy.types.Struct subclass$", dtype_str)
+        m = re.match(r"^`bpy.types.Struct` subclass$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 "bpy.types.Struct", uniq_full_names, uniq_module_names,
@@ -1469,13 +1534,13 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^[A-Z]([a-zA-Z]+)$", dtype_str)
+        m = re.match(r"^`([A-Z][a-zA-Z0-9.]+)`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
-                m.group(0), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
-        m = re.match(r"^bpy_struct$", dtype_str)
+        m = re.match(r"^`bpy_struct`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 "bpy_struct", uniq_full_names, uniq_module_names, module_name)
@@ -1483,7 +1548,7 @@ class DataTypeRefiner:
                 return CustomDataType(s)
 
         m = re.match(
-            r"^([A-Z][a-zA-Z0-9_]+) , "
+            r"^`([A-Z][a-zA-Z0-9_]+)`, "
             r"\((optional|readonly|never None|readonly, never None)\)$",
             dtype_str)
         if m:
@@ -1493,7 +1558,7 @@ class DataTypeRefiner:
                 return CustomDataType(s)
 
         # Ex: CLIP_OT_add_marker
-        m = re.match(r"^([A-Z]+)_OT_([a-z_]+) , \(optional\)$", dtype_str)
+        m = re.match(r"^`([A-Z]+)_OT_([a-z_]+)`, \(optional\)$", dtype_str)
         if m:
             idname = f"bpy.ops.{m.group(1).lower()}.{m.group(2)}"
             s = self._parse_custom_data_type(
@@ -1501,26 +1566,24 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^([a-zA-Z0-9_]+)\.([a-zA-Z0-9_.]+)$", dtype_str)
+        m = re.match(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$", dtype_str)
+        if m:
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return CustomDataType(s)
+
+        m = re.match(r"^`([a-zA-Z0-9_.]+)`, \(readonly\)$", dtype_str)
+        if m:
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return CustomDataType(s)
+
+        m = re.match(r"^[a-zA-Z0-9_.]+$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(0), uniq_full_names, uniq_module_names, module_name)
-            if s:
-                return CustomDataType(s)
-
-        m = re.match(r"^([a-zA-Z0-9_.]+) , \(readonly\)$", dtype_str)
-        if m:
-            s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
-            if s:
-                return CustomDataType(s)
-
-        # pylint: disable=W0511
-        # TODO: need to split ,
-        m = re.match(r"^([a-zA-Z0-9_.]+) [^,]", dtype_str)
-        if m:
-            s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
@@ -1554,6 +1617,7 @@ class DataTypeRefiner:
             r"in \[.*\]",
             r"in \{.*\}",
             r"of [0-9]+ items",
+            r"`",
         ]
         for sp in strip_pattens:
             dtype_str = re.sub(sp, "", dtype_str)
@@ -1780,6 +1844,18 @@ class DataTypeRefiner:
 
     def get_refined_data_type(
             self, data_type: 'DataType', module_name: str) -> 'DataType':
+
+        result = self._get_refined_data_type_internal(data_type, module_name)
+
+        output_log(
+            LOG_LEVEL_DEBUG,
+            f"Result of refining: {data_type.to_string()} -> "
+            f"{result.to_string()} ({result.type()})")
+
+        return result
+
+    def _get_refined_data_type_internal(
+            self, data_type: 'DataType', module_name: str) -> 'DataType':
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
 
@@ -1797,17 +1873,36 @@ class DataTypeRefiner:
         is_optional = data_type.is_optional()
         dtype_str = data_type.to_string()
 
+        # Ex. (Quaternion, float) pair
+        m = re.match(r"^\((.*)\) pair$", dtype_str)
+        if m:
+            sp = m.group(1).split(",")
+            dtypes = []
+            for s in sp:
+                d = self._get_refined_data_type_fast(
+                    s.strip(), uniq_full_names, uniq_module_names, module_name)
+                if d:
+                    dtypes.append(d.to_string())
+            if len(dtypes) >= 1:
+                dd = CustomDataType(
+                    dtypes[0], ModifierDataType("tuple"),
+                    modifier_add_info={"tuple_elms": dtypes}, skip_refine=True)
+                return dd
+
         result = self._get_refined_data_type_fast(
             dtype_str, uniq_full_names, uniq_module_names, module_name)
         if result is not None:
             result.set_is_optional(is_optional)
             return result
 
-        if ("," in dtype_str) or ("or" in dtype_str):
+        if ("," in dtype_str) or (" or " in dtype_str):
             sp = dtype_str.split(",")
             splist = []
             for s in sp:
-                splist.extend(s.split("or"))
+                splist.extend(s.split(" or "))
+
+            output_log(LOG_LEVEL_DEBUG, f"Split data type refining: {splist}")
+
             dtypes = []
             for s in splist:
                 s = s.strip()
