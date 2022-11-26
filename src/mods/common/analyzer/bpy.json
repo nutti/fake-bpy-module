@@ -6,7 +6,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.BoolProperty"
+        "data_type": "`bpy.types.BoolProperty`"
       }
     },
     {
@@ -15,7 +15,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "list, bpy.types.BoolProperty"
+        "data_type": "list, `bpy.types.BoolProperty`"
       }
     },
     {
@@ -24,7 +24,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.CollectionProperty"
+        "data_type": "`bpy.types.CollectionProperty`"
       }
     },
     {
@@ -33,7 +33,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.EnumProperty"
+        "data_type": "`bpy.types.EnumProperty`"
       }
     },
     {
@@ -42,7 +42,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.FloatProperty"
+        "data_type": "`bpy.types.FloatProperty`"
       }
     },
     {
@@ -51,7 +51,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "list, bpy.types.FloatProperty"
+        "data_type": "list, `bpy.types.FloatProperty`"
       }
     },
     {
@@ -60,7 +60,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.IntProperty"
+        "data_type": "`bpy.types.IntProperty`"
       }
     },
     {
@@ -69,7 +69,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "list, bpy.types.IntProperty"
+        "data_type": "list, `bpy.types.IntProperty`"
       }
     },
     {
@@ -78,7 +78,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.PointerProperty"
+        "data_type": "`bpy.types.PointerProperty`"
       }
     },
     {
@@ -87,7 +87,7 @@
       "module": "bpy.props",
       "return": {
         "type": "return",
-        "data_type": "bpy.types.StringProperty"
+        "data_type": "`bpy.types.StringProperty`"
       }
     }
   ]

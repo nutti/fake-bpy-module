@@ -66,12 +66,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -85,12 +85,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -109,7 +109,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -128,7 +128,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -142,12 +142,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -161,12 +161,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -185,7 +185,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -204,7 +204,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -218,12 +218,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -237,12 +237,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Color"
+              "data_type": "`Color`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -261,7 +261,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         },
         {
@@ -280,7 +280,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Color"
+            "data_type": "`Color`"
           }
         }
       ]
@@ -344,12 +344,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -363,12 +363,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -387,7 +387,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -401,12 +401,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`, `Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`, `Vector`"
           }
         },
         {
@@ -420,12 +420,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -439,12 +439,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -463,7 +463,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -477,12 +477,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -501,7 +501,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         },
         {
@@ -515,12 +515,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Matrix"
+            "data_type": "`Matrix`"
           }
         }
       ]
@@ -543,6 +543,61 @@
           }
         },
         {
+          "name": "__len__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [],
+          "parameter_details": [],
+          "return": {
+            "type": "return",
+            "data_type": "int"
+          }
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "float"
+          }
+        },
+        {
+          "name": "__setitem__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [
+            "key",
+            "value"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            },
+            {
+              "type": "parameter",
+              "name": "value",
+              "data_type": "float"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "float"
+          }
+        },
+        {
           "name": "__add__",
           "type": "method",
           "module": "mathutils",
@@ -553,12 +608,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Quaternion"
+              "data_type": "`Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -572,12 +627,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Quaternion"
+              "data_type": "`Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -591,12 +646,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "int, float, Quaternion"
+              "data_type": "int, float, `Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -610,12 +665,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`, `Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`, `Quaternion`"
           }
         },
         {
@@ -629,12 +684,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Quaternion"
+              "data_type": "`Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -648,12 +703,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Quaternion"
+              "data_type": "`Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -667,12 +722,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "int, float, Quaternion"
+              "data_type": "int, float, `Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -686,12 +741,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -705,12 +760,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "int, float, Quaternion"
+              "data_type": "int, float, `Quaternion`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Quaternion"
+            "data_type": "`Quaternion`"
           }
         },
         {
@@ -724,12 +779,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         }
       ]
@@ -752,6 +807,72 @@
           }
         },
         {
+          "name": "__len__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [],
+          "parameter_details": [],
+          "return": {
+            "type": "return",
+            "data_type": "int"
+          }
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "float"
+          }
+        },
+        {
+          "name": "__setitem__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [
+            "key",
+            "value"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            },
+            {
+              "type": "parameter",
+              "name": "value",
+              "data_type": "float"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "float"
+          }
+        },
+        {
+          "name": "__neg__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [],
+          "parameter_details": [],
+          "return": {
+            "type": "return",
+            "data_type": "`Vector`"
+          }
+        },
+        {
           "name": "__add__",
           "type": "method",
           "module": "mathutils",
@@ -762,12 +883,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -781,12 +902,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -805,7 +926,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -824,7 +945,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -838,12 +959,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -857,12 +978,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -876,12 +997,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -900,7 +1021,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -919,7 +1040,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -933,12 +1054,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -952,12 +1073,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -971,12 +1092,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Vector"
+              "data_type": "`Vector`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -995,7 +1116,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -1014,7 +1135,7 @@
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         },
         {
@@ -1028,12 +1149,12 @@
             {
               "type": "parameter",
               "name": "other",
-              "data_type": "Matrix"
+              "data_type": "`Matrix`"
             }
           ],
           "return": {
             "type": "return",
-            "data_type": "Vector"
+            "data_type": "`Vector`"
           }
         }
       ]

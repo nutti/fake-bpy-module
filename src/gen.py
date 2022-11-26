@@ -224,6 +224,10 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
         "-b", dest="blender_version", type=str,
         help="Blender version (ex. 2.79, 2.80)"
     )
+    parser.add_argument(
+        "-l", dest="output_log_level", type=str,
+        help="Output log level (debug, info, notice, warn, err"
+    )
     args = parser.parse_args()
     if args.input_dir:
         INPUT_DIR = args.input_dir
@@ -251,6 +255,16 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
             raise RuntimeError(
                 f"Not supported blender version {args.blender_version}. "
                 f"(Supported Version: {SUPPORTED_BLENDER_VERSION})")
+
+    if args.output_log_level:
+        ARG_TO_LOG_LEVEL = {
+            "debug": fbm.utils.LOG_LEVEL_DEBUG,
+            "info": fbm.utils.LOG_LEVEL_INFO,
+            "notice": fbm.utils.LOG_LEVEL_NOTICE,
+            "warn": fbm.utils.LOG_LEVEL_WARN,
+            "err": fbm.utils.LOG_LEVEL_ERR,
+        }
+        fbm.utils.LOG_LEVEL = ARG_TO_LOG_LEVEL[args.output_log_level]
 
     if args.dump:
         config.dump = True

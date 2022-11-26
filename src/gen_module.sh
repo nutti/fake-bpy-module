@@ -21,6 +21,8 @@ output_dir=${5}
 mod_version=${6:-not-specified}
 current_dir=$(pwd)
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
+format="pep8"
+output_log_level="debug"
 
 # find blender binary
 # shellcheck disable=SC2003,SC2308,SC2046
@@ -143,9 +145,9 @@ ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${source_dir}/s
 
 echo "Generating fake bpy modules ..."
 if [ "${mod_version}" = "not-specified" ]; then
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f pep8 -b "${blender_version}"
+    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f ${format} -b "${blender_version}" -l "${output_log_level}"
 else
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f pep8 -b "${blender_version}" -m "${mod_version}"
+    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f ${format} -b "${blender_version}" -l "${output_log_level}" -m "${mod_version}"
 fi
 
 echo "Cleaning up ..."

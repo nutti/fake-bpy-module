@@ -71,8 +71,7 @@ class BaseAnalyzer:
     def _cleanup_string(self, line: str) -> str:
         result = line
 
-        result = re.sub(r":class:", " ", result)
-        result = re.sub(r"`", " ", result)
+        result = re.sub(r":class:", "", result)
         result = re.sub(r"^\s+", "", result)
         result = re.sub(r"\s+$", "", result)
         result = re.sub(r"\s+", " ", result)
@@ -308,7 +307,7 @@ class BaseAnalyzer:
             last_pos = file.tell()
             line = file.readline()
             # TODO: handle :rtype vert: or :rtype (min, max): case
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:rtype.*:(.*)"
+            pattern = r"^\s{" + str(level.num_spaces()) + r"}:rtype.*?:(.*)"
             m = re.match(pattern, line)
             if m is None:
                 self._invalid_line(line, level)
