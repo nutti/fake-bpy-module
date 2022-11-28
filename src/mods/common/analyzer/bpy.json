@@ -1,94 +1,18 @@
 {
   "append": [
     {
-      "name": "BoolProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.BoolProperty`"
-      }
-    },
-    {
-      "name": "BoolVectorProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "list, `bpy.types.BoolProperty`"
-      }
-    },
-    {
-      "name": "CollectionProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.CollectionProperty`"
-      }
-    },
-    {
-      "name": "EnumProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.EnumProperty`"
-      }
-    },
-    {
-      "name": "FloatProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.FloatProperty`"
-      }
-    },
-    {
-      "name": "FloatVectorProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "list, `bpy.types.FloatProperty`"
-      }
-    },
-    {
-      "name": "IntProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.IntProperty`"
-      }
-    },
-    {
-      "name": "IntVectorProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "list, `bpy.types.IntProperty`"
-      }
-    },
-    {
-      "name": "PointerProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.PointerProperty`"
-      }
-    },
-    {
-      "name": "StringProperty",
-      "type": "function",
-      "module": "bpy.props",
-      "return": {
-        "type": "return",
-        "data_type": "`bpy.types.StringProperty`"
-      }
+      "name": "AddonPreferences",
+      "type": "class",
+      "module": "bpy.types",
+      "attributes": [
+        {
+          "type": "attribute",
+          "name": "layout",
+          "class": "AddonPreferences",
+          "module": "bpy.types",
+          "data_type": "`bpy.types.UILayout`"
+        }
+      ]
     }
   ]
 }
