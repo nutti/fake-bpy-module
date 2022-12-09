@@ -1320,23 +1320,40 @@ class DataTypeRefiner:
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         m = re.match(
-            r"^int array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
+            r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
             dtype_str)
         if m:
-            return BuiltinDataType("int", ModifierDataType("list"))
+            if m.group(1) == "int":
+                return BuiltinDataType("int", ModifierDataType("list"))
+            elif m.group(1) == "float":
+                s = self._parse_custom_data_type(
+                    "mathutils.Vector", uniq_full_names, uniq_module_names,
+                    module_name)
+                dtypes = [
+                    BuiltinDataType("float", ModifierDataType("list")),
+                    BuiltinDataType(
+                        "float", ModifierDataType("tuple"),
+                        modifier_add_info={
+                            "tuple_elms": ["float"] * int(m.group(2))
+                        }),
+                    CustomDataType(s)
+                ]
+                return MixinDataType(dtypes)
+        # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf], default (0.0, 0.0, 0.0)
         m = re.match(
-            r"^float array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
-            dtype_str)
+            r"^`(mathutils.[a-zA-Z]+)` (rotation )*of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",
+            dtype_str
+        )
         if m:
             s = self._parse_custom_data_type(
-                "mathutils.Vector", uniq_full_names, uniq_module_names,
+                m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
             dtypes = [
                 BuiltinDataType("float", ModifierDataType("list")),
                 BuiltinDataType(
                     "float", ModifierDataType("tuple"),
                     modifier_add_info={
-                        "tuple_elms": ["float"] * int(m.group(1))
+                        "tuple_elms": ["float"] * int(m.group(3))
                     }),
                 CustomDataType(s)
             ]
