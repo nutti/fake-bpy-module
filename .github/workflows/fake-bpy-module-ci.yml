@@ -83,10 +83,12 @@ jobs:
         run: bash tests/run_pre_tests.sh src
 
       - name: Install Blender binary dependencies
-        run: sudo apt-get install -y libglu1-mesa
+        run: |
+          sudo apt update
+          sudo apt install -y libglu1-mesa
 
       - name: Install fake-bpy-module tools
-        run: sudo apt-get install -y pandoc
+        run: sudo apt install -y pandoc
 
       - name: Download Blender files
         if: steps.blender-bin-cache.outputs.cache-hit != 'true'

@@ -39,7 +39,7 @@ jobs:
 
   build_modules:
     name: Build modules
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [set_versions]
     steps:
       - name: Checkout repo
@@ -59,10 +59,12 @@ jobs:
         run: bash tests/run_pre_tests.sh src
 
       - name: Install Blender binary dependencies
-        run: sudo apt-get update && sudo apt-get install -y libglu1-mesa libegl1
+        run: |
+          sudo apt update
+          sudo apt install -y libglu1-mesa libegl1
 
       - name: Install fake-bpy-module tools
-        run: sudo apt-get install -y pandoc
+        run: sudo apt install -y pandoc
 
       - name: Download latest Blender files from nutti/blender-daily-build artifacts
         run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTION_BLENDER_DAILY_BUILD }}
