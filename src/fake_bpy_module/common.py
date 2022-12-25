@@ -31,9 +31,11 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
     "listlist", "tupletuple",
-    "Generic", "typing.Iterator",
+    "Generic",
+    "typing.Iterator",
     "typing.Callable",
-    "typing.Any"
+    "typing.Any",
+    "typing.Sequence",
 ]
 
 CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
@@ -71,6 +73,7 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "Generic": "typing.Generic",
     "typing.Iterator": "typing.Iterator",
     "typing.Callable": "typing.Callable",
+    "typing.Sequence": "typing.Sequence",
     "typing.Any": "typing.Any",
 }
 
@@ -1312,7 +1315,8 @@ class DataTypeRefiner:
             return BuiltinDataType("bytes")
         m = re.match(r"^byte sequence", dtype_str)
         if m:
-            return BuiltinDataType("bytes", ModifierDataType("list"))
+            return BuiltinDataType(
+                "bytes", ModifierDataType("typing.Sequence"))
 
         m = re.match(r"^[cC]allable.*", dtype_str)
         if m:
@@ -1377,6 +1381,9 @@ class DataTypeRefiner:
         m = re.match(r"^int \(boolean\)$", dtype_str)
         if m:
             return BuiltinDataType("int")
+        m = re.match(r"^int sequence$", dtype_str)
+        if m:
+            return BuiltinDataType("int", ModifierDataType("typing.Sequence"))
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         m = re.match(
@@ -1425,7 +1432,7 @@ class DataTypeRefiner:
         if re.match(r"^tuple$", dtype_str):
             return ModifierDataType("tuple")
         if re.match(r"^sequence$", dtype_str):
-            return ModifierDataType("list")
+            return ModifierDataType("typing.Sequence")
 
         if re.match(r"^`bgl.Buffer` ", dtype_str):
             s1 = self._parse_custom_data_type(
@@ -1470,7 +1477,7 @@ class DataTypeRefiner:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, ModifierDataType("list"))
+                return CustomDataType(s, ModifierDataType("typing.Sequence"))
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         m = re.match(
