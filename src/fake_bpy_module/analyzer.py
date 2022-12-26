@@ -1454,7 +1454,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     continue
                 if info.type() != "class":
                     continue
-                if info.name() == "bpy_prop_collection":
+                if info.name() in ("bpy_prop_collection", "bpy_prop_array"):
                     # class bpy_prop_collection(Generic[GenericType]):
                     #     def __getitem__(self, key: Union[str, int])
                     #         -> GenericType:

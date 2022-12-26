@@ -36,6 +36,8 @@ def make_bpy_rule(
         f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.json".replace("\\", "/"),
         f"{MOD_FILES_DIR}/mods/common/analyzer/bpy_props.json".replace(
             "\\", "/"),
+        f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.types.bpy_prop_array.json"
+        .replace("\\", "/"),
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.json"
         .replace("\\", "/"),
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.json"
