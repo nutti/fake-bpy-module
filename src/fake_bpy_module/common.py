@@ -40,6 +40,7 @@ MODIFIER_DATA_TYPE: List[str] = [
 
 CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
     "bpy.types.bpy_prop_collection",
+    "bpy.types.bpy_prop_array",
 ]
 
 MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
@@ -1328,13 +1329,22 @@ class DataTypeRefiner:
             dtype_str)
         if m:
             if m.group(1) == "int":
-                return BuiltinDataType("int", ModifierDataType("list"))
+                dtypes = [
+                    BuiltinDataType("int", CustomModifierDataType(
+                        "bpy.types.bpy_prop_array")),
+                    BuiltinDataType("int", ModifierDataType(
+                        "typing.Sequence")),
+                ]
+                return MixinDataType(dtypes)
             if m.group(1) == "float":
                 s = self._parse_custom_data_type(
                     "mathutils.Vector", uniq_full_names, uniq_module_names,
                     module_name)
                 dtypes = [
-                    BuiltinDataType("float", ModifierDataType("list")),
+                    BuiltinDataType("float", CustomModifierDataType(
+                        "bpy.types.bpy_prop_array")),
+                    BuiltinDataType("float", ModifierDataType(
+                        "typing.Sequence")),
                     BuiltinDataType(
                         "float", ModifierDataType("tuple"),
                         modifier_add_info={

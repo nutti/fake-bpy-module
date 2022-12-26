@@ -299,7 +299,8 @@ class BaseGenerator:
             # TODO: use class variable instead of "class", "function",
             #       "constant"
             if d.type() == "class":
-                if d.name() in ["bpy_prop_collection", "bpy_struct"]:
+                if d.name() in ("bpy_prop_collection", "bpy_prop_array",
+                                "bpy_struct"):
                     high_priority_class_data.append(d)
                 else:
                     class_data.append(d)
@@ -953,37 +954,39 @@ class PackageAnalyzer:
 
         def rewrite_for_custom_modifier(
                 data_type: 'CustomDataType'):
-            new_data_type = refiner.get_generation_data_type(
-                data_type.data_type(), gen_info.name)
             new_modifier_name = refiner.get_generation_data_type(
                 data_type.modifier().output_modifier_name(), gen_info.name)
-            dt = CustomDataType(
-                new_data_type, data_type.modifier(),
-                data_type.modifier_add_info())
+            dt = data_type
             dt.modifier().set_output_modifier_name(new_modifier_name)
-            dt.set_is_optional(data_type.is_optional())
             return dt
 
         def rewrite(info_to_rewrite: Info):
             dtype_to_rewrite = info_to_rewrite.data_type()
-            if dtype_to_rewrite.type() == 'CUSTOM':
+            if dtype_to_rewrite.type() == 'BUILTIN':
                 if dtype_to_rewrite.has_modifier() and \
                    dtype_to_rewrite.modifier().type() == 'CUSTOM_MODIFIER':
                     info_to_rewrite.set_data_type(rewrite_for_custom_modifier(
                         dtype_to_rewrite))
-                else:
-                    info_to_rewrite.set_data_type(rewrite_for_custom(
-                        dtype_to_rewrite))
+            elif dtype_to_rewrite.type() == 'CUSTOM':
+                dt = rewrite_for_custom(dtype_to_rewrite)
+                if dt.has_modifier() and \
+                   dt.modifier().type() == 'CUSTOM_MODIFIER':
+                    dt = rewrite_for_custom_modifier(dt)
+                info_to_rewrite.set_data_type(dt)
             elif dtype_to_rewrite.type() == 'MIXIN':
                 mixin_dt = dtype_to_rewrite
                 for i, d in enumerate(mixin_dt.data_types()):
-                    if d.type() == 'CUSTOM':
+                    if d.type() == 'BUILTIN':
                         if d.has_modifier() and \
-                                d.modifier().type() == 'CUSTOM_MODIFIER':
+                           d.modifier().type() == 'CUSTOM_MODIFIER':
                             mixin_dt.set_data_type(
                                 i, rewrite_for_custom_modifier(d))
-                        else:
-                            mixin_dt.set_data_type(i, rewrite_for_custom(d))
+                    elif d.type() == 'CUSTOM':
+                        dt = rewrite_for_custom(d)
+                        if dt.has_modifier() and \
+                           dt.modifier().type() == 'CUSTOM_MODIFIER':
+                            dt = rewrite_for_custom_modifier(dt)
+                        mixin_dt.set_data_type(i, dt)
 
         for info in gen_info.data:
             # rewrite function parameters and return value
