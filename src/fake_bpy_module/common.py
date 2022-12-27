@@ -1540,19 +1540,23 @@ class DataTypeRefiner:
         if m:
             return BuiltinDataType(m.group(2), ModifierDataType("list"))
         # Ex: list of (bmesh.types.BMVert)
-        m = re.match(r"^list of \(`([a-zA-Z., ]+)`\)", dtype_str)
+        m = re.match(r"^list of \(([a-zA-Z.,` ]+)\)", dtype_str)
         if m:
             items = m.group(1).split(",")
             dtypes = []
             for item in items:
-                s = self._parse_custom_data_type(
-                    item, uniq_full_names, uniq_module_names, module_name)
-                if s:
-                    dtypes.append(CustomDataType(s, ModifierDataType("list")))
+                im = re.match(r"^`([a-zA-Z.]+)`$", item.strip())
+                if im:
+                    s = self._parse_custom_data_type(
+                        im.group(1), uniq_full_names, uniq_module_names,
+                        module_name)
+                    if s:
+                        dtypes.append(
+                            CustomDataType(s, ModifierDataType("list")))
             if len(dtypes) == 1:
                 return dtypes[0]
             if len(dtypes) > 1:
-                return CustomDataType(dtypes)
+                return MixinDataType(dtypes)
         # Ex: BMElemSeq of BMEdge
         m = re.match(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$", dtype_str)
         if m:
