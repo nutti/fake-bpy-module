@@ -1396,7 +1396,16 @@ class DataTypeRefiner:
         # Ex: float triplet
         m = re.match(r"^float triplet$", dtype_str)
         if m:
-            return BuiltinDataType("float", ModifierDataType("tuple"))
+            s = self._parse_custom_data_type(
+                "mathutils.Vector", uniq_full_names, uniq_module_names,
+                module_name)
+            if s:
+                dtypes = [
+                    BuiltinDataType("float", ModifierDataType(
+                        "typing.Sequence")),
+                    CustomDataType(s)
+                ]
+                return MixinDataType(dtypes)
         # Ex: int in [-inf, inf], default 0, (readonly)
         m = re.match(
             r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
