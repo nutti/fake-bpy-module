@@ -854,39 +854,39 @@ class PackageAnalyzer:
             if info.type() == "function":
                 for p in info.parameter_details():
                     refined_type = refiner.get_refined_data_type(
-                        p.data_type(), info.module())
+                        p.data_type(), info.module(), 'FUNC_ARG')
                     p.set_data_type(refined_type)
 
                 return_ = info.return_()
                 if return_ is not None:
                     refined_type = refiner.get_refined_data_type(
-                        return_.data_type(), info.module())
+                        return_.data_type(), info.module(), 'FUNC_RET')
                     return_.set_data_type(refined_type)
             # refine constant
             elif info.type() == "constant":
                 refined_type = refiner.get_refined_data_type(
-                    info.data_type(), info.module())
+                    info.data_type(), info.module(), 'CONST')
                 info.set_data_type(refined_type)
             # refine class attributes and method parameters and return value
             elif info.type() == "class":
                 for a in info.attributes():
                     refined_type = refiner.get_refined_data_type(
-                        a.data_type(), info.module())
+                        a.data_type(), info.module(), 'CLS_ATTR')
                     a.set_data_type(refined_type)
                 for m in info.methods():
                     for p in m.parameter_details():
                         refined_type = refiner.get_refined_data_type(
-                            p.data_type(), info.module())
+                            p.data_type(), info.module(), 'FUNC_ARG')
                         p.set_data_type(refined_type)
 
                     return_ = m.return_()
                     if return_ is not None:
                         refined_type = refiner.get_refined_data_type(
-                            return_.data_type(), info.module())
+                            return_.data_type(), info.module(), 'FUNC_RET')
                         return_.set_data_type(refined_type)
                 for i, c in enumerate(info.base_classes()):
                     refined_type = refiner.get_refined_data_type(
-                        c, info.module())
+                        c, info.module(), 'CLS_BASE')
                     info.set_base_class(i, refined_type)
 
     def _remove_duplicate(

@@ -1225,9 +1225,11 @@ class DataTypeRefiner:
 
         return None
 
+    # pylint: disable=R0913
     def _get_refined_data_type_fast(
             self, dtype_str: str, uniq_full_names: Set[str],
-            uniq_module_names: Set[str], module_name: str) -> 'DataType':
+            uniq_module_names: Set[str], module_name: str,
+            variable_kind: str) -> 'DataType':
         # pylint: disable=R0912,R0911,R0915
         if re.match(r"^\s*$", dtype_str):
             return UnknownDataType()
@@ -1323,6 +1325,22 @@ class DataTypeRefiner:
         if m:
             return ModifierDataType("typing.Callable")
 
+        m = re.match(
+            r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$",
+            dtype_str)
+        if m:
+            if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
+                s = self._parse_custom_data_type(
+                        m.group(1), uniq_full_names, uniq_module_names,
+                        module_name)
+                if s:
+                    dtypes = [
+                        BuiltinDataType("float", ModifierDataType(
+                            "typing.Sequence")),
+                        CustomDataType(s)
+                    ]
+                    return MixinDataType(dtypes)
+
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         m = re.match(
             r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",   # noqa # pylint: disable=C0301
@@ -1340,19 +1358,20 @@ class DataTypeRefiner:
                 s = self._parse_custom_data_type(
                     "mathutils.Vector", uniq_full_names, uniq_module_names,
                     module_name)
-                dtypes = [
-                    BuiltinDataType("float", CustomModifierDataType(
-                        "bpy.types.bpy_prop_array")),
-                    BuiltinDataType("float", ModifierDataType(
-                        "typing.Sequence")),
-                    BuiltinDataType(
-                        "float", ModifierDataType("tuple"),
-                        modifier_add_info={
-                            "tuple_elms": ["float"] * int(m.group(2))
-                        }),
-                    CustomDataType(s)
-                ]
-                return MixinDataType(dtypes)
+                if s:
+                    dtypes = [
+                        BuiltinDataType("float", CustomModifierDataType(
+                            "bpy.types.bpy_prop_array")),
+                        BuiltinDataType("float", ModifierDataType(
+                            "typing.Sequence")),
+                        BuiltinDataType(
+                            "float", ModifierDataType("tuple"),
+                            modifier_add_info={
+                                "tuple_elms": ["float"] * int(m.group(2))
+                            }),
+                        CustomDataType(s)
+                    ]
+                    return MixinDataType(dtypes)
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
         m = re.match(
@@ -1363,16 +1382,17 @@ class DataTypeRefiner:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
-            dtypes = [
-                BuiltinDataType("float", ModifierDataType("list")),
-                BuiltinDataType(
-                    "float", ModifierDataType("tuple"),
-                    modifier_add_info={
-                        "tuple_elms": ["float"] * int(m.group(3))
-                    }),
-                CustomDataType(s)
-            ]
-            return MixinDataType(dtypes)
+            if s:
+                dtypes = [
+                    BuiltinDataType("float", ModifierDataType("list")),
+                    BuiltinDataType(
+                        "float", ModifierDataType("tuple"),
+                        modifier_add_info={
+                            "tuple_elms": ["float"] * int(m.group(3))
+                        }),
+                    CustomDataType(s)
+                ]
+                return MixinDataType(dtypes)
         # Ex: float triplet
         m = re.match(r"^float triplet$", dtype_str)
         if m:
@@ -1419,17 +1439,18 @@ class DataTypeRefiner:
             s = self._parse_custom_data_type(
                 "mathutils.Matrix", uniq_full_names, uniq_module_names,
                 module_name)
-            dtypes = [
-                BuiltinDataType("float", ModifierDataType("listlist")),
-                BuiltinDataType(
-                    "float", ModifierDataType("tupletuple"),
-                    modifier_add_info={
-                        "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))   # noqa # pylint: disable=C0301
-                    }
-                ),
-                CustomDataType(s)
-            ]
-            return MixinDataType(dtypes)
+            if s:
+                dtypes = [
+                    BuiltinDataType("float", ModifierDataType("listlist")),
+                    BuiltinDataType(
+                        "float", ModifierDataType("tupletuple"),
+                        modifier_add_info={
+                            "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))   # noqa # pylint: disable=C0301
+                        }
+                    ),
+                    CustomDataType(s)
+                ]
+                return MixinDataType(dtypes)
         m = re.match(r"^double$", dtype_str)
         if m:
             return BuiltinDataType("float")
@@ -1447,7 +1468,8 @@ class DataTypeRefiner:
         if re.match(r"^`bgl.Buffer` ", dtype_str):
             s1 = self._parse_custom_data_type(
                 "bgl.Buffer", uniq_full_names, uniq_module_names, module_name)
-            return CustomDataType(s1)
+            if s1:
+                return CustomDataType(s1)
 
         m = re.match(
             r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, "
@@ -1547,10 +1569,11 @@ class DataTypeRefiner:
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
-            dd = CustomDataType(
-                s, ModifierDataType("tuple"), modifier_add_info=s,
-                skip_refine=True)
-            return dd
+            if s:
+                dd = CustomDataType(
+                    s, ModifierDataType("tuple"), modifier_add_info=s,
+                    skip_refine=True)
+                return dd
 
         m = re.match(
             r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$",
@@ -1893,19 +1916,27 @@ class DataTypeRefiner:
         return UnknownDataType()
 
     def get_refined_data_type(
-            self, data_type: 'DataType', module_name: str) -> 'DataType':
+            self, data_type: 'DataType', module_name: str,
+            variable_kind: str) -> 'DataType':
 
-        result = self._get_refined_data_type_internal(data_type, module_name)
+        assert variable_kind in (
+            'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
+
+        result = self._get_refined_data_type_internal(
+            data_type, module_name, variable_kind)
 
         output_log(
             LOG_LEVEL_DEBUG,
-            f"Result of refining: {data_type.to_string()} -> "
-            f"{result.to_string()} ({result.type()})")
+            f"Result of refining (kind={variable_kind}): "
+            f"{data_type.to_string()} -> {result.to_string()} "
+            f"({result.type()})")
 
         return result
 
     def _get_refined_data_type_internal(
-            self, data_type: 'DataType', module_name: str) -> 'DataType':
+            self, data_type: 'DataType', module_name: str,
+            variable_kind: str) -> 'DataType':
+
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
 
@@ -1930,7 +1961,8 @@ class DataTypeRefiner:
             dtypes = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
-                    s.strip(), uniq_full_names, uniq_module_names, module_name)
+                    s.strip(), uniq_full_names, uniq_module_names,
+                    module_name, variable_kind)
                 if d:
                     dtypes.append(d.to_string())
             if len(dtypes) >= 1:
@@ -1940,7 +1972,8 @@ class DataTypeRefiner:
                 return dd
 
         result = self._get_refined_data_type_fast(
-            dtype_str, uniq_full_names, uniq_module_names, module_name)
+            dtype_str, uniq_full_names, uniq_module_names, module_name,
+            variable_kind)
         if result is not None:
             result.set_is_optional(is_optional)
             return result
@@ -1957,12 +1990,13 @@ class DataTypeRefiner:
             for s in splist:
                 s = s.strip()
                 result = self._get_refined_data_type_fast(
-                    s, uniq_full_names, uniq_module_names, module_name)
+                    s, uniq_full_names, uniq_module_names, module_name,
+                    variable_kind)
                 if result is not None:
                     if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
                         dtypes.append(result)
                     elif result.type() == 'MIXIN':
-                        dtypes.append(result.data_types())
+                        dtypes.extend(result.data_types())
             if len(dtypes) == 1:
                 dtypes[0].set_is_optional(is_optional)
                 return dtypes[0]
