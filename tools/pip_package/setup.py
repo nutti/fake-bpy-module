@@ -46,6 +46,13 @@ setup(
     description="Collection of the fake Blender Python API module for "
                 "the code completion.",
     long_description=long_description,
+    project_urls={
+        "Bug Tracker": "https://github.com/nutti/fake-bpy-module/issues",
+        "Documentation": "https://github.com/nutti/fake-bpy-module/blob/"
+                         "master/README.md",
+        "Source Code": "https://github.com/nutti",
+    },
+    platforms=["Windows", "Linux", "Mac OS-X"],
     py_modules=py_modules,
     package_data=package_data,
     packages=packages,
