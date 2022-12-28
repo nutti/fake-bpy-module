@@ -1232,13 +1232,13 @@ class DataTypeRefiner:
             variable_kind: str) -> 'DataType':
         # pylint: disable=R0912,R0911,R0915
         if re.match(r"^\s*$", dtype_str):
-            return UnknownDataType()
+            return ModifierDataType("typing.Any")
 
         if re.match(r"^(type|object|function)$", dtype_str):
-            return UnknownDataType()
+            return ModifierDataType("typing.Any")
 
         if re.match(r"^Depends on function prototype", dtype_str):
-            return UnknownDataType()
+            return ModifierDataType("typing.Any")
 
         if re.match(r"^(any|Any type.)$", dtype_str):
             return ModifierDataType("typing.Any")
@@ -1926,7 +1926,7 @@ class DataTypeRefiner:
             return dtype_list[0]
         if len(dtype_list) >= 2:
             return MixinDataType(dtype_list)
-        return UnknownDataType()
+        return ModifierDataType("typing.Any")
 
     def get_refined_data_type(
             self, data_type: 'DataType', module_name: str,
