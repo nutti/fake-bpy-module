@@ -31,6 +31,7 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
     "listlist", "tupletuple",
+    "listtuple",
     "Generic",
     "typing.Iterator",
     "typing.Callable",
@@ -253,6 +254,10 @@ class BuiltinDataType(DataType):
                 return f"typing.Tuple[{', '.join(inner_str)}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List[{self._data_type}]]"
+        elif self._modifier.modifier_data_type() == 'listtuple':
+            if self._modifier_add_info is not None:
+                return "typing.List[typing.Tuple[" \
+                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]]"
 
         return f"{self._modifier.to_string()}[{self._data_type}]"
 
@@ -1507,9 +1512,11 @@ class DataTypeRefiner:
         m = re.match(r"^sequence of string tuples or a function$", dtype_str)
         if m:
             dtypes = [
-                BuiltinDataType("int"),
-                BuiltinDataType("str"),
-                BuiltinDataType("str", ModifierDataType("set"))
+                BuiltinDataType("int", ModifierDataType("listtuple"),
+                                modifier_add_info={
+                                    "tuple_elms": ["str", "str", "str"]
+                                }),
+                ModifierDataType("typing.Callable")
             ]
             return MixinDataType(dtypes)
         # Ex: sequence of bpy.types.Action
