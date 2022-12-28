@@ -50,7 +50,7 @@ setup(
         "Bug Tracker": "https://github.com/nutti/fake-bpy-module/issues",
         "Documentation": "https://github.com/nutti/fake-bpy-module/blob/"
                          "master/README.md",
-        "Source Code": "https://github.com/nutti",
+        "Source Code": "https://github.com/nutti/fake-bpy-module",
     },
     platforms=["Windows", "Linux", "Mac OS-X"],
     py_modules=py_modules,
