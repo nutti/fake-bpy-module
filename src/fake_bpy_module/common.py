@@ -1495,14 +1495,7 @@ class DataTypeRefiner:
             s2 = self._parse_custom_data_type(
                 m.group(2), uniq_full_names, uniq_module_names, module_name)
             if s1 and s2:
-                dtypes = [
-                    CustomDataType(s1),
-                    CustomDataType(
-                        s2,
-                        CustomModifierDataType("bpy.types.bpy_prop_collection")
-                    )
-                ]
-                return MixinDataType(dtypes)
+                return CustomDataType(s1)
 
         m = re.match(r"^set of strings", dtype_str)
         if m:

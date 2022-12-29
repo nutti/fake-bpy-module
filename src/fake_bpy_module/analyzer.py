@@ -18,6 +18,7 @@ from .common import (
 )
 from .utils import (
     output_log,
+    LOG_LEVEL_DEBUG,
     LOG_LEVEL_NOTICE,
     LOG_LEVEL_WARN,
 )
@@ -1447,6 +1448,38 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         info.set_return(return_info)
         class_info.add_method(info)
 
+    def _change_bpy_types_class_inheritance(self, result: 'AnalysisResult'):
+        type_to_class_info = {}
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bpy.types", info.module()):
+                    continue
+                if info.type() != "class":
+                    continue
+                type_to_class_info[info.name()] = info
+
+        parent_to_child = {}
+        for class_info in type_to_class_info.values():
+            for attr in class_info.attributes():
+                m = re.match(
+                    r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
+                    r"([a-zA-Z0-9]+)`, \(readonly\)$",
+                    attr.data_type().to_string())
+                if m:
+                    parent_to_child[m.group(1)] = m.group(2)
+
+        for parent, child in parent_to_child.items():
+            if parent == child:
+                output_log(
+                    LOG_LEVEL_WARN, f"Parent and child is same ({parent})")
+                continue
+            output_log(
+                LOG_LEVEL_DEBUG,
+                f"Inheritance changed (Parent: {parent}, Child: {child})")
+            info = type_to_class_info[parent]
+            info.add_base_class(IntermidiateDataType(
+                f"`bpy_prop_collection` of `{child}`, (readonly)"))
+
     def _tweak_bpy_types_classes(self, result: 'AnalysisResult'):
         for section in result.section_info:
             for info in section.info_list:
@@ -1480,6 +1513,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         super()._modify(result)
         self._add_bpy_ops_override_parameters(result)
         self._make_bpy_context_variable(result)
+
+        self._change_bpy_types_class_inheritance(result)
 
         # After this, we could not infer data types as ItermidiateDataType
         self._tweak_bpy_types_classes(result)
