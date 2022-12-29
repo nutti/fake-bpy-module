@@ -1017,12 +1017,11 @@ class PackageAnalyzer:
 
                 for i, c in enumerate(info.base_classes()):
                     if c.type() == 'CUSTOM':
-                        if c.has_modifier() and \
-                                c.modifier().type() == 'CUSTOM_MODIFIER':
-                            info.set_base_class(
-                                i, rewrite_for_custom_modifier(c))
-                        else:
-                            info.set_base_class(i, rewrite_for_custom(c))
+                        dt = rewrite_for_custom(c)
+                        if dt.has_modifier() and \
+                                dt.modifier().type() == 'CUSTOM_MODIFIER':
+                            dt = rewrite_for_custom_modifier(dt)
+                        info.set_base_class(i, dt)
                     elif c.type() == 'MIXIN':
                         raise ValueError(
                             "Base classes must not be MixinDataType (Class: "
