@@ -120,7 +120,8 @@ class BaseGenerator:
             if pd_matched is not None:
                 if default_value is not None:
                     wt.add(f"{pd_matched['name']}: "
-                           f"{pd_matched['data_type']}={pd_matched['default_value']}")
+                           f"{pd_matched['data_type']}="
+                           f"{pd_matched['default_value']}")
                 else:
                     wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
             else:
@@ -225,7 +226,8 @@ class BaseGenerator:
                         if default_value is not None:
                             wt.add(
                                 f"{pd_matched['name']}: "
-                                f"{pd_matched['data_type']}={pd['default_value']}")
+                                f"{pd_matched['data_type']}="
+                                f"{pd_matched['default_value']}")
                         else:
                             wt.add(f"{pd_matched['name']}: "
                                    f"{pd_matched['data_type']}")

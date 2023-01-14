@@ -119,6 +119,7 @@ FROM_DICT_METHOD: List[str] = [
     'UPDATE',
 ]
 
+
 class DataTypeMetadata:
     def __init__(self):
         self.variable_kind = None
@@ -150,7 +151,8 @@ class DataType:
         def wrapper(self, *args, **kwargs):
             inner_str: str = func(self, *args, **kwargs)
             metadata: DataTypeMetadata = self.get_metadata()
-            if metadata.variable_kind == 'FUNC_ARG' and not metadata.never_none:
+            if metadata.variable_kind == 'FUNC_ARG' and \
+               not metadata.never_none:
                 inner_str = f"typing.Optional[{inner_str}]"
             return inner_str
         return wrapper
@@ -1308,7 +1310,7 @@ class DataTypeRefiner:
             # Strip the unused string to speed up the later parsing process.
             stripped = re.sub(r"\(([a-zA-Z, ]+?)\)$", "", dtype_str)
             output_log(LOG_LEVEL_DEBUG,
-                    f"Data type is stripped: {dtype_str} -> {stripped}")
+                       f"Data type is stripped: {dtype_str} -> {stripped}")
 
             return metadata, stripped
 
@@ -1322,10 +1324,9 @@ class DataTypeRefiner:
         metadata.never_none = False
         stripped = re.sub(r"or None$", "", dtype_str)
         output_log(LOG_LEVEL_DEBUG,
-               f"'or None' is stripped: {dtype_str} -> {stripped}")
+                   f"'or None' is stripped: {dtype_str} -> {stripped}")
 
         return metadata, stripped
-
 
     # pylint: disable=R0913
     def _get_refined_data_type_fast(
@@ -2014,7 +2015,8 @@ class DataTypeRefiner:
         # Set default value if a parameter is variable.
         if variable_kind == 'FUNC_ARG':
             if metadata.optional and (metadata.default_value is None):
-                if data_type.type() in ('BUILTIN', 'CUSTOM') and data_type.has_modifier():
+                if data_type.type() in ('BUILTIN', 'CUSTOM') and \
+                   data_type.has_modifier():
                     if data_type.modifier().type() == 'MODIFIER':
                         DEFAULT_VALUE_MAP = {
                             "list": "[]",
@@ -2047,7 +2049,6 @@ class DataTypeRefiner:
                         metadata.default_value = "None"
                     elif data_type.type() == 'MIXIN':
                         metadata.default_value = "None"
-
 
     def get_refined_data_type(
             self, data_type: 'DataType', module_name: str,

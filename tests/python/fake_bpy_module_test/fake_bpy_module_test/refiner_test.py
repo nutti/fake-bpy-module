@@ -599,10 +599,10 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
             intermidiate_data_type, "module_1", 'FUNC_ARG')
         self.assertEqual(refined_data_type.type(), 'CUSTOM')
         self.assertEqual(refined_data_type.data_type(),
-            "bpy.ops.module.ClassC")
+                         "bpy.ops.module.ClassC")
         self.assertFalse(refined_data_type.has_modifier())
         self.assertEqual(refined_data_type.to_string(),
-            "'bpy.ops.module.ClassC'")
+                         "'bpy.ops.module.ClassC'")
 
         intermidiate_data_type = IntermidiateDataType(
             "`module.ClassB`, ")
