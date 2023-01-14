@@ -526,7 +526,7 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         refiner = DataTypeRefiner(package, [entry_point])
 
         intermidiate_data_type = IntermidiateDataType(
-            "`bpy_prop_collection` of `ClassA`, (readonly)")
+            "`bpy_prop_collection` of `ClassA`, ")
         refined_data_type = refiner.get_refined_data_type(
             intermidiate_data_type, "module_1", 'FUNC_ARG')
         self.assertEqual(refined_data_type.type(), 'CUSTOM')
@@ -539,3 +539,77 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(
             refined_data_type.to_string(),
             "bpy.types.bpy_prop_collection['module.ClassA']")
+
+    def test_get_refined_data_type_for_various_patterns(self):
+        package = ModuleStructure()
+        module = ModuleStructure()
+        module.name = "module_1"
+        package.add_child(module)
+
+        entry_point_1 = EntryPoint()
+        entry_point_1.type = "class"
+        entry_point_1.module = "module"
+        entry_point_1.name = "ClassA"
+
+        entry_point_2 = EntryPoint()
+        entry_point_2.type = "class"
+        entry_point_2.module = "module"
+        entry_point_2.name = "ClassB"
+
+        entry_point_3 = EntryPoint()
+        entry_point_3.type = "class"
+        entry_point_3.module = "bpy.ops.module"
+        entry_point_3.name = "ClassC"
+
+        refiner = DataTypeRefiner(
+            package, [entry_point_1, entry_point_2, entry_point_3])
+
+        intermidiate_data_type = IntermidiateDataType(
+            "int in [-inf, inf], default 0, ")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'BUILTIN')
+        self.assertEqual(refined_data_type.data_type(), "int")
+        self.assertFalse(refined_data_type.has_modifier())
+        self.assertEqual(
+            refined_data_type.to_string(), "int")
+
+        intermidiate_data_type = IntermidiateDataType(
+            "`ClassB` `bpy_prop_collection` of `ClassA`, ")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'CUSTOM')
+        self.assertEqual(refined_data_type.data_type(), "module.ClassB")
+        self.assertFalse(refined_data_type.has_modifier())
+        self.assertEqual(
+            refined_data_type.to_string(), "'module.ClassB'")
+
+        intermidiate_data_type = IntermidiateDataType("`ClassB`, (readonly)")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'CUSTOM')
+        self.assertEqual(refined_data_type.data_type(), "module.ClassB")
+        self.assertFalse(refined_data_type.has_modifier())
+        self.assertEqual(
+            refined_data_type.to_string(), "'module.ClassB'")
+
+        intermidiate_data_type = IntermidiateDataType(
+            "`MODULE_OT_ClassC`, ")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'CUSTOM')
+        self.assertEqual(refined_data_type.data_type(),
+            "bpy.ops.module.ClassC")
+        self.assertFalse(refined_data_type.has_modifier())
+        self.assertEqual(refined_data_type.to_string(),
+            "'bpy.ops.module.ClassC'")
+
+        intermidiate_data_type = IntermidiateDataType(
+            "`module.ClassB`, ")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'CUSTOM')
+        self.assertEqual(refined_data_type.data_type(), "module.ClassB")
+        self.assertFalse(refined_data_type.has_modifier())
+        self.assertEqual(
+            refined_data_type.to_string(), "'module.ClassB'")

@@ -18,7 +18,7 @@ OUTPUT_DIR=${1}
 
 mkdir -p "${OUTPUT_DIR}"
 
-INTERMIDIATE_DIR="${SCRIPT_DIR}/../pip_package"
+INTERMIDIATE_DIR="${SCRIPT_DIR}/../.."
 if [ -d "${INTERMIDIATE_DIR}" ]; then
     cp -r "${INTERMIDIATE_DIR}" "${OUTPUT_DIR}"
 fi

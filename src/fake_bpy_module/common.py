@@ -1,3 +1,4 @@
+import copy
 import re
 from typing import List, Dict, Set, Tuple
 
@@ -118,19 +119,47 @@ FROM_DICT_METHOD: List[str] = [
     'UPDATE',
 ]
 
+class DataTypeMetadata:
+    def __init__(self):
+        self.variable_kind = None
+        self.readonly: bool = False
+        self.never_none: bool = False       # Add typing.Optional if false
+        self.optional: bool = False         # Default value is needed if true
+        self.default_value = None
+
+    def __str__(self):
+        flags = []
+        if self.readonly:
+            flags.append('READONLY')
+        if self.never_none:
+            flags.append('NEVER_NONE')
+        if self.optional:
+            flags.append('OPTIONAL')
+
+        return f"Kind: {self.variable_kind}, Flags: {flags}, " \
+               f"Default Value: {self.default_value}"
+
 
 class DataType:
     def __init__(self):
+        self._metadata: DataTypeMetadata = DataTypeMetadata()
         self._is_optional: bool = False
 
     @staticmethod
     def output_typing_optional(func):
         def wrapper(self, *args, **kwargs):
             inner_str: str = func(self, *args, **kwargs)
-            if self.is_optional():
-                return f"typing.Optional[{inner_str}]"
+            metadata: DataTypeMetadata = self.get_metadata()
+            if metadata.variable_kind == 'FUNC_ARG' and not metadata.never_none:
+                inner_str = f"typing.Optional[{inner_str}]"
             return inner_str
         return wrapper
+
+    def get_metadata(self) -> DataTypeMetadata:
+        return self._metadata
+
+    def set_metadata(self, metadata: DataTypeMetadata):
+        self._metadata = metadata
 
     def set_is_optional(self, is_optional: bool):
         self._is_optional = is_optional
@@ -354,6 +383,7 @@ class CustomModifierDataType(ModifierDataType):
     # pylint: disable=W0231
     def __init__(self, modifier: str):
         self._is_optional: bool = False
+        self._metadata: DataTypeMetadata = DataTypeMetadata()
 
         if (modifier is None) or \
                 (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
@@ -526,6 +556,9 @@ class ParameterDetailInfo(Info):
                 "description": remove_unencodable(self._description),
                 "data_type": remove_unencodable(self._data_type.to_string()),
             }
+            default_value = self._data_type.get_metadata().default_value
+            if default_value is not None:
+                data["default_value"] = remove_unencodable(default_value)
         else:
             data = {
                 "type": self._type,
@@ -533,6 +566,9 @@ class ParameterDetailInfo(Info):
                 "description": self._description,
                 "data_type": self._data_type.to_string(),
             }
+            default_value = self._data_type.get_metadata().default_value
+            if default_value is not None:
+                data["default_value"] = remove_unencodable(default_value)
 
         return data
 
@@ -1230,6 +1266,67 @@ class DataTypeRefiner:
 
         return None
 
+    def _build_metadata(
+            self, dtype_str: str, module_name: str, parameter_str: str,
+            variable_kind: str) -> Tuple[DataTypeMetadata, str]:
+        metadata = DataTypeMetadata()
+
+        metadata.variable_kind = variable_kind
+
+        # Get default value from parameter string.
+        if parameter_str is not None:
+            m = re.match(r"^([a-zA-Z0-9_]+?)=(.*)", parameter_str)
+            if m:
+                metadata.default_value = m.group(2)
+
+        if module_name.startswith("bpy."):
+            m = re.search(r"\(([a-zA-Z, ]+?)\)$", dtype_str)
+            if not m:
+                return metadata, dtype_str
+
+            # Get parameter option.
+            data = [e.strip().lower() for e in m.group(1).split(",")]
+            has_unknown_metadata = False
+            for d in data:
+                if d == "optional":
+                    metadata.optional = True
+                elif d == "readonly":
+                    metadata.readonly = True
+                elif d == "never none":
+                    metadata.never_none = True
+                else:
+                    has_unknown_metadata = True
+                    output_log(
+                        LOG_LEVEL_WARN,
+                        f"Unknown metadata '{d}' is found from {dtype_str}")
+
+            # If there is unknown parameter options, we don't strip them from
+            # original string.
+            if has_unknown_metadata:
+                return metadata, dtype_str
+
+            # Strip the unused string to speed up the later parsing process.
+            stripped = re.sub(r"\(([a-zA-Z, ]+?)\)$", "", dtype_str)
+            output_log(LOG_LEVEL_DEBUG,
+                    f"Data type is stripped: {dtype_str} -> {stripped}")
+
+            return metadata, stripped
+
+        # From this, we assumed non-bpy module.
+
+        metadata.never_none = True
+        m = re.search(r"or None$", dtype_str)
+        if not m:
+            return metadata, dtype_str
+
+        metadata.never_none = False
+        stripped = re.sub(r"or None$", "", dtype_str)
+        output_log(LOG_LEVEL_DEBUG,
+               f"'or None' is stripped: {dtype_str} -> {stripped}")
+
+        return metadata, stripped
+
+
     # pylint: disable=R0913
     def _get_refined_data_type_fast(
             self, dtype_str: str, uniq_full_names: Set[str],
@@ -1486,8 +1583,7 @@ class DataTypeRefiner:
                 return CustomDataType(s1)
 
         m = re.match(
-            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, "
-            r"\(readonly\)$",
+            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, $",
             dtype_str)
         if m:
             s1 = self._parse_custom_data_type(
@@ -1522,7 +1618,7 @@ class DataTypeRefiner:
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         m = re.match(
-            r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`, \((.+)\)$",
+            r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`, $",
             dtype_str)
         if m:
             s = self._parse_custom_data_type(
@@ -1620,12 +1716,6 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^`([A-Z][a-zA-Z0-9.]+)`$", dtype_str)
-        if m:
-            s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
-            if s:
-                return CustomDataType(s)
         m = re.match(r"^`bpy_struct`$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
@@ -1633,18 +1723,8 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        m = re.match(
-            r"^`([A-Z][a-zA-Z0-9_]+)`, "
-            r"\((optional|readonly|never None|readonly, never None)\)$",
-            dtype_str)
-        if m:
-            s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
-            if s:
-                return CustomDataType(s)
-
         # Ex: CLIP_OT_add_marker
-        m = re.match(r"^`([A-Z]+)_OT_([a-z_]+)`, \(optional\)$", dtype_str)
+        m = re.match(r"^`([A-Z]+)_OT_([A-Za-z_]+)`, $", dtype_str)
         if m:
             idname = f"bpy.ops.{m.group(1).lower()}.{m.group(2)}"
             s = self._parse_custom_data_type(
@@ -1659,7 +1739,7 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^`([a-zA-Z0-9_.]+)`, \(readonly\)$", dtype_str)
+        m = re.match(r"^`([a-zA-Z0-9_.]+)`(, )*$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -1928,15 +2008,58 @@ class DataTypeRefiner:
             return MixinDataType(dtype_list)
         return ModifierDataType("typing.Any")
 
+    def _tweak_metadata(self, data_type: 'DataType', variable_kind: str):
+        metadata = data_type.get_metadata()
+
+        # Set default value if a parameter is variable.
+        if variable_kind == 'FUNC_ARG':
+            if metadata.optional and (metadata.default_value is None):
+                if data_type.type() in ('BUILTIN', 'CUSTOM') and data_type.has_modifier():
+                    if data_type.modifier().type() == 'MODIFIER':
+                        DEFAULT_VALUE_MAP = {
+                            "list": "[]",
+                            "dict": "{}",
+                            "set": "()",
+                            "tuple": "()",
+                            "listlist": "[]",
+                            "Generic": "None",
+                            "typing.Iterator": "[]",
+                            "typing.Callable": "None",
+                            "typing.Any": "None",
+                            "typing.Sequence": "[]",
+                        }
+                        metadata.default_value = DEFAULT_VALUE_MAP[
+                            data_type.modifier().modifier_data_type()]
+                    elif data_type.modifier().type() == 'CUSTOM_MODIFIER':
+                        metadata.default_value = "[]"
+                else:
+                    if data_type.type() == 'BUILTIN':
+                        DEFAULT_VALUE_MAP = {
+                            "bool": "False",
+                            "str": "\"\"",
+                            "bytes": "0",
+                            "float": "0.0",
+                            "int": "0"
+                        }
+                        metadata.default_value = DEFAULT_VALUE_MAP[
+                            data_type.data_type()]
+                    elif data_type.type() == 'CUSTOM':
+                        metadata.default_value = "None"
+                    elif data_type.type() == 'MIXIN':
+                        metadata.default_value = "None"
+
+
     def get_refined_data_type(
             self, data_type: 'DataType', module_name: str,
-            variable_kind: str) -> 'DataType':
+            variable_kind: str, parameter_str: str = None) -> 'DataType':
 
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
         result = self._get_refined_data_type_internal(
-            data_type, module_name, variable_kind)
+            data_type, module_name, variable_kind, parameter_str)
+
+        self._tweak_metadata(result, variable_kind)
 
         output_log(
             LOG_LEVEL_DEBUG,
@@ -1948,12 +2071,18 @@ class DataTypeRefiner:
 
     def _get_refined_data_type_internal(
             self, data_type: 'DataType', module_name: str,
-            variable_kind: str) -> 'DataType':
+            variable_kind: str, parameter_str: str) -> 'DataType':
+
+        dtype_str = data_type.to_string()
+        metadata, dtype_str = self._build_metadata(
+            dtype_str, module_name, parameter_str, variable_kind)
 
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
 
         if (data_type.type() in ['CUSTOM']) and data_type.skip_refine():
+            dt = copy.copy(data_type)
+            dt.set_metadata(metadata)
             return data_type
 
         if data_type.type() != 'INTERMIDIATE':
@@ -1965,7 +2094,6 @@ class DataTypeRefiner:
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
         is_optional = data_type.is_optional()
-        dtype_str = data_type.to_string()
 
         # Ex. (Quaternion, float) pair
         m = re.match(r"^\((.*)\) pair$", dtype_str)
@@ -1982,6 +2110,7 @@ class DataTypeRefiner:
                 dd = CustomDataType(
                     dtypes[0], ModifierDataType("tuple"),
                     modifier_add_info={"tuple_elms": dtypes}, skip_refine=True)
+                dd.set_metadata(metadata)
                 return dd
 
         result = self._get_refined_data_type_fast(
@@ -1989,6 +2118,7 @@ class DataTypeRefiner:
             variable_kind)
         if result is not None:
             result.set_is_optional(is_optional)
+            result.set_metadata(metadata)
             return result
 
         if ("," in dtype_str) or (" or " in dtype_str):
@@ -2012,10 +2142,12 @@ class DataTypeRefiner:
                         dtypes.extend(result.data_types())
             if len(dtypes) == 1:
                 dtypes[0].set_is_optional(is_optional)
+                dtypes[0].set_metadata(metadata)
                 return dtypes[0]
             if len(dtypes) >= 2:
                 result = MixinDataType(dtypes)
                 result.set_is_optional(is_optional)
+                result.set_metadata(metadata)
                 return result
 
         output_log(
@@ -2024,6 +2156,7 @@ class DataTypeRefiner:
 
         result = self._get_refined_data_type_slow(data_type, module_name)
         result.set_is_optional(is_optional)
+        result.set_metadata(metadata)
         return result
 
     def get_base_name(self, data_type: str) -> str:

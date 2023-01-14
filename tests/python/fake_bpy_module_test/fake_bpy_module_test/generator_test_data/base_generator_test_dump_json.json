@@ -28,19 +28,22 @@
                 "type": "parameter",
                 "name": "param_1",
                 "description": "param_1 description",
-                "data_type": "int"
+                "data_type": "int",
+                "default_value": "10"
             },
             {
                 "type": "parameter",
                 "name": "param_2",
                 "description": "param_2 description",
-                "data_type": "typing.List['ClassA']"
+                "data_type": "typing.List['ClassA']",
+                "default_value": "[]"
             },
             {
                 "type": "parameter",
                 "name": "param_3",
                 "description": "param_3 description",
-                "data_type": "typing.Optional[float]"
+                "data_type": "typing.Optional[float]",
+                "default_value": "4.5"
             }
         ]
     },

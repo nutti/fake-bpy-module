@@ -101,14 +101,14 @@ jobs:
 
       - name: Collect failure state
         if: failure()
-        run: bash tools/collect_failure_state/collect_failure_state.sh failure_state
+        run: bash tools/collect_failure_state/collect_failure_state.sh /tmp/failure_state
 
       - name: Store failure state
         if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: failure_state
-          path: failure_state
+          path: /tmp/failure_state
 
   pypi_release_test:
     name: PyPI Release test
