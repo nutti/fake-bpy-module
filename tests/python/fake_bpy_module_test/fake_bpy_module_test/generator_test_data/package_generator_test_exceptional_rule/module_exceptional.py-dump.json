@@ -33,7 +33,8 @@
                         "type": "parameter",
                         "name": "arg_2",
                         "description": "method_with_keyword_only_argument arg_2 description",
-                        "data_type": "float"
+                        "data_type": "float",
+                        "default_value": "5.0"
                     },
                     {
                         "type": "parameter",

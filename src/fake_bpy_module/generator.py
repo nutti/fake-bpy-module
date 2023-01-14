@@ -12,6 +12,7 @@ from .analyzer import (
 )
 from .common import (
     Info,
+    ParameterDetailInfo,
     VariableInfo,
     FunctionInfo,
     ClassInfo,
@@ -119,7 +120,7 @@ class BaseGenerator:
             if pd_matched is not None:
                 if default_value is not None:
                     wt.add(f"{pd_matched['name']}: "
-                           f"{pd_matched['data_type']}={default_value}")
+                           f"{pd_matched['data_type']}={pd_matched['default_value']}")
                 else:
                     wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
             else:
@@ -224,7 +225,7 @@ class BaseGenerator:
                         if default_value is not None:
                             wt.add(
                                 f"{pd_matched['name']}: "
-                                f"{pd_matched['data_type']}={default_value}")
+                                f"{pd_matched['data_type']}={pd['default_value']}")
                         else:
                             wt.add(f"{pd_matched['name']}: "
                                    f"{pd_matched['data_type']}")
@@ -846,15 +847,34 @@ class PackageAnalyzer:
     def _refine_data_type(
             self, refiner: 'DataTypeRefiner',
             analysis_result: AnalysisResult):
-        data_to_refine = []
+
+        def get_parameter_from_parameter_detail(
+                parameters: List[str],
+                parameter_detail: ParameterDetailInfo) -> str:
+
+            for param in parameters:
+                param_str = param
+                m = re.match(r"^([a-zA-Z0-9_]+?)[=:]", param_str)
+                if m:
+                    param_str = m.group(1)
+                if param_str == parameter_detail.name():
+                    return param
+
+            return None
+
+        data_to_refine: List[Info] = []
         for section in analysis_result.section_info:
             data_to_refine.extend(list(section.info_list))
         for info in tqdm(data_to_refine):
             # refine function parameters and return value
             if info.type() == "function":
+                p: ParameterDetailInfo
                 for p in info.parameter_details():
+                    parameter = get_parameter_from_parameter_detail(
+                        info.parameters(), p)
                     refined_type = refiner.get_refined_data_type(
-                        p.data_type(), info.module(), 'FUNC_ARG')
+                        p.data_type(), info.module(), 'FUNC_ARG',
+                        parameter_str=parameter)
                     p.set_data_type(refined_type)
 
                 return_ = info.return_()
@@ -874,9 +894,13 @@ class PackageAnalyzer:
                         a.data_type(), info.module(), 'CLS_ATTR')
                     a.set_data_type(refined_type)
                 for m in info.methods():
+                    p: ParameterDetailInfo
                     for p in m.parameter_details():
+                        parameter = get_parameter_from_parameter_detail(
+                            m.parameters(), p)
                         refined_type = refiner.get_refined_data_type(
-                            p.data_type(), info.module(), 'FUNC_ARG')
+                            p.data_type(), info.module(), 'FUNC_ARG',
+                            parameter_str=parameter)
                         p.set_data_type(refined_type)
 
                     return_ = m.return_()
@@ -950,6 +974,7 @@ class PackageAnalyzer:
                 new_data_type, data_type.modifier(),
                 data_type.modifier_add_info())
             dt.set_is_optional(data_type.is_optional())
+            dt.set_metadata(data_type.get_metadata())
             return dt
 
         def rewrite_for_custom_modifier(

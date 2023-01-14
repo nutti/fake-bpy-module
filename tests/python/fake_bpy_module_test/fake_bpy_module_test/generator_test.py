@@ -19,6 +19,7 @@ from fake_bpy_module.generator import (     # pylint: disable=E0401
     PackageGenerator,
 )
 from fake_bpy_module.common import (    # pylint: disable=E0401
+    DataTypeMetadata,
     BuiltinDataType,
     CustomDataType,
     CustomModifierDataType,
@@ -174,21 +175,36 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         info.set_description("function_1 description")
         info.set_module("module_1")
 
+        metadata_1 = DataTypeMetadata()
+        metadata_1.optional = True
+        metadata_1.variable_kind = 'FUNC_ARG'
+        metadata_1.default_value = "10"
+        metadata_1.never_none = True
         param_data_type_1 = BuiltinDataType("int")
+        param_data_type_1.set_metadata(metadata_1)
         param_info_1 = ParameterDetailInfo()
         param_info_1.set_name("param_1")
         param_info_1.set_description("param_1 description")
         param_info_1.set_data_type(param_data_type_1)
 
+        metadata_2 = DataTypeMetadata()
+        metadata_2.variable_kind = 'FUNC_ARG'
+        metadata_2.default_value = "[]"
+        metadata_2.never_none = True
         param_data_type_2 = CustomDataType(
             "ClassA", modifier=ModifierDataType("list"))
+        param_data_type_2.set_metadata(metadata_2)
         param_info_2 = ParameterDetailInfo()
         param_info_2.set_name("param_2")
         param_info_2.set_description("param_2 description")
         param_info_2.set_data_type(param_data_type_2)
 
+        metadata_3 = DataTypeMetadata()
+        metadata_3.optional = True
+        metadata_3.variable_kind = 'FUNC_ARG'
+        metadata_3.default_value = "4.5"
         param_data_type_3 = BuiltinDataType("float")
-        param_data_type_3.set_is_optional(True)
+        param_data_type_3.set_metadata(metadata_3)
         param_info_3 = ParameterDetailInfo()
         param_info_3.set_name("param_3")
         param_info_3.set_description("param_3 description")
@@ -247,6 +263,10 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
         method_info_1.set_module("module_1")
         method_info_1.set_class("ClassA")
 
+        metadata = DataTypeMetadata()
+        metadata.variable_kind = 'FUNC_ARG'
+        metadata.default_value = "0"
+        metadata.never_none = True
         param_data_type_1 = BuiltinDataType("int")
         param_info_1 = ParameterDetailInfo()
         param_info_1.set_name("param_1")

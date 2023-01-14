@@ -24,7 +24,8 @@
                         "type": "parameter",
                         "name": "arg_1",
                         "description": "method_1 arg_1 description",
-                        "data_type": "float"
+                        "data_type": "float",
+                        "default_value": "5.4"
                     }
                 ]
             }
