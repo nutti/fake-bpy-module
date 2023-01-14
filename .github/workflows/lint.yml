@@ -63,7 +63,7 @@ jobs:
     name: markdownlint
     runs-on: ubuntu-latest
     container:
-      image: node:15
+      image: node:18
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
