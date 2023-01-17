@@ -114,7 +114,7 @@ class BaseAnalyzer:
                     module_name = module_name[:module_name.rfind(".")]
             elif self.blender_version in [
                     "2.91", "2.92", "2.93",
-                    "3.0", "3.1", "3.2", "3.3", "latest"]:
+                    "3.0", "3.1", "3.2", "3.3", "3.4", "latest"]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
 
