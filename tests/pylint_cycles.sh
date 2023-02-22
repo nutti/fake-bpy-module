@@ -38,7 +38,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v3.2"]="v3.2.0"
     ["v3.3"]="v3.3.0"
     ["v3.4"]="v3.4.0"
-    ["vlatest"]="master"
+    ["vlatest"]="main"
 )
 
 version=${1}
