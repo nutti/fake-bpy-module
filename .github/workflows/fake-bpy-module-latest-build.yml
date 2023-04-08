@@ -132,7 +132,7 @@ jobs:
     name: PyPI Release fake-bpy-module
     needs: [pypi_release_test]
     if: github.event_name == 'schedule'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Fetch Artifacts
         uses: actions/download-artifact@v2
