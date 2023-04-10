@@ -32,7 +32,7 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
     "listlist", "tupletuple",
-    "listtuple",
+    "listtuple", "listcallable",
     "Generic",
     "typing.Iterator",
     "typing.Callable",
@@ -377,6 +377,9 @@ class CustomDataType(DataType):
                     f"{', '.join(self._modifier_add_info['tuple_elms'])}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List['{self._data_type}']]"
+        elif self._modifier.modifier_data_type() == "listcallable":
+            return "typing.List[typing.Callable[['" \
+                f"{','.join(self._modifier_add_info['arguments'])}'], None]]"
 
         return f"{self._modifier.to_string()}['{self._data_type}']"
 

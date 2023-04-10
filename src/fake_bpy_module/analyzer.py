@@ -1281,6 +1281,24 @@ class AnalyzerWithModFile(BaseAnalyzer):
 
 class BpyModuleAnalyzer(AnalyzerWithModFile):
 
+    def _add_bpy_app_handlers_type(self, result: 'AnalysisResult'):
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bpy.app.handlers", info.module()):
+                    continue
+                if info.type() != "constant":
+                    continue
+                if info.name() == "persistent":
+                    continue
+
+                var_info: VariableInfo = info
+                var_info.set_data_type(CustomDataType(
+                    "bpy.types.Scene", ModifierDataType("listcallable"),
+                    modifier_add_info={
+                        "arguments": ["bpy.types.Scene"],
+                    },
+                    skip_refine=True))
+
     def _add_bpy_ops_override_parameters(self, result: 'AnalysisResult'):
         for section in result.section_info:
             for info in section.info_list:
@@ -1511,6 +1529,7 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
 
     def _modify(self, result: 'AnalysisResult'):
         super()._modify(result)
+        self._add_bpy_app_handlers_type(result)
         self._add_bpy_ops_override_parameters(result)
         self._make_bpy_context_variable(result)
 
