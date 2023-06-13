@@ -598,8 +598,8 @@ class BaseAnalyzer:
                     self._cleanup_string(_parse_type(
                         file,
                         level=level.make_next_level(next_level_spaces)))))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block)::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block)::", line).group(1)  # noqa # pylint: disable=C0301
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude)::", line):     # noqa # pylint: disable=C0301
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude)::", line).group(1)  # noqa # pylint: disable=C0301
                 self._skip_until_next_le_level(
                     file, level=level.make_next_level(next_level_spaces))
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (to do)", line):     # noqa # pylint: disable=C0301
