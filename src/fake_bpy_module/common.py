@@ -275,8 +275,10 @@ class BuiltinDataType(DataType):
                     f"{self._data_type}]"
         elif self._modifier.modifier_data_type() == "tuple":
             if self._modifier_add_info is not None:
+                elms_strs = [elm.to_string()
+                             for elm in self._modifier_add_info['tuple_elms']]
                 return f"{self._modifier.to_string()}[" \
-                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]"
+                    f"{', '.join(elms_strs)}]"
         elif self._modifier.modifier_data_type() == "tupletuple":
             if self._modifier_add_info is not None:
                 inner_str = []
@@ -373,8 +375,10 @@ class CustomDataType(DataType):
                     f"'{self._data_type}']"
         elif self._modifier.modifier_data_type() == "tuple":
             if self._modifier_add_info is not None:
+                elms_strs = [elm.to_string()
+                             for elm in self._modifier_add_info['tuple_elms']]
                 return f"{self._modifier.to_string()}[" \
-                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]"
+                    f"{', '.join(elms_strs)}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List['{self._data_type}']]"
         elif self._modifier.modifier_data_type() == "listcallable":
@@ -1465,6 +1469,7 @@ class DataTypeRefiner:
                     "mathutils.Vector", uniq_full_names, uniq_module_names,
                     module_name)
                 if s:
+                    tuple_elms = [BuiltinDataType("float")] * int(m.group(2))
                     dtypes = [
                         BuiltinDataType("float", CustomModifierDataType(
                             "bpy.types.bpy_prop_array")),
@@ -1473,7 +1478,7 @@ class DataTypeRefiner:
                         BuiltinDataType(
                             "float", ModifierDataType("tuple"),
                             modifier_add_info={
-                                "tuple_elms": ["float"] * int(m.group(2))
+                                "tuple_elms": tuple_elms
                             }),
                         CustomDataType(s)
                     ]
@@ -1489,12 +1494,13 @@ class DataTypeRefiner:
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
             if s:
+                tuple_elms = [BuiltinDataType("float")] * int(m.group(3))
                 dtypes = [
                     BuiltinDataType("float", ModifierDataType("list")),
                     BuiltinDataType(
                         "float", ModifierDataType("tuple"),
                         modifier_add_info={
-                            "tuple_elms": ["float"] * int(m.group(3))
+                            "tuple_elms": tuple_elms
                         }),
                     CustomDataType(s)
                 ]
@@ -1678,13 +1684,14 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
         # Ex: tuple of mathutils.Vector's
-        m = re.match(r"^tuple of `([a-zA-Z0-9.]+)`'s$", dtype_str)
+        m = re.match(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$", dtype_str)
         if m:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 dd = CustomDataType(
-                    s, ModifierDataType("tuple"), modifier_add_info=s,
+                    s, ModifierDataType("tuple"),
+                    modifier_add_info={"tuple_elms": [CustomDataType(s)]},
                     skip_refine=True)
                 return dd
 
@@ -2109,11 +2116,13 @@ class DataTypeRefiner:
                     s.strip(), uniq_full_names, uniq_module_names,
                     module_name, variable_kind)
                 if d:
-                    dtypes.append(d.to_string())
+                    dtypes.append(d.data_type())
             if len(dtypes) >= 1:
+                elms = [CustomDataType(d) for d in dtypes]
                 dd = CustomDataType(
                     dtypes[0], ModifierDataType("tuple"),
-                    modifier_add_info={"tuple_elms": dtypes}, skip_refine=True)
+                    modifier_add_info={"tuple_elms": elms},
+                    skip_refine=True)
                 dd.set_metadata(metadata)
                 return dd
 

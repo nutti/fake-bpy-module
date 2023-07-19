@@ -968,8 +968,7 @@ class PackageAnalyzer:
         processed_info.dependencies = gen_info.dependencies
         processed_info.child_modules = gen_info.child_modules
 
-        def rewrite_for_custom(
-                data_type: 'CustomDataType'):
+        def rewrite_for_custom(data_type: 'CustomDataType'):
             new_data_type = refiner.get_generation_data_type(
                 data_type.data_type(), gen_info.name)
             dt = CustomDataType(
@@ -979,40 +978,63 @@ class PackageAnalyzer:
             dt.set_metadata(data_type.get_metadata())
             return dt
 
-        def rewrite_for_custom_modifier(
-                data_type: 'CustomDataType'):
+        def rewrite_for_custom_modifier(data_type: 'CustomDataType'):
             new_modifier_name = refiner.get_generation_data_type(
                 data_type.modifier().output_modifier_name(), gen_info.name)
             dt = data_type
             dt.modifier().set_output_modifier_name(new_modifier_name)
             return dt
 
+        def rewrite_for_tuple_elms(data_type: 'CustomDataType'):
+            dt = data_type
+            if dt.modifier().modifier_data_type() == 'tuple':
+                add_info = dt.modifier_add_info()
+                elms_old = add_info["tuple_elms"]
+                elms_new = []
+                for elm_old in elms_old:
+                    if elm_old.type() == 'CUSTOM':
+                        elm_new = rewrite_for_custom(elm_old)
+                        elms_new.append(elm_new)
+                    else:
+                        elms_new.append(elm_old)
+                add_info["tuple_elms"] = elms_new
+            return dt
+
         def rewrite(info_to_rewrite: Info):
             dtype_to_rewrite = info_to_rewrite.data_type()
             if dtype_to_rewrite.type() == 'BUILTIN':
-                if dtype_to_rewrite.has_modifier() and \
-                   dtype_to_rewrite.modifier().type() == 'CUSTOM_MODIFIER':
-                    info_to_rewrite.set_data_type(rewrite_for_custom_modifier(
-                        dtype_to_rewrite))
+                if dtype_to_rewrite.has_modifier():
+                    modifier = dtype_to_rewrite.modifier()
+                    if modifier.type() == 'MODIFIER':
+                        rewrite_for_tuple_elms(dtype_to_rewrite)
+                    elif modifier.type() == 'CUSTOM_MODIFIER':
+                        info_to_rewrite.set_data_type(
+                            rewrite_for_custom_modifier(dtype_to_rewrite))
             elif dtype_to_rewrite.type() == 'CUSTOM':
                 dt = rewrite_for_custom(dtype_to_rewrite)
-                if dt.has_modifier() and \
-                   dt.modifier().type() == 'CUSTOM_MODIFIER':
-                    dt = rewrite_for_custom_modifier(dt)
+                if dt.has_modifier():
+                    if dt.modifier().type() == 'MODIFIER':
+                        dt = rewrite_for_tuple_elms(dt)
+                    elif dt.modifier().type() == 'CUSTOM_MODIFIER':
+                        dt = rewrite_for_custom_modifier(dt)
                 info_to_rewrite.set_data_type(dt)
             elif dtype_to_rewrite.type() == 'MIXIN':
                 mixin_dt = dtype_to_rewrite
                 for i, d in enumerate(mixin_dt.data_types()):
                     if d.type() == 'BUILTIN':
-                        if d.has_modifier() and \
-                           d.modifier().type() == 'CUSTOM_MODIFIER':
-                            mixin_dt.set_data_type(
-                                i, rewrite_for_custom_modifier(d))
+                        if d.has_modifier():
+                            if d.modifier().type() == 'MODIFIER':
+                                rewrite_for_tuple_elms(d)
+                            elif d.modifier().type() == 'CUSTOM_MODIFIER':
+                                mixin_dt.set_data_type(
+                                    i, rewrite_for_custom_modifier(d))
                     elif d.type() == 'CUSTOM':
                         dt = rewrite_for_custom(d)
-                        if dt.has_modifier() and \
-                           dt.modifier().type() == 'CUSTOM_MODIFIER':
-                            dt = rewrite_for_custom_modifier(dt)
+                        if dt.has_modifier():
+                            if dt.modifier().type() == 'MODIFIER':
+                                rewrite_for_tuple_elms(dt)
+                            elif dt.modifier().type() == 'CUSTOM_MODIFIER':
+                                dt = rewrite_for_custom_modifier(dt)
                         mixin_dt.set_data_type(i, dt)
 
         for info in gen_info.data:
