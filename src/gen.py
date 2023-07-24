@@ -50,10 +50,8 @@ def make_bpy_rule(
 def make_bgl_rule(
         _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bgl*.rst")
-    mod_files = [
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_bgl_modfile/bgl.json"
-        .replace("\\", "/"),
-    ]
+    mod_files = glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_bgl_modfile/*.json")
     return fbm.PackageGenerationRule(
         "bgl", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
 
