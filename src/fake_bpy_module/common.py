@@ -453,11 +453,11 @@ class MixinDataType(DataType):
     def data_types(self) -> List['DataType']:
         return self._data_types
 
+    @DataType.output_typing_optional
     def to_string(self) -> str:
         s = [dt.to_string() for dt in self._data_types]
         return f"typing.Union[{', '.join(s)}]"
 
-    @DataType.output_typing_optional
     def set_data_type(self, index, data_type: 'DataType'):
         self._data_types[index] = data_type
 
