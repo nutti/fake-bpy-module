@@ -8,17 +8,18 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 }
 PYTHON_BIN=${PYTHON_BIN:-python}
 
-if [ $# -ne 5 ] && [ $# -ne 6 ]; then
-    echo "Usage: bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <blender-version> <output-dir> [<mod-version>]"
+if [ $# -ne 6 ] && [ $# -ne 7 ]; then
+    echo "Usage: bash gen_module.sh <source-dir> <blender-dir> <target> <branch/tag/commit> <target-version> <output-dir> [<mod-version>]"
     exit 1
 fi
 
 source_dir=${1}
 blender_dir=${2}
-git_ref=${3}
-blender_version=${4}
-output_dir=${5}
-mod_version=${6:-not-specified}
+target=${3}
+git_ref=${4}
+target_version=${5}
+output_dir=${6}
+mod_version=${7:-not-specified}
 current_dir=$(pwd)
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
 format="pep8"
@@ -87,29 +88,33 @@ git checkout -f "${remote_git_ref}"
 
 function apply_workaround() {
     local ref=${git_ref}
-    local blender_source=${source_dir}
+    local project_source=${source_dir}
 
-    if [ "${ref}" = "v2.90.0" ] || [ "${ref}" = "v2.91.0" ]; then
-        pushd "${blender_source}" > /dev/null
+    if [ "${target}" = "blender" ]; then
+        if [ "${ref}" = "v2.90.0" ] || [ "${ref}" = "v2.91.0" ]; then
+            pushd "${project_source}" > /dev/null
 
-        # Workaround for an error of rst document generation.
-        # See https://developer.blender.org/T80364 for detail.
-        cp doc/python_api/sphinx_doc_gen.py doc/python_api/sphinx_doc_gen.py.orig
-        sed -i -e "/Hair/s/^/#/" doc/python_api/sphinx_doc_gen.py
-        sed -i -e "/PointCloud/s/^/#/" doc/python_api/sphinx_doc_gen.py
+            # Workaround for an error of rst document generation.
+            # See https://developer.blender.org/T80364 for detail.
+            cp doc/python_api/sphinx_doc_gen.py doc/python_api/sphinx_doc_gen.py.orig
+            sed -i -e "/Hair/s/^/#/" doc/python_api/sphinx_doc_gen.py
+            sed -i -e "/PointCloud/s/^/#/" doc/python_api/sphinx_doc_gen.py
 
-        popd > /dev/null
+            popd > /dev/null
+        fi
     fi
 }
 
 function revert_workaround() {
     local ref=${git_ref}
-    local blender_source=${source_dir}
+    local project_source=${source_dir}
 
-    if [ "${ref}" = "v2.90.0" ] || [ "${ref}" = "v2.91.0" ]; then
-        pushd "${blender_source}" > /dev/null
-        git checkout doc/python_api/sphinx_doc_gen.py
-        popd > /dev/null
+    if [ "${target}" = "blender" ]; then
+        if [ "${ref}" = "v2.90.0" ] || [ "${ref}" = "v2.91.0" ]; then
+            pushd "${project_source}" > /dev/null
+            git checkout doc/python_api/sphinx_doc_gen.py
+            popd > /dev/null
+        fi
     fi
 }
 
@@ -149,9 +154,9 @@ ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" 
 
 echo "Generating fake bpy modules ..."
 if [ "${mod_version}" = "not-specified" ]; then
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f ${format} -b "${blender_version}" -l "${output_log_level}"
+    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}"
 else
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f ${format} -b "${blender_version}" -l "${output_log_level}" -m "${mod_version}"
+    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}" -m "${mod_version}"
 fi
 
 echo "Cleaning up ..."

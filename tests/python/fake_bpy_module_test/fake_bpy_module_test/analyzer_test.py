@@ -35,6 +35,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -49,6 +51,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -63,6 +67,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -77,6 +83,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -101,6 +109,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -133,6 +143,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -182,6 +194,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -236,6 +250,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -387,6 +403,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -471,6 +489,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -597,6 +617,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -762,6 +784,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
 
         with self.assertRaises(ValueError):
             result = analyzer.analyze(rst_files)
@@ -772,6 +796,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
 
         with self.assertRaises(ValueError):
             result = analyzer.analyze(rst_files)
@@ -782,6 +808,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -795,7 +823,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_blender_version("2.90")
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.90")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -827,7 +856,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.enable_bge_support()
+        analyzer.set_target("upbge")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -875,7 +905,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.enable_bge_support()
+        analyzer.set_target("upbge")
+        analyzer.set_target_version("0.2.5")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -958,6 +989,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BaseAnalyzer()
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 2)
@@ -1043,6 +1076,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1069,6 +1104,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1110,6 +1147,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1157,6 +1196,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 2)
@@ -1203,6 +1244,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 2)
@@ -1293,6 +1336,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 2)
@@ -1525,6 +1570,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1561,6 +1608,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1628,6 +1677,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1808,6 +1859,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1835,6 +1888,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -1887,6 +1942,8 @@ class AnalyzerWithModFileTest(common.FakeBpyModuleTestBase):
         mod_files = [f"{self.data_dir}/{f}" for f in mod_files]
 
         analyzer = AnalyzerWithModFile(mod_files)
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -2053,6 +2110,8 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 1)
@@ -2146,6 +2205,8 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 3)
@@ -2206,6 +2267,8 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
 
         analyzer = BpyModuleAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         result = analyzer.analyze(rst_files)
 
         self.assertEqual(len(result.section_info), 2)

@@ -105,7 +105,7 @@ jobs:
       - name: Generate pip Packages
         env:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
-        run: bash tools/pip_package/build_pip_package.sh release ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
+        run: bash tools/pip_package/build_pip_package.sh release blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages
         uses: actions/upload-artifact@v2
@@ -130,7 +130,7 @@ jobs:
         # For example: 00:29:45 UTC will create a file version
         #   "...dev2945-py3-none..." and not use {{ module_version }}
         #   "...dev002945-py3-none..."
-        run: bash tests/pylint_cycles.sh ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
+        run: bash tests/pylint_cycles.sh blender ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
 
       - name: Collect failure state
         if: failure()

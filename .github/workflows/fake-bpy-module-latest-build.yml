@@ -79,7 +79,7 @@ jobs:
       - name: Generate pip Packages
         env:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
-        run: bash tools/pip_package/build_pip_package.sh release latest ./blender ./blender-bin/blender-latest-bin
+        run: bash tools/pip_package/build_pip_package.sh release blender latest ./blender ./blender-bin/blender-latest-bin
 
       - name: Archive pip packages
         uses: actions/upload-artifact@v2
@@ -97,7 +97,7 @@ jobs:
         run: bash tests/run_tests.sh raw_modules
 
       - name: Test generated pip module against Cycles addon
-        run: bash tests/pylint_cycles.sh latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
+        run: bash tests/pylint_cycles.sh blender latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
 
       - name: Collect failure state
         if: failure()

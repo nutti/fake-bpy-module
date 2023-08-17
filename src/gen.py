@@ -8,22 +8,6 @@ import os
 import fake_bpy_module as fbm
 
 INPUT_DIR: str = "."
-SUPPORTED_TARGET: List[str] = ["pycharm"]
-SUPPORTED_STYLE_FORMAT: List[str] = ["none", "pep8"]
-SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
-    "2.78", "2.79",
-    "2.80", "2.81", "2.82", "2.83",
-    "2.90", "2.91", "2.92", "2.93",
-    "3.0", "3.1", "3.2", "3.3", "3.4",
-    "latest"
-]
-SUPPORTED_BLENDER_VERSION: List[str] = [
-    "2.78", "2.79",
-    "2.80", "2.81", "2.82", "2.83",
-    "2.90", "2.91", "2.92", "2.93",
-    "3.0", "3.1", "3.2", "3.3", "3.4",
-    "latest"
-]
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -167,6 +151,14 @@ def make_bl_math_rule(
         fbm.BaseGenerator())
 
 
+def make_bge_rule(
+        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+    files = glob.glob(INPUT_DIR + "/bge*.rst")
+    files.extend(glob.glob(INPUT_DIR + "/bge_types/bge*.rst"))
+    return fbm.PackageGenerationRule(
+        "bge", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+
+
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:    # noqa # pylint: disable=C0301
     mod_files = glob.glob(
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/*.json"
@@ -200,9 +192,10 @@ def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageG
 
 def parse_options(config: 'fbm.PackageGeneratorConfig'):
     # pylint: disable=W0603
-    global INPUT_DIR, SUPPORTED_TARGET  # pylint: disable=W0602
+    global INPUT_DIR  # pylint: disable=W0602
     usage = f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] " \
-            "[-d] [-f <style_format>] [-m <mod_version>]"
+            "[-T <target>] [-t <target_version>] [-d] [-f <style_format>] " \
+            "[-m <mod_version>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-i", dest="input_dir", type=str, help="Input directory"
@@ -223,8 +216,12 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
              "(ex. 2.79, 2.80)"
     )
     parser.add_argument(
-        "-b", dest="blender_version", type=str,
-        help="Blender version (ex. 2.79, 2.80)"
+        "-T", dest="target", type=str,
+        help="Target (blender, upbge)"
+    )
+    parser.add_argument(
+        "-t", dest="target_version", type=str,
+        help="Target version (ex. 2.79, 2.80)"
     )
     parser.add_argument(
         "-l", dest="output_log_level", type=str,
@@ -236,27 +233,54 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
     if args.output_dir:
         config.output_dir = args.output_dir
 
-    if args.style_format in SUPPORTED_STYLE_FORMAT:
+    if args.style_format in fbm.support.SUPPORTED_STYLE_FORMAT:
         config.style_format = args.style_format
     else:
         raise RuntimeError(
             f"Not supported style format {args.style_format}. "
-            f"(Supported Style Format: {SUPPORTED_STYLE_FORMAT})")
-    if args.mod_version:
-        if args.mod_version in SUPPORTED_MOD_BLENDER_VERSION:
-            config.mod_version = args.mod_version
-        else:
-            raise RuntimeError(
-                f"Not supported mod version {args.mod_version}. "
-                f"(Supported Version: {SUPPORTED_MOD_BLENDER_VERSION})")
+            f"(Supported Style Format: {fbm.support.SUPPORTED_STYLE_FORMAT})")
 
-    if args.blender_version:
-        if args.blender_version in SUPPORTED_BLENDER_VERSION:
-            config.blender_version = args.blender_version
+    if args.target in fbm.support.SUPPORTED_TARGET:
+        config.target = args.target
+    else:
+        raise RuntimeError(
+            f"Not supported target {args.target}."
+            f"(Supported Target: {fbm.support.SUPPORTED_TARGET})")
+
+    if args.target == "blender":
+        if args.target_version in fbm.support.SUPPORTED_BLENDER_VERSION:
+            config.target_version = args.target_version
         else:
             raise RuntimeError(
-                f"Not supported blender version {args.blender_version}. "
-                f"(Supported Version: {SUPPORTED_BLENDER_VERSION})")
+                f"Not supported blender version {args.target_version}. "
+                f"(Supported Version: "
+                f"{fbm.support.SUPPORTED_BLENDER_VERSION})")
+
+    if args.target == "upbge":
+        if args.target_version in fbm.support.SUPPORTED_UPBGE_VERSION:
+            config.target_version = args.target_version
+        else:
+            raise RuntimeError(
+                f"Not supported upbge version {args.target_version}. "
+                f"(Supported Version: {fbm.support.SUPPORTED_UPBGE_VERSION})")
+
+    if args.mod_version:
+        if config.target == "blender":
+            if args.mod_version in fbm.support.SUPPORTED_MOD_BLENDER_VERSION:
+                config.mod_version = args.mod_version
+            else:
+                raise RuntimeError(
+                    f"Not supported mod version {args.mod_version}. "
+                    f"(Supported Version: "
+                    f"{fbm.support.SUPPORTED_MOD_BLENDER_VERSION})")
+        elif config.target == "upbge":
+            if args.mod_version in fbm.support.SUPPORTED_MOD_UPBGE_VERSION:
+                config.mod_version = args.mod_version
+            else:
+                raise RuntimeError(
+                    f"Not supported mod version {args.mod_version}. "
+                    f"(Supported Version: "
+                    f"{fbm.support.SUPPORTED_MOD_UPBGE_VERSION})")
 
     if args.output_log_level:
         ARG_TO_LOG_LEVEL = {
@@ -291,6 +315,8 @@ def main():
     pkg_generator.add_rule(make_idprop_rule(config))
     pkg_generator.add_rule(make_imbuf_rule(config))
     pkg_generator.add_rule(make_bl_math_rule(config))
+    if config.target == "upbge":
+        pkg_generator.add_rule(make_bge_rule(config))
     for rule in make_other_rules(config):
         pkg_generator.add_rule(rule)
     pkg_generator.generate()

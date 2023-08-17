@@ -5,7 +5,7 @@ set -eEu
 
 # check arguments
 if [ $# -ne 1 ]; then
-    echo "Usage: sh download_upbge.sh <output-dir>"
+    echo "Usage: sh collect_failure_state.sh <output-dir>"
     exit 1
 fi
 
