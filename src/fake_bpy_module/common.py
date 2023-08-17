@@ -1456,33 +1456,9 @@ class DataTypeRefiner:
             r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",   # noqa # pylint: disable=C0301
             dtype_str)
         if m:
-            if m.group(1) == "int":
-                dtypes = [
-                    BuiltinDataType("int", CustomModifierDataType(
-                        "bpy.types.bpy_prop_array")),
-                    BuiltinDataType("int", ModifierDataType(
-                        "typing.Sequence")),
-                ]
-                return MixinDataType(dtypes)
-            if m.group(1) == "float":
-                s = self._parse_custom_data_type(
-                    "mathutils.Vector", uniq_full_names, uniq_module_names,
-                    module_name)
-                if s:
-                    tuple_elms = [BuiltinDataType("float")] * int(m.group(2))
-                    dtypes = [
-                        BuiltinDataType("float", CustomModifierDataType(
-                            "bpy.types.bpy_prop_array")),
-                        BuiltinDataType("float", ModifierDataType(
-                            "typing.Sequence")),
-                        BuiltinDataType(
-                            "float", ModifierDataType("tuple"),
-                            modifier_add_info={
-                                "tuple_elms": tuple_elms
-                            }),
-                        CustomDataType(s)
-                    ]
-                    return MixinDataType(dtypes)
+            if m.group(1) in ("int", "float"):
+                return BuiltinDataType(m.group(1), CustomModifierDataType(
+                    "bpy.types.bpy_prop_array"))
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
         m = re.match(
