@@ -3,10 +3,14 @@
 # usage example: bash batch_gen_modules.sh 2.79 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
+SUPPORTED_BLENDER_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "2.90" "2.91" "2.92" "2.93"
     "3.0" "3.1" "3.2" "3.3" "3.4"
+    "latest"
+)
+SUPPORTED_UPBGE_VERSIONS=(
+    "0.2.5"
     "latest"
 )
 
@@ -28,6 +32,15 @@ declare -A BLENDER_TAG_NAME=(
     ["v3.4"]="v3.4.0"
     ["vlatest"]="main"
 )
+declare -A UPBGE_TAG_NAME=(
+    ["v0.2.5"]="v0.2.5"
+    ["vlatest"]="master"
+)
+
+declare -A PACKAGE_NAME=(
+    ["blender"]="bpy"
+    ["upbge"]="bge"
+)
 
 TMP_DIR_NAME="tmp"
 RAW_MODULES_DIR="raw_modules"
@@ -40,16 +53,17 @@ CURRENT_DIR=$(pwd)
 PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check arguments
-if [ $# -ne 4 ] && [ $# -ne 5 ]; then
-    echo "Usage: bash build_pip_package.sh <develop|release> <blender-version> <source-dir> <blender-dir> [<mod-version>]"
+if [ $# -ne 5 ] && [ $# -ne 6 ]; then
+    echo "Usage: bash build_pip_package.sh <develop|release> <target> <target-version> <source-dir> <blender-dir> [<mod-version>]"
     exit 1
 fi
 
-target=${1}
-version=${2}
-source_dir=${3}
-blender_dir=${4}
-mod_version=${5:-not-specified}
+deploy_stage=${1}
+target=${2}
+target_version=${3}
+source_dir=${4}
+blender_dir=${5}
+mod_version=${6:-not-specified}
 
 # check if PYTHON_BIN binary is availble
 if ! command -v "${PYTHON_BIN}" > /dev/null; then
@@ -80,54 +94,80 @@ if ! ${python_bin} -c "from setuptools._vendor.packaging.version import Version;
     exit 1
 fi
 
-# check if the target is develop or release
-if [ ! "${target}" = "release" ] && [ ! "${target}" = "develop" ]; then
-    echo "target must be release or develop"
+# check if the deploy_stage is develop or release
+if [ ! "${deploy_stage}" = "release" ] && [ ! "${deploy_stage}" = "develop" ]; then
+    echo "deploy_stage must be release or develop"
     exit 1
 fi
 
 
 # check if the specified version is supported
 supported=0
-for v in "${SUPPORTED_VERSIONS[@]}"; do
-    if [ "${v}" = "${version}" ]; then
-        supported=1
+if [ "${target}" = "blender" ]; then
+    for v in "${SUPPORTED_BLENDER_VERSIONS[@]}"; do
+        if [ "${v}" = "${target_version}" ]; then
+            supported=1
+        fi
+    done
+    if [ ${supported} -eq 0 ]; then
+        echo "${target_version} is not supported."
+        echo "Supported version is ${SUPPORTED_BLENDER_VERSIONS[*]}."
+        exit 1
     fi
-done
-if [ ${supported} -eq 0 ]; then
-    echo "${version} is not supported."
-    echo "Supported version is ${SUPPORTED_VERSIONS[*]}."
+elif [ "${target}" = "upbge" ]; then
+    for v in "${SUPPORTED_UPBGE_VERSIONS[@]}"; do
+        if [ "${v}" = "${target_version}" ]; then
+            supported=1
+        fi
+    done
+    if [ ${supported} -eq 0 ]; then
+        echo "${target_version} is not supported."
+        echo "Supported version is ${SUPPORTED_UPBGE_VERSIONS[*]}."
+        exit 1
+    fi
+else
+    echo "${target} is not supported."
     exit 1
 fi
 
-
 # check if release dir and tmp dir are not exist
-tmp_dir=${SCRIPT_DIR}/${TMP_DIR_NAME}-${version}
-raw_modules_dir=${CURRENT_DIR}/${RAW_MODULES_DIR}
-release_dir=${CURRENT_DIR}/${RELEASE_DIR}
+tmp_dir="${SCRIPT_DIR}/${TMP_DIR_NAME}-${target_version}"
+raw_modules_dir="${CURRENT_DIR}/${RAW_MODULES_DIR}"
+release_dir="${CURRENT_DIR}/${RELEASE_DIR}"
 if [ -e "${tmp_dir}" ]; then
     echo "${tmp_dir} is already exists."
     exit 1
 fi
 
 
-if [ "${target}" = "release" ]; then
+if [ "${deploy_stage}" = "release" ]; then
     # setup pre-generated-modules/release/temp directories
     mkdir -p "${raw_modules_dir}"
     mkdir -p "${release_dir}"
     mkdir -p "${tmp_dir}" && cd "${tmp_dir}"
 
-    # generate fake bpy module
+    # generate fake module
     fake_module_dir="out"
-    ver=v${version}
-    if [ "${mod_version}" = "not-specified" ]; then
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}"
+    ver=v${target_version}
+    if [ "${target}" = "blender" ]; then
+        if [ "${mod_version}" = "not-specified" ]; then
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        else
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        fi
+    elif [ "${target}" = "upbge" ]; then
+        if [ "${mod_version}" = "not-specified" ]; then
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        else
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        fi
     else
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}" "${mod_version}"
+        echo "${target} is not supported."
+        exit 1
     fi
-    zip_dir="fake_bpy_modules_${version}-${release_version}"
+    zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
     cp -r ${fake_module_dir} "${zip_dir}"
-    zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
+    zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
     zip -r "${zip_file_name}" "${zip_dir}"
     mv "${zip_file_name}" "${raw_modules_dir}"
     mv ${fake_module_dir}/* .
@@ -139,35 +179,46 @@ if [ "${target}" = "release" ]; then
     cp "${SCRIPT_DIR}/../../README.md" .
     pandoc -f markdown -t rst -o README.rst README.md
     rm README.md
-    rm -rf fake_bpy_module*.egg-info/ dist/ build/
+    rm -rf fake_"${PACKAGE_NAME[$target]}"_module*.egg-info/ dist/ build/
     ls -R .
     ${python_bin} setup.py sdist
     ${python_bin} setup.py bdist_wheel
 
     # move the generated package to releaes directory
-    mv dist "${release_dir}/${version}"
+    mv dist "${release_dir}/${target_version}"
 
     # clean up
     cd "${CURRENT_DIR}"
     rm -rf "${tmp_dir}"
 
-elif [ "${target}" = "develop" ]; then
+elif [ "${deploy_stage}" = "develop" ]; then
     # setup pre-generated-modules/release/temp directories
     mkdir -p "${raw_modules_dir}"
     mkdir -p "${release_dir}" && cd "${release_dir}"
     cp "${SCRIPT_DIR}/setup.py" .
 
-    # generate fake bpy module
+    # generate fake module
     fake_module_dir="out"
-    ver=v${version}
-    if [ "${mod_version}" = "not-specified" ]; then
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}"
+    ver=v${target_version}
+    if [ "${target}" = "blender" ]; then
+        if [ "${mod_version}" = "not-specified" ]; then
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        else
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        fi
+    elif [ "${target}" = "upbge" ]; then
+        if [ "${mod_version}" = "not-specified" ]; then
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        else
+            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        fi
     else
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${BLENDER_TAG_NAME[${ver}]}" "${version}" "${fake_module_dir}" "${mod_version}"
+        echo "${target} is not supported."
+        exit 1
     fi
-    zip_dir="fake_bpy_modules_${version}-${release_version}"
+    zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
     cp -r ${fake_module_dir} "${zip_dir}"
-    zip_file_name="fake_bpy_modules_${version}-${release_version}.zip"
+    zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
     zip -r "${zip_file_name}" ${fake_module_dir}
     mv "${zip_file_name}" "${raw_modules_dir}"
     mv ${fake_module_dir}/* .

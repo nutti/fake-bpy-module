@@ -13,7 +13,7 @@ def parse_options(config: FakeBpyModuleTestConfig):
     usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
-        "-p", dest="modules_path", type=str, help="fake-bpy-module path")
+        "-p", dest="modules_path", type=str, help="fake-module path")
 
     args = parser.parse_args()
     if args.modules_path:

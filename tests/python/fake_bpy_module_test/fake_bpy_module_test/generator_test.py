@@ -533,17 +533,17 @@ class PackageGeneratorConfigTest(common.FakeBpyModuleTestBase):
         config.os = "Windows"
         config.style_format = "none"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "upbge"
+        config.target_version = "2.80"
         config.mod_version = "2.80"
-        config.support_bge = True
 
         self.assertEqual(config.output_dir, "./test")
         self.assertEqual(config.os, "Windows")
         self.assertEqual(config.style_format, "none")
         self.assertTrue(config.dump)
-        self.assertTrue(config.blender_version, "2.80")
+        self.assertEqual(config.target, "upbge")
+        self.assertEqual(config.target_version, "2.80")
         self.assertEqual(config.mod_version, "2.80")
-        self.assertTrue(config.support_bge)
 
 
 class PackageGenerationRuleTest(common.FakeBpyModuleTestBase):
@@ -593,9 +593,9 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = "2.80"
-        config.support_bge = False
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
@@ -657,9 +657,9 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = None
-        config.support_bge = False
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
@@ -779,9 +779,9 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "none"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = None
-        config.support_bge = False
 
         analyzer = BaseAnalyzer()
         generator = BaseGenerator()
@@ -869,9 +869,9 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = "2.80"
-        config.support_bge = False
 
         pkg_generator = PackageGenerator(config)
 
@@ -930,9 +930,9 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = None
-        config.support_bge = False
 
         pkg_generator = PackageGenerator(config)
 
@@ -1000,9 +1000,9 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config.os = "Linux"
         config.style_format = "pep8"
         config.dump = True
-        config.blender_version = "2.80"
+        config.target = "blender"
+        config.target_version = "2.80"
         config.mod_version = None
-        config.support_bge = False
 
         pkg_generator = PackageGenerator(config)
 

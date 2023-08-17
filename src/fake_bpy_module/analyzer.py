@@ -3,6 +3,7 @@ from typing import List, IO, Any
 import json
 import copy
 
+from . import support
 from .common import (
     BuiltinDataType,
     CustomDataType,
@@ -54,20 +55,20 @@ class RstLevel:
 
 class BaseAnalyzer:
     def __init__(self):
-        self.support_bge: bool = False
+        self.target: str = None         # "blender" or "upbge"
         self.current_file: str = None
         self.current_module: str = None
         self.current_base_classes: str = None
-        self.blender_version: str = None
+        self.target_version: str = None    # Ex: "2.80"
 
-    def set_blender_version(self, version: str):
-        self.blender_version = version
+    def set_target_version(self, version: str):
+        self.target_version = version
 
-    def enable_bge_support(self):
-        self.support_bge = True
+    def set_target(self, target: str):
+        self.target = target
 
-    def _is_bge_supported(self) -> bool:
-        return self.support_bge
+    def _target(self) -> str:
+        return self.target
 
     def _cleanup_string(self, line: str) -> str:
         result = line
@@ -108,11 +109,11 @@ class BaseAnalyzer:
 
         module_name = m.group(2)
 
-        if not self.support_bge:
-            if self.blender_version == "2.90":
+        if self.target == "blender":
+            if self.target_version == "2.90":
                 if module_name.startswith("bpy.types."):
                     module_name = module_name[:module_name.rfind(".")]
-            elif self.blender_version in [
+            elif self.target_version in [
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "latest"]:
                 if module_name == "bpy.data":
@@ -991,7 +992,7 @@ class BaseAnalyzer:
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line):     # noqa # pylint: disable=C0301
                 next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line).group(1)  # noqa # pylint: disable=C0301
                 is_deprecated = re.search(r"\(Deprecated", line) is not None
-                if self._is_bge_supported() and is_deprecated:
+                if self._target() == "upbge" and is_deprecated:
                     self._skip_until_next_le_level(
                         file, level=level.make_next_level(next_level_spaces))
                 else:
@@ -1059,7 +1060,7 @@ class BaseAnalyzer:
             line = file.readline()
             section = SectionInfo()
             self.current_base_classes = None
-            if self._is_bge_supported() and \
+            if self._target() == "upbge" and \
                     re.search(r"/bge\.types\.(?!rst)", filename) is not None:
                 self.current_module = "bge.types"
             else:
@@ -1083,7 +1084,7 @@ class BaseAnalyzer:
                     section.add_info(class_info)
                 elif re.match(r"^\.\. function::", line):
                     deprecated = re.search(r"\(Deprecated", line) is not None
-                    if self._is_bge_supported() and deprecated:
+                    if self._target() == "upbge" and deprecated:
                         self._skip_until_next_le_level(file, level=RstLevel())
                     else:
                         file.seek(last_pos)
@@ -1097,7 +1098,7 @@ class BaseAnalyzer:
                     section.add_info(function_info)
                 elif re.match(r"^\.\. (data|DATA)::", line):
                     deprecated = re.search(r"\(Deprecated", line) is not None
-                    if self._is_bge_supported() and deprecated:
+                    if self._target() == "upbge" and deprecated:
                         self._skip_until_next_le_level(file, level=RstLevel())
                     else:
                         file.seek(last_pos)
@@ -1142,6 +1143,10 @@ class BaseAnalyzer:
         return section_none_removed
 
     def analyze(self, filenames: List[str]) -> 'AnalysisResult':
+        assert self.target in support.SUPPORTED_TARGET
+        assert (self.target_version in support.SUPPORTED_BLENDER_VERSION or
+                self.target_version in support.SUPPORTED_UPBGE_VERSION)
+
         result = AnalysisResult()
         for f in filenames:
             info = self._analyze_by_file(f)
