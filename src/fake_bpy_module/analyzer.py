@@ -431,6 +431,11 @@ class BaseAnalyzer:
 
                 info["parameters"].append(param_info)
 
+        # Fix: https://github.com/nutti/fake-bpy-module/issues/139
+        if return_ is not None:
+            if self._cleanup_string(return_) == "An instance of this object.":
+                return_type = "Same type with self class"
+
         if return_ is not None and return_type is not None:
             return_info = ReturnInfo()
             if return_ is not None:
