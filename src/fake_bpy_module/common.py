@@ -1,6 +1,7 @@
 import copy
 import re
 from typing import List, Dict, Set, Tuple
+import typing
 
 from .utils import (
     check_os,
@@ -1339,10 +1340,18 @@ class DataTypeRefiner:
     def _get_refined_data_type_fast(
             self, dtype_str: str, uniq_full_names: Set[str],
             uniq_module_names: Set[str], module_name: str,
-            variable_kind: str) -> 'DataType':
+            variable_kind: str,
+            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
         # pylint: disable=R0912,R0911,R0915
         if re.match(r"^\s*$", dtype_str):
             return ModifierDataType("typing.Any")
+
+        if dtype_str == "Same type with self class":
+            s = self._parse_custom_data_type(
+                additional_info["self_class"], uniq_full_names,
+                uniq_module_names, module_name)
+            if s:
+                return CustomDataType(s)
 
         if re.match(r"^(type|object|function)$", dtype_str):
             return ModifierDataType("typing.Any")
@@ -2038,13 +2047,15 @@ class DataTypeRefiner:
 
     def get_refined_data_type(
             self, data_type: 'DataType', module_name: str,
-            variable_kind: str, parameter_str: str = None) -> 'DataType':
+            variable_kind: str, parameter_str: str = None,
+            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
 
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
         result = self._get_refined_data_type_internal(
-            data_type, module_name, variable_kind, parameter_str)
+            data_type, module_name, variable_kind, parameter_str,
+            additional_info)
 
         self._tweak_metadata(result, variable_kind)
 
@@ -2058,7 +2069,8 @@ class DataTypeRefiner:
 
     def _get_refined_data_type_internal(
             self, data_type: 'DataType', module_name: str,
-            variable_kind: str, parameter_str: str) -> 'DataType':
+            variable_kind: str, parameter_str: str,
+            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
 
         dtype_str = data_type.to_string()
         metadata, dtype_str = self._build_metadata(
@@ -2090,7 +2102,7 @@ class DataTypeRefiner:
             for s in sp:
                 d = self._get_refined_data_type_fast(
                     s.strip(), uniq_full_names, uniq_module_names,
-                    module_name, variable_kind)
+                    module_name, variable_kind, additional_info)
                 if d:
                     dtypes.append(d.data_type())
             if len(dtypes) >= 1:
@@ -2104,7 +2116,7 @@ class DataTypeRefiner:
 
         result = self._get_refined_data_type_fast(
             dtype_str, uniq_full_names, uniq_module_names, module_name,
-            variable_kind)
+            variable_kind, additional_info)
         if result is not None:
             result.set_is_optional(is_optional)
             result.set_metadata(metadata)
@@ -2123,7 +2135,7 @@ class DataTypeRefiner:
                 s = s.strip()
                 result = self._get_refined_data_type_fast(
                     s, uniq_full_names, uniq_module_names, module_name,
-                    variable_kind)
+                    variable_kind, additional_info)
                 if result is not None:
                     if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
                         dtypes.append(result)

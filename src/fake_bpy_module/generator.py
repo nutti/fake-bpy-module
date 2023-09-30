@@ -891,7 +891,10 @@ class PackageAnalyzer:
             elif info.type() == "class":
                 for a in info.attributes():
                     refined_type = refiner.get_refined_data_type(
-                        a.data_type(), info.module(), 'CLS_ATTR')
+                        a.data_type(), info.module(), 'CLS_ATTR',
+                        additional_info={
+                            "self_class": f"{info.module()}.{info.name()}"
+                        })
                     a.set_data_type(refined_type)
                 for m in info.methods():
                     p: ParameterDetailInfo
@@ -900,17 +903,26 @@ class PackageAnalyzer:
                             m.parameters(), p)
                         refined_type = refiner.get_refined_data_type(
                             p.data_type(), info.module(), 'FUNC_ARG',
-                            parameter_str=parameter)
+                            parameter_str=parameter,
+                            additional_info={
+                                "self_class": f"{info.module()}.{info.name()}"
+                            })
                         p.set_data_type(refined_type)
 
                     return_ = m.return_()
                     if return_ is not None:
                         refined_type = refiner.get_refined_data_type(
-                            return_.data_type(), info.module(), 'FUNC_RET')
+                            return_.data_type(), info.module(), 'FUNC_RET',
+                            additional_info={
+                                "self_class": f"{info.module()}.{info.name()}"
+                            })
                         return_.set_data_type(refined_type)
                 for i, c in enumerate(info.base_classes()):
                     refined_type = refiner.get_refined_data_type(
-                        c, info.module(), 'CLS_BASE')
+                        c, info.module(), 'CLS_BASE',
+                        additional_info={
+                            "self_class": f"{info.module()}.{info.name()}"
+                        })
                     info.set_base_class(i, refined_type)
 
     def _remove_duplicate(
