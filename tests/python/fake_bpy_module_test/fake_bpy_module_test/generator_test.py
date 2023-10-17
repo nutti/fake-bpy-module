@@ -634,9 +634,11 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertIsNotNone(actual_rule)
         self.assertIsNotNone(actual_gen_info)
 
-        self.assertEqual(set(actual_gen_info.targets()), {"module_abc.py"})
+        self.assertEqual(
+            set(actual_gen_info.targets()), {"module_abc/__init__.py"})
 
-        target_module_abc = actual_gen_info.get_target("module_abc.py")
+        target_module_abc = actual_gen_info.get_target(
+            "module_abc/__init__.py")
         self.assertEqual(len(target_module_abc.data), 1)
         self.assertEqual(target_module_abc.data[0].type(), "class")
         self.assertEqual(target_module_abc.data[0].name(), "Class123")
@@ -726,7 +728,8 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(
             set(actual_gen_info_1.targets()),
             {"module_1/__init__.py", "module_1/submodule_1.py"})
-        self.assertEqual(set(actual_gen_info_2.targets()), {"module_2.py"})
+        self.assertEqual(
+            set(actual_gen_info_2.targets()), {"module_2/__init__.py"})
 
         target_module_1 = actual_gen_info_1.get_target("module_1/__init__.py")
         self.assertEqual(len(target_module_1.data), 1)
@@ -755,7 +758,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(target_module_1_submodule_1.child_modules), 0)
         self.assertEqual(len(target_module_1_submodule_1.dependencies), 0)
 
-        target_module_2 = actual_gen_info_2.get_target("module_2.py")
+        target_module_2 = actual_gen_info_2.get_target("module_2/__init__.py")
         self.assertEqual(len(target_module_2.data), 1)
         self.assertEqual(target_module_2.data[0].type(), "function")
         self.assertEqual(target_module_2.data[0].name(), "function_1")
@@ -822,9 +825,10 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertIsNotNone(actual_gen_info)
 
         self.assertEqual(
-            set(actual_gen_info.targets()), {"module_exceptional.py"})
+            set(actual_gen_info.targets()), {"module_exceptional/__init__.py"})
 
-        target_module_abc = actual_gen_info.get_target("module_exceptional.py")
+        target_module_abc = actual_gen_info.get_target(
+            "module_exceptional/__init__.py")
         self.assertEqual(len(target_module_abc.data), 2)
         self.assertEqual(target_module_abc.data[0].type(), "class")
         self.assertEqual(target_module_abc.data[0].name(), "ClassExp")
@@ -888,7 +892,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         actual_files_dir = self.output_dir
 
         py_files = [
-            "module_abc.py",
+            "module_abc/__init__.py",
         ]
         for file_ in py_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -899,7 +903,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
         json_files = [
-            "module_abc.py-dump.json",
+            "module_abc/__init__.py-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -957,7 +961,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         py_files = [
             "module_1/__init__.py",
             "module_1/submodule_1.py",
-            "module_2.py",
+            "module_2/__init__.py",
         ]
         for file_ in py_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -970,7 +974,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         json_files = [
             "module_1/__init__.py-dump.json",
             "module_1/submodule_1.py-dump.json",
-            "module_2.py-dump.json",
+            "module_2/__init__.py-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -1019,7 +1023,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         actual_files_dir = self.output_dir
 
         py_files = [
-            "module_exceptional.py",
+            "module_exceptional/__init__.py",
         ]
         for file_ in py_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -1030,7 +1034,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
         json_files = [
-            "module_exceptional.py-dump.json",
+            "module_exceptional/__init__.py-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
