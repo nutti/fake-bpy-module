@@ -32,6 +32,7 @@ BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
 
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
+    "iteriter",
     "listlist", "tupletuple",
     "listtuple", "listcallable",
     "Generic",
@@ -288,6 +289,8 @@ class BuiltinDataType(DataType):
                 return f"typing.Tuple[{', '.join(inner_str)}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List[{self._data_type}]]"
+        elif self._modifier.modifier_data_type() == "iteriter":
+            return f"typing.Iterable[typing.Iterable[{self._data_type}]]"
         elif self._modifier.modifier_data_type() == 'listtuple':
             if self._modifier_add_info is not None:
                 return "typing.List[typing.Tuple[" \
@@ -382,6 +385,8 @@ class CustomDataType(DataType):
                     f"{', '.join(elms_strs)}]"
         elif self._modifier.modifier_data_type() == "listlist":
             return f"typing.List[typing.List['{self._data_type}']]"
+        elif self._modifier.modifier_data_type() == "iteriter":
+            return f"typing.Iterable[typing.Iterable['{self._data_type}']]"
         elif self._modifier.modifier_data_type() == "listcallable":
             return "typing.List[typing.Callable[['" \
                 f"{','.join(self._modifier_add_info['arguments'])}'], None]]"
@@ -1592,14 +1597,15 @@ class DataTypeRefiner:
         if m:
             return BuiltinDataType("str", ModifierDataType("set"))
 
-        # Ex: sequence of string tuples or a function
+        # [Pattern] sequence of string tuples or a function
+        # [Test]
+        #   File: refiner_test.py
+        #   Function: test_get_refined_data_type_for_various_patterns
+        #   Pattern: sequence of string tuples or a function
         m = re.match(r"^sequence of string tuples or a function$", dtype_str)
         if m:
             dtypes = [
-                BuiltinDataType("int", ModifierDataType("listtuple"),
-                                modifier_add_info={
-                                    "tuple_elms": ["str", "str", "str"]
-                                }),
+                BuiltinDataType("str", ModifierDataType("iteriter")),
                 ModifierDataType("typing.Callable")
             ]
             return MixinDataType(dtypes)

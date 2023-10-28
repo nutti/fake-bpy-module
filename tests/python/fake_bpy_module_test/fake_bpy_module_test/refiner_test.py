@@ -613,3 +613,22 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         self.assertFalse(refined_data_type.has_modifier())
         self.assertEqual(
             refined_data_type.to_string(), "'module.ClassB'")
+
+        # Pattern: sequence of string tuples or a function
+        # Ref: https://github.com/nutti/fake-bpy-module/issues/140
+        intermidiate_data_type = IntermidiateDataType(
+            "sequence of string tuples or a function")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'MIXIN')
+        dt = refined_data_type.data_types()[0]
+        self.assertEqual(dt.type(), 'BUILTIN')
+        self.assertEqual(dt.data_type(), "str")
+        self.assertTrue(dt.has_modifier())
+        self.assertEqual(dt.modifier().modifier_data_type(), "iteriter")
+        self.assertEqual(dt.to_string(),
+                         "typing.Iterable[typing.Iterable[str]]")
+        dt = refined_data_type.data_types()[1]
+        self.assertEqual(dt.type(), 'MODIFIER')
+        self.assertEqual(dt.modifier_data_type(), "typing.Callable")
+        self.assertEqual(dt.to_string(), "typing.Callable")
