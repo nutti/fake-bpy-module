@@ -323,6 +323,25 @@
           }
         },
         {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "mathutils",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "`Vector`"
+          }
+        },
+        {
           "name": "__len__",
           "type": "method",
           "module": "mathutils",
