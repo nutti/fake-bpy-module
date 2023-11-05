@@ -37,6 +37,7 @@ MODIFIER_DATA_TYPE: List[str] = [
     "listtuple", "listcallable",
     "Generic",
     "typing.Iterator",
+    "typing.Iterable",
     "typing.Callable",
     "typing.Any",
     "typing.Sequence",
@@ -77,6 +78,7 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "tuple": "typing.Tuple",
     "Generic": "typing.Generic",
     "typing.Iterator": "typing.Iterator",
+    "typing.Iterable": "typing.Iterable",
     "typing.Callable": "typing.Callable",
     "typing.Sequence": "typing.Sequence",
     "typing.Any": "typing.Any",
@@ -1619,7 +1621,7 @@ class DataTypeRefiner:
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, ModifierDataType("typing.Sequence"))
+                return CustomDataType(s, ModifierDataType("typing.Iterable"))
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         m = re.match(
