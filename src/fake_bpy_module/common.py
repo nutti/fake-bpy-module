@@ -1364,6 +1364,14 @@ class DataTypeRefiner:
         if re.match(r"^Depends on function prototype", dtype_str):
             return ModifierDataType("typing.Any")
 
+        # [Pattern] `AnyType`
+        # [Test]
+        #   File: refiner_test.py
+        #   Function: test_get_refined_data_type_for_various_patterns
+        #   Pattern: `AnyType`
+        if re.match(r"^`AnyType`", dtype_str):
+            return ModifierDataType("typing.Any")
+
         if re.match(r"^(any|Any type.)$", dtype_str):
             return ModifierDataType("typing.Any")
 
@@ -1516,11 +1524,7 @@ class DataTypeRefiner:
         m = re.match(r"(int|float)$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1))
-        m = re.match(r"^unsigned int$", dtype_str)
-        if m:
-            return BuiltinDataType("int")
-        m = re.match(r"^int \(boolean\)$", dtype_str)
-        if m:
+        if dtype_str in ("unsigned int", "int (boolean)"):
             return BuiltinDataType("int")
         m = re.match(r"^int sequence$", dtype_str)
         if m:

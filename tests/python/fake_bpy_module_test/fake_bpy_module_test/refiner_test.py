@@ -632,3 +632,12 @@ class DataTypeRefinerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(dt.type(), 'MODIFIER')
         self.assertEqual(dt.modifier_data_type(), "typing.Callable")
         self.assertEqual(dt.to_string(), "typing.Callable")
+
+        # Pattern: `AnyType`
+        # Ref: https://github.com/nutti/fake-bpy-module/issues/141
+        intermidiate_data_type = IntermidiateDataType("`AnyType`")
+        refined_data_type = refiner.get_refined_data_type(
+            intermidiate_data_type, "module_1", 'FUNC_ARG')
+        self.assertEqual(refined_data_type.type(), 'MODIFIER')
+        self.assertEqual(refined_data_type.modifier_data_type(), "typing.Any")
+        self.assertEqual(refined_data_type.to_string(), "typing.Any")
