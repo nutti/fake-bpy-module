@@ -45,7 +45,7 @@ Download Blender whose version is the version you try to generate modules.
 ### 2. Download Blender sources
 
 ```bash
-git clone git://git.blender.org/blender.git
+git clone https://projects.blender.org/blender/blender.git
 ```
 
 ### 3. Download fake-bpy-module sources
