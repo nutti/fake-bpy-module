@@ -1481,6 +1481,9 @@ class DataTypeRefiner:
             dtype_str)
         if m:
             if m.group(1) in ("int", "float"):
+                if variable_kind == 'FUNC_ARG':
+                    return BuiltinDataType(m.group(1), ModifierDataType(
+                        "typing.Iterable"))
                 return BuiltinDataType(m.group(1), CustomModifierDataType(
                     "bpy.types.bpy_prop_array"))
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
