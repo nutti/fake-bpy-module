@@ -120,8 +120,12 @@ def make_aud_rule(
 def make_bmesh_rule(
         _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
+    mod_files = [
+        f"{MOD_FILES_DIR}/mods/common/analyzer/bmesh.json".replace("\\", "/"),
+    ]
     return fbm.PackageGenerationRule(
-        "bmesh", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+        "bmesh", files, fbm.AnalyzerWithModFile(mod_files),
+        fbm.BaseGenerator())
 
 
 def make_idprop_rule(

@@ -1,0 +1,145 @@
+{
+  "append": [
+    {
+      "name": "BMElemSeq",
+      "type": "class",
+      "module": "bmesh.types",
+      "methods": [
+        {
+          "name": "__iter__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "name": "BMVertSeq",
+      "type": "class",
+      "module": "bmesh.types",
+      "methods": [
+        {
+          "name": "__iter__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": []
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "`bmesh.types.BMVert`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BMEdgeSeq",
+      "type": "class",
+      "module": "bmesh.types",
+      "methods": [
+        {
+          "name": "__iter__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": []
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "`bmesh.types.BMEdge`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BMFaceSeq",
+      "type": "class",
+      "module": "bmesh.types",
+      "methods": [
+        {
+          "name": "__iter__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": []
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "`bmesh.types.BMFace`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BMLoopSeq",
+      "type": "class",
+      "module": "bmesh.types",
+      "methods": [
+        {
+          "name": "__iter__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": []
+        },
+        {
+          "name": "__getitem__",
+          "type": "method",
+          "module": "bmesh.types",
+          "parameters": [
+            "key"
+          ],
+          "parameter_details": [
+            {
+              "type": "parameter",
+              "name": "key",
+              "data_type": "int"
+            }
+          ],
+          "return": {
+            "type": "return",
+            "data_type": "`bmesh.types.BMLoop`"
+          }
+        }
+      ]
+    }
+  ]
+}
