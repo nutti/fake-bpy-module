@@ -330,21 +330,25 @@ class BaseGenerator:
                 if base_class.type() == 'UNKNOWN':
                     continue
 
-                if base_class.data_type() == class_.name():
+                dtype = None
+                if base_class.type() == 'MODIFIER':
+                    dtype = base_class.modifier_data_type()
+                else:
+                    dtype = base_class.data_type()
+
+                if dtype == class_.name():
                     output_log(
                         LOG_LEVEL_DEBUG,
                         f"Self dependency {base_class.data_type()} is found.")
                     continue
 
-                base_class_node = class_name_to_nodes.get(
-                    base_class.data_type())
+                base_class_node = class_name_to_nodes.get(dtype)
                 if base_class_node:
                     graph.make_edge(base_class_node, class_node)
                 else:
                     output_log(
                         LOG_LEVEL_WARN,
-                        f"Base class node (type={base_class.data_type()}) is "
-                        "not found")
+                        f"Base class node (type={dtype}) is not found")
         sorted_nodes = topological_sort(graph)
         sorted_class_data = [node.data() for node in sorted_nodes]
 
@@ -354,7 +358,7 @@ class BaseGenerator:
             order[class_.name()] = i
         for class_ in sorted_class_data:
             def sort_func(x):
-                if x.type() == 'UNKNOWN':
+                if x.type() in ('UNKNOWN', 'MODIFIER'):
                     return 0
                 if x.data_type() not in order:
                     return 0
@@ -924,13 +928,20 @@ class PackageAnalyzer:
                                 "self_class": f"{info.module()}.{info.name()}"
                             })
                         return_.set_data_type(refined_type)
+
+                remove_classes = []
                 for i, c in enumerate(info.base_classes()):
                     refined_type = refiner.get_refined_data_type(
                         c, info.module(), 'CLS_BASE',
                         additional_info={
                             "self_class": f"{info.module()}.{info.name()}"
                         })
-                    info.set_base_class(i, refined_type)
+                    if refined_type.type() == 'UNKNOWN':
+                        remove_classes.append(c)
+                    else:
+                        info.set_base_class(i, refined_type)
+                for c in remove_classes:
+                    info.remove_base_class(c)
 
     def _remove_duplicate(
             self,

@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/gpu.offscreen.rst	2021-09-24 22:19:55.750000000 +0900
++++ gen_module-tmp/sphinx-in/gpu.offscreen.rst	2021-09-24 22:40:14.470000000 +0900
+@@ -9,7 +9,7 @@ This module provides access to offscreen
+ 
+ .. literalinclude:: ../examples/gpu.offscreen.1.py
+ 
+-new(width, height, samples=0)
++   new(width, height, samples=0)
+ 
+    Return a GPUOffScreen.
+ 

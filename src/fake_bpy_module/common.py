@@ -1087,6 +1087,9 @@ class ClassInfo(Info):
         for c in classes:
             self.add_base_class(c)
 
+    def remove_base_class(self, class_: 'DataType'):
+        self._base_classes.remove(class_)
+
     def set_base_class(self, index: int, class_: 'DataType'):
         self._base_classes[index] = class_
 
@@ -1767,7 +1770,8 @@ class DataTypeRefiner:
         return None
 
     def _get_refined_data_type_slow(
-            self, data_type: 'DataType', module_name: str) -> 'DataType':
+            self, data_type: 'DataType', module_name: str,
+            variable_kind: str) -> 'DataType':
         # convert to aliased data type string
         dtype_str = data_type.to_string()
         for (key, value) in REPLACE_DATA_TYPE.items():
@@ -2017,6 +2021,10 @@ class DataTypeRefiner:
             return dtype_list[0]
         if len(dtype_list) >= 2:
             return MixinDataType(dtype_list)
+
+        if variable_kind == 'CLS_BASE':
+            return UnknownDataType()
+
         return ModifierDataType("typing.Any")
 
     def _tweak_metadata(self, data_type: 'DataType', variable_kind: str):
@@ -2170,7 +2178,8 @@ class DataTypeRefiner:
             LOG_LEVEL_DEBUG,
             f"Slow data type refining: {data_type.to_string()}")
 
-        result = self._get_refined_data_type_slow(data_type, module_name)
+        result = self._get_refined_data_type_slow(
+            data_type, module_name, variable_kind)
         result.set_is_optional(is_optional)
         result.set_metadata(metadata)
         return result

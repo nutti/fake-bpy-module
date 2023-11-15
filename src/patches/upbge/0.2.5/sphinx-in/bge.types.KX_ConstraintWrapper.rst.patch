@@ -1,0 +1,17 @@
+--- gen_module-tmp/sphinx-in.orig/bge.types.KX_ConstraintWrapper.rst	2020-07-07 11:14:46.128093707 +0000
++++ gen_module-tmp/sphinx-in/bge.types.KX_ConstraintWrapper.rst	2020-07-07 12:55:51.760077104 +0000
+@@ -112,14 +112,6 @@ base class --- :class:`EXP_PyObjectPlus`
+       :return: position
+       :rtype: float
+ 
+-      axis = 3..5 are relative constraint (Euler) angles in radians
+-         * 3: X axis angle
+-         * 4: Y axis angle
+-         * 5: Z axis angle
+-
+-      :return: angle
+-      :rtype: float
+-
+    .. attribute:: constraint_id
+ 
+       Returns the contraint ID  (read only)

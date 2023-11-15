@@ -177,6 +177,20 @@ function workaround_quirks() {
             sed -i '/^\s*if hasattr(.*/i # pylint: disable=no-member' intern/cycles/blender/addon/*.py
         fi
     elif [ "${target}" = "upbge" ]; then
+        if [[ $version =~ ^latest$ ]]; then
+            # The method draw_panel_header comes from the Panel class which is a base class of CYCLES_PT_sampling_presets.
+            # The error "E1120: No value for argument 'layout'" is raised when calling the classmethod implicitly derived
+            # from base class. It is not clear why pylint does not handle this gracefully, so "fixing" it for pylint.
+            echo "Fixing pylint quirk: \".draw_panel_header(self.layout)\""
+            sed -i 's/.draw_panel_header(self.layout)/.draw_panel_header(self, layout)/' intern/cycles/blender/addon/ui.py
+
+            echo "Fixing pylint quirk: \"draw_hair_settings(self, context)\""
+            sed -i 's/draw_hair_settings(self, context)/draw_hair_settings(context)/' intern/cycles/blender/addon/ui.py
+
+            echo "Fixing pylint quirk: \"draw_curves_settings(self, context)\""
+            sed -i 's/draw_curves_settings(self, context)/draw_curves_settings(context)/' intern/cycles/blender/addon/ui.py
+        fi
+
         if [[ $version =~ ^0.2.5$ ]]; then
             # bpy.types.XXX related Cycle add-on classes are not provided by fake-module
             echo "Fixing cycles class: \".bpy.types.CYCLES_MT_[a-z]*_presets\""

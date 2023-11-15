@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.ops.wm.rst	2021-09-24 22:19:55.700000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.ops.wm.rst	2021-09-24 22:32:16.430000000 +0900
+@@ -849,14 +849,14 @@ Wm Operators
+    :arg include_animations:
+ 
+       Include Animations, Export Animations if available.
+-Exporting Animations will enforce the decomposition of node transforms
+-into  <translation> <rotation> and <scale> components
++      Exporting Animations will enforce the decomposition of node transforms
++      into  <translation> <rotation> and <scale> components
+ 
+    :type include_animations: boolean, (optional)
+    :arg sample_animations:
+ 
+       Sample Animations, Auto-generate keyframes with a frame distance set by 'Sampling Rate'.
+-When disabled, export only the keyframes defined in the animation f-curves (may be less accurate)
++      When disabled, export only the keyframes defined in the animation f-curves (may be less accurate)
+ 
+    :type sample_animations: boolean, (optional)
+    :arg sampling_rate:

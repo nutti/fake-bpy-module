@@ -175,7 +175,7 @@ if [ "${deploy_stage}" = "release" ]; then
     rm -r ${fake_module_dir}
 
     # build pip package
-    cp "${SCRIPT_DIR}/setup.py" .
+    cp "${SCRIPT_DIR}/setup_${target}.py" ./setup.py
     cp "${SCRIPT_DIR}/../../README.md" .
     pandoc -f markdown -t rst -o README.rst README.md
     rm README.md
@@ -195,7 +195,7 @@ elif [ "${deploy_stage}" = "develop" ]; then
     # setup pre-generated-modules/release/temp directories
     mkdir -p "${raw_modules_dir}"
     mkdir -p "${release_dir}" && cd "${release_dir}"
-    cp "${SCRIPT_DIR}/setup.py" .
+    cp "${SCRIPT_DIR}/setup_${target}.py" ./setup.py
 
     # generate fake module
     fake_module_dir="out"

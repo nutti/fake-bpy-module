@@ -54,7 +54,7 @@ def make_mathutils_rule(
         f"{MOD_FILES_DIR}/mods/common/analyzer/mathutils.json"
         .replace("\\", "/"),
     ]
-    if config.mod_version in ["2.78", "2.79"]:
+    if config.target == "blender" and config.mod_version in ["2.78", "2.79"]:
         mod_files.append(
             f"{MOD_FILES_DIR}/mods/{config.mod_version}/analyzer/"
             "mathutils.json".replace("\\", "/"))
@@ -77,10 +77,16 @@ def make_gpu_extras_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/gpu_extras*.rst")
     mod_files = []
-    if config.mod_version not in ["2.78", "2.79"]:
-        mod_files.append(
-            f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-            "gpu_extras.json".replace("\\", "/"))
+    if config.target == "blender":
+        if config.mod_version not in ["2.78", "2.79"]:
+            mod_files.append(
+                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                "gpu_extras.json".replace("\\", "/"))
+    elif config.target == "upbge":
+        if config.mod_version not in ["0.2.5"]:
+            mod_files.append(
+                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                "gpu_extras.json".replace("\\", "/"))
     return fbm.PackageGenerationRule(
         "gpu_extras", files, fbm.AnalyzerWithModFile(mod_files),
         fbm.BaseGenerator())
@@ -146,10 +152,11 @@ def make_bl_math_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bl_math*.rst")
     mod_files = []
-    if config.mod_version in ["2.90", "2.91", "2.92", "2.93"]:
-        mod_files.append(
-            f"{MOD_FILES_DIR}/mods/{config.mod_version}/analyzer/bl_math.json"
-            .replace("\\", "/"))
+    if config.target == "blender":
+        if config.mod_version in ["2.90", "2.91", "2.92", "2.93"]:
+            mod_files.append(
+                f"{MOD_FILES_DIR}/mods/{config.mod_version}/"
+                "analyzer/bl_math.json".replace("\\", "/"))
     return fbm.PackageGenerationRule(
         "bl_math", files, fbm.AnalyzerWithModFile(mod_files),
         fbm.BaseGenerator())
@@ -179,11 +186,18 @@ def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageG
         .replace("\\", "/"),
     }
 
-    if config.mod_version not in ["2.78", "2.79"]:
-        mod_files -= {
-            f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-            "gpu_extras.json".replace("\\", "/"),
-        }
+    if config.target == "blender":
+        if config.mod_version not in ["2.78", "2.79"]:
+            mod_files -= {
+                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                "gpu_extras.json".replace("\\", "/"),
+            }
+    elif config.target == "upbge":
+        if config.mod_version not in ["0.2.5"]:
+            mod_files -= {
+                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                "gpu_extras.json".replace("\\", "/"),
+            }
 
     rules = []
     for mod_file in mod_files:
