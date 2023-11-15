@@ -130,7 +130,7 @@ cp -r "${tmp_dir}/sphinx-in" "${tmp_dir}/sphinx-in.orig"
 if [ "${mod_version}" != "not-specified" ]; then
     echo "Applying patches ..."
     # shellcheck disable=SC2044
-    for patch_file in $(find "${SCRIPT_DIR}/patches/${mod_version}/sphinx-in" -name "*.patch"); do
+    for patch_file in $(find "${SCRIPT_DIR}/patches/${target}/${mod_version}/sphinx-in" -name "*.patch"); do
         patch -u -p2 -d "${tmp_dir}/sphinx-in" < "${patch_file}"
     done
 fi

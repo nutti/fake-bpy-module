@@ -118,6 +118,10 @@ class BaseAnalyzer:
                     "3.0", "3.1", "3.2", "3.3", "3.4", "latest"]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
+        elif self.target == "upbge":
+            if self.target_version in ("latest", ):
+                if module_name == "bpy.data":
+                    module_name = "bpy"
 
         return module_name
 
@@ -452,6 +456,16 @@ class BaseAnalyzer:
         params = []
         current = ""
         line_to_parse = line
+
+        # Handle case "arg1[, arg2]" -> "arg1, arg2"
+        m = re.match(r"^([a-zA-Z0-9_]+[^=]+?)\[,(.*)\]$", line_to_parse)
+        if m:
+            line_to_parse = f"{m.group(1)},{m.group(2)}"
+        # Handle case "[arg1]"
+        m = re.match(r"^\[([a-zA-Z0-9_]+)\]$", line_to_parse)
+        if m:
+            line_to_parse = f"{m.group(1)}"
+
         for c in line_to_parse:
             if c in ("(", "{", "["):
                 level += 1
@@ -603,8 +617,8 @@ class BaseAnalyzer:
                     self._cleanup_string(_parse_type(
                         file,
                         level=level.make_next_level(next_level_spaces)))))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude)::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude)::", line).group(1)  # noqa # pylint: disable=C0301
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude|deprecated)::", line):     # noqa # pylint: disable=C0301
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude|deprecated)::", line).group(1)  # noqa # pylint: disable=C0301
                 self._skip_until_next_le_level(
                     file, level=level.make_next_level(next_level_spaces))
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (to do)", line):     # noqa # pylint: disable=C0301
@@ -669,7 +683,7 @@ class BaseAnalyzer:
             return type_str
 
         line = file.readline()
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (data|attribute):: ([a-zA-Z0-9_]+)$"  # noqa # pylint: disable=C0301
+        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (data|attribute|property):: ([a-zA-Z0-9_]+)$"  # noqa # pylint: disable=C0301
         m = re.match(pattern, line)
         if m is None:
             self._invalid_line(line, level)
@@ -769,8 +783,8 @@ class BaseAnalyzer:
                 info.add_parameter_details(detail["parameters"])
                 if detail["return"] is not None:
                     info.set_return(detail["return"])
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block)::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block)::", line).group(1)  # noqa # pylint: disable=C0301
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block|deprecated)::", line):     # noqa # pylint: disable=C0301
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block|deprecated)::", line).group(1)  # noqa # pylint: disable=C0301
                 self._skip_until_next_le_level(
                     file, level=level.make_next_level(next_level_spaces))
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (warning):", line):  # noqa # pylint: disable=C0301
@@ -796,7 +810,7 @@ class BaseAnalyzer:
     def _parse_class(self, file: IO[Any], level: 'RstLevel') -> 'ClassInfo':
         def _parse_method(file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
             line = self._get_multiline_string(file, level)
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. method:: ([a-zA-Z0-9_]+)\((.*)\):*$"  # noqa # pylint: disable=C0301
+            pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. method:: ([a-zA-Z0-9_]+)\s*\((.*)\):*$"  # noqa # pylint: disable=C0301
             m = re.match(pattern, line)
             if m is None:
                 self._invalid_line(line, level)
@@ -984,10 +998,10 @@ class BaseAnalyzer:
             elif self._has_le_level_string(line, level):
                 file.seek(last_pos)
                 return info
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. data::", line):  # noqa # pylint: disable=C0301
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (data|property)::", line):  # noqa # pylint: disable=C0301
                 # TODO: Should use assignment expression introduced
                 #       in Python 3.8
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. data::", line).group(1)   # noqa # pylint: disable=C0301
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (data|property)::", line).group(1)   # noqa # pylint: disable=C0301
                 file.seek(last_pos)
                 attr = self._parse_attribute(
                     file, level=level.make_next_level(next_level_spaces))
@@ -1033,8 +1047,8 @@ class BaseAnalyzer:
                     file, level=level.make_next_level(next_level_spaces))
                 method.set_class(class_name)
                 info.add_method(method)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso)::", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso)::", line).group(1)   # noqa # pylint: disable=C0301
+            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line):  # noqa # pylint: disable=C0301
+                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line).group(1)   # noqa # pylint: disable=C0301
                 self._skip_until_next_le_level(
                     file, level=level.make_next_level(next_level_spaces))
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
@@ -1078,7 +1092,11 @@ class BaseAnalyzer:
                         file, level=RstLevel())
                 elif re.match(r"^\.\. (currentmodule|module)::", line):
                     if self.current_module is not None:
-                        self._invalid_line(line, 0)
+                        m = re.match(
+                            r"^\.\. (currentmodule|module)::\s*(.*)", line)
+                        if (len(m.groups()) != 2 or
+                                m.group(2) != self.current_module):
+                            self._invalid_line(line, 0)
                     file.seek(last_pos)
                     self.current_module = self._cleanup_string(
                         self._parse_module(file, level=RstLevel()))
@@ -1124,6 +1142,10 @@ class BaseAnalyzer:
                       re.match(r"^\.\. code-block::", line) or
                       re.match(r"^\.\. seealso::", line) or
                       re.match(r"^\.\. note:", line) or
+                      re.match(r"^   \.\. _mat4_cam_to_world:", line) or
+                      re.match(r"^   \.\. code-block:", line) or
+                      re.match(r"^ \.\. _armatureactuator-constants-type",
+                               line) or
                       re.match(r"^\.\. note,", line) or
                       re.match(r"^\.\.$", line) or
                       re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line) or

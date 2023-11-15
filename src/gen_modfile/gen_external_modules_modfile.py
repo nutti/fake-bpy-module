@@ -44,6 +44,7 @@ EXCLUDE_MODULE_LIST = {
     "bl_app_templates_system.Sculpting",
     "bl_app_templates_system.VFX",
     "bl_app_templates_system.Video_Editing",
+    "bgui.bgui_utils",
 }
 
 

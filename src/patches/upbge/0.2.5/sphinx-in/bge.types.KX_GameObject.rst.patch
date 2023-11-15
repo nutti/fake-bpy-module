@@ -1,0 +1,190 @@
+--- gen_module-tmp/sphinx-in.orig/bge.types.KX_GameObject.rst	2020-07-08 11:02:02.374517205 +0000
++++ gen_module-tmp/sphinx-in/bge.types.KX_GameObject.rst	2020-07-08 11:55:49.529516607 +0000
+@@ -574,7 +574,7 @@ base class --- :class:`SCA_IObject`
+       :arg usePhysicsMesh: when enabled the physics mesh will be replaced (optional argument).
+       :type usePhysicsMesh: boolean
+ 
+-   .. method:: setVisible(visible[, recursive])
++   .. method:: setVisible(visible, recursive)
+ 
+       Sets the game object's visible flag.
+ 
+@@ -583,7 +583,7 @@ base class --- :class:`SCA_IObject`
+       :arg recursive: optional argument to set all childrens visibility flag too, defaults to False if no value passed.
+       :type recursive: boolean
+ 
+-   .. method:: setOcclusion(occlusion[, recursive])
++   .. method:: setOcclusion(occlusion, recursive)
+ 
+       Sets the game object's occlusion capability.
+ 
+@@ -619,7 +619,7 @@ base class --- :class:`SCA_IObject`
+       :return: The vector in relation to the objects rotation.
+       :rtype: 3d vector.
+ 
+-   .. method:: applyMovement(movement[, local])
++   .. method:: applyMovement(movement, local)
+ 
+       Sets the game object's movement.
+ 
+@@ -633,7 +633,7 @@ base class --- :class:`SCA_IObject`
+          Default to False if not passed.
+       :arg local: boolean
+ 
+-   .. method:: applyRotation(rotation[, local])
++   .. method:: applyRotation(rotation, local)
+ 
+       Sets the game object's rotation.
+ 
+@@ -647,7 +647,7 @@ base class --- :class:`SCA_IObject`
+          Default to False if not passed.
+       :arg local: boolean
+ 
+-   .. method:: applyForce(force[, local])
++   .. method:: applyForce(force, local)
+ 
+       Sets the game object's force.
+ 
+@@ -663,7 +663,7 @@ base class --- :class:`SCA_IObject`
+          Default to False if not passed.
+       :type local: boolean
+ 
+-   .. method:: applyTorque(torque[, local])
++   .. method:: applyTorque(torque, local)
+ 
+       Sets the game object's torque.
+ 
+@@ -679,7 +679,7 @@ base class --- :class:`SCA_IObject`
+          Default to False if not passed.
+       :type local: boolean
+ 
+-   .. method:: getLinearVelocity([local])
++   .. method:: getLinearVelocity(local)
+ 
+       Gets the game object's linear velocity.
+ 
+@@ -695,7 +695,7 @@ base class --- :class:`SCA_IObject`
+       :return: the object's linear velocity.
+       :rtype: Vector((vx, vy, vz))
+ 
+-   .. method:: setLinearVelocity(velocity[, local])
++   .. method:: setLinearVelocity(velocity, local)
+ 
+       Sets the game object's linear velocity.
+ 
+@@ -714,7 +714,7 @@ base class --- :class:`SCA_IObject`
+          Default to False if not passed.
+       :type local: boolean
+ 
+-   .. method:: getAngularVelocity([local])
++   .. method:: getAngularVelocity(local)
+ 
+       Gets the game object's angular velocity.
+ 
+@@ -728,7 +728,7 @@ base class --- :class:`SCA_IObject`
+       :return: the object's angular velocity.
+       :rtype: Vector((vx, vy, vz))
+ 
+-   .. method:: setAngularVelocity(velocity[, local])
++   .. method:: setAngularVelocity(velocity, local)
+ 
+       Sets the game object's angular velocity.
+ 
+@@ -743,7 +743,7 @@ base class --- :class:`SCA_IObject`
+ 
+          Default to False if not passed.
+ 
+-   .. method:: getVelocity([point])
++   .. method:: getVelocity(point)
+ 
+       Gets the game object's velocity at the specified point.
+ 
+@@ -769,7 +769,7 @@ base class --- :class:`SCA_IObject`
+ 
+          This is not implimented at the moment.
+ 
+-   .. method:: applyImpulse(point, impulse[, local])
++   .. method:: applyImpulse(point, impulse, local)
+ 
+       Applies an impulse to the game object.
+ 
+@@ -798,7 +798,7 @@ base class --- :class:`SCA_IObject`
+       :arg angular_damping: Angular ("rotational") damping factor.
+       :type angular_damping: float ∈ [0, 1]
+ 
+-   .. method:: suspendPhysics([freeConstraints])
++   .. method:: suspendPhysics(freeConstraints)
+ 
+       Suspends physics for this object.
+ 
+@@ -810,7 +810,7 @@ base class --- :class:`SCA_IObject`
+ 
+       Resumes physics for this object. Also reinstates collisions.
+ 
+-   .. method:: suspendDynamics([ghost])
++   .. method:: suspendDynamics(ghost)
+ 
+       Suspends dynamics physics for this object.
+ 
+@@ -1071,7 +1071,7 @@ base class --- :class:`SCA_IObject`
+ 
+          Triangle mesh shapes are not supported.
+ 
+-   .. method:: get(key[, default])
++   .. method:: get(key, default)
+ 
+       Return the value matching key, or the default value if its not found.
+       :arg key: the matching key
+@@ -1106,14 +1106,14 @@ base class --- :class:`SCA_IObject`
+       :arg blend_mode: how to blend this layer with previous layers
+       :type blend_mode: one of :ref:`these constants <gameobject-playaction-blend>`
+ 
+-   .. method:: stopAction([layer])
++   .. method:: stopAction(layer)
+ 
+       Stop playing the action on the given layer.
+ 
+       :arg layer: The layer to stop playing, defaults to 0 if no value passed.
+       :type layer: integer
+ 
+-   .. method:: getActionFrame([layer])
++   .. method:: getActionFrame(layer)
+ 
+       Gets the current frame of the action playing in the supplied layer.
+ 
+@@ -1123,7 +1123,7 @@ base class --- :class:`SCA_IObject`
+       :return: The current frame of the action
+       :rtype: float
+ 
+-   .. method:: getActionName([layer])
++   .. method:: getActionName(layer)
+ 
+       Gets the name of the current action playing in the supplied layer.
+ 
+@@ -1133,7 +1133,7 @@ base class --- :class:`SCA_IObject`
+       :return: The name of the current action
+       :rtype: string
+ 
+-   .. method:: setActionFrame(frame[, layer])
++   .. method:: setActionFrame(frame, layer)
+ 
+       Set the current frame of the action playing in the supplied layer.
+ 
+@@ -1142,7 +1142,7 @@ base class --- :class:`SCA_IObject`
+       :arg frame: The frame to set the action to
+       :type frame: float
+ 
+-   .. method:: isPlayingAction([layer])
++   .. method:: isPlayingAction(layer)
+ 
+       Checks to see if there is an action playing in the given layer.
+ 
+@@ -1152,7 +1152,7 @@ base class --- :class:`SCA_IObject`
+       :return: Whether or not the action is playing
+       :rtype: boolean
+ 
+-   .. method:: addDebugProperty (name[, debug])
++   .. method:: addDebugProperty(name, debug)
+ 
+       Adds a single debug property to the debug list.
+ 
