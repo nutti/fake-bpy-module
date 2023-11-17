@@ -71,6 +71,7 @@ being too big for intelliSense to work.*
 |3.2|[https://pypi.org/project/fake-bpy-module-3.2/](https://pypi.org/project/fake-bpy-module-3.2/)|
 |3.3|[https://pypi.org/project/fake-bpy-module-3.3/](https://pypi.org/project/fake-bpy-module-3.3/)|
 |3.4|[https://pypi.org/project/fake-bpy-module-3.4/](https://pypi.org/project/fake-bpy-module-3.4/)|
+|3.5|[https://pypi.org/project/fake-bpy-module-3.5/](https://pypi.org/project/fake-bpy-module-3.5/)|
 |latest|[https://pypi.org/project/fake-bpy-module-latest/](https://pypi.org/project/fake-bpy-module-latest/)|
 
 ### Install via pre-generated modules
