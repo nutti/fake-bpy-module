@@ -19,6 +19,7 @@ declare -r SUPPORTED_BLENDER_VERSIONS=(
     "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
     "2.90" "2.91" "2.92" "2.93"
     "3.0" "3.1" "3.2" "3.3" "3.4" "3.5" "3.6"
+    "4.0"
     "latest"
 )
 declare -r SUPPORTED_UPBGE_VERSIONS=(
@@ -44,6 +45,7 @@ declare -A BLENDER_TAG_NAME=(
     ["v3.4"]="v3.4.0"
     ["v3.5"]="v3.5.0"
     ["v3.6"]="v3.6.0"
+    ["v4.0"]="v4.0.0"
     ["vlatest"]="main"
 )
 declare -A UPBGE_TAG_NAME=(
@@ -153,7 +155,7 @@ function workaround_quirks() {
     local version=$2
 
     if [ "${target}" = "blender" ]; then
-        if [[ $version =~ ^2.8[0-9]$ || $version =~ ^2.9[0-9]$ || $version =~ ^3.[0-9]$ || $version =~ ^latest$ ]]; then
+        if [[ $version =~ ^2.8[0-9]$ || $version =~ ^2.9[0-9]$ || $version =~ ^3.[0-9]$ || $version =~ ^4.[0-9]$ || $version =~ ^latest$ ]]; then
             # The method draw_panel_header comes from the Panel class which is a base class of CYCLES_PT_sampling_presets.
             # The error "E1120: No value for argument 'layout'" is raised when calling the classmethod implicitly derived
             # from base class. It is not clear why pylint does not handle this gracefully, so "fixing" it for pylint.
