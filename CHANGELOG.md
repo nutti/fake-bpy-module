@@ -2,10 +2,29 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20230117...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20231118...master)
 
 <!-- markdownlint-disable-next-line MD013 -->
-## [20230117](https://github.com/nutti/fake-bpy-module/compare/20230117...20220615) - 2023.1.17
+## [20231118](https://github.com/nutti/fake-bpy-module/compare/20230117...20231118) - 2023.11.18
+
+### Updated Features
+
+* Support fake-bpy-module-3.5
+* Support fake-bpy-module-3.6
+* Support fake-bpy-module-4.0
+
+### Other Updates
+
+* Make generation code common between fake-bpy-module and fake-bge-module
+* Make single file modules PEP 561 compliant
+* Fix bugs
+
+### Contributors
+
+* [**@espiondev**](https://github.com/espiondev)
+
+<!-- markdownlint-disable-next-line MD013 -->
+## [20230117](https://github.com/nutti/fake-bpy-module/compare/20221006...20230117) - 2023.1.17
 
 ### Updated Features
 
