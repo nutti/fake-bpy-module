@@ -116,6 +116,7 @@ class BaseAnalyzer:
             elif self.target_version in [
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
+                    "4.0",
                     "latest"]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
