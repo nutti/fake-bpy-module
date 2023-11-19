@@ -23,7 +23,7 @@ mod_version=${7:-not-specified}
 current_dir=$(pwd)
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
 format="pep8"
-output_log_level="debug"
+output_log_level="warn"
 
 # find blender binary
 # shellcheck disable=SC2003,SC2308,SC2046

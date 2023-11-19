@@ -121,12 +121,18 @@ jobs:
           path: dist
 
       # Publish to TestPyPi on each merge to master
-      - name: Publish distribution 📦 to Test PyPI
+      - name: Publish distribution 📦 to Test PyPI (Versioned Package)
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/*/"
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/latest/"
+      - name: Publish distribution 📦 to Test PyPI (Non-versioned Package)
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.test_pypi_token }}
+          repository_url: https://test.pypi.org/legacy/
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/non-version/"
 
   pypi_release:
     name: PyPI Release fake-bpy-module
@@ -138,8 +144,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: dist
-      - name: Publish distribution 📦 to PyPI
+      - name: Publish distribution 📦 to PyPI (Versioned Package)
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.pypi_token }}
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/*/"
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/latest/"
+      - name: Publish distribution 📦 to PyPI (Non-versioned Package)
+        uses: pypa/gh-action-pypi-publish@v1.3.1
+        with:
+          password: ${{ secrets.pypi_token }}
+          packages_dir: "dist/fake_bpy_modules_latest_pip_*/non-version/"

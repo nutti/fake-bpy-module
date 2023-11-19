@@ -30,6 +30,26 @@ You can also generate and install modules manually.
 fake-bpy-module is registered to PyPI.  
 You can install it as a pip package.
 
+#### Install a latest package
+
+If you install fake-bpy-module for Blender latest build (master branch daily
+build powered by [nutti/blender-daily-build](https://github.com/nutti/blender-daily-build)),
+run below command.
+
+```sh
+pip install fake-bpy-module
+```
+
+or, specify version "latest".
+
+```sh
+pip install fake-bpy-module-latest
+```
+
+#### Install a version specific package
+
+If you want to install a version specific package, run below command.
+
 ```sh
 pip install fake-bpy-module-<version>
 ```
@@ -40,19 +60,11 @@ If you install fake-bpy-module for Blender 2.93, run below command.
 pip install fake-bpy-module-2.93
 ```
 
-If you install fake-bpy-module for Blender latest build (master branch daily
-build powered by [nutti/blender-daily-build](https://github.com/nutti/blender-daily-build)),
-run below command.
-
-```sh
-pip install fake-bpy-module-latest
-```
-
 *Note: For PyCharm users, change the value `idea.max.intellisense.filesize` in
 `idea.properties` file to more than 2600 because some modules have the issue of
 being too big for intelliSense to work.*
 
-#### Supported Blender Version
+##### Supported Blender Version
 
 |Version|PyPI|
 |---|---|
@@ -74,7 +86,8 @@ being too big for intelliSense to work.*
 |3.5|[https://pypi.org/project/fake-bpy-module-3.5/](https://pypi.org/project/fake-bpy-module-3.5/)|
 |3.6|[https://pypi.org/project/fake-bpy-module-3.6/](https://pypi.org/project/fake-bpy-module-3.6/)|
 |4.0|[https://pypi.org/project/fake-bpy-module-4.0/](https://pypi.org/project/fake-bpy-module-4.0/)|
-|latest|[https://pypi.org/project/fake-bpy-module-latest/](https://pypi.org/project/fake-bpy-module-latest/)|
+|latest|[https://pypi.org/project/fake-bpy-module/](https://pypi.org/project/fake-bpy-module/)|
+||[https://pypi.org/project/fake-bpy-module-latest/](https://pypi.org/project/fake-bpy-module-latest/)|
 
 ### Install via pre-generated modules
 
@@ -133,3 +146,4 @@ Support via [GitHub Sponsors](https://github.com/sponsors/nutti)
 * [**@echantry**](https://github.com/echantry)
 * [**@kant**](https://github.com/kant)
 * [**@theoryshaw**](https://github.com/theoryshaw)
+* [**@espiondev**](https://github.com/espiondev)
