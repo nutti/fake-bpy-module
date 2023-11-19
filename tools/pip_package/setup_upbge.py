@@ -7,6 +7,9 @@ from setuptools import setup, find_packages
 cur_dir = os.getcwd().replace("\\", "/")
 blender_version = cur_dir.split('/')[-1].split('-')[-1]
 module_name = f"fake-bge-module-{blender_version}"
+if "NON_VERSION_PACKAGE" in os.environ:
+    if os.environ["NON_VERSION_PACKAGE"] == "true":
+        module_name = "fake-bge-module"     # pylint: disable=C0103
 
 # release version
 if "RELEASE_VERSION" in os.environ:

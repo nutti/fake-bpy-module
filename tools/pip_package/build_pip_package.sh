@@ -169,16 +169,18 @@ if [ "${deploy_stage}" = "release" ]; then
         echo "${target} is not supported."
         exit 1
     fi
+
+    # Build standalone (.zip) package.
     zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
     cp -r ${fake_module_dir} "${zip_dir}"
     zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
     zip -r "${zip_file_name}" "${zip_dir}"
     mv "${zip_file_name}" "${raw_modules_dir}"
-    mv ${fake_module_dir}/* .
     rm -r "${zip_dir}"
-    rm -r ${fake_module_dir}
 
-    # build pip package
+    # Build pip (.whl) package.
+    mv ${fake_module_dir}/* .
+    rm -r ${fake_module_dir}
     cp "${SCRIPT_DIR}/setup_${target}.py" ./setup.py
     cp "${SCRIPT_DIR}/../../README.md" .
     pandoc -f markdown -t rst -o README.rst README.md
@@ -187,9 +189,16 @@ if [ "${deploy_stage}" = "release" ]; then
     ls -R .
     ${python_bin} setup.py sdist
     ${python_bin} setup.py bdist_wheel
-
-    # move the generated package to releaes directory
     mv dist "${release_dir}/${target_version}"
+
+    # Create non-versioned package for latest release
+    if [ "${target_version}" = "latest" ]; then
+        export NON_VERSION_PACKAGE="true"
+        ${python_bin} setup.py sdist
+        ${python_bin} setup.py bdist_wheel
+        unset ${NON_VERSION_PACKAGE}
+        mv dist "${release_dir}/non-version"
+    fi
 
     # clean up
     cd "${CURRENT_DIR}"
@@ -220,16 +229,18 @@ elif [ "${deploy_stage}" = "develop" ]; then
         echo "${target} is not supported."
         exit 1
     fi
+
+    # Build standalone (.zip) package.
     zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
     cp -r ${fake_module_dir} "${zip_dir}"
     zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
     zip -r "${zip_file_name}" ${fake_module_dir}
     mv "${zip_file_name}" "${raw_modules_dir}"
-    mv ${fake_module_dir}/* .
     rm -r "${zip_dir}"
-    rm -r ${fake_module_dir}
 
-    # build and install package
+    # Build pip (.whl) package.
+    mv ${fake_module_dir}/* .
+    rm -r ${fake_module_dir}
     ls -R .
     ${python_bin} setup.py develop
 
