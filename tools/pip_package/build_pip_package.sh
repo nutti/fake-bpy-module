@@ -57,17 +57,16 @@ CURRENT_DIR=$(pwd)
 PYTHON_BIN=${PYTHON_BIN:-python}
 
 # check arguments
-if [ $# -ne 5 ] && [ $# -ne 6 ]; then
-    echo "Usage: bash build_pip_package.sh <develop|release> <target> <target-version> <source-dir> <blender-dir> [<mod-version>]"
+if [ $# -ne 4 ] && [ $# -ne 5 ]; then
+    echo "Usage: bash build_pip_package.sh <target> <target-version> <source-dir> <blender-dir> [<mod-version>]"
     exit 1
 fi
 
-deploy_stage=${1}
-target=${2}
-target_version=${3}
-source_dir=${4}
-blender_dir=${5}
-mod_version=${6:-not-specified}
+target=${1}
+target_version=${2}
+source_dir=${3}
+blender_dir=${4}
+mod_version=${5:-not-specified}
 
 # check if PYTHON_BIN binary is availble
 if ! command -v "${PYTHON_BIN}" > /dev/null; then
@@ -97,13 +96,6 @@ if ! ${python_bin} -c "from setuptools._vendor.packaging.version import Version;
     echo "Error: Found invalid release version: \"${release_version}\""
     exit 1
 fi
-
-# check if the deploy_stage is develop or release
-if [ ! "${deploy_stage}" = "release" ] && [ ! "${deploy_stage}" = "develop" ]; then
-    echo "deploy_stage must be release or develop"
-    exit 1
-fi
-
 
 # check if the specified version is supported
 supported=0
@@ -143,110 +135,63 @@ if [ -e "${tmp_dir}" ]; then
     exit 1
 fi
 
+# setup pre-generated-modules/release/temp directories
+mkdir -p "${raw_modules_dir}"
+mkdir -p "${release_dir}"
+mkdir -p "${tmp_dir}" && cd "${tmp_dir}"
 
-if [ "${deploy_stage}" = "release" ]; then
-    # setup pre-generated-modules/release/temp directories
-    mkdir -p "${raw_modules_dir}"
-    mkdir -p "${release_dir}"
-    mkdir -p "${tmp_dir}" && cd "${tmp_dir}"
-
-    # generate fake module
-    fake_module_dir="out"
-    ver=v${target_version}
-    if [ "${target}" = "blender" ]; then
-        if [ "${mod_version}" = "not-specified" ]; then
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
-        else
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
-        fi
-    elif [ "${target}" = "upbge" ]; then
-        if [ "${mod_version}" = "not-specified" ]; then
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
-        else
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
-        fi
+# generate fake module
+fake_module_dir="out"
+ver=v${target_version}
+if [ "${target}" = "blender" ]; then
+    if [ "${mod_version}" = "not-specified" ]; then
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
     else
-        echo "${target} is not supported."
-        exit 1
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
     fi
-
-    # Build standalone (.zip) package.
-    zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
-    cp -r ${fake_module_dir} "${zip_dir}"
-    zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
-    zip -r "${zip_file_name}" "${zip_dir}"
-    mv "${zip_file_name}" "${raw_modules_dir}"
-    rm -r "${zip_dir}"
-
-    # Build pip (.whl) package.
-    mv ${fake_module_dir}/* .
-    rm -r ${fake_module_dir}
-    cp "${SCRIPT_DIR}/setup_${target}.py" ./setup.py
-    cp "${SCRIPT_DIR}/../../README.md" .
-    pandoc -f markdown -t rst -o README.rst README.md
-    rm README.md
-    rm -rf fake_"${PACKAGE_NAME[$target]}"_module*.egg-info/ dist/ build/
-    ls -R .
-    ${python_bin} setup.py sdist
-    ${python_bin} setup.py bdist_wheel
-    mv dist "${release_dir}/${target_version}"
-
-    # Create non-versioned package for latest release
-    if [ "${target_version}" = "latest" ]; then
-        export NON_VERSION_PACKAGE="true"
-        ${python_bin} setup.py sdist
-        ${python_bin} setup.py bdist_wheel
-        unset ${NON_VERSION_PACKAGE}
-        mv dist "${release_dir}/non-version"
-    fi
-
-    # clean up
-    cd "${CURRENT_DIR}"
-    rm -rf "${tmp_dir}"
-
-elif [ "${deploy_stage}" = "develop" ]; then
-    # setup pre-generated-modules/release/temp directories
-    mkdir -p "${raw_modules_dir}"
-    mkdir -p "${release_dir}" && cd "${release_dir}"
-    cp "${SCRIPT_DIR}/setup_${target}.py" ./setup.py
-
-    # generate fake module
-    fake_module_dir="out"
-    ver=v${target_version}
-    if [ "${target}" = "blender" ]; then
-        if [ "${mod_version}" = "not-specified" ]; then
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
-        else
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
-        fi
-    elif [ "${target}" = "upbge" ]; then
-        if [ "${mod_version}" = "not-specified" ]; then
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
-        else
-            bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
-        fi
+elif [ "${target}" = "upbge" ]; then
+    if [ "${mod_version}" = "not-specified" ]; then
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
     else
-        echo "${target} is not supported."
-        exit 1
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
     fi
-
-    # Build standalone (.zip) package.
-    zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
-    cp -r ${fake_module_dir} "${zip_dir}"
-    zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
-    zip -r "${zip_file_name}" ${fake_module_dir}
-    mv "${zip_file_name}" "${raw_modules_dir}"
-    rm -r "${zip_dir}"
-
-    # Build pip (.whl) package.
-    mv ${fake_module_dir}/* .
-    rm -r ${fake_module_dir}
-    ls -R .
-    ${python_bin} setup.py develop
-
-    # clean up
-    cd "${CURRENT_DIR}"
-    rm -rf "${tmp_dir}"
+else
+    echo "${target} is not supported."
+    exit 1
 fi
 
-exit 0
+# Install package build tool.
+${python_bin} -m pip install build
+
+# Build standalone (.zip) package.
+zip_dir="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}"
+cp -r ${fake_module_dir} "${zip_dir}"
+zip_file_name="fake_${PACKAGE_NAME[$target]}_modules_${target_version}-${release_version}.zip"
+zip -r "${zip_file_name}" "${zip_dir}"
+mv "${zip_file_name}" "${raw_modules_dir}"
+rm -r "${zip_dir}"
+
+# Build pip (.whl) package.
+mv ${fake_module_dir}/* .
+rm -r ${fake_module_dir}
+cp "${SCRIPT_DIR}/../../README.md" .
+cp "${SCRIPT_DIR}/../../pyproject.toml" .
+cp "${SCRIPT_DIR}/../../setup.py" .
+sed -i -e "s/^name = \"fake-${PACKAGE_NAME[$target]}-module\"$/name = \"fake-${PACKAGE_NAME[$target]}-module-${target_version}\"/g" pyproject.toml
+rm -rf fake_"${PACKAGE_NAME[$target]}"_module*.egg-info/ dist/ build/
+ls -R .
+${python_bin} -m build
+mv dist "${release_dir}/${target_version}"
+
+# Create non-versioned package for latest release
+if [ "${target_version}" = "latest" ]; then
+    cp "${SCRIPT_DIR}/../../pyproject.toml" .
+    rm -rf fake_"${PACKAGE_NAME[$target]}"_module*.egg-info/ dist/ build/
+    ls -R .
+    ${python_bin} -m build
+    mv dist "${release_dir}/non-version"
+fi
+
+# clean up
+cd "${CURRENT_DIR}"
+rm -rf "${tmp_dir}"

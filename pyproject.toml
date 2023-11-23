@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "fake-bpy-module"
+description = "Collection of the fake Blender Python API module for the code completion."
+requires-python = ">=3.7"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "nutti"},
+    {email = "nutti.metro@gmail.com"}
+]
+maintainers = [
+    {name = "nutti"},
+    {email = "nutti.metro@gmail.com"}
+]
+classifiers = [
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+    "Topic :: Multimedia :: Graphics :: 3D Rendering",
+    "Topic :: Text Editors :: Integrated Development Environments (IDE)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/nutti/fake-bpy-module"
+Documentation = "https://github.com/nutti/fake-bpy-module/blob/master/README.md"
+Source = "https://github.com/nutti/fake-bpy-module"
+Download = "https://github.com/nutti/fake-bpy-module/releases"
+"Bug Tracker" = "https://github.com/nutti/fake-bpy-module/issues"
+"Release Notes" = "https://github.com/nutti/fake-bpy-module/blob/master/CHANGELOG.md"
+
+[tool.setuptools]
+platforms = ["Windows", "Linux", "Mac OS-X"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.setuptools.packages.find]
+where = ["."]

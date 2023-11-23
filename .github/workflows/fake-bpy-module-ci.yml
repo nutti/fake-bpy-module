@@ -106,7 +106,7 @@ jobs:
       - name: Generate pip Packages
         env:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
-        run: bash tools/pip_package/build_pip_package.sh release blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
+        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages
         uses: actions/upload-artifact@v2
