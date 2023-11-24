@@ -2116,6 +2116,10 @@ class DataTypeRefiner:
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
         is_optional = data_type.is_optional()
+        m = re.match(r"(.*) or None", dtype_str)
+        if m:
+            is_optional = True
+            dtype_str = m.group(1)
 
         # Ex. (Quaternion, float) pair
         m = re.match(r"^\((.*)\) pair$", dtype_str)
