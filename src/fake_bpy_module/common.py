@@ -2093,6 +2093,7 @@ class DataTypeRefiner:
         dtype_str = data_type.to_string()
         metadata, dtype_str = self._build_metadata(
             dtype_str, module_name, parameter_str, variable_kind)
+        print(f"@@@@@ {dtype_str}")
 
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
