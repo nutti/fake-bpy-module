@@ -1390,11 +1390,6 @@ class DataTypeRefiner:
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
-        if dtype_str == "`mathutils.Vector` or None":
-            s = self._parse_custom_data_type(
-                "Vector", uniq_full_names, uniq_module_names, module_name)
-            if s:
-                return CustomDataType(s)
 
         m = re.match(r"^enum in \[(.*)\], default (.+)$", dtype_str)
         if m:
@@ -2116,10 +2111,6 @@ class DataTypeRefiner:
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
         is_optional = data_type.is_optional()
-        m = re.match(r"(.*) or None", dtype_str)
-        if m:
-            is_optional = True
-            dtype_str = m.group(1)
 
         # Ex. (Quaternion, float) pair
         m = re.match(r"^\((.*)\) pair$", dtype_str)
