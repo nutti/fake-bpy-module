@@ -1540,7 +1540,7 @@ class DataTypeRefiner:
         m = re.match(r"`*(int|float|bool|str)`*$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1))
-        if dtype_str in ("unsigned int", "int (boolean)", "integer"):
+        if dtype_str in ("unsigned int", "int (boolean)", "integer", "uint"):
             return BuiltinDataType("int")
         m = re.match(r"^int sequence$", dtype_str)
         if m:
