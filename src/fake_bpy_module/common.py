@@ -1385,7 +1385,7 @@ class DataTypeRefiner:
                 "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
-        if re.match(r"^4x4 mathutils.Matrix$", dtype_str):
+        if dtype_str in ("4x4 `mathutils.Matrix`", "4x4 `Matrix`"):
             s = self._parse_custom_data_type(
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
@@ -1433,6 +1433,10 @@ class DataTypeRefiner:
                 BuiltinDataType("int", ModifierDataType("set"))
             ]
             return MixinDataType(dtypes)
+
+        m = re.match(r"^pair of (int|float)s$", dtype_str)
+        if m:
+            return BuiltinDataType(m.group(1), ModifierDataType("typing.Sequence"))
 
         # Ex: boolean, default False
         m = re.match(r"^boolean, default (False|True)$", dtype_str)
