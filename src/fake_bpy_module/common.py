@@ -1390,6 +1390,11 @@ class DataTypeRefiner:
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
+        if dtype_str == "`mathutils.Vector` or None":
+            s = self._parse_custom_data_type(
+                "Vector", uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return CustomDataType(s)
 
         m = re.match(r"^enum in \[(.*)\], default (.+)$", dtype_str)
         if m:
@@ -1442,12 +1447,7 @@ class DataTypeRefiner:
         m = re.match(r"^(boolean) array of ([0-9]+) items(, .+)*$", dtype_str)
         if m:
             return BuiltinDataType("bool", ModifierDataType("list"))
-
-        m = re.match(r"^boolean$", dtype_str)
-        if m:
-            return BuiltinDataType("bool")
-        m = re.match(r"^bool$", dtype_str)
-        if m:
+        if dtype_str in ("boolean", "bool"):
             return BuiltinDataType("bool")
 
         m = re.match(r"^bytes$", dtype_str)
@@ -1529,10 +1529,10 @@ class DataTypeRefiner:
             r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1))
-        m = re.match(r"(int|float)$", dtype_str)
+        m = re.match(r"`*(int|float|bool|str)`*$", dtype_str)
         if m:
             return BuiltinDataType(m.group(1))
-        if dtype_str in ("unsigned int", "int (boolean)"):
+        if dtype_str in ("unsigned int", "int (boolean)", "integer"):
             return BuiltinDataType("int")
         m = re.match(r"^int sequence$", dtype_str)
         if m:
