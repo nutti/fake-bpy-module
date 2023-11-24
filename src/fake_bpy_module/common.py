@@ -1425,6 +1425,15 @@ class DataTypeRefiner:
             ]
             return MixinDataType(dtypes)
 
+        # Ex: enum set in :ref:`rna_enum_object_modifier_type_items`, (optional)
+        m = re.match(r"^enum set in :ref:`rna.*`", dtype_str)
+        if m:
+            dtypes = [
+                BuiltinDataType("str", ModifierDataType("set")),
+                BuiltinDataType("int", ModifierDataType("set"))
+            ]
+            return MixinDataType(dtypes)
+
         # Ex: Enumerated constant
         m = re.match(r"^Enumerated constant$", dtype_str)
         if m:
