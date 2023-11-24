@@ -1335,14 +1335,14 @@ class DataTypeRefiner:
         # From this, we assumed non-bpy module.
 
         metadata.never_none = True
-        m = re.search(r"or None$", dtype_str)
+        m = re.search(r" or None$", dtype_str)
         if not m:
             return metadata, dtype_str
 
         metadata.never_none = False
-        stripped = re.sub(r"or None$", "", dtype_str)
+        stripped = re.sub(r" or None$", "", dtype_str)
         output_log(LOG_LEVEL_DEBUG,
-                   f"'or None' is stripped: {dtype_str} -> {stripped}")
+                   f"' or None' is stripped: {dtype_str} -> {stripped}")
 
         return metadata, stripped
 
@@ -1458,7 +1458,7 @@ class DataTypeRefiner:
             return ModifierDataType("typing.Callable")
 
         m = re.match(
-            r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$",
+            r"^`((mathutils\.)*(Color|Euler|Matrix|Quaternion|Vector))`$",
             dtype_str)
         if m:
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
