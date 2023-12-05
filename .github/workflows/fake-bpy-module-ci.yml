@@ -66,7 +66,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.7"
+          python-version: "3.8"
 
       - name: Blender downloads cache
         uses: actions/cache@v2
@@ -104,8 +104,19 @@ jobs:
           path: blender
 
       - name: Generate pip Packages
+        if: contains(github.ref, 'run-ci/')
         env:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
+          GEN_MODULE_CODE_FORMAT: "none"
+          GEN_MODULE_OUTPUT_LOG_LEVEL: "debug"
+        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
+
+      - name: Generate pip Packages
+        if: "!contains(github.ref, 'run-ci/')"
+        env:
+          RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
+          GEN_MODULE_CODE_FORMAT: "pep8"
+          GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
         run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages

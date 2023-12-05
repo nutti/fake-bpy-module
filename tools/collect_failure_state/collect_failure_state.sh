@@ -22,3 +22,8 @@ INTERMIDIATE_DIR="${SCRIPT_DIR}/../pip_package"
 if [ -d "${INTERMIDIATE_DIR}" ]; then
     cp -r "${INTERMIDIATE_DIR}" "${OUTPUT_DIR}"
 fi
+
+FAKE_BPY_MODULE_TEST_LOG_DIR="${SCRIPT_DIR}/../../fake_bpy_module_test.log"
+if [ -d "${FAKE_BPY_MODULE_TEST_LOG_DIR}" ]; then
+    cp -r "${FAKE_BPY_MODULE_TEST_LOG_DIR}" "${OUTPUT_DIR}"
+fi

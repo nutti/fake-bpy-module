@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eEu
+set -eEux
 
 TMP_DIR_NAME=gen_module-tmp
 # shellcheck disable=SC2046,SC2155,SC2164
@@ -22,8 +22,8 @@ output_dir=${6}
 mod_version=${7:-not-specified}
 current_dir=$(pwd)
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
-format="pep8"
-output_log_level="warn"
+format=${GEN_MODULE_CODE_FORMAT:-pep8}
+output_log_level=${GEN_MODULE_OUTPUT_LOG_LEVEL:-warn}
 
 # find blender binary
 # shellcheck disable=SC2003,SC2308,SC2046

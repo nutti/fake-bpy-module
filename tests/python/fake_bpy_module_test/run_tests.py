@@ -37,7 +37,7 @@ def main():
         fake_bpy_module_test.dag_test.DAGTest,
         fake_bpy_module_test.generator_test.CodeWriterIndentTest,
         fake_bpy_module_test.generator_test.CodeWriterTest,
-        fake_bpy_module_test.generator_test.BaseGeneratorTest,
+        fake_bpy_module_test.generator_test.GeneratorsTest,
         fake_bpy_module_test.generator_test.DependencyTest,
         fake_bpy_module_test.generator_test.GenerationInfoByTargetTest,
         fake_bpy_module_test.generator_test.GenerationInfoByRuleTest,

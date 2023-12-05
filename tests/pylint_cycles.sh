@@ -101,8 +101,8 @@ python_bin=$(command -v "${PYTHON_BIN}")
 
 # check if python version meets our requirements
 IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
-if [ "${python_version[0]}" -ne 3 ]; then
-    echo "Error: Unsupported Python version \"${python_version[0]}.${python_version[1]}\". Requiring Python 3."
+if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 8 ]]; then
+    echo "Error: Unsupported Python version \"${python_version[0]}.${python_version[1]}\". Requiring Python 3.8 or higher."
     exit 1
 fi
 
@@ -173,12 +173,13 @@ function workaround_quirks() {
             # bpy.types.XXX related Cycle add-on classes are  not provided by fake-bpy-module
             echo "Fixing cycles class: \".bpy.types.CYCLES_MT_[a-z]*_presets\""
             sed -i 's/bpy.types.\(CYCLES_MT_[a-z]*_presets\)/\1/' intern/cycles/blender/addon/ui.py
-        fi
 
-        if [[ $version =~ ^2.7[89]$ ]]; then
             # pylint does not respect a `hasattr` in `if hasattr(myclass, field) and myclass.field == test`
             echo "Ignoring pylint bug: https://github.com/PyCQA/pylint/issues/801"
             sed -i '/^\s*if hasattr(.*/i # pylint: disable=no-member' intern/cycles/blender/addon/*.py
+
+            echo "Fixing pylint bug: https://github.com/pylint-dev/pylint/issues/3105"
+            sed -i 's/for \(.*\?\) in self\.devices:/for \1 in [self.devices]:/' intern/cycles/blender/addon/properties.py
         fi
     elif [ "${target}" = "upbge" ]; then
         if [[ $version =~ ^latest$ ]]; then

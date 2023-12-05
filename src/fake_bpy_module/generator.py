@@ -1,6 +1,7 @@
 import json
 import re
 import pathlib
+import abc
 from typing import List, Dict
 from collections import OrderedDict
 from yapf.yapflib.yapf_api import FormatCode
@@ -92,205 +93,24 @@ class CodeWriter:
             self._code_data, style_config=style_config)[0]
 
 
-class BaseGenerator:
+class BaseGenerator(metaclass=abc.ABCMeta):
     def __init__(self):
         self._writer: 'CodeWriter' = CodeWriter()
 
+    @abc.abstractmethod
     def _gen_function_code(self, info: Info):
-        data = info.to_dict()
-        wt = self._writer
+        raise NotImplementedError()
 
-        wt.add("def " + data["name"] + "(")
-        for i, p in enumerate(data["parameters"]):
-            sp = p.split("=")
-            default_value = None
-            if len(sp) == 2:
-                name = sp[0]
-                default_value = sp[1]
-            elif len(sp) == 1:
-                name = sp[0]
-            else:
-                raise RuntimeError(f"Invalid format of parameter '{p}'")
-            pd_matched = None
-            for pd in data["parameter_details"]:
-                if (pd["name"] == name) and (pd["data_type"] is not None) and \
-                        (pd["data_type"] != ""):
-                    pd_matched = pd
-                    break
-            if pd_matched is not None:
-                if default_value is not None:
-                    wt.add(f"{pd_matched['name']}: "
-                           f"{pd_matched['data_type']}="
-                           f"{pd_matched['default_value']}")
-                else:
-                    wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
-            else:
-                wt.add(p)
-
-            if i != len(data["parameters"]) - 1:
-                wt.add(", ")
-        if data["return"]["data_type"] == "":
-            wt.addln("):")
-        else:
-            wt.addln(f") -> {data['return']['data_type']}:")
-
-        with CodeWriterIndent(1):
-            # documentation
-            wt.add(f"''' {data['description']}")
-            wt.new_line(2)
-            for p in data["parameter_details"]:
-                if p["description"] != "":
-                    wt.addln(f":param {p['name']}: {p['description']}")
-                if p["data_type"] != "":
-                    wt.addln(f":type {p['name']}: {p['data_type']}")
-            if data["return"]["data_type"] != "":
-                wt.addln(f":rtype: {data['return']['data_type']}")
-            if data["return"]["description"] != "":
-                wt.addln(f":return: {data['return']['description']}")
-            wt.addln("'''")
-            wt.new_line(1)
-            wt.addln("pass")
-            wt.new_line(2)
-
+    @abc.abstractmethod
     def _gen_class_code(self, info: Info):
-        data = info.to_dict()
-        wt = self._writer
+        raise NotImplementedError()
 
-        if len(data["base_classes"]) == 0:
-            wt.addln(f"class {data['name']}:")
-        else:
-            base_classes = ", ".join(data["base_classes"]).replace("'", "")
-            wt.addln(f"class {data['name']}({base_classes}):")
-
-        with CodeWriterIndent(1):
-            if data["description"] != "":
-                wt.addln(f"''' {data['description']}")
-                wt.addln("'''")
-                wt.new_line(1)
-
-            for a in data["attributes"]:
-                if a["data_type"] != "":
-                    wt.addln(f"{a['name']}: {a['data_type']} = None")
-                else:
-                    wt.addln(f"{a['name']} = None")
-                wt.add("''' ")
-                if a["description"] != "":
-                    wt.add(f"{a['description']}")
-                if a["data_type"] != "":
-                    wt.new_line(2)
-                    wt.addln(f":type: {a['data_type']}")
-                wt.addln("'''")
-                wt.new_line(1)
-            if len(data["attributes"]) > 0:
-                wt.new_line(1)
-
-            for m in data["methods"]:
-                if m["type"] == "method":
-                    if len(m["parameters"]) > 0:
-                        wt.add(f"def {m['name']}(self, ")
-                    else:
-                        wt.add(f"def {m['name']}(self")
-                elif m["type"] == "classmethod":
-                    if len(m["parameters"]) > 0:
-                        wt.addln("@classmethod")
-                        wt.add(f"def {m['name']}(cls, ")
-                    else:
-                        wt.addln("@classmethod")
-                        wt.add(f"def {m['name']}(cls")
-                elif m["type"] == "staticmethod":
-                    if len(m["parameters"]) > 0:
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {m['name']}(")
-                    else:
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {m['name']}(")
-                for i, p in enumerate(m["parameters"]):
-                    sp = p.split("=")
-                    default_value = None
-                    if len(sp) == 2:
-                        name = sp[0]
-                        default_value = sp[1]
-                    elif len(sp) == 1:
-                        name = sp[0]
-                    else:
-                        raise RuntimeError(
-                            f"Invalid format of parameter '{p}'")
-                    pd_matched = None
-                    for pd in m["parameter_details"]:
-                        if (pd["name"] == name) and \
-                                (pd["data_type"] is not None) and \
-                                (pd["data_type"] != ""):
-                            pd_matched = pd
-                            break
-                    if pd_matched is not None:
-                        if default_value is not None:
-                            wt.add(
-                                f"{pd_matched['name']}: "
-                                f"{pd_matched['data_type']}="
-                                f"{pd_matched['default_value']}")
-                        else:
-                            wt.add(f"{pd_matched['name']}: "
-                                   f"{pd_matched['data_type']}")
-                    else:
-                        wt.add(p)
-
-                    if i != len(m["parameters"]) - 1:
-                        wt.add(", ")
-                if m["return"]["data_type"] == "":
-                    wt.addln("):")
-                else:
-                    wt.addln(f") -> {m['return']['data_type']}:")
-
-                with CodeWriterIndent(2):
-                    # documentation
-                    wt.addln(f"''' {m['description']}")
-                    wt.new_line(1)
-                    for p in m["parameter_details"]:
-                        wt.addln(f":param {p['name']}: {p['description']}")
-                        wt.addln(f":type {p['name']}: {p['data_type']}")
-                    if m["return"]["data_type"] != "":
-                        wt.addln(f":rtype: {m['return']['data_type']}")
-                    if m["return"]["description"] != "":
-                        wt.addln(f":return: {m['return']['description']}")
-                    wt.addln("'''")
-
-                    wt.addln("pass")
-                    wt.new_line()
-
-            if len(data["attributes"]) == 0 and len(data["methods"]) == 0:
-                wt.addln("pass")
-                wt.new_line(2)
-
+    @abc.abstractmethod
     def _gen_constant_code(self, info: Info):
-        data = info.to_dict()
-        wt = self._writer
-
-        if data["data_type"] != "":
-            wt.addln(f"{data['name']}: {data['data_type']} = None")
-        else:
-            wt.addln(f"{data['name']} = None")
-        if data["description"] != "":
-            wt.addln(f"''' {remove_unencodable(data['description'])}")
-            wt.addln("'''")
-        wt.new_line(2)
-
-    def print_header(self, file):
-        pass
+        raise NotImplementedError()
 
     def _is_relative_import(self, mod_name: str):
         return mod_name[0] == "."
-
-    def pre_process(self, _: str, gen_info: 'GenerationInfoByTarget'):
-        processed = GenerationInfoByTarget()
-        processed.name = gen_info.name
-        processed.child_modules = gen_info.child_modules
-        processed.dependencies = gen_info.dependencies
-        processed.external_modules = gen_info.external_modules
-
-        for d in gen_info.data:
-            processed.data.append(d)
-
-        return processed
 
     def _sorted_generation_info(
             self, data: 'GenerationInfoByTarget') -> List[Info]:
@@ -381,6 +201,229 @@ class BaseGenerator:
 
         return sorted_data
 
+    def print_header(self, file):
+        pass
+
+    def pre_process(self, _: str, gen_info: 'GenerationInfoByTarget'):
+        processed = GenerationInfoByTarget()
+        processed.name = gen_info.name
+        processed.child_modules = gen_info.child_modules
+        processed.dependencies = gen_info.dependencies
+        processed.external_modules = gen_info.external_modules
+
+        for d in gen_info.data:
+            processed.data.append(d)
+
+        return processed
+
+    def dump_json(self, filename: str, data: 'GenerationInfoByTarget'):
+        json_data = [info.to_dict() for info in data.data]
+        with open(filename, "w", newline="\n", encoding="utf-8") as f:
+            json.dump(json_data, f, indent=4)
+
+    @abc.abstractmethod
+    def generate(self,
+                 filename: str,
+                 data: 'GenerationInfoByTarget',
+                 style_config: str = 'pep8'):
+        raise NotImplementedError()
+
+
+class PyCodeGeneratorBase(BaseGenerator):
+    def __init__(self):
+        super().__init__()
+
+        self.ellipsis_strings = {
+            "constant": " = None",
+            "function": "pass",
+            "attribute": " = None",
+            "method": "pass",
+            "class": "pass"
+        }
+        self.file_format = "py"
+
+    def _gen_function_code(self, info: Info):
+        data = info.to_dict()
+        wt = self._writer
+
+        wt.add("def " + data["name"] + "(")
+        for i, p in enumerate(data["parameters"]):
+            sp = p.split("=")
+            default_value = None
+            if len(sp) == 2:
+                name = sp[0]
+                default_value = sp[1]
+            elif len(sp) == 1:
+                name = sp[0]
+            else:
+                raise RuntimeError(f"Invalid format of parameter '{p}'")
+            pd_matched = None
+            for pd in data["parameter_details"]:
+                if (pd["name"] == name) and (pd["data_type"] is not None) and \
+                        (pd["data_type"] != ""):
+                    pd_matched = pd
+                    break
+            if pd_matched is not None:
+                if default_value is not None:
+                    wt.add(f"{pd_matched['name']}: "
+                           f"{pd_matched['data_type']}="
+                           f"{pd_matched['default_value']}")
+                else:
+                    wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
+            else:
+                wt.add(p)
+
+            if i != len(data["parameters"]) - 1:
+                wt.add(", ")
+        if data["return"]["data_type"] == "":
+            wt.addln("):")
+        else:
+            wt.addln(f") -> {data['return']['data_type']}:")
+
+        with CodeWriterIndent(1):
+            # documentation
+            wt.add(f"''' {data['description']}")
+            wt.new_line(2)
+            for p in data["parameter_details"]:
+                if p["description"] != "":
+                    wt.addln(f":param {p['name']}: {p['description']}")
+                if p["data_type"] != "":
+                    wt.addln(f":type {p['name']}: {p['data_type']}")
+            if data["return"]["data_type"] != "":
+                wt.addln(f":rtype: {data['return']['data_type']}")
+            if data["return"]["description"] != "":
+                wt.addln(f":return: {data['return']['description']}")
+            wt.addln("'''")
+            wt.new_line(1)
+            wt.addln(self.ellipsis_strings["function"])
+            wt.new_line(2)
+
+    def _gen_class_code(self, info: Info):
+        data = info.to_dict()
+        wt = self._writer
+
+        if len(data["base_classes"]) == 0:
+            wt.addln(f"class {data['name']}:")
+        else:
+            base_classes = ", ".join(data["base_classes"]).replace("'", "")
+            wt.addln(f"class {data['name']}({base_classes}):")
+
+        with CodeWriterIndent(1):
+            if data["description"] != "":
+                wt.addln(f"''' {data['description']}")
+                wt.addln("'''")
+                wt.new_line(1)
+
+            for a in data["attributes"]:
+                if a["data_type"] != "":
+                    wt.addln(f"{a['name']}: {a['data_type']}"
+                             f"{self.ellipsis_strings['attribute']}")
+                else:
+                    wt.addln(f"{a['name']}: typing.Any"
+                             f"{self.ellipsis_strings['attribute']}")
+                wt.add("''' ")
+                if a["description"] != "":
+                    wt.add(f"{a['description']}")
+                if a["data_type"] != "":
+                    wt.new_line(2)
+                    wt.addln(f":type: {a['data_type']}")
+                wt.addln("'''")
+                wt.new_line(1)
+            if len(data["attributes"]) > 0:
+                wt.new_line(1)
+
+            for m in data["methods"]:
+                if m["type"] == "method":
+                    if len(m["parameters"]) > 0:
+                        wt.add(f"def {m['name']}(self, ")
+                    else:
+                        wt.add(f"def {m['name']}(self")
+                elif m["type"] == "classmethod":
+                    if len(m["parameters"]) > 0:
+                        wt.addln("@classmethod")
+                        wt.add(f"def {m['name']}(cls, ")
+                    else:
+                        wt.addln("@classmethod")
+                        wt.add(f"def {m['name']}(cls")
+                elif m["type"] == "staticmethod":
+                    if len(m["parameters"]) > 0:
+                        wt.addln("@staticmethod")
+                        wt.add(f"def {m['name']}(")
+                    else:
+                        wt.addln("@staticmethod")
+                        wt.add(f"def {m['name']}(")
+                for i, p in enumerate(m["parameters"]):
+                    sp = p.split("=")
+                    default_value = None
+                    if len(sp) == 2:
+                        name = sp[0]
+                        default_value = sp[1]
+                    elif len(sp) == 1:
+                        name = sp[0]
+                    else:
+                        raise RuntimeError(
+                            f"Invalid format of parameter '{p}'")
+                    pd_matched = None
+                    for pd in m["parameter_details"]:
+                        if (pd["name"] == name) and \
+                                (pd["data_type"] is not None) and \
+                                (pd["data_type"] != ""):
+                            pd_matched = pd
+                            break
+                    if pd_matched is not None:
+                        if default_value is not None:
+                            wt.add(
+                                f"{pd_matched['name']}: "
+                                f"{pd_matched['data_type']}="
+                                f"{pd_matched['default_value']}")
+                        else:
+                            wt.add(f"{pd_matched['name']}: "
+                                   f"{pd_matched['data_type']}")
+                    else:
+                        wt.add(p)
+
+                    if i != len(m["parameters"]) - 1:
+                        wt.add(", ")
+                if m["return"]["data_type"] == "":
+                    wt.addln("):")
+                else:
+                    wt.addln(f") -> {m['return']['data_type']}:")
+
+                with CodeWriterIndent(2):
+                    # documentation
+                    wt.addln(f"''' {m['description']}")
+                    wt.new_line(1)
+                    for p in m["parameter_details"]:
+                        wt.addln(f":param {p['name']}: {p['description']}")
+                        wt.addln(f":type {p['name']}: {p['data_type']}")
+                    if m["return"]["data_type"] != "":
+                        wt.addln(f":rtype: {m['return']['data_type']}")
+                    if m["return"]["description"] != "":
+                        wt.addln(f":return: {m['return']['description']}")
+                    wt.addln("'''")
+
+                    wt.addln(self.ellipsis_strings["method"])
+                    wt.new_line()
+
+            if len(data["attributes"]) == 0 and len(data["methods"]) == 0:
+                wt.addln(self.ellipsis_strings["class"])
+                wt.new_line(2)
+
+    def _gen_constant_code(self, info: Info):
+        data = info.to_dict()
+        wt = self._writer
+
+        if data["data_type"] != "":
+            wt.addln(f"{data['name']}: {data['data_type']}"
+                     f"{self.ellipsis_strings['constant']}")
+        else:
+            wt.addln(f"{data['name']}: typing.Any"
+                     f"{self.ellipsis_strings['constant']}")
+        if data["description"] != "":
+            wt.addln(f"''' {remove_unencodable(data['description'])}")
+            wt.addln("'''")
+        wt.new_line(2)
+
     def generate(self,
                  filename: str,
                  data: 'GenerationInfoByTarget',
@@ -389,7 +432,8 @@ class BaseGenerator:
         # Note: Base class must be located above derived class
         sorted_data = self._sorted_generation_info(data)
 
-        with open(filename, "w", encoding="utf-8", newline="\n") as file:
+        with open(f"{filename}.{self.file_format}", "w",
+                  encoding="utf-8", newline="\n") as file:
             self.print_header(file)
 
             wt = self._writer
@@ -443,10 +487,33 @@ class BaseGenerator:
             else:
                 wt.write(file)
 
-    def dump_json(self, filename: str, data: 'GenerationInfoByTarget'):
-        json_data = [info.to_dict() for info in data.data]
-        with open(filename, "w", newline="\n", encoding="utf-8") as f:
-            json.dump(json_data, f, indent=4)
+
+class PyCodeGenerator(PyCodeGeneratorBase):
+    def __init__(self):
+        super().__init__()
+
+        self.ellipsis_strings = {
+            "constant": " = None",
+            "function": "pass",
+            "attribute": " = None",
+            "method": "pass",
+            "class": "pass"
+        }
+        self.file_format = "py"
+
+
+class PyInterfaceGenerator(PyCodeGeneratorBase):
+    def __init__(self):
+        super().__init__()
+
+        self.ellipsis_strings = {
+            "constant": "",
+            "function": "...",
+            "attribute": "",
+            "method": "...",
+            "class": "..."
+        }
+        self.file_format = "pyi"
 
 
 class Dependency:
@@ -525,6 +592,7 @@ class PackageGeneratorConfig:
         self.target: str = "blender"
         self.target_version: str = None
         self.mod_version: str = None
+        self.output_format: str = "pyi"
 
 
 class PackageGenerationRule:
@@ -657,9 +725,7 @@ class PackageAnalyzer:
             for m in structure.children():
                 mod_name = name + m.name
                 if mod_name == target:
-                    if len(m.children()) == 0 and module_level != 0:
-                        return mod_name + ".py"
-                    return mod_name + "/__init__.py"
+                    return mod_name + "/__init__"
 
                 if len(m.children()) > 0:
                     ret = find_target_file(
@@ -674,17 +740,14 @@ class PackageAnalyzer:
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
-                    if module_level != 0:
-                        filename = re.sub(r"\.", "/", mod_name) + ".py"
-                    else:
-                        filename = \
-                            re.sub(r"\.", "/", mod_name) + "/__init__.py"
+                    filename = \
+                            re.sub(r"\.", "/", mod_name) + "/__init__"
                     info = gen_info.create_target(filename)
                     info.data = []
                     info.child_modules = []
                     info.name = mod_name
                 else:
-                    filename = re.sub(r"\.", "/", mod_name) + "/__init__.py"
+                    filename = re.sub(r"\.", "/", mod_name) + "/__init__"
                     info = gen_info.create_target(filename)
                     info.data = []
                     info.child_modules = [child.name for child in m.children()]
@@ -1240,11 +1303,10 @@ class PackageGenerator:
                          module_level: int):
                 for item in structure_.children():
                     if len(item.children()) == 0:
-                        if module_level == 0:
-                            dir_path = path + "/" + item.name
-                            pathlib.Path(dir_path).mkdir(
-                                parents=True, exist_ok=True)
-                            self._create_py_typed_file(dir_path)
+                        dir_path = path + "/" + item.name
+                        pathlib.Path(dir_path).mkdir(
+                            parents=True, exist_ok=True)
+                        self._create_py_typed_file(dir_path)
                     elif len(item.children()) >= 1:
                         dir_path = path + "/" + item.name
                         pathlib.Path(dir_path).mkdir(

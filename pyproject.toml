@@ -4,7 +4,7 @@ requires = ["setuptools"]
 [project]
 name = "fake-bpy-module"
 description = "Collection of the fake Blender Python API module for the code completion."
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -37,7 +37,7 @@ Download = "https://github.com/nutti/fake-bpy-module/releases"
 platforms = ["Windows", "Linux", "Mac OS-X"]
 
 [tool.setuptools.package-data]
-"*" = ["py.typed"]
+"*" = ["py.typed", "*.pyi"]
 
 [tool.setuptools.packages.find]
 where = ["."]
