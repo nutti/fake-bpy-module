@@ -11,8 +11,26 @@ INPUT_DIR: str = "."
 MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 
+def create_generator(
+        name: str, target_files: List[str], mod_files: List[str],
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+    generator: 'fbm.BaseGenerator' = None
+    if config.output_format == ".py":
+        generator = fbm.PyCodeGenerator()
+    elif config.output_format == "pyi":
+        generator = fbm.PyInterfaceGenerator()
+
+    analyzer: 'fbm.BaseAnalyzer' = fbm.BaseAnalyzer()
+    if name == "bpy":
+        analyzer = fbm.BpyModuleAnalyzer(mod_files)
+    elif mod_files is not None:
+        analyzer = fbm.AnalyzerWithModFile(mod_files)
+
+    return fbm.PackageGenerationRule(name, target_files, analyzer, generator)
+
+
 def make_bpy_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     all_files = glob.glob(INPUT_DIR + "/bpy*.rst")
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     files = list(set(all_files) - set(excludes_files))
@@ -27,24 +45,21 @@ def make_bpy_rule(
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.json"
         .replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule(
-        "bpy", files, fbm.BpyModuleAnalyzer(mod_files), fbm.BaseGenerator())
+    return create_generator("bpy", files, mod_files, config)
 
 
 def make_bgl_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bgl*.rst")
     mod_files = glob.glob(
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_bgl_modfile/*.json")
-    return fbm.PackageGenerationRule(
-        "bgl", files, fbm.AnalyzerWithModFile(mod_files), fbm.BaseGenerator())
+    return create_generator("bgl", files, mod_files, config)
 
 
 def make_blf_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/blf*.rst")
-    return fbm.PackageGenerationRule(
-        "blf", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("blf", files, None, config)
 
 
 def make_mathutils_rule(
@@ -58,19 +73,13 @@ def make_mathutils_rule(
         mod_files.append(
             f"{MOD_FILES_DIR}/mods/{config.mod_version}/analyzer/"
             "mathutils.json".replace("\\", "/"))
-        return fbm.PackageGenerationRule(
-            "mathutils", files, fbm.AnalyzerWithModFile(mod_files),
-            fbm.BaseGenerator())
-    return fbm.PackageGenerationRule(
-        "mathutils", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("mathutils", files, mod_files, config)
 
 
 def make_gpu_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/gpu*.rst")
-    return fbm.PackageGenerationRule(
-        "gpu", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("gpu", files, None, config)
 
 
 def make_gpu_extras_rule(
@@ -87,65 +96,54 @@ def make_gpu_extras_rule(
             mod_files.append(
                 f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
                 "gpu_extras.json".replace("\\", "/"))
-    return fbm.PackageGenerationRule(
-        "gpu_extras", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("gpu_extras", files, mod_files, config)
 
 
 def make_freestyle_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/freestyle*.rst")
     mod_files = [
         f"{MOD_FILES_DIR}/mods/common/analyzer/freestyle.json"
         .replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule(
-        "freestyle", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("freestyle", files, mod_files, config)
 
 
 def make_bpy_extras_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     mod_files = [
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
         "bpy_extras.json".replace("\\", "/")
     ]
-    return fbm.PackageGenerationRule(
-        "bpy_extras", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("bpy_extras", files, mod_files, config)
 
 
 def make_aud_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/aud*.rst")
-    return fbm.PackageGenerationRule(
-        "aud", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("aud", files, None, config)
 
 
 def make_bmesh_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
     mod_files = [
         f"{MOD_FILES_DIR}/mods/common/analyzer/bmesh.json".replace("\\", "/"),
     ]
-    return fbm.PackageGenerationRule(
-        "bmesh", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("bmesh", files, mod_files, config)
 
 
 def make_idprop_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/idprop*.rst")
-    return fbm.PackageGenerationRule(
-        "idprop", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("idprop", files, None, config)
 
 
 def make_imbuf_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/imbuf*.rst")
-    return fbm.PackageGenerationRule(
-        "imbuf", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("imbuf", files, None, config)
 
 
 def make_bl_math_rule(
@@ -157,17 +155,14 @@ def make_bl_math_rule(
             mod_files.append(
                 f"{MOD_FILES_DIR}/mods/{config.mod_version}/"
                 "analyzer/bl_math.json".replace("\\", "/"))
-    return fbm.PackageGenerationRule(
-        "bl_math", files, fbm.AnalyzerWithModFile(mod_files),
-        fbm.BaseGenerator())
+    return create_generator("bl_math", files, mod_files, config)
 
 
 def make_bge_rule(
-        _: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
+        config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bge*.rst")
     files.extend(glob.glob(INPUT_DIR + "/bge_types/bge*.rst"))
-    return fbm.PackageGenerationRule(
-        "bge", files, fbm.BaseAnalyzer(), fbm.BaseGenerator())
+    return create_generator("bge", files, None, config)
 
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:    # noqa # pylint: disable=C0301
@@ -202,9 +197,7 @@ def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageG
     rules = []
     for mod_file in mod_files:
         mod_name = mod_file[mod_file.rfind("/") + 1:].replace(".json", "")
-        rules.append(fbm.PackageGenerationRule(
-            mod_name, [], fbm.AnalyzerWithModFile([mod_file]),
-            fbm.BaseGenerator()))
+        rules.append(create_generator(mod_name, [], [mod_file], config))
     return rules
 
 

@@ -9,7 +9,8 @@ from fake_bpy_module.analyzer import (  # pylint: disable=E0401
 from fake_bpy_module.generator import (     # pylint: disable=E0401
     CodeWriterIndent,
     CodeWriter,
-    BaseGenerator,
+    PyCodeGenerator,
+    PyInterfaceGenerator,
     GenerationInfoByTarget,
     GenerationInfoByRule,
     Dependency,
@@ -139,9 +140,9 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
 
-class BaseGeneratorTest(common.FakeBpyModuleTestBase):
+class GeneratorsTest(common.FakeBpyModuleTestBase):
 
-    name = "BaseGeneratorTest"
+    name = "GeneratorsTest"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data")
@@ -307,14 +308,28 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
 
         info.external_modules.append("os")
 
-        generator = BaseGenerator()
-        generator.generate(self.output_file_path, info, "pep8")
+        generator_types = [
+            {
+                "generator": PyCodeGenerator(),
+                "file_ext": "py"
+            },
+            {
+                "generator": PyInterfaceGenerator(),
+                "file_ext": "pyi"
+            }
+        ]
 
-        expect_file_path = f"{self.data_dir}/base_generator_test_generate.py"
-        actual_file_path = self.output_file_path
-        with open(actual_file_path, "r", encoding="utf-8") as f:
-            self.log(f.read())
-        self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
+        for type_ in generator_types:
+            generator = type_["generator"]
+            generator.generate(self.output_file_path, info, "pep8")
+
+            expect_file_path = \
+                f"{self.data_dir}/base_generator_test_generate." + \
+                f"{type_['file_ext']}"
+            actual_file_path = f"{self.output_file_path}.{type_['file_ext']}"
+            with open(actual_file_path, "r", encoding="utf-8") as f:
+                self.log(f.read())
+            self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
     def test_generate_custom_modifier(self):
         info = GenerationInfoByTarget()
@@ -349,15 +364,29 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
 
         info.external_modules.append("os")
 
-        generator = BaseGenerator()
-        generator.generate(self.output_file_path, info, "pep8")
+        generator_types = [
+            {
+                "generator": PyCodeGenerator(),
+                "file_ext": "py"
+            },
+            {
+                "generator": PyInterfaceGenerator(),
+                "file_ext": "pyi"
+            }
+        ]
 
-        expect_file_path = \
-            f"{self.data_dir}/base_generator_test_generate_custom_modifier.py"
-        actual_file_path = self.output_file_path
-        with open(actual_file_path, "r", encoding="utf-8") as f:
-            self.log(f.read())
-        self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
+        for type_ in generator_types:
+            generator = type_["generator"]
+            generator.generate(self.output_file_path, info, "pep8")
+
+            expect_file_path = \
+                f"{self.data_dir}/" + \
+                "base_generator_test_generate_custom_modifier." + \
+                f"{type_['file_ext']}"
+            actual_file_path = f"{self.output_file_path}.{type_['file_ext']}"
+            with open(actual_file_path, "r", encoding="utf-8") as f:
+                self.log(f.read())
+            self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
     def test_dump_json(self):
         info = GenerationInfoByTarget()
@@ -383,7 +412,7 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
 
         info.external_modules.append("os")
 
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         generator.dump_json(self.output_file_path, info)
 
         expect_file_path = \
@@ -419,7 +448,7 @@ class BaseGeneratorTest(common.FakeBpyModuleTestBase):
 
         info.external_modules.append("os")
 
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         processed_info = generator.pre_process("module_1", info)
 
         self.assertEqual(info.name, processed_info.name)
@@ -501,24 +530,24 @@ class GenerationInfoByRuleTest(common.FakeBpyModuleTestBase):
         info = GenerationInfoByRule()
 
         with self.assertRaises(RuntimeError):
-            info.get_target("target_1.py")
+            info.get_target("target_1")
 
-        target_1 = info.get_or_create_target("target_1.py")
-        self.assertEqual(info.get_target("target_1.py"), target_1)
-        self.assertEqual(info.get_or_create_target("target_1.py"), target_1)
+        target_1 = info.get_or_create_target("target_1")
+        self.assertEqual(info.get_target("target_1"), target_1)
+        self.assertEqual(info.get_or_create_target("target_1"), target_1)
 
-        target_2 = info.create_target("target_2/__init__.py")
-        self.assertEqual(info.get_target("target_2/__init__.py"), target_2)
+        target_2 = info.create_target("target_2/__init__")
+        self.assertEqual(info.get_target("target_2/__init__"), target_2)
         self.assertEqual(
-            info.get_or_create_target("target_2/__init__.py"), target_2)
+            info.get_or_create_target("target_2/__init__"), target_2)
 
-        target_3 = info.create_target("target_2/sub.py")
-        info.update_target("target_2/sub.py", target_3)
-        self.assertEqual(info.get_target("target_2/sub.py"), target_3)
+        target_3 = info.create_target("target_2/sub")
+        info.update_target("target_2/sub", target_3)
+        self.assertEqual(info.get_target("target_2/sub"), target_3)
 
         self.assertEqual(
             list(info.targets()),
-            ["target_1.py", "target_2/__init__.py", "target_2/sub.py"])
+            ["target_1", "target_2/__init__", "target_2/sub"])
 
 
 class PackageGeneratorConfigTest(common.FakeBpyModuleTestBase):
@@ -553,7 +582,7 @@ class PackageGenerationRuleTest(common.FakeBpyModuleTestBase):
 
     def test_all(self):
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
 
         rule = PackageGenerationRule(
             "rule", ["a.rst", "b.rst"], analyzer, generator)
@@ -598,7 +627,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.mod_version = "2.80"
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule = PackageGenerationRule("rule", rule_rst_files,
                                      analyzer, generator)
 
@@ -635,10 +664,10 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertIsNotNone(actual_gen_info)
 
         self.assertEqual(
-            set(actual_gen_info.targets()), {"module_abc/__init__.py"})
+            set(actual_gen_info.targets()), {"module_abc/__init__"})
 
         target_module_abc = actual_gen_info.get_target(
-            "module_abc/__init__.py")
+            "module_abc/__init__")
         self.assertEqual(len(target_module_abc.data), 1)
         self.assertEqual(target_module_abc.data[0].type(), "class")
         self.assertEqual(target_module_abc.data[0].name(), "Class123")
@@ -664,12 +693,12 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.mod_version = None
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
 
@@ -727,11 +756,11 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(
             set(actual_gen_info_1.targets()),
-            {"module_1/__init__.py", "module_1/submodule_1.py"})
+            {"module_1/__init__", "module_1/submodule_1/__init__"})
         self.assertEqual(
-            set(actual_gen_info_2.targets()), {"module_2/__init__.py"})
+            set(actual_gen_info_2.targets()), {"module_2/__init__"})
 
-        target_module_1 = actual_gen_info_1.get_target("module_1/__init__.py")
+        target_module_1 = actual_gen_info_1.get_target("module_1/__init__")
         self.assertEqual(len(target_module_1.data), 1)
         self.assertEqual(target_module_1.data[0].type(), "class")
         self.assertEqual(target_module_1.data[0].name(), "ClassA")
@@ -743,7 +772,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
             target_module_1.dependencies[0].type_lists, ["BaseClass1"])
 
         target_module_1_submodule_1 = actual_gen_info_1.get_target(
-            "module_1/submodule_1.py")
+            "module_1/submodule_1/__init__")
         self.assertEqual(len(target_module_1_submodule_1.data), 3)
         self.assertEqual(target_module_1_submodule_1.data[0].type(), "class")
         self.assertEqual(
@@ -758,7 +787,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(target_module_1_submodule_1.child_modules), 0)
         self.assertEqual(len(target_module_1_submodule_1.dependencies), 0)
 
-        target_module_2 = actual_gen_info_2.get_target("module_2/__init__.py")
+        target_module_2 = actual_gen_info_2.get_target("module_2/__init__")
         self.assertEqual(len(target_module_2.data), 1)
         self.assertEqual(target_module_2.data[0].type(), "function")
         self.assertEqual(target_module_2.data[0].name(), "function_1")
@@ -787,7 +816,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.mod_version = None
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule = PackageGenerationRule("rule", rule_rst_files,
                                      analyzer, generator)
 
@@ -825,10 +854,10 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertIsNotNone(actual_gen_info)
 
         self.assertEqual(
-            set(actual_gen_info.targets()), {"module_exceptional/__init__.py"})
+            set(actual_gen_info.targets()), {"module_exceptional/__init__"})
 
         target_module_abc = actual_gen_info.get_target(
-            "module_exceptional/__init__.py")
+            "module_exceptional/__init__")
         self.assertEqual(len(target_module_abc.data), 2)
         self.assertEqual(target_module_abc.data[0].type(), "class")
         self.assertEqual(target_module_abc.data[0].name(), "ClassExp")
@@ -880,7 +909,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         pkg_generator = PackageGenerator(config)
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule = PackageGenerationRule(
             "rule", rule_rst_files, analyzer, generator)
 
@@ -903,7 +932,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
         json_files = [
-            "module_abc/__init__.py-dump.json",
+            "module_abc/__init__-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -941,12 +970,12 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         pkg_generator = PackageGenerator(config)
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
 
@@ -960,7 +989,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         py_files = [
             "module_1/__init__.py",
-            "module_1/submodule_1.py",
+            "module_1/submodule_1/__init__.py",
             "module_2/__init__.py",
         ]
         for file_ in py_files:
@@ -972,9 +1001,9 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
         json_files = [
-            "module_1/__init__.py-dump.json",
-            "module_1/submodule_1.py-dump.json",
-            "module_2/__init__.py-dump.json",
+            "module_1/__init__-dump.json",
+            "module_1/submodule_1/__init__-dump.json",
+            "module_2/__init__-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"
@@ -1011,7 +1040,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         pkg_generator = PackageGenerator(config)
 
         analyzer = BaseAnalyzer()
-        generator = BaseGenerator()
+        generator = PyCodeGenerator()
         rule = PackageGenerationRule(
             "rule", rule_rst_files, analyzer, generator)
 
@@ -1034,7 +1063,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
             self.assertTrue(filecmp.cmp(expect_file_path, actual_file_path))
 
         json_files = [
-            "module_exceptional/__init__.py-dump.json",
+            "module_exceptional/__init__-dump.json",
         ]
         for file_ in json_files:
             expect_file_path = f"{expect_files_dir}/{file_}"

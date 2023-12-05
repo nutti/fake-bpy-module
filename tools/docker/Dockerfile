@@ -8,8 +8,8 @@ RUN env
 RUN apt-get update -y
 RUN apt-get install -y \
             git \
-            python3.7 \
-            python3.7-distutils \
+            python3.8 \
+            python3.8-distutils \
             python3-sphinx \
             curl \
             unzip \
@@ -19,11 +19,11 @@ RUN apt-get install -y \
             zip
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python3.7 get-pip.py && \
+    python3.8 get-pip.py && \
     rm -f get-pip.py
 
-RUN rm -f /usr/bin/python && ln -s /usr/bin/python3.7 /usr/bin/python
-RUN rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3.7 /usr/bin/pip
+RUN rm -f /usr/bin/python && ln -s /usr/bin/python3.8 /usr/bin/python
+RUN rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3.8 /usr/bin/pip
 
 RUN pip install pathlib
 

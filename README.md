@@ -18,7 +18,7 @@ Note: The similar project for Blender Game Engine (BGE) is available on
 ## Requirements
 
 fake-bpy-module uses typing module and type hints which are available from
-Python 3.7. Check your Python version is >= 3.7.
+Python 3.8. Check your Python version is >= 3.8.
 
 ## Install
 
