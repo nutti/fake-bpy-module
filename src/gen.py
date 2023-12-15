@@ -23,6 +23,8 @@ def create_generator(
     analyzer: 'fbm.BaseAnalyzer' = fbm.BaseAnalyzer()
     if name == "bpy":
         analyzer = fbm.BpyModuleAnalyzer(mod_files)
+    elif name == "bmesh":
+        analyzer = fbm.BmeshModuleAnalyzer(mod_files)
     elif mod_files is not None:
         analyzer = fbm.AnalyzerWithModFile(mod_files)
 
@@ -128,9 +130,7 @@ def make_aud_rule(
 def make_bmesh_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
-    mod_files = [
-        f"{MOD_FILES_DIR}/mods/common/analyzer/bmesh.json".replace("\\", "/"),
-    ]
+    mod_files = []
     return create_generator("bmesh", files, mod_files, config)
 
 

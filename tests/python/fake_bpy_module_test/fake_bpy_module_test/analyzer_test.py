@@ -6,6 +6,7 @@ from fake_bpy_module.analyzer import (  # pylint: disable=E0401
     BaseAnalyzer,
     AnalyzerWithModFile,
     BpyModuleAnalyzer,
+    BmeshModuleAnalyzer,
 )
 from fake_bpy_module.common import (    # pylint: disable=E0401
     SectionInfo,
@@ -2477,3 +2478,153 @@ class BpyModuleAnalyzerTest(common.FakeBpyModuleTestBase):
                                   section_info_bpy_prop_collection.to_dict())
         self.compare_dict_and_log(result.section_info[1].to_dict(),
                                   section_info_bpy_struct.to_dict())
+
+
+class BmeshModuleAnalyzerTest(common.FakeBpyModuleTestBase):
+
+    name = "BmeshModuleAnalyzerTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/analyzer_test_data")
+
+    def compare_dict_and_log(self, d1, d2):
+        json1 = json.dumps(d1, indent=4).split("\n")
+        json2 = json.dumps(d2, indent=4).split("\n")
+        diff = difflib.unified_diff(json1, json2)
+        self.log("\n".join(diff))
+        self.assertDictEqual(d1, d2)
+
+    def test_tweak_bpy_types_classes(self):
+        rst_files = [
+            "tweak_bmesh_types_classes.rst",
+        ]
+        rst_files = [f"{self.data_dir}/{f}" for f in rst_files]
+
+        analyzer = BmeshModuleAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        result = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(result.section_info), 1)
+
+        section_info_bpy_prop_collection = SectionInfo()
+
+        class_info = ClassInfo()
+        class_info.from_dict({
+            "type": "class",
+            "name": "BMVertSeq",
+            "module": "bmesh.types",
+            "description": "BMVertSeq description",
+            "base_classes": [],
+            "attributes": [],
+            "methods": [
+                {
+                    "type": "method",
+                    "name": "__getitem__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": ["key"],
+                    "parameter_details": [{
+                        "type": "parameter",
+                        "name": "key",
+                        "description": "",
+                        "data_type": "int",
+                    }],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'BMVert'",
+                    }
+                },
+                {
+                    "type": "method",
+                    "name": "__setitem__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": ["key", "value"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int",
+                        },
+                        {
+                            "type": "parameter",
+                            "name": "value",
+                            "description": "",
+                            "data_type": "'BMVert'",
+                        }
+                    ]
+                },
+                {
+                    "type": "method",
+                    "name": "__delitem__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": ["key"],
+                    "parameter_details": [
+                        {
+                            "type": "parameter",
+                            "name": "key",
+                            "description": "",
+                            "data_type": "int",
+                        }
+                    ],
+                    "return": {
+                        "type": "return",
+                        "description": "",
+                        "data_type": "'BMVert'",
+                    }
+                },
+                {
+                    "type": "method",
+                    "name": "__iter__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "typing.Iterator['BMVert']",
+                        "description": ""
+                    }
+                },
+                {
+                    "type": "method",
+                    "name": "__next__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "'BMVert'",
+                        "description": ""
+                    }
+                },
+                {
+                    "type": "method",
+                    "name": "__len__",
+                    "description": "",
+                    "class": "BMVertSeq",
+                    "module": "bmesh.types",
+                    "parameters": [],
+                    "parameter_details": [],
+                    "return": {
+                        "type": "return",
+                        "data_type": "int",
+                        "description": ""
+                    }
+                }
+            ]
+        }, method='NEW')
+        section_info_bpy_prop_collection.add_info(class_info)
+
+        self.compare_dict_and_log(result.section_info[0].to_dict(),
+                                  section_info_bpy_prop_collection.to_dict())

@@ -3,6 +3,7 @@ from .analyzer import (
     BaseAnalyzer,
     AnalyzerWithModFile,
     BpyModuleAnalyzer,
+    BmeshModuleAnalyzer,
     AnalysisResult,
 )
 from .generator import (
