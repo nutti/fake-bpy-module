@@ -1,5 +1,5 @@
 import re
-from typing import List, IO, Any
+from typing import List, IO, Any, Dict
 import json
 import copy
 
@@ -1312,6 +1312,98 @@ class AnalyzerWithModFile(BaseAnalyzer):
         self._modify_post_process(result)
 
 
+def _add_getitem_and_setitem_delitem(
+        class_info: 'ClassInfo', dtype: str, elem_access_type: str):
+    info = FunctionInfo("method")
+    info.set_name("__getitem__")
+    info.set_parameters(["key"])
+    param_detail_info = ParameterDetailInfo()
+    param_detail_info.set_name("key")
+    param_detail_info.set_description("")
+    param_detail_info.set_data_type(IntermidiateDataType(elem_access_type))
+    info.set_parameter_details([param_detail_info])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+    info = FunctionInfo("method")
+    info.set_name("__setitem__")
+    info.set_parameters(["key", "value"])
+    param_detail_info_key = ParameterDetailInfo()
+    param_detail_info_key.set_name("key")
+    param_detail_info_key.set_description("")
+    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
+    param_detail_info_value = ParameterDetailInfo()
+    param_detail_info_value.set_name("value")
+    param_detail_info_value.set_description("")
+    param_detail_info_value.set_data_type(CustomDataType(
+        dtype, skip_refine=True))
+    info.set_parameter_details([
+        param_detail_info_key, param_detail_info_value])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    class_info.add_method(info)
+
+    info = FunctionInfo("method")
+    info.set_name("__delitem__")
+    info.set_parameters(["key"])
+    param_detail_info_key = ParameterDetailInfo()
+    param_detail_info_key.set_name("key")
+    param_detail_info_key.set_description("")
+    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
+    info.set_parameter_details([param_detail_info_key])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+
+def _add_iter_next_len(class_info: 'ClassInfo', dtype: str):
+    info = FunctionInfo("method")
+    info.set_name("__iter__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(
+        dtype, ModifierDataType("typing.Iterator"), skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+    info = FunctionInfo("method")
+    info.set_name("__next__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+    info = FunctionInfo("method")
+    info.set_name("__len__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(BuiltinDataType("int"))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+
 class BpyModuleAnalyzer(AnalyzerWithModFile):
 
     def _add_bpy_app_handlers_type(self, result: 'AnalysisResult'):
@@ -1408,97 +1500,6 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
         section.add_info(info)
         result.section_info.append(section)
 
-    def _add_getitem_and_setitem_delitem(
-            self, class_info: 'ClassInfo', dtype: str):
-        info = FunctionInfo("method")
-        info.set_name("__getitem__")
-        info.set_parameters(["key"])
-        param_detail_info = ParameterDetailInfo()
-        param_detail_info.set_name("key")
-        param_detail_info.set_description("")
-        param_detail_info.set_data_type(IntermidiateDataType("int, str"))
-        info.set_parameter_details([param_detail_info])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        return_info = ReturnInfo()
-        return_info.set_description("")
-        return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-        info.set_return(return_info)
-        class_info.add_method(info)
-
-        info = FunctionInfo("method")
-        info.set_name("__setitem__")
-        info.set_parameters(["key", "value"])
-        param_detail_info_key = ParameterDetailInfo()
-        param_detail_info_key.set_name("key")
-        param_detail_info_key.set_description("")
-        param_detail_info_key.set_data_type(IntermidiateDataType("int, str"))
-        param_detail_info_value = ParameterDetailInfo()
-        param_detail_info_value.set_name("value")
-        param_detail_info_value.set_description("")
-        param_detail_info_value.set_data_type(CustomDataType(
-            dtype, skip_refine=True))
-        info.set_parameter_details([
-            param_detail_info_key, param_detail_info_value])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        class_info.add_method(info)
-
-        info = FunctionInfo("method")
-        info.set_name("__delitem__")
-        info.set_parameters(["key"])
-        param_detail_info_key = ParameterDetailInfo()
-        param_detail_info_key.set_name("key")
-        param_detail_info_key.set_description("")
-        param_detail_info_key.set_data_type(IntermidiateDataType("int, str"))
-        info.set_parameter_details([param_detail_info_key])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        return_info = ReturnInfo()
-        return_info.set_description("")
-        return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-        info.set_return(return_info)
-        class_info.add_method(info)
-
-    def _add_iter_next_len(self, class_info: 'ClassInfo', dtype: str):
-        info = FunctionInfo("method")
-        info.set_name("__iter__")
-        info.set_parameters([])
-        info.set_parameter_details([])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        return_info = ReturnInfo()
-        return_info.set_description("")
-        return_info.set_data_type(CustomDataType(
-            "GenericType", ModifierDataType("typing.Iterator"),
-            skip_refine=True))
-        info.set_return(return_info)
-        class_info.add_method(info)
-
-        info = FunctionInfo("method")
-        info.set_name("__next__")
-        info.set_parameters([])
-        info.set_parameter_details([])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        return_info = ReturnInfo()
-        return_info.set_description("")
-        return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-        info.set_return(return_info)
-        class_info.add_method(info)
-
-        info = FunctionInfo("method")
-        info.set_name("__len__")
-        info.set_parameters([])
-        info.set_parameter_details([])
-        info.set_class(class_info.name())
-        info.set_module(class_info.module())
-        return_info = ReturnInfo()
-        return_info.set_description("")
-        return_info.set_data_type(BuiltinDataType("int"))
-        info.set_return(return_info)
-        class_info.add_method(info)
-
     def _change_bpy_types_class_inheritance(self, result: 'AnalysisResult'):
         type_to_class_info = {}
         for section in result.section_info:
@@ -1546,8 +1547,9 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #                     value: GenericType):
                     #     def __delitem__(self, key: Union[str, int])
                     #         -> GenericType:
-                    self._add_getitem_and_setitem_delitem(info, "GenericType")
-                    self._add_iter_next_len(info, "GenericType")
+                    _add_getitem_and_setitem_delitem(
+                        info, "GenericType", "int, str")
+                    _add_iter_next_len(info, "GenericType")
                     info.add_base_class(
                         CustomDataType(
                             "GenericType", ModifierDataType("Generic"),
@@ -1558,7 +1560,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     #     def __setitem__(self, key: Union[str, int],
                     #                     value: Any):
                     #     def __delitem__(self, key: Union[str, int]) -> Any:
-                    self._add_getitem_and_setitem_delitem(info, "typing.Any")
+                    _add_getitem_and_setitem_delitem(
+                        info, "typing.Any", "int, str")
 
     def _modify(self, result: 'AnalysisResult'):
         super()._modify(result)
@@ -1570,3 +1573,32 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
 
         # After this, we could not infer data types as ItermidiateDataType
         self._tweak_bpy_types_classes(result)
+
+
+class BmeshModuleAnalyzer(AnalyzerWithModFile):
+
+    def _tweak_bmesh_types_classes(self, result: 'AnalysisResult'):
+        seq_to_type: Dict[str, str] = {
+            "BMElemSeq": "GenericType",
+            "BMVertSeq": "BMVert",
+            "BMEdgeSeq": "BMEdge",
+            "BMLoopSeq": "BMLoop",
+            "BMFaceSeq": "BMFace",
+        }
+
+        for section in result.section_info:
+            for info in section.info_list:
+                if not re.match(r"^bmesh.types", info.module()):
+                    continue
+                if info.type() != "class":
+                    continue
+                if info.name() in seq_to_type:
+                    _add_getitem_and_setitem_delitem(
+                        info, seq_to_type[info.name()], "int")
+                    _add_iter_next_len(info, seq_to_type[info.name()])
+
+    def _modify(self, result: 'AnalysisResult'):
+        super()._modify(result)
+
+        # After this, we could not infer data types as ItermidiateDataType
+        self._tweak_bmesh_types_classes(result)
