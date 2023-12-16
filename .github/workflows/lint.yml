@@ -54,7 +54,7 @@ jobs:
       - name: Install required pip packages
         run: |
           pip3 install pylint==2.15.0
-          pip3 install -r requirements.txt
+          pip3 install -r src/requirements.txt
 
       - name: pylint test
         run: bash tests/lint/pylint/run.sh .
