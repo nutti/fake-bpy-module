@@ -38,8 +38,6 @@ def make_bpy_rule(
     files = list(set(all_files) - set(excludes_files))
     mod_files = [
         f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.json".replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/common/analyzer/bpy_props.json".replace(
-            "\\", "/"),
         f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.types.bpy_prop_array.json"
         .replace("\\", "/"),
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.json"
