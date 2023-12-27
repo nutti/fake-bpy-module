@@ -43,7 +43,7 @@ class ClassA(BaseClassB, BaseClassA):
 
 
 def function_1(param_1: int = 10,
-               param_2: typing.List['ClassA'],
+               param_2: typing.List['ClassA'] = [],
                param_3: typing.Optional[float] = 4.5) -> bool:
     ''' function_1 description
 

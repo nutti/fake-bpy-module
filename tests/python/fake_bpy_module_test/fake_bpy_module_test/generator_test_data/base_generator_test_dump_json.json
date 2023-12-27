@@ -20,7 +20,7 @@
         "module": "module_1",
         "parameters": [
             "param_1=10",
-            "param_2",
+            "param_2=[]",
             "param_3=4.5"
         ],
         "parameter_details": [

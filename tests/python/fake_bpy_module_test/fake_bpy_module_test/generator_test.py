@@ -172,7 +172,7 @@ class GeneratorsTest(common.FakeBpyModuleTestBase):
     def _create_function_info(self):
         info = FunctionInfo("function")
         info.set_name("function_1")
-        info.set_parameters(["param_1=10", "param_2", "param_3=4.5"])
+        info.set_parameters(["param_1=10", "param_2=[]", "param_3=4.5"])
         info.set_description("function_1 description")
         info.set_module("module_1")
 
