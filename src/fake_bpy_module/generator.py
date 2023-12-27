@@ -1322,12 +1322,14 @@ class PackageGenerator:
                         dir_path = path + "/" + item.name
                         pathlib.Path(dir_path).mkdir(
                             parents=True, exist_ok=True)
-                        self._create_py_typed_file(dir_path)
+                        if module_level == 0:
+                            self._create_py_typed_file(dir_path)
                     elif len(item.children()) >= 1:
                         dir_path = path + "/" + item.name
                         pathlib.Path(dir_path).mkdir(
                             parents=True, exist_ok=True)
-                        self._create_py_typed_file(dir_path)
+                        if module_level == 0:
+                            self._create_py_typed_file(dir_path)
                         if dir_path == base_path:
                             continue
                         make_dir(dir_path, item, module_level+1)
