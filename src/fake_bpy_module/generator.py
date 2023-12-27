@@ -282,19 +282,28 @@ class PyCodeGeneratorBase(BaseGenerator):
 
         with CodeWriterIndent(1):
             # documentation
-            wt.add(f"''' {data['description']}")
-            wt.new_line(2)
-            for p in data["parameter_details"]:
-                if p["description"] != "":
-                    wt.addln(f":param {p['name']}: {p['description']}")
-                if p["data_type"] != "":
-                    wt.addln(f":type {p['name']}: {p['data_type']}")
-            if data["return"]["data_type"] != "":
-                wt.addln(f":rtype: {data['return']['data_type']}")
-            if data["return"]["description"] != "":
-                wt.addln(f":return: {data['return']['description']}")
-            wt.addln("'''")
-            wt.new_line(1)
+            if (
+                data["description"] != ""
+                or any(
+                    p["description"] != "" or p["data_type"] != ""
+                    for p in data["parameter_details"]
+                )
+                or data["return"]["data_type"] != ""
+                or data["return"]["description"] != ""
+            ):
+                wt.add(f"''' {data['description']}")
+                wt.new_line(2)
+                for p in data["parameter_details"]:
+                    if p["description"] != "":
+                        wt.addln(f":param {p['name']}: {p['description']}")
+                    if p["data_type"] != "":
+                        wt.addln(f":type {p['name']}: {p['data_type']}")
+                if data["return"]["data_type"] != "":
+                    wt.addln(f":rtype: {data['return']['data_type']}")
+                if data["return"]["description"] != "":
+                    wt.addln(f":return: {data['return']['description']}")
+                wt.addln("'''")
+                wt.new_line(1)
             wt.addln(self.ellipsis_strings["function"])
             wt.new_line(2)
 
@@ -321,14 +330,15 @@ class PyCodeGeneratorBase(BaseGenerator):
                 else:
                     wt.addln(f"{a['name']}: typing.Any"
                              f"{self.ellipsis_strings['attribute']}")
-                wt.add("''' ")
-                if a["description"] != "":
-                    wt.add(f"{a['description']}")
-                if a["data_type"] != "":
-                    wt.new_line(2)
-                    wt.addln(f":type: {a['data_type']}")
-                wt.addln("'''")
-                wt.new_line(1)
+                if a["description"] != "" or a["data_type"] != "":
+                    wt.add("''' ")
+                    if a["description"] != "":
+                        wt.add(f"{a['description']}")
+                    if a["data_type"] != "":
+                        wt.new_line(2)
+                        wt.addln(f":type: {a['data_type']}")
+                    wt.addln("'''")
+                    wt.new_line(1)
             if len(data["attributes"]) > 0:
                 wt.new_line(1)
 
@@ -391,16 +401,22 @@ class PyCodeGeneratorBase(BaseGenerator):
 
                 with CodeWriterIndent(2):
                     # documentation
-                    wt.addln(f"''' {m['description']}")
-                    wt.new_line(1)
-                    for p in m["parameter_details"]:
-                        wt.addln(f":param {p['name']}: {p['description']}")
-                        wt.addln(f":type {p['name']}: {p['data_type']}")
-                    if m["return"]["data_type"] != "":
-                        wt.addln(f":rtype: {m['return']['data_type']}")
-                    if m["return"]["description"] != "":
-                        wt.addln(f":return: {m['return']['description']}")
-                    wt.addln("'''")
+                    if (
+                        m["description"] != ""
+                        or len(m["parameter_details"]) > 0
+                        or m["return"]["data_type"] != ""
+                        or m["return"]["description"] != ""
+                    ):
+                        wt.addln(f"''' {m['description']}")
+                        wt.new_line(1)
+                        for p in m["parameter_details"]:
+                            wt.addln(f":param {p['name']}: {p['description']}")
+                            wt.addln(f":type {p['name']}: {p['data_type']}")
+                        if m["return"]["data_type"] != "":
+                            wt.addln(f":rtype: {m['return']['data_type']}")
+                        if m["return"]["description"] != "":
+                            wt.addln(f":return: {m['return']['description']}")
+                        wt.addln("'''")
 
                     wt.addln(self.ellipsis_strings["method"])
                     wt.new_line()
