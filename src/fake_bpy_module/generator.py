@@ -4,6 +4,7 @@ import pathlib
 import abc
 from typing import List, Dict
 from collections import OrderedDict
+import subprocess
 from yapf.yapflib.yapf_api import FormatCode
 from tqdm import tqdm
 
@@ -88,9 +89,24 @@ class CodeWriter:
         self._code_data: str = ""
         self._buffer: str = ""
 
-    def format(self, style_config: str):
-        self._code_data = FormatCode(
-            self._code_data, style_config=style_config)[0]
+    def format(self, style_config: str, file_format: str):
+        if style_config == "yapf":
+            self._code_data = FormatCode(
+                self._code_data, style_config="pep8")[0]
+        elif style_config == "ruff":
+            self._code_data = subprocess.check_output(
+                [
+                    "ruff",
+                    "format",
+                    "--isolated",
+                    f"--stdin-filename=_.{file_format}",
+                ],
+                input=self._code_data.encode(),
+            ).decode()
+        elif style_config == "none":
+            pass
+        else:
+            raise ValueError(f"Invalid style config: {style_config}")
 
 
 class BaseGenerator(metaclass=abc.ABCMeta):
@@ -225,7 +241,7 @@ class BaseGenerator(metaclass=abc.ABCMeta):
     def generate(self,
                  filename: str,
                  data: 'GenerationInfoByTarget',
-                 style_config: str = 'pep8'):
+                 style_config: str = 'ruff'):
         raise NotImplementedError()
 
 
@@ -443,7 +459,7 @@ class PyCodeGeneratorBase(BaseGenerator):
     def generate(self,
                  filename: str,
                  data: 'GenerationInfoByTarget',
-                 style_config: str = 'pep8'):
+                 style_config: str = 'ruff'):
         # At first, sort data to avoid generating large diff.
         # Note: Base class must be located above derived class
         sorted_data = self._sorted_generation_info(data)
@@ -497,11 +513,8 @@ class PyCodeGeneratorBase(BaseGenerator):
                 elif info.type() == "constant":
                     self._gen_constant_code(info)
 
-            if style_config != "none":
-                wt.format(style_config)
-                wt.write(file)
-            else:
-                wt.write(file)
+            wt.format(style_config, self.file_format)
+            wt.write(file)
 
 
 class PyCodeGenerator(PyCodeGeneratorBase):
@@ -603,7 +616,7 @@ class PackageGeneratorConfig:
     def __init__(self):
         self.output_dir: str = "./out"
         self.os: str = "Linux"
-        self.style_format: str = "pep8"
+        self.style_format: str = "ruff"
         self.dump: bool = False
         self.target: str = "blender"
         self.target_version: str = None

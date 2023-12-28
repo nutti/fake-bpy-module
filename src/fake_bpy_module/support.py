@@ -7,7 +7,8 @@ SUPPORTED_TARGET: List[str] = [
 
 SUPPORTED_STYLE_FORMAT: List[str] = [
     "none",
-    "pep8"
+    "yapf",
+    "ruff"
 ]
 
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [

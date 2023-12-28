@@ -5,21 +5,18 @@ GenericType = typing.TypeVar("GenericType")
 
 
 class ClassExp:
-    ''' ClassExp description
-    '''
+    """ClassExp description"""
 
     attr: float = None
-    ''' attr description
+    """ attr description
 
     :type: float
-    '''
+    """
 
-    def method_with_keyword_only_argument(self,
-                                          arg_1: float,
-                                          arg_2: float = 5.0,
-                                          *,
-                                          arg_3: int) -> int:
-        ''' method_with_keyword_only_argument description
+    def method_with_keyword_only_argument(
+        self, arg_1: float, arg_2: float = 5.0, *, arg_3: int
+    ) -> int:
+        """method_with_keyword_only_argument description
 
         :param arg_1: method_with_keyword_only_argument arg_1 description
         :type arg_1: float
@@ -29,12 +26,12 @@ class ClassExp:
         :type arg_3: int
         :rtype: int
         :return: method_with_keyword_only_argument return description
-        '''
+        """
         pass
 
 
 def function_with_type_hint(arg_1: float, arg_2: bool) -> int:
-    ''' function_with_type_hint description
+    """function_with_type_hint description
 
     :param arg_1: function_with_type_hint arg_1 description
     :type arg_1: float
@@ -42,6 +39,6 @@ def function_with_type_hint(arg_1: float, arg_2: bool) -> int:
     :type arg_2: bool
     :rtype: int
     :return: function_with_type_hint return description
-    '''
+    """
 
     pass

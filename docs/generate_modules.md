@@ -188,7 +188,8 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -b <blender-version> -m
 * `-d`: Dump internal data structures to `<output-dir>` as the files name with
   suffix `-dump.json`
 * `-f <format>`: Format the generated code by `<format>` convention.
-  * `pep8`: Format generated code by pep8.
+  * `yapf`: Format generated code with yapf.
+  * `ruff`: Format generated code with ruff.
 * `-b <blender-version>`: Specify blender version.
 * `-m <mod-version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
