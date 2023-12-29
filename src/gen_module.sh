@@ -22,7 +22,7 @@ output_dir=${6}
 mod_version=${7:-not-specified}
 current_dir=$(pwd)
 tmp_dir=${current_dir}/${TMP_DIR_NAME}
-format=${GEN_MODULE_CODE_FORMAT:-pep8}
+format=${GEN_MODULE_CODE_FORMAT:-ruff}
 output_log_level=${GEN_MODULE_OUTPUT_LOG_LEVEL:-warn}
 
 # find blender binary

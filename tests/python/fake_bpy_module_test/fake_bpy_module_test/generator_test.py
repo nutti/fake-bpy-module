@@ -85,7 +85,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
             writer.new_line(2)
             writer.addln("i: int = 10")
 
-            writer.format(style_config="pep8")
+            writer.format(style_config="ruff", file_format="py")
             writer.write(f)
 
         expect_file_path = f"{self.data_dir}/code_writer_test_normal.py"
@@ -107,7 +107,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
             writer.new_line(2)
             writer.addln("f: float = 0.5")
 
-            writer.format(style_config="pep8")
+            writer.format(style_config="ruff", file_format="py")
             writer.write(f)
 
         expect_file_path = \
@@ -130,7 +130,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
             writer.new_line(2)
             writer.addln("b: bool = False")
 
-            writer.format(style_config="pep8")
+            writer.format(style_config="ruff", file_format="py")
             writer.write(f)
 
         expect_file_path = f"{self.data_dir}/code_writer_test_with_reset.py"
@@ -321,7 +321,7 @@ class GeneratorsTest(common.FakeBpyModuleTestBase):
 
         for type_ in generator_types:
             generator = type_["generator"]
-            generator.generate(self.output_file_path, info, "pep8")
+            generator.generate(self.output_file_path, info, "ruff")
 
             expect_file_path = \
                 f"{self.data_dir}/base_generator_test_generate." + \
@@ -377,7 +377,7 @@ class GeneratorsTest(common.FakeBpyModuleTestBase):
 
         for type_ in generator_types:
             generator = type_["generator"]
-            generator.generate(self.output_file_path, info, "pep8")
+            generator.generate(self.output_file_path, info, "ruff")
 
             expect_file_path = \
                 f"{self.data_dir}/" + \
@@ -900,7 +900,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config = PackageGeneratorConfig()
         config.output_dir = self.output_dir
         config.os = "Linux"
-        config.style_format = "pep8"
+        config.style_format = "ruff"
         config.dump = True
         config.target = "blender"
         config.target_version = "2.80"
@@ -961,7 +961,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config = PackageGeneratorConfig()
         config.output_dir = self.output_dir
         config.os = "Linux"
-        config.style_format = "pep8"
+        config.style_format = "ruff"
         config.dump = True
         config.target = "blender"
         config.target_version = "2.80"
@@ -1031,7 +1031,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
         config = PackageGeneratorConfig()
         config.output_dir = self.output_dir
         config.os = "Linux"
-        config.style_format = "pep8"
+        config.style_format = "ruff"
         config.dump = True
         config.target = "blender"
         config.target_version = "2.80"

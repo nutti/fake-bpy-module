@@ -10,6 +10,9 @@ tests/tmp
 src/mods/generated_mods
 tools/pip_package/tmp-*
 
+# test logs
+fake_bpy_module_test.log
+
 # ignore artifacts
 release
 raw_modules

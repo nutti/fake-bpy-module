@@ -217,7 +217,8 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
         help="Dump intermediate structure to JSON files"
     )
     parser.add_argument(
-        "-f", dest="style_format", type=str, help="Style format (None, pep8)"
+        "-f", dest="style_format", type=str,
+        help="Style format (none, yapf, ruff)"
     )
     parser.add_argument(
         "-m", dest="mod_version", type=str,
