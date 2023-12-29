@@ -1,8 +1,12 @@
 FROM docker:24-cli
 
-# Make actions/cache directory for volume
+# Make local cache directory for volume
 RUN mkdir /act_cache \
  && chmod -R 1777 /act_cache
+
+# Make actions/cache directory for volume
+RUN mkdir /act_cache_server \
+ && chmod -R 1777 /act_cache_server
 
 # Make artifact directory
 RUN mkdir /act_artifacts \

@@ -25,19 +25,20 @@ fi
 
 [ ! -d "${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts" ] && mkdir -p "${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts"
 
-docker run --rm --tty \
-	--mount type=bind,source="${WORKSPACE_DIR}",target=/workspace \
+docker run --rm \
 	--mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
 	--mount type=bind,source="${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts",target=/act_artifacts \
 	--mount type=volume,source=fake-bpy-module-act-cache,target=/act_cache \
+	--mount type=volume,source=fake-bpy-module-act-cache-server,target=/act_cache_server \
+	--mount type=bind,source="${WORKSPACE_DIR}",target=/workspace \
 	--workdir /workspace \
 	$(docker build -q -f "${GITHUB_ACTIONS_TESTS_DIR}/Dockerfile" .) \
 	/bin/act \
-	--reuse \
 	--secret GITHUB_TOKEN=${GITHUB_TOKEN} \
 	--secret TOKEN_FOR_ACTION_BLENDER_DAILY_BUILD=${GITHUB_TOKEN} \
 	--platform ubuntu-latest=catthehacker/ubuntu:act-latest \
 	--platform ubuntu-22.04=catthehacker/ubuntu:act-22.04 \
-	--cache-server-path /act_cache \
+	--action-cache-path /act_cache \
+	--cache-server-path /act_cache_server \
 	--artifact-server-path /act_artifacts \
 	"$@"
