@@ -3,7 +3,7 @@ set -eEu -o pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 WORKSPACE_DIR=$( realpath "${SCRIPT_DIR}/.." )
-GITHUB_ACTIONS_TEST_DIR="${WORKSPACE_DIR}/tests/github_actions_tests"
+GITHUB_ACTIONS_TESTS_DIR="${WORKSPACE_DIR}/tests/github_actions_tests"
 
 if [ $# -lt 1 ]; then
     echo "Usage: bash ${BASH_SOURCE[0]} <act_args>"
@@ -23,13 +23,15 @@ if ! which docker > /dev/null 2>&1; then
 	exit 3
 fi
 
+[ ! -d "${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts" ] && mkdir -p "${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts"
+
 docker run --rm --tty \
 	--mount type=bind,source="${WORKSPACE_DIR}",target=/workspace \
 	--mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
-	--mount type=bind,source="${GITHUB_ACTIONS_TEST_DIR}/act_artifacts",target=/act_artifacts \
+	--mount type=bind,source="${GITHUB_ACTIONS_TESTS_DIR}/act_artifacts",target=/act_artifacts \
 	--mount type=volume,source=fake-bpy-module-act-cache,target=/act_cache \
 	--workdir /workspace \
-	$(docker build -q -f "${GITHUB_ACTIONS_TEST_DIR}/Dockerfile" .) \
+	$(docker build -q -f "${GITHUB_ACTIONS_TESTS_DIR}/Dockerfile" .) \
 	/bin/act \
 	--reuse \
 	--secret GITHUB_TOKEN=${GITHUB_TOKEN} \
