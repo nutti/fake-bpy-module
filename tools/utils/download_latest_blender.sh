@@ -2,7 +2,7 @@
 set -eEu
 
 if [ $# -ne 4 ] && [ $# -ne 5 ]; then
-    echo "Usage: get_latest_artifacts_url.sh <owner> <repository> <workflow> <target_dir> <token_for_actions>"
+    echo "Usage: download_latest_blender.sh <owner> <repository> <workflow> <target_dir> <token_for_actions>"
     exit 1
 fi
 
@@ -77,7 +77,7 @@ else
 fi
 
 echo "Decompressing the artifact ..."
-unzip -d "${target_dir}" artifact-blender.zip
+unzip -o -d "${target_dir}" artifact-blender.zip
 
 echo "Checking MD5 sum ..."
 pushd "${target_dir}" 1> /dev/null
@@ -88,7 +88,9 @@ if ! md5sum --check --status <<< "${checksum}"; then
 fi
 
 echo "Decompressing the blender ..."
+[ -e blender ] && rm -rf blender
 tar xf blender.tar.xz
+[ -e blender-latest-bin ] && rm -rf blender-latest-bin
 mv blender blender-latest-bin
 rm blender.tar.xz blender.tar.xz.md5
 popd 1> /dev/null
