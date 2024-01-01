@@ -13,16 +13,16 @@ target_dir=${4}
 token_for_actions=${5:-not-specified}
 
 echo "Trying to get the artifact URL ..."
-artifacts_url=
+artifacts_url=$(bash "$(dirname "${BASH_SOURCE[0]}")/get_latest_artifacts_url.sh" "${owner}" "${repository}" "${workflow}")
 echo "  Artifact URL is ${artifacts_url}."
 
 echo "Downloading the artifact ..."
 mkdir -p "${target_dir}"
-curl_args="--location --fail -s"
+curl_args=("--location" "--fail" "-s")
 if [ "${token_for_actions}" != "not-specified" ]; then
-    curl_args+=" -H 'Authorization: token ${token_for_actions}'"
+    curl_args+=("-H" "Authorization: token ${token_for_actions}")
 fi
-curl ${curl_args} "${artifacts_url}" -o artifact-blender.zip
+curl "${curl_args[@]}" "${artifacts_url}" -o artifact-blender.zip
 
 echo "Decompressing the artifact ..."
 unzip -o -d "${target_dir}" artifact-blender.zip
