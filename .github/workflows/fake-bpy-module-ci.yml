@@ -61,24 +61,25 @@ jobs:
           ]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: 'src/requirements.txt'
+
+      - name: Install python dependencies
+        run: |
+          pip install -r src/requirements.txt
 
       - name: Blender downloads cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: blender-bin-cache
         with:
           path: blender-bin
           key: blender-binaries-${{ runner.os }}-${{ matrix.blender_version }}-${{ hashFiles('**/tools/utils/download_blender.sh') }}
-
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r src/requirements.txt
 
       - name: Test fake_bpy_module core module
         run: bash tests/run_pre_tests.sh src
@@ -86,10 +87,10 @@ jobs:
       - name: Install Blender binary dependencies
         run: |
           sudo apt update
-          sudo apt install -y libglu1-mesa
+          sudo apt install --no-install-recommends -y libglu1-mesa libegl1 libxxf86vm1 libxfixes3 libxi6 libxkbcommon0 libgl1
 
       - name: Install fake-bpy-module tools
-        run: sudo apt install -y pandoc
+        run: sudo apt install --no-install-recommends -y pandoc
 
       - name: Download Blender files
         if: steps.blender-bin-cache.outputs.cache-hit != 'true'
@@ -98,7 +99,7 @@ jobs:
         # alternatively to the github checkout, you can also use
         # git.blender.org. See below.
       - name: Checkout Blender from Github
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: "blender/blender"
           path: blender
@@ -120,13 +121,13 @@ jobs:
         run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: fake_bpy_modules_${{ matrix.blender_version}}_pip_${{ needs.set_versions.outputs.file_version }}
           path: release
 
       - name: Archive raw modules
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: fake_bpy_modules_${{ matrix.blender_version}}_raw_${{ needs.set_versions.outputs.file_version }}
           path: "raw_modules/fake_bpy_module*"
@@ -150,7 +151,7 @@ jobs:
 
       - name: Store failure state
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failure_state_${{ matrix.blender_version}}
           path: /tmp/failure_state_${{ matrix.blender_version}}
@@ -173,7 +174,7 @@ jobs:
           ]
     steps:
       - name: Fetch artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: dist
 
@@ -203,7 +204,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: dist
 
@@ -231,7 +232,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: dist
 
