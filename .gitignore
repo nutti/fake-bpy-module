@@ -9,6 +9,7 @@ __pycache__/
 tests/tmp
 src/mods/generated_mods
 tools/pip_package/tmp-*
+/build/
 
 # test logs
 fake_bpy_module_test.log
