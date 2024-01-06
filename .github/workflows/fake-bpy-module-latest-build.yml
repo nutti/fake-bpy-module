@@ -8,7 +8,9 @@ on:   # yamllint disable-line rule:truthy
     - cron: "0 6 * * *"
   push:
     branches:
+      - master
       - 'run-ci/**'
+  pull_request:
 
 jobs:
   set_versions:
