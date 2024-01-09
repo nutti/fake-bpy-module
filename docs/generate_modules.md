@@ -7,6 +7,7 @@ You can choose the method to generate modules.
 
 1. [Case 1: Use utility script](#case-1-use-utility-script)
 2. [Case 2: Do it yourself all procedures](#case-2-do-it-yourself-all-procedures)
+3. [Case 3: Do Case 2 inside Docker](#case-3-do-case-2-inside-docker)
 
 ## Pre-requirement
 
@@ -194,3 +195,29 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -b <blender-version> -m
 * `-m <mod-version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
   * Files located in `mods/common` directories will be used at any time.
+
+## Case 3: Do Case 2 inside Docker
+
+### Run script
+
+<!-- markdownlint-disable MD013 -->
+```bash
+bash tools/gen_module/run_gen_module.sh <blender-version>
+```
+<!-- markdownlint-enable MD013 -->
+
+* `<blender-version>`: Specify blender version.
+
+`<mod-version>` is automatically determined by `<blender-version>` version.
+
+### Results
+
+| Directory | Contents |
+|----|----|
+| `build/blender-bin` | Blender binaries |
+| `build/blender-src` | Blender source code |
+| `build/examples` | Blender Python API sample code |
+| `build/results` | Result `*.pyi` files |
+| `build/sphinx-in` | Blender Python API documents |
+| `build/sphinx-in-tmp` | ??? |
+| `downloads` | Blender archives |
