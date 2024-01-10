@@ -24,6 +24,36 @@ from .utils import (
     LOG_LEVEL_WARN,
 )
 
+REGEX_SEARCH_FILENAME_BGE_TYPES = re.compile(r"/bge\.types\.(?!rst)")
+REGEX_MATCH_LINE_BASE_CLASS = re.compile(r"^base (class|classes) ---")
+REGEX_MATCH_LINE_MODULE = re.compile(r"^\.\. (currentmodule|module)::")
+REGEX_MATCH_LINE_MODULE_GROUP = re.compile(r"^\.\. (currentmodule|module)::\s*(.*)")
+REGEX_MATCH_LINE_CLASS = re.compile(r"^\.\. class::")
+REGEX_MATCH_LINE_FUNCTION = re.compile(r"^\.\. function::")
+REGEX_MATCH_LINE_METHOD = re.compile(r"^\.\. (method|staticmethod)::")
+REGEX_MATCH_LINE_DATA = re.compile(r"^\.\. (data|DATA)::")
+REGEX_MATCH_LINE_ATTRIBUTE = re.compile(r"^\.\. attribute::")
+REGEX_MATCH_LINE_SKIP = re.compile("|".join([
+    r"^\.\. include::",
+    r"^\.\. literalinclude::",
+    r"^\.\. note::",
+    r"^\.\. rubric::",
+    r"^\.\. hlist::",
+    r"^\.\. toctree::",
+    r"^\.\. warning::",
+    r"^\.\. code-block::",
+    r"^\.\. seealso::",
+    r"^\.\. note:",
+    r"^   \.\. _mat4_cam_to_world:",
+    r"^   \.\. code-block:",
+    r"^ \.\. _armatureactuator-constants-type",
+    r"^\.\. note,",
+    r"^\.\.$",
+    r"^\.\. _[a-zA-Z0-9-_]+:",
+    r"^   :Attributes:",
+    r"^\s+\.\. deprecated::"
+]))
+REGEX_MATCH_LINE_INVALID_LINE = re.compile(r"^\.\.|^\s+\.\.|^\s+:")
 
 # pylint: disable=R0903
 class AnalysisResult:
@@ -1011,7 +1041,7 @@ class BaseAnalyzer:
                 info.add_attribute(attr)
             elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line):     # noqa # pylint: disable=C0301
                 next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line).group(1)  # noqa # pylint: disable=C0301
-                is_deprecated = re.search(r"\(Deprecated", line) is not None
+                is_deprecated = "(Deprecated" in line
                 if self._target() == "upbge" and is_deprecated:
                     self._skip_until_next_le_level(
                         file, level=level.make_next_level(next_level_spaces))
@@ -1079,86 +1109,58 @@ class BaseAnalyzer:
             last_pos = file.tell()
             line = file.readline()
             section = SectionInfo()
+            is_target_upgbe = self._target() == "upbge"
             self.current_base_classes = None
-            if self._target() == "upbge" and \
-                    re.search(r"/bge\.types\.(?!rst)", filename) is not None:
+            if is_target_upgbe and REGEX_SEARCH_FILENAME_BGE_TYPES.search(filename) is not None:
                 self.current_module = "bge.types"
             else:
                 self.current_module = None
             while line:
-                if re.match(r"^base (class|classes) ---", line):
+                if REGEX_MATCH_LINE_BASE_CLASS.match(line):
                     if self.current_base_classes is not None:
                         self._invalid_line(line, 0)
                     file.seek(last_pos)
-                    self.current_base_classes = self._parse_base_class(
-                        file, level=RstLevel())
-                elif re.match(r"^\.\. (currentmodule|module)::", line):
+                    self.current_base_classes = self._parse_base_class(file, level=RstLevel())
+                elif REGEX_MATCH_LINE_MODULE.match(line):
                     if self.current_module is not None:
-                        m = re.match(
-                            r"^\.\. (currentmodule|module)::\s*(.*)", line)
-                        if (len(m.groups()) != 2 or
-                                m.group(2) != self.current_module):
+                        m = REGEX_MATCH_LINE_MODULE_GROUP.match(line)
+                        if (len(m.groups()) != 2 or m.group(2) != self.current_module):
                             self._invalid_line(line, 0)
                     file.seek(last_pos)
-                    self.current_module = self._cleanup_string(
-                        self._parse_module(file, level=RstLevel()))
-                elif re.match(r"^\.\. class::", line):
+                    self.current_module = self._cleanup_string(self._parse_module(file, level=RstLevel()))
+                elif REGEX_MATCH_LINE_CLASS.match(line):
                     file.seek(last_pos)
                     class_info = self._parse_class(file, level=RstLevel())
                     section.add_info(class_info)
-                elif re.match(r"^\.\. function::", line):
-                    deprecated = re.search(r"\(Deprecated", line) is not None
-                    if self._target() == "upbge" and deprecated:
+                elif REGEX_MATCH_LINE_FUNCTION.match(line):
+                    deprecated = "(Deprecated" in line
+                    if is_target_upgbe and deprecated:
                         self._skip_until_next_le_level(file, level=RstLevel())
                     else:
                         file.seek(last_pos)
-                        function_info = self._parse_function(
-                            file, level=RstLevel())
+                        function_info = self._parse_function(file, level=RstLevel())
                         section.add_info(function_info)
-                elif re.match(r"^\.\. (method|staticmethod)::", line):
+                elif REGEX_MATCH_LINE_METHOD.match(line):
                     file.seek(last_pos)
-                    function_info = self._parse_function(
-                        file, level=RstLevel())
+                    function_info = self._parse_function(file, level=RstLevel())
                     section.add_info(function_info)
-                elif re.match(r"^\.\. (data|DATA)::", line):
-                    deprecated = re.search(r"\(Deprecated", line) is not None
-                    if self._target() == "upbge" and deprecated:
+                elif REGEX_MATCH_LINE_DATA.match(line):
+                    deprecated = "(Deprecated" in line
+                    if is_target_upgbe and deprecated:
                         self._skip_until_next_le_level(file, level=RstLevel())
                     else:
+                        # _parse_constant
                         file.seek(last_pos)
-                        data_info = self._parse_constant(
-                            file, level=RstLevel())
+                        data_info = self._parse_constant(file, level=RstLevel())
                         section.add_info(data_info)
-                elif re.match(r"^\.\. attribute::", line):
+                elif REGEX_MATCH_LINE_ATTRIBUTE.match(line):
+                    # _parse_constant
                     file.seek(last_pos)
                     data_info = self._parse_constant(file, level=RstLevel())
                     section.add_info(data_info)
-                # pylint: disable=R0916
-                elif (re.match(r"^\.\. include::", line) or
-                      re.match(r"^\.\. literalinclude::", line) or
-                      re.match(r"^\.\. note::", line) or
-                      re.match(r"^\.\. rubric::", line) or
-                      re.match(r"^\.\. hlist::", line) or
-                      re.match(r"^\.\. toctree::", line) or
-                      re.match(r"^\.\. warning::", line) or
-                      re.match(r"^\.\. code-block::", line) or
-                      re.match(r"^\.\. seealso::", line) or
-                      re.match(r"^\.\. note:", line) or
-                      re.match(r"^   \.\. _mat4_cam_to_world:", line) or
-                      re.match(r"^   \.\. code-block:", line) or
-                      re.match(r"^ \.\. _armatureactuator-constants-type",
-                               line) or
-                      re.match(r"^\.\. note,", line) or
-                      re.match(r"^\.\.$", line) or
-                      re.match(r"^\.\. _[a-zA-Z0-9-_]+:", line) or
-                      re.match(r"^   :Attributes:", line) or
-                      re.match(r"^\s+\.\. deprecated::", line)):
+                elif REGEX_MATCH_LINE_SKIP.match(line):
                     self._skip_until_next_le_level(file, level=RstLevel())
-                elif re.match(r"^\.\.", line):
-                    self._invalid_line(line, 0)
-                elif re.match(r"^\s+\.\.", line):
-                    self._invalid_line(line, 0)
-                elif re.match(r"^\s+:", line):
+                elif REGEX_MATCH_LINE_INVALID_LINE.match(line):
                     self._invalid_line(line, 0)
                 last_pos = file.tell()
                 line = file.readline()

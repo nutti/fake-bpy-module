@@ -85,18 +85,21 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
 }
 
 
-def has_data_type(str_: str, data_type: str) -> bool:
-    ALLOWED_CHAR_BEFORE = [" ", "("]
-    ALLOWED_CHAR_AFTER = [" ", ",", ")"]
+ALLOWED_CHAR_BEFORE = {" ", "("}
+ALLOWED_CHAR_AFTER = {" ", ",", ")"}
 
+def has_data_type(str_: str, data_type: str) -> bool:
     start_index = 0
     end_index = len(str_)
+    data_type_len = len(data_type)
 
-    data_type = data_type.replace(".", r"\.")
-
-    for m in re.finditer(data_type, str_):
-        si = m.start(0)
-        ei = m.end(0)
+    ei = -1
+    while True:
+        si = str_.find(data_type, ei + 1)
+        if si == -1:
+            return False
+        
+        ei = si + data_type_len
         # example: "int"
         if (si == start_index) and (ei == end_index):
             return True
@@ -113,8 +116,6 @@ def has_data_type(str_: str, data_type: str) -> bool:
                 ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
             return True
 
-    return False
-
 
 FROM_DICT_METHOD: List[str] = [
     'NONE',
@@ -122,6 +123,64 @@ FROM_DICT_METHOD: List[str] = [
     'APPEND',
     'UPDATE',
 ]
+
+
+REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
+
+# strip non-sense string
+REGEX_SUB_DATA_TYPE_STRIP = re.compile("|".join([
+    r"\s+type\s*$",
+    r"^\s*type\s+",
+    r"^type$",
+    r"default (True|False|[-0-9.]+)",
+    r"default \".*\"",
+    r"default \'.*\'",
+    r"default \‘.*\’",
+    r"default \“.*\”",
+    r"default \{.*\}",
+    r"default \([-0-9., ]*\)",
+    r"\(optional\)",
+    r"\(readonly\)",
+    r"\(never None\)",
+    r"\(optional, never None\)",
+    r"\(readonly, never None\)",
+    r"in \[.*\]",
+    r"in \{.*\}",
+    r"of [0-9]+ items",
+    r"`",
+]))
+
+REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
+REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default (.+)$")
+REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*$")
+REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$")
+REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")
+REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF = re.compile(r"^boolean array of ([0-9]+) items(, .+)*$")
+REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES = re.compile(r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$")
+REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF = re.compile(r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$")
+REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF = re.compile(r"^`(mathutils.[a-zA-Z]+)` (rotation )*of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$")
+REGEX_MATCH_DATA_TYPE_NUMBER_IN = re.compile(r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$")
+REGEX_MATCH_DATA_TYPE_ENDSWITH_NUMBER = re.compile(r"(int|float)$")
+REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF = re.compile(r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")
+REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")
+REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|string|strings|string)\.*$")
+REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, $")
+REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of `([a-zA-Z0-9_.]+)`$")
+REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`, $")
+REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")
+REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")
+REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) of (float|int|str)")
+REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE = re.compile(r"^list of \(([a-zA-Z.,` ]+)\)")
+REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$")
+REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE = re.compile(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$")
+REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|set|tuple)`*\.*$")
+REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`, $")
+REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
+REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(, )*$")
+REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
+
+##
+#    :rtype: (list of `mathutils.Vector`, list of (int, int), list of list of int, list of list of int, list of list of int, list of list of int)
 
 
 class DataTypeMetadata:
@@ -1353,7 +1412,7 @@ class DataTypeRefiner:
             variable_kind: str,
             additional_info: Dict[str, typing.Any] = None) -> 'DataType':
         # pylint: disable=R0912,R0911,R0915
-        if re.match(r"^\s*$", dtype_str):
+        if REGEX_MATCH_DATA_TYPE_SPACE.match(dtype_str):
             return ModifierDataType("typing.Any")
 
         if dtype_str == "Same type with self class":
@@ -1363,10 +1422,10 @@ class DataTypeRefiner:
             if s:
                 return CustomDataType(s)
 
-        if re.match(r"^(type|object|function)$", dtype_str):
+        if dtype_str in ("type","object","function"):
             return ModifierDataType("typing.Any")
 
-        if re.match(r"^Depends on function prototype", dtype_str):
+        if dtype_str.startswith("Depends on function prototype"):
             return ModifierDataType("typing.Any")
 
         # [Pattern] `AnyType`
@@ -1374,33 +1433,32 @@ class DataTypeRefiner:
         #   File: refiner_test.py
         #   Function: test_get_refined_data_type_for_various_patterns
         #   Pattern: `AnyType`
-        if re.match(r"^`AnyType`", dtype_str):
+        if dtype_str.startswith("`AnyType`"):
             return ModifierDataType("typing.Any")
 
-        if re.match(r"^(any|Any type.)$", dtype_str):
+        if dtype_str in ("any","Any type."):
             return ModifierDataType("typing.Any")
 
-        if re.match(r"^[23][dD] [Vv]ector$", dtype_str):
+        # "[23][dD] [Vv]ector"
+        if dtype_str[1:].lower() == "d vector":
             s = self._parse_custom_data_type(
                 "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
-        if re.match(r"^4x4 mathutils.Matrix$", dtype_str):
+        if dtype_str == "4x4 mathutils.Matrix":
             s = self._parse_custom_data_type(
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^enum in \[(.*)\], default (.+)$", dtype_str)
-        if m:
+        if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
             dtypes = [
                 BuiltinDataType("str"),
                 BuiltinDataType("int")
             ]
             return MixinDataType(dtypes)
         # Ex: enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
-        m = re.match(r"^enum in \[(.*)\](, \(.+\))*$", dtype_str)
-        if m:
+        if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
             dtypes = [
                 BuiltinDataType("str"),
                 BuiltinDataType("int")
@@ -1408,8 +1466,7 @@ class DataTypeRefiner:
             return MixinDataType(dtypes)
 
         # Ex: enum set in {'KEYMAP_FALLBACK'}, (optional)
-        m = re.match(r"^enum set in \{(.*)\}(, \(.+\))*$", dtype_str)
-        if m:
+        if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
             dtypes = [
                 BuiltinDataType("str", ModifierDataType("set")),
                 BuiltinDataType("int", ModifierDataType("set"))
@@ -1417,8 +1474,7 @@ class DataTypeRefiner:
             return MixinDataType(dtypes)
 
         # Ex: enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
-        m = re.match(r"^enum in :ref:`rna.*`", dtype_str)
-        if m:
+        if dtype_str.startswith("enum in :ref:`rna"):
             dtypes = [
                 BuiltinDataType("str"),
                 BuiltinDataType("int")
@@ -1426,8 +1482,7 @@ class DataTypeRefiner:
             return MixinDataType(dtypes)
 
         # Ex: Enumerated constant
-        m = re.match(r"^Enumerated constant$", dtype_str)
-        if m:
+        if dtype_str == "Enumerated constant":
             dtypes = [
                 BuiltinDataType("str", ModifierDataType("set")),
                 BuiltinDataType("int", ModifierDataType("set"))
@@ -1435,37 +1490,27 @@ class DataTypeRefiner:
             return MixinDataType(dtypes)
 
         # Ex: boolean, default False
-        m = re.match(r"^boolean, default (False|True)$", dtype_str)
-        if m:
+        if REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT.match(dtype_str):
             return BuiltinDataType("bool")
         # Ex: boolean array of 3 items, (optional)
-        m = re.match(r"^(boolean) array of ([0-9]+) items(, .+)*$", dtype_str)
-        if m:
+        if REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF.match(dtype_str):
             return BuiltinDataType("bool", ModifierDataType("list"))
 
-        m = re.match(r"^boolean$", dtype_str)
-        if m:
+        if dtype_str == "boolean":
             return BuiltinDataType("bool")
-        m = re.match(r"^bool$", dtype_str)
-        if m:
+        if dtype_str == "bool":
             return BuiltinDataType("bool")
 
-        m = re.match(r"^bytes$", dtype_str)
-        if m:
+        if dtype_str == "bytes":
             return BuiltinDataType("bytes")
-        m = re.match(r"^byte sequence", dtype_str)
-        if m:
+        if dtype_str.startswith("byte sequence"):
             return BuiltinDataType(
                 "bytes", ModifierDataType("typing.Sequence"))
 
-        m = re.match(r"^[cC]allable.*", dtype_str)
-        if m:
+        if dtype_str.lower().startswith("callable"):
             return ModifierDataType("typing.Callable")
 
-        m = re.match(
-            r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$",
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES.match(dtype_str):
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
                 s = self._parse_custom_data_type(
                         m.group(1), uniq_full_names, uniq_module_names,
@@ -1479,10 +1524,7 @@ class DataTypeRefiner:
                     return MixinDataType(dtypes)
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
-        m = re.match(
-            r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",   # noqa # pylint: disable=C0301
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF.match(dtype_str):
             if m.group(1) in ("int", "float"):
                 if variable_kind == 'FUNC_ARG':
                     return BuiltinDataType(m.group(1), ModifierDataType(
@@ -1491,11 +1533,7 @@ class DataTypeRefiner:
                     "bpy.types.bpy_prop_array"))
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
-        m = re.match(
-            r"^`(mathutils.[a-zA-Z]+)` (rotation )*of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$",     # noqa # pylint: disable=C0301
-            dtype_str
-        )
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
@@ -1512,8 +1550,7 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
         # Ex: float triplet
-        m = re.match(r"^float triplet$", dtype_str)
-        if m:
+        if dtype_str == "float triplet":
             s = self._parse_custom_data_type(
                 "mathutils.Vector", uniq_full_names, uniq_module_names,
                 module_name)
@@ -1525,25 +1562,17 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
         # Ex: int in [-inf, inf], default 0, (readonly)
-        m = re.match(
-            r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_NUMBER_IN.match(dtype_str):
             return BuiltinDataType(m.group(1))
-        m = re.match(r"(int|float)$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_ENDSWITH_NUMBER.match(dtype_str):
             return BuiltinDataType(m.group(1))
         if dtype_str in ("unsigned int", "int (boolean)"):
             return BuiltinDataType("int")
-        m = re.match(r"^int sequence$", dtype_str)
-        if m:
+        if dtype_str == "int sequence":
             return BuiltinDataType("int", ModifierDataType("typing.Sequence"))
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
-        m = re.match(
-            r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in "
-            r"\[([-einf+0-9,. ]+)\](, .+)*$",
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(dtype_str):
             dtypes = [
                 BuiltinDataType("float", ModifierDataType("listlist")),
                 BuiltinDataType(
@@ -1554,11 +1583,7 @@ class DataTypeRefiner:
                 )
             ]
             return MixinDataType(dtypes)
-        m = re.match(
-            r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in "
-            r"\[([-einf+0-9,. ]+)\](, .+)*$",
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 "mathutils.Matrix", uniq_full_names, uniq_module_names,
                 module_name)
@@ -1574,30 +1599,25 @@ class DataTypeRefiner:
                     CustomDataType(s)
                 ]
                 return MixinDataType(dtypes)
-        m = re.match(r"^double$", dtype_str)
-        if m:
+        if dtype_str == "double":
             return BuiltinDataType("float")
-        m = re.match(r"^double \(float\)", dtype_str)
-        if m:
+        if dtype_str.startswith("double (float)"):
             return BuiltinDataType("float")
 
-        if re.match(r"^(str|string|strings|string)\.*$", dtype_str):
+        if REGEX_MATCH_DATA_TYPE_STRING.match(dtype_str):
             return BuiltinDataType("str")
-        if re.match(r"^tuple$", dtype_str):
+        if dtype_str == "tuple":
             return ModifierDataType("tuple")
-        if re.match(r"^sequence$", dtype_str):
+        if dtype_str == "sequence":
             return ModifierDataType("typing.Sequence")
 
-        if re.match(r"^`bgl.Buffer` ", dtype_str):
+        if dtype_str.startswith("`bgl.Buffer` "):
             s1 = self._parse_custom_data_type(
                 "bgl.Buffer", uniq_full_names, uniq_module_names, module_name)
             if s1:
                 return CustomDataType(s1)
 
-        m = re.match(
-            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`, $",
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF.match(dtype_str):
             s1 = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             s2 = self._parse_custom_data_type(
@@ -1605,8 +1625,7 @@ class DataTypeRefiner:
             if s1 and s2:
                 return CustomDataType(s1)
 
-        m = re.match(r"^set of strings", dtype_str)
-        if m:
+        if dtype_str.startswith("set of strings"):
             return BuiltinDataType("str", ModifierDataType("set"))
 
         # [Pattern] sequence of string tuples or a function
@@ -1614,52 +1633,43 @@ class DataTypeRefiner:
         #   File: refiner_test.py
         #   Function: test_get_refined_data_type_for_various_patterns
         #   Pattern: sequence of string tuples or a function
-        m = re.match(r"^sequence of string tuples or a function$", dtype_str)
-        if m:
+        if dtype_str == "sequence of string tuples or a function":
             dtypes = [
                 BuiltinDataType("str", ModifierDataType("iteriter")),
                 ModifierDataType("typing.Callable")
             ]
             return MixinDataType(dtypes)
         # Ex: sequence of bpy.types.Action
-        m = re.match(r"^sequence of `([a-zA-Z0-9_.]+)`$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_SEQUENCE_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("typing.Iterable"))
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
-        m = re.match(
-            r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`, $",
-            dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(
                     s, CustomModifierDataType("bpy.types.bpy_prop_collection"))
         # Ex: List of FEdge objects
-        m = re.match(r"^List of `([A-Za-z0-9]+)` objects$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("list"))
         # Ex: list of FEdge
-        m = re.match(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s, ModifierDataType("list"))
         # Ex: list of ints
-        m = re.match(r"^(list|sequence) of (float|int|str)", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING.match(dtype_str):
             return BuiltinDataType(m.group(2), ModifierDataType("list"))
         # Ex: list of (bmesh.types.BMVert)
-        m = re.match(r"^list of \(([a-zA-Z.,` ]+)\)", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE.match(dtype_str):
             items = m.group(1).split(",")
             dtypes = []
             for item in items:
@@ -1676,8 +1686,7 @@ class DataTypeRefiner:
             if len(dtypes) > 1:
                 return MixinDataType(dtypes)
         # Ex: BMElemSeq of BMEdge
-        m = re.match(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
@@ -1687,8 +1696,7 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
         # Ex: tuple of mathutils.Vector's
-        m = re.match(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
@@ -1698,12 +1706,9 @@ class DataTypeRefiner:
                     skip_refine=True)
                 return dd
 
-        m = re.match(
-            r"^(BMVertSeq|BMEdgeSeq|BMFaceSeq|BMLoopSeq|BMEditSelSeq)$",
-            dtype_str)
-        if m:
+        if dtype_str in ("BMVertSeq", "BMEdgeSeq", "BMFaceSeq", "BMLoopSeq", "BMEditSelSeq"):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                dtype_str, uniq_full_names, uniq_module_names, module_name)
             if s:
                 dtypes = [
                     CustomDataType(s.rstrip("Seq"), ModifierDataType("list")),
@@ -1711,57 +1716,48 @@ class DataTypeRefiner:
                 ]
                 return MixinDataType(dtypes)
 
-        m = re.match(r"^dict with string keys$", dtype_str)
-        if m:
+        if dtype_str == "dict with string keys":
             return ModifierDataType("dict")
-        m = re.match(r"^iterable object$", dtype_str)
-        if m:
+        if dtype_str == "iterable object":
             return ModifierDataType("list")
-        m = re.match(r"^`*(list|dict|set|tuple)`*\.*$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE.match(dtype_str):
             return ModifierDataType(m.group(1))
 
         # Ex: bpy.types.Struct subclass
-        m = re.match(r"^`bpy.types.Struct` subclass$", dtype_str)
-        if m:
+        if dtype_str == "`bpy.types.Struct` subclass":
             s = self._parse_custom_data_type(
                 "bpy.types.Struct", uniq_full_names, uniq_module_names,
                 module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^`bpy_struct`$", dtype_str)
-        if m:
+        if dtype_str == "`bpy_struct`":
             s = self._parse_custom_data_type(
                 "bpy_struct", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
         # Ex: CLIP_OT_add_marker
-        m = re.match(r"^`([A-Z]+)_OT_([A-Za-z_]+)`, $", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_OT.match(dtype_str):
             idname = f"bpy.ops.{m.group(1).lower()}.{m.group(2)}"
             s = self._parse_custom_data_type(
                 idname, uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_DOT.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^`([a-zA-Z0-9_.]+)`(, )*$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return CustomDataType(s)
 
-        m = re.match(r"^[a-zA-Z0-9_.]+$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_NAME.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(0), uniq_full_names, uniq_module_names, module_name)
             if s:
@@ -1778,30 +1774,7 @@ class DataTypeRefiner:
             if has_data_type(dtype_str, key):
                 dtype_str = dtype_str.replace(key, value)
 
-        # strip non-sense string
-        strip_pattens = [
-            r"\s+type\s*$",
-            r"^\s*type\s+",
-            r"^type$",
-            r"default (True|False|[-0-9.]+)",
-            r"default \".*\"",
-            r"default \'.*\'",
-            r"default \‘.*\’",
-            r"default \“.*\”",
-            r"default \{.*\}",
-            r"default \([-0-9., ]*\)",
-            r"\(optional\)",
-            r"\(readonly\)",
-            r"\(never None\)",
-            r"\(optional, never None\)",
-            r"\(readonly, never None\)",
-            r"in \[.*\]",
-            r"in \{.*\}",
-            r"of [0-9]+ items",
-            r"`",
-        ]
-        for sp in strip_pattens:
-            dtype_str = re.sub(sp, "", dtype_str)
+        dtype_str = REGEX_SUB_DATA_TYPE_STRIP.sub("", dtype_str)
 
         def only_nonsense_chars(string_to_parse: str) -> bool:
             NONSENSE_CHARS = [",", " ", "(", ")"]
@@ -2118,8 +2091,7 @@ class DataTypeRefiner:
         is_optional = data_type.is_optional()
 
         # Ex. (Quaternion, float) pair
-        m = re.match(r"^\((.*)\) pair$", dtype_str)
-        if m:
+        if m := REGEX_MATCH_DATA_TYPE_PAIR.match(dtype_str):
             sp = m.group(1).split(",")
             dtypes = []
             for s in sp:
