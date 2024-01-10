@@ -23,7 +23,7 @@ eval "$(sed -n '/^SUPPORTED_BLENDER_VERSIONS/,/^TMP_DIR_NAME/{/^TMP_DIR_NAME/!p}
 # Check arguments
 if [[ $# != 1 ]]; then
     echo "Usage: bash ${BASH_SOURCE[0]} <target_version>"
-	echo "  Available <target_version>: " "${SUPPORTED_BLENDER_VERSIONS[@]}"
+    echo "  Available <target_version>: " "${SUPPORTED_BLENDER_VERSIONS[@]}"
     exit 1
 fi
 
@@ -31,8 +31,8 @@ target_version="${1}"
 
 # Check target version is supported
 if [[ ! " ${SUPPORTED_BLENDER_VERSIONS[*]} " == *" ${target_version} "* ]]; then
-	echo "Error: Unsupported Blender version: ${target_version}"
-	exit 2
+    echo "Error: Unsupported Blender version: ${target_version}"
+    exit 2
 fi
 
 # Create BUILD_DIR if not exist
@@ -40,42 +40,36 @@ fi
 
 # Download Blender source code
 if [[ ! -d "${WORKSPACE_DIR}/${BLENDER_SRC_DIR}" ]]; then
-	git clone https://github.com/blender/blender.git "${WORKSPACE_DIR}/${BLENDER_SRC_DIR}"
-# else
-	# (cd "${WORKSPACE_DIR}/${BLENDER_SRC_DIR}" && git fetch --all)
+    git clone https://github.com/blender/blender.git "${WORKSPACE_DIR}/${BLENDER_SRC_DIR}"
 fi
-
-# Checkout Blender source code to target_version
-# Comment next line because gen_module.sh checkout target_version.
-# (cd "${WORKSPACE_DIR}/${BLENDER_SRC_DIR}" && git checkout "${BLENDER_TAG_NAME["v${target_version}"]}")
 
 # Define docker run parameters
 docker_run_parameters=(
-	"-it" "--rm"
-	"--user" "$(id -u):$(id -g)"
-	"--mount" "type=bind,source=${WORKSPACE_DIR},target=/workspace"
-	"--workdir" "/workspace"
-	"$(cd "${WORKSPACE_DIR}" && docker build -q -f tools/gen_module/Dockerfile .)"
+    "-it" "--rm"
+    "--user" "$(id -u):$(id -g)"
+    "--mount" "type=bind,source=${WORKSPACE_DIR},target=/workspace"
+    "--workdir" "/workspace"
+    "$(cd "${WORKSPACE_DIR}" && docker build -q -f tools/gen_module/Dockerfile .)"
 )
 
 # Download Blender binary if not exist
 BLENDER_TARGET_BIN_DIR="${BLENDER_BIN_DIR}/blender-v${target_version}-bin"
 if [[ ! -d "${WORKSPACE_DIR}/${BLENDER_TARGET_BIN_DIR}" ]]; then
-	# Run download_blender.sh in docker to download the Linux version
-	docker run "${docker_run_parameters[@]}" \
-		/bin/bash "tools/utils/download_blender.sh" "${target_version}" "${BLENDER_BIN_DIR}"
+    # Run download_blender.sh in docker to download the Linux version
+    docker run "${docker_run_parameters[@]}" \
+        /bin/bash "tools/utils/download_blender.sh" "${target_version}" "${BLENDER_BIN_DIR}"
 fi
 
 # Define gen_module.sh parameters
 gen_module_parameters=(
-	"${BLENDER_SRC_DIR}"
-	"${BLENDER_TARGET_BIN_DIR}"
-	"blender"
-	"${BLENDER_TAG_NAME[v${target_version}]}"
-	"${target_version}"
-	"${BUILD_DIR}/results"
+    "${BLENDER_SRC_DIR}"
+    "${BLENDER_TARGET_BIN_DIR}"
+    "blender"
+    "${BLENDER_TAG_NAME[v${target_version}]}"
+    "${target_version}"
+    "${BUILD_DIR}/results"
 )
 
 # Run gen_module.sh in docker
 docker run --env TEMPORARY_DIR="${BUILD_DIR}" "${docker_run_parameters[@]}" \
-	/bin/bash src/gen_module.sh "${gen_module_parameters[@]}"
+    /bin/bash src/gen_module.sh "${gen_module_parameters[@]}"
