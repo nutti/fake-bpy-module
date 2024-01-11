@@ -2,6 +2,7 @@ import json
 import re
 import pathlib
 import abc
+import io
 from typing import List, Dict
 from collections import OrderedDict
 import subprocess
@@ -60,49 +61,50 @@ class CodeWriterIndent:
 
 class CodeWriter:
     def __init__(self):
-        self._code_data: str = ""
-        self._buffer: str = ""
+        self._code_data: io.StringIO = io.StringIO()
+        self._buffer: io.StringIO = io.StringIO()
 
     def add(self, code: str, new_line: bool = False):
-        self._buffer += code
+        self._buffer.write(code)
         if new_line:
             indent = CodeWriterIndent.current_indent()
-            self._code_data += f"{INDENT * indent}{self._buffer}\n"
-            self._buffer = ""
+            self._code_data.write(INDENT * indent)
+            self._code_data.write(self._buffer.getvalue())
+            self._code_data.write("\n")
+            self._buffer = io.StringIO()
 
     def addln(self, code: str):
         self.add(code, True)
 
     def new_line(self, num: int = 1):
-        indent = CodeWriterIndent.current_indent()
-        if self._buffer != "":
-            line_break = "\n" * num
-            self._code_data += f"{INDENT * indent}{self._buffer}{line_break}"
-        else:
-            self._code_data += "\n" * num
-        self._buffer = ""
+        if self._buffer.tell() > 0:
+            indent = CodeWriterIndent.current_indent()
+            self._code_data.write(INDENT * indent)
+            self._code_data.write(self._buffer.getvalue())
+            self._buffer = io.StringIO()
+        self._code_data.write("\n" * num)
 
-    def write(self, file):
-        file.write(self._code_data)
+    def write(self, file: io.TextIOWrapper):
+        file.write(self._code_data.getvalue())
 
     def reset(self):
-        self._code_data: str = ""
-        self._buffer: str = ""
+        self._code_data = io.StringIO()
+        self._buffer = io.StringIO()
 
     def format(self, style_config: str, file_format: str):
         if style_config == "yapf":
-            self._code_data = FormatCode(
-                self._code_data, style_config="pep8")[0]
+            self._code_data = io.StringIO(FormatCode(
+                self._code_data.getvalue(), style_config="pep8")[0])
         elif style_config == "ruff":
-            self._code_data = subprocess.check_output(
+            self._code_data = io.StringIO(subprocess.check_output(
                 [
                     "ruff",
                     "format",
                     "--isolated",
                     f"--stdin-filename=_.{file_format}",
                 ],
-                input=self._code_data.encode(),
-            ).decode()
+                input=self._code_data.getvalue().encode(),
+            ).decode())
         elif style_config == "none":
             pass
         else:

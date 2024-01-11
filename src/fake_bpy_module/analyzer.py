@@ -27,7 +27,7 @@ from .utils import (
 REGEX_SEARCH_FILENAME_BGE_TYPES = re.compile(r"/bge\.types\.(?!rst)")
 REGEX_MATCH_LINE_BASE_CLASS = re.compile(r"^base (class|classes) ---")
 REGEX_MATCH_LINE_MODULE = re.compile(r"^\.\. (currentmodule|module)::")
-REGEX_MATCH_LINE_MODULE_GROUP = re.compile(r"^\.\. (currentmodule|module)::\s*(.*)")
+REGEX_MATCH_LINE_MODULE_GROUP = re.compile(r"^\.\. (currentmodule|module)::\s*(.*)")  # noqa # pylint: disable=C0301
 REGEX_MATCH_LINE_CLASS = re.compile(r"^\.\. class::")
 REGEX_MATCH_LINE_FUNCTION = re.compile(r"^\.\. function::")
 REGEX_MATCH_LINE_METHOD = re.compile(r"^\.\. (method|staticmethod)::")
@@ -54,6 +54,10 @@ REGEX_MATCH_LINE_SKIP = re.compile("|".join([
     r"^\s+\.\. deprecated::"
 ]))
 REGEX_MATCH_LINE_INVALID_LINE = re.compile(r"^\.\.|^\s+\.\.|^\s+:")
+REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
+REGEX_MATCH_LINE_HEAD_SPACES_DOT_DOT = re.compile(r"^(\s*)\.\.")
+REGEX_MATCH_LINE_HEAD_SPACES_NOT_SPACE = re.compile(r"^(\s*)\S")
+
 
 # pylint: disable=R0903
 class AnalysisResult:
@@ -101,14 +105,9 @@ class BaseAnalyzer:
         return self.target
 
     def _cleanup_string(self, line: str) -> str:
-        result = line
-
-        result = re.sub(r":class:", "", result)
-        result = re.sub(r"^\s+", "", result)
-        result = re.sub(r"\s+$", "", result)
-        result = re.sub(r"\s+", " ", result)
-
-        return result
+        return REGEX_SUB_LINE_SPACES.sub(
+            " ", line.replace(":class:", "").strip()
+        )
 
     def _invalid_line(self, line: str, level: 'RstLevel'):
         stripped = line.rstrip("\n")
@@ -203,16 +202,12 @@ class BaseAnalyzer:
         return description
 
     def _has_le_level_start(self, line: str, level: 'RstLevel') -> bool:
-        pattern = r"^\s{0," + str(level.num_spaces()) + r"}\.\."
-        if re.match(pattern, line):
-            return True
-        return False
+        m = REGEX_MATCH_LINE_HEAD_SPACES_DOT_DOT.match(line)
+        return m and len(m.group(1)) <= level.num_spaces()
 
     def _has_le_level_string(self, line: str, level: 'RstLevel') -> bool:
-        pattern = r"^\s{0," + str(level.num_spaces()) + r"}\S+"
-        if re.match(pattern, line):
-            return True
-        return False
+        m = REGEX_MATCH_LINE_HEAD_SPACES_NOT_SPACE.match(line)
+        return m and len(m.group(1)) <= level.num_spaces()
 
     # pylint: disable=R0912,R0914,R0915
     def _parse_func_detail(self, file: IO[Any], level: 'RstLevel') -> dict:
@@ -1111,7 +1106,7 @@ class BaseAnalyzer:
             section = SectionInfo()
             is_target_upgbe = self._target() == "upbge"
             self.current_base_classes = None
-            if is_target_upgbe and REGEX_SEARCH_FILENAME_BGE_TYPES.search(filename) is not None:
+            if (is_target_upgbe and REGEX_SEARCH_FILENAME_BGE_TYPES.search(filename) is not None):  # noqa # pylint: disable=C0301
                 self.current_module = "bge.types"
             else:
                 self.current_module = None
@@ -1120,14 +1115,16 @@ class BaseAnalyzer:
                     if self.current_base_classes is not None:
                         self._invalid_line(line, 0)
                     file.seek(last_pos)
-                    self.current_base_classes = self._parse_base_class(file, level=RstLevel())
+                    self.current_base_classes = self._parse_base_class(
+                        file, level=RstLevel())
                 elif REGEX_MATCH_LINE_MODULE.match(line):
                     if self.current_module is not None:
                         m = REGEX_MATCH_LINE_MODULE_GROUP.match(line)
-                        if (len(m.groups()) != 2 or m.group(2) != self.current_module):
+                        if (len(m.groups()) != 2 or m.group(2) != self.current_module):  # noqa # pylint: disable=C0301
                             self._invalid_line(line, 0)
                     file.seek(last_pos)
-                    self.current_module = self._cleanup_string(self._parse_module(file, level=RstLevel()))
+                    self.current_module = self._cleanup_string(
+                        self._parse_module(file, level=RstLevel()))
                 elif REGEX_MATCH_LINE_CLASS.match(line):
                     file.seek(last_pos)
                     class_info = self._parse_class(file, level=RstLevel())
@@ -1138,11 +1135,13 @@ class BaseAnalyzer:
                         self._skip_until_next_le_level(file, level=RstLevel())
                     else:
                         file.seek(last_pos)
-                        function_info = self._parse_function(file, level=RstLevel())
+                        function_info = self._parse_function(
+                            file, level=RstLevel())
                         section.add_info(function_info)
                 elif REGEX_MATCH_LINE_METHOD.match(line):
                     file.seek(last_pos)
-                    function_info = self._parse_function(file, level=RstLevel())
+                    function_info = self._parse_function(
+                        file, level=RstLevel())
                     section.add_info(function_info)
                 elif REGEX_MATCH_LINE_DATA.match(line):
                     deprecated = "(Deprecated" in line
@@ -1151,7 +1150,8 @@ class BaseAnalyzer:
                     else:
                         # _parse_constant
                         file.seek(last_pos)
-                        data_info = self._parse_constant(file, level=RstLevel())
+                        data_info = self._parse_constant(
+                            file, level=RstLevel())
                         section.add_info(data_info)
                 elif REGEX_MATCH_LINE_ATTRIBUTE.match(line):
                     # _parse_constant
