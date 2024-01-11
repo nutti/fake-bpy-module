@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eEux
+set -eEuxo pipefail
 
 TMP_DIR_NAME=gen_module-tmp
 # shellcheck disable=SC2046,SC2155,SC2164
@@ -21,7 +21,13 @@ target_version=${5}
 output_dir=${6}
 mod_version=${7:-not-specified}
 current_dir=$(pwd)
-tmp_dir=${current_dir}/${TMP_DIR_NAME}
+env_temporary_dir=${TEMPORARY_DIR:-not-specified}
+if [ "${env_temporary_dir}" == "not-specified" ]; then
+    tmp_dir=${current_dir}/${TMP_DIR_NAME}
+else
+    tmp_dir=${env_temporary_dir}
+fi
+
 format=${GEN_MODULE_CODE_FORMAT:-ruff}
 output_log_level=${GEN_MODULE_OUTPUT_LOG_LEVEL:-warn}
 
@@ -120,14 +126,20 @@ function revert_workaround() {
 
 echo "Generating rst documents ..."
 cd "${current_dir}"
-apply_workaround
-${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${source_dir}/doc/python_api/sphinx_doc_gen.py" -- --output "${tmp_dir}"
-revert_workaround
+
+# Generate rst if sphinx_doc_gen.py is newer than output directory
+if [[ "${tmp_dir}/sphinx-in" -ot "${source_dir}/doc/python_api/sphinx_doc_gen.py" ]]; then
+    apply_workaround
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${source_dir}/doc/python_api/sphinx_doc_gen.py" -- --output "${tmp_dir}"
+    revert_workaround
+    touch "${tmp_dir}/sphinx-in"
+    rm -rf "${tmp_dir}/sphinx-in.orig"
+fi
 
 # Apply patches
 #   Note: patch is made by `diff -up gen_module-tmp/sphinx-in.orig/a.rst gen_module-tmp/sphinx-in/a.rst > patches/2.XX/sphinx-in/a.rst.patch`
-cp -r "${tmp_dir}/sphinx-in" "${tmp_dir}/sphinx-in.orig"
-if [ "${mod_version}" != "not-specified" ]; then
+if [[ ! -d "${tmp_dir}/sphinx-in.orig" && "${mod_version}" != "not-specified" ]]; then
+    cp -rp "${tmp_dir}/sphinx-in" "${tmp_dir}/sphinx-in.orig"
     echo "Applying patches ..."
     # shellcheck disable=SC2044
     for patch_file in $(find "${SCRIPT_DIR}/patches/${target}/${mod_version}/sphinx-in" -name "*.patch"); do
@@ -142,15 +154,27 @@ if ! find "${blender_dir}" -type d | grep -E "/[0-9.]{3,4}/scripts/startup$"; th
     exit 1
 fi
 generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
-mkdir -p "${generated_mod_dir}"
-${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m addon_utils -o "${generated_mod_dir}/gen_modules_modfile"
-${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m keyingsets_builtins -a -o "${generated_mod_dir}/gen_startup_modfile"
-mkdir -p "${generated_mod_dir}/gen_bgl_modfile"
+
+# generate modfiles if gen_modfile.py is newer
+[ ! -d "${generated_mod_dir}" ] && mkdir -p "${generated_mod_dir}"
+if [[ "${generated_mod_dir}/gen_modules_modfile" -ot "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" ]]; then
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m addon_utils -o "${generated_mod_dir}/gen_modules_modfile"
+    touch "${generated_mod_dir}/gen_modules_modfile"
+fi
+if [[ "${generated_mod_dir}/gen_startup_modfile" -ot "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" ]]; then
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m keyingsets_builtins -a -o "${generated_mod_dir}/gen_startup_modfile"
+    touch "${generated_mod_dir}/gen_startup_modfile"
+fi
+
+# generate bgl modfile if gen_bgl_modfile.py and source is newer
 bgl_c_file="${source_dir}/source/blender/python/generic/bgl.c"
 if [ ! -e "${bgl_c_file}" ]; then
     bgl_c_file="${source_dir}/source/blender/python/generic/bgl.cc"
 fi
-${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.json"
+if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.json" -ot "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" || "${generated_mod_dir}/gen_bgl_modfile/bgl.json" -ot "${bgl_c_file}" ]]; then
+    mkdir -p "${generated_mod_dir}/gen_bgl_modfile"
+    ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.json"
+fi
 
 echo "Generating fake bpy modules ..."
 if [ "${mod_version}" = "not-specified" ]; then
@@ -161,5 +185,7 @@ fi
 
 echo "Cleaning up ..."
 cd "${current_dir}"
-rm -rf "${tmp_dir}"
-rm -rf "${generated_mod_dir}"
+if [ "${env_temporary_dir}" == "not-specified" ]; then
+    rm -rf "${tmp_dir}"
+    rm -rf "${generated_mod_dir}"
+fi

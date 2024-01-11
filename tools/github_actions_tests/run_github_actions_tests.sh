@@ -14,7 +14,7 @@ if [ $# -lt 1 ]; then
 fi
 
 if [[ ! -v GITHUB_TOKEN ]]; then
-    echo "Error: GITHUB_TOKEN is not set. Please set GITHUB_TOKEN to your GitHub private access token, which must have Public Repositories (read-only) access."
+    echo "Error: GITHUB_TOKEN is not set. Please set GITHUB_TOKEN to your GitHub personal access token, which must have Public Repositories (read-only) access."
     echo "  For example: GITHUB_TOKEN=github_pat_XXXXXXXXXXXXXXXXXXXXXXXX bash ${BASH_SOURCE[0]}" "$@"
     exit 2
 fi
