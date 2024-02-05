@@ -30,6 +30,6 @@ RUN pip install pathlib
 RUN git clone https://git.blender.org/blender.git
 
 RUN git clone https://github.com/nutti/fake-bpy-module.git
-RUN pip install -r fake-bpy-module/requirements.txt
+RUN pip install -r fake-bpy-module/src/requirements.txt
 RUN bash fake-bpy-module/tools/utils/download_blender.sh all blender-bin
 RUN rm -rf fake-bpy-module

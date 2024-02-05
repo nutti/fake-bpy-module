@@ -19,13 +19,13 @@ Check your Python version is >= 3.8.
 ### Install requirement packages
 
 The generating script uses the packages listed on
-[requirements.txt](../requirements.txt).  
+[requirements.txt](../src/requirements.txt).  
 Execute below command to install requirement packages.
 
 ```bash
 git clone https://github.com/nutti/fake-bpy-module.git
 cd fake-bpy-module
-pip install -r requirements.txt
+pip install -r src/requirements.txt
 ```
 
 ### Setup IDE
