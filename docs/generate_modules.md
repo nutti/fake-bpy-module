@@ -93,7 +93,7 @@ environment variable.
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-PYTHON_BIN=/path/to/python3.8 bash gen_module.sh <source-dir> <blender-dir> <branch/tag/commit> <output-dir> <mod-version>
+PYTHON_BIN=/path/to/python3.8 bash gen_module.sh <source-dir> <blender-dir> <target> <branch/tag/commit> <target-version> <output-dir> [<mod-version>]
 ```
 <!-- markdownlint-enable MD013 -->
 
@@ -119,7 +119,7 @@ export BLENDER_SRC=${WORKSPACE}/blender
 
 ```bash
 cd ${WORKSPACE}
-git clone git://git.blender.org/blender.git
+git clone https://projects.blender.org/blender/blender.git
 ```
 
 ### 3. Change to the target branch/tag/commit
