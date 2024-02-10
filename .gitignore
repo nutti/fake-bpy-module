@@ -7,6 +7,7 @@ __pycache__/
 
 # build files
 tests/tmp
+src/gen_module-tmp
 src/mods/generated_mods
 tools/pip_package/tmp-*
 /build/
