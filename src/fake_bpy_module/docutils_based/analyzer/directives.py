@@ -73,7 +73,7 @@ class ClassDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    _CLASS_NAME_REGEX = re.compile(r"\([a-zA-Z0-9_, ]+\)")
+    _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,]+\))*")
 
     def run(self):
         paragraph_node = nodes.paragraph()
@@ -83,9 +83,11 @@ class ClassDirective(rst.Directive):
         class_node = ClassNode()
 
         # Get class name.
-        content = self.arguments[0]
-        content = self._CLASS_NAME_REGEX.sub("", content)
-        append_child(class_node, NameNode(text=content))
+        # TODO: Parse argument to create __init__ method
+        #       ex. class GPUBatch(type, buf, elem=None):
+        if m := self._CLASS_NAME_REGEX.match(self.arguments[0]):
+            content = m.group(1)
+            append_child(class_node, NameNode(text=content))
 
         # Get all descriptions.
         desc_str = ""
@@ -125,6 +127,8 @@ class DataDirective(rst.Directive):
 
     node_class = DataNode
 
+    _DATA_NAME_REGEX = re.compile(r"([0-9a-zA-Z_]+)")
+
     def run(self):
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
@@ -134,8 +138,9 @@ class DataDirective(rst.Directive):
         # TODO: parse "(Deprecated)" from the optional argument.
 
         # Get attribute name.
-        name = NameNode(text=self.arguments[0])
-        append_child(node, name)
+        if m := self._DATA_NAME_REGEX.match(self.arguments[0]):
+            name = NameNode(text=m.group(1))
+            append_child(node, name)
 
         # Get all descriptions.
         desc_str = ""
