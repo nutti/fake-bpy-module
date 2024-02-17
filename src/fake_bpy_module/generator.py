@@ -573,7 +573,7 @@ class GenerationInfoByTarget:
         self.data: List[Info] = []
         self.child_modules: List[str] = []
         self.dependencies: List['Dependency'] = []
-        self.external_modules: List[str] = ["sys", "typing"]
+        self.external_modules: List[str] = ["typing"]
 
 
 class GenerationInfoByRule:
