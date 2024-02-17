@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.PoseBone.rst	2024-01-10 12:47:42.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.PoseBone.rst	2024-01-13 22:42:05.387933100 +0900
+@@ -420,7 +420,8 @@ base class --- :class:`bpy_struct`
+ 
+       A list of all children from this bone.
+       
+-              .. note:: Takes ``O(len(bones)**2)`` time.
++      .. note:: Takes ``O(len(bones)**2)`` time.
++
+       (readonly)
+ 
+    .. data:: children_recursive_basename
+@@ -431,6 +432,7 @@ base class --- :class:`bpy_struct`
+       and not be returned.
+       
+       .. note:: Takes ``O(len(bones)**2)`` time.
++
+       (readonly)
+ 
+    .. data:: parent_recursive

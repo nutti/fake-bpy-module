@@ -1,0 +1,31 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+            <argument argument_type="arg">
+                <name>
+                    arg_3
+                <default-value>
+                    "NONE"
+            <argument argument_type="arg">
+                <name>
+                    arg_4
+                <default-value>
+                    True
+            <argument argument_type="arg">
+                <name>
+                    arg_5
+                <default-value>
+                    None

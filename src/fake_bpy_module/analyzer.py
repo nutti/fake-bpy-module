@@ -1,13 +1,13 @@
 import re
-from typing import List, IO, Any, Dict
+from typing import List, Dict
 import json
 import copy
+from docutils import nodes
+from docutils.core import publish_doctree
 
-from . import support
 from .common import (
     BuiltinDataType,
     CustomDataType,
-    DataType,
     IntermidiateDataType,
     ModifierDataType,
     ParameterDetailInfo,
@@ -23,40 +23,10 @@ from .utils import (
     LOG_LEVEL_NOTICE,
     LOG_LEVEL_WARN,
 )
+from .docutils_based import analyzer, transformers, compat, configuration
 
-REGEX_SEARCH_FILENAME_BGE_TYPES = re.compile(r"/bge\.types\.(?!rst)")
-REGEX_MATCH_LINE_BASE_CLASS = re.compile(r"^base (class|classes) ---")
-REGEX_MATCH_LINE_MODULE = re.compile(r"^\.\. (currentmodule|module)::")
-REGEX_MATCH_LINE_MODULE_GROUP = re.compile(r"^\.\. (currentmodule|module)::\s*(.*)")  # noqa # pylint: disable=C0301
-REGEX_MATCH_LINE_CLASS = re.compile(r"^\.\. class::")
-REGEX_MATCH_LINE_FUNCTION = re.compile(r"^\.\. function::")
-REGEX_MATCH_LINE_METHOD = re.compile(r"^\.\. (method|staticmethod)::")
-REGEX_MATCH_LINE_DATA = re.compile(r"^\.\. (data|DATA)::")
-REGEX_MATCH_LINE_ATTRIBUTE = re.compile(r"^\.\. attribute::")
-REGEX_MATCH_LINE_SKIP = re.compile("|".join([
-    r"^\.\. include::",
-    r"^\.\. literalinclude::",
-    r"^\.\. note::",
-    r"^\.\. rubric::",
-    r"^\.\. hlist::",
-    r"^\.\. toctree::",
-    r"^\.\. warning::",
-    r"^\.\. code-block::",
-    r"^\.\. seealso::",
-    r"^\.\. note:",
-    r"^   \.\. _mat4_cam_to_world:",
-    r"^   \.\. code-block:",
-    r"^ \.\. _armatureactuator-constants-type",
-    r"^\.\. note,",
-    r"^\.\.$",
-    r"^\.\. _[a-zA-Z0-9-_]+:",
-    r"^   :Attributes:",
-    r"^\s+\.\. deprecated::"
-]))
-REGEX_MATCH_LINE_INVALID_LINE = re.compile(r"^\.\.|^\s+\.\.|^\s+:")
+
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
-REGEX_MATCH_LINE_HEAD_SPACES_DOT_DOT = re.compile(r"^(\s*)\.\.")
-REGEX_MATCH_LINE_HEAD_SPACES_NOT_SPACE = re.compile(r"^(\s*)\S")
 
 
 # pylint: disable=R0903
@@ -65,34 +35,104 @@ class AnalysisResult:
         self.section_info: List['SectionInfo'] = []
 
 
-class RstLevel:
-    def __init__(self, level: int = 0, spaces: str = ""):
-        self._level = level
-        self._spaces = spaces
+def _add_getitem_and_setitem_delitem(
+        class_info: 'ClassInfo', dtype: str, elem_access_type: str):
+    info = FunctionInfo("method")
+    info.set_name("__getitem__")
+    info.set_parameters(["key"])
+    param_detail_info = ParameterDetailInfo()
+    param_detail_info.set_name("key")
+    param_detail_info.set_description("")
+    param_detail_info.set_data_type(IntermidiateDataType(elem_access_type))
+    info.set_parameter_details([param_detail_info])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
 
-    def __str__(self) -> str:
-        return f"Level: {self.level()}, Spaces: {self.num_spaces()}"
+    info = FunctionInfo("method")
+    info.set_name("__setitem__")
+    info.set_parameters(["key", "value"])
+    param_detail_info_key = ParameterDetailInfo()
+    param_detail_info_key.set_name("key")
+    param_detail_info_key.set_description("")
+    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
+    param_detail_info_value = ParameterDetailInfo()
+    param_detail_info_value.set_name("value")
+    param_detail_info_value.set_description("")
+    param_detail_info_value.set_data_type(CustomDataType(
+        dtype, skip_refine=True))
+    info.set_parameter_details([
+        param_detail_info_key, param_detail_info_value])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    class_info.add_method(info)
 
-    def level(self) -> int:
-        return self._level
+    info = FunctionInfo("method")
+    info.set_name("__delitem__")
+    info.set_parameters(["key"])
+    param_detail_info_key = ParameterDetailInfo()
+    param_detail_info_key.set_name("key")
+    param_detail_info_key.set_description("")
+    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
+    info.set_parameter_details([param_detail_info_key])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
 
-    def spaces(self) -> str:
-        return self._spaces
 
-    def num_spaces(self) -> int:
-        return len(self.spaces())
+def _add_iter_next_len(class_info: 'ClassInfo', dtype: str):
+    info = FunctionInfo("method")
+    info.set_name("__iter__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(
+        dtype, ModifierDataType("typing.Iterator"), skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
 
-    def make_next_level(self, spaces_to_add: str) -> 'RstLevel':
-        new_level = RstLevel(self._level + 1, self._spaces + spaces_to_add)
-        return new_level
+    info = FunctionInfo("method")
+    info.set_name("__next__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
+    info.set_return(return_info)
+    class_info.add_method(info)
+
+    info = FunctionInfo("method")
+    info.set_name("__len__")
+    info.set_parameters([])
+    info.set_parameter_details([])
+    info.set_class(class_info.name())
+    info.set_module(class_info.module())
+    return_info = ReturnInfo()
+    return_info.set_description("")
+    return_info.set_data_type(BuiltinDataType("int"))
+    info.set_return(return_info)
+    class_info.add_method(info)
 
 
 class BaseAnalyzer:
     def __init__(self):
+        analyzer.directives.register_directives()
+        analyzer.roles.register_roles()
+
         self.target: str = None         # "blender" or "upbge"
-        self.current_file: str = None
-        self.current_module: str = None
-        self.current_base_classes: str = None
         self.target_version: str = None    # Ex: "2.80"
 
     def set_target_version(self, version: str):
@@ -109,1080 +149,65 @@ class BaseAnalyzer:
             " ", line.replace(":class:", "").strip()
         )
 
-    def _invalid_line(self, line: str, level: 'RstLevel'):
-        stripped = line.rstrip("\n")
-        raise ValueError(
-            f"Invalid line: {stripped} "
-            f"(File name: {self.current_file}, Level: {level})")
-
-    def _skip_until_next_le_level(self, file: IO[Any], level: 'RstLevel'):
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return
-            last_pos = file.tell()
-            line = file.readline()
-
-    def _parse_module(self, file: IO[Any], level: int) -> str:
-        line = file.readline()
-        m = re.match(r"^\.\. (currentmodule|module):: ([a-zA-Z0-9._]+)", line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        module_name = m.group(2)
-
-        if self.target == "blender":
-            if self.target_version == "2.90":
-                if module_name.startswith("bpy.types."):
-                    module_name = module_name[:module_name.rfind(".")]
-            elif self.target_version in [
-                    "2.91", "2.92", "2.93",
-                    "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-                    "4.0",
-                    "latest"]:
-                if module_name == "bpy.data":
-                    module_name = "bpy"
-        elif self.target == "upbge":
-            if self.target_version in ("latest", ):
-                if module_name == "bpy.data":
-                    module_name = "bpy"
-
-        return module_name
-
-    def _parse_base_class(self, file: IO[Any], level: int) -> List[DataType]:
-        line = file.readline()
-        m = re.match(r"^base (class|classes) --- (.*)", line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        base_classes = []
-        sps = self._split_string_by_comma(self._cleanup_string(m.group(2)))
-        for sp in sps:
-            base_classes.append(IntermidiateDataType(self._cleanup_string(sp)))
-
-        return base_classes
-
-    def _parse_description(self, file: IO[Any], level: 'RstLevel') -> str:
-        line = file.readline()
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\S+"
-        m = re.match(pattern, line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        description = line
-
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return description
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return description
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(arg|type|return|rtype)", line):  # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                return description
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s*)\S+", line):  # noqa # pylint: disable=C0301
-                description += line
-            else:
-                self._invalid_line(line, level)
-            last_pos = file.tell()
-            line = file.readline()
-
-        return description
-
-    def _has_le_level_start(self, line: str, level: 'RstLevel') -> bool:
-        m = REGEX_MATCH_LINE_HEAD_SPACES_DOT_DOT.match(line)
-        return m and len(m.group(1)) <= level.num_spaces()
-
-    def _has_le_level_string(self, line: str, level: 'RstLevel') -> bool:
-        m = REGEX_MATCH_LINE_HEAD_SPACES_NOT_SPACE.match(line)
-        return m and len(m.group(1)) <= level.num_spaces()
-
-    # pylint: disable=R0912,R0914,R0915
-    def _parse_func_detail(self, file: IO[Any], level: 'RstLevel') -> dict:
-        def _parse_type(file: IO[Any], level: 'RstLevel') -> List[dict]:
-            last_pos = file.tell()
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:type ([a-zA-Z0-9_, ]+):(.*)"  # noqa # pylint: disable=C0301
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            infos = []
-            for s in self._split_string_by_comma(m.group(1)):
-                infos.append({
-                    "name": self._cleanup_string(s),
-                    "type": "parameter",
-                    "description": "",
-                    "data_type": m.group(2),
-                })
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return infos
-                elif self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return infos
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(arg|type|return|rtype)", line):  # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return infos
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)(\S+)", line):    # noqa # pylint: disable=C0301
-                    # TODO: support multiple line.
-                    data_type = re.sub(r"\s+", " ", line)
-                    for info in infos:
-                        info["data_type"] += data_type
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\S+)", line):     # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return infos
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return infos
-
-        def _parse_arg(file: IO[Any], level: 'RstLevel') -> List[dict]:
-            last_pos = file.tell()
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:(arg|param) ([a-zA-Z0-9_, ]+)\s*.*:(.*)"  # noqa # pylint: disable=C0301
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            infos = []
-            for s in self._split_string_by_comma(m.group(2)):
-                infos.append({
-                    "name": self._cleanup_string(s),
-                    "type": "parameter",
-                    "description": m.group(3),
-                    "data_type": "",
-                })
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return infos
-                elif self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return infos
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|return|rtype)", line):  # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return infos
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)(\S+)", line):    # noqa # pylint: disable=C0301
-                    description = re.sub(r"\s+", " ", line)
-                    for info in infos:
-                        info["description"] += description
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\S+)", line):     # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return infos
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return infos
-
-        def _parse_return(file: IO[Any], level: 'RstLevel') -> str:
-            last_pos = file.tell()
-            line = file.readline()
-            # TODO: handle :return vert: or :return (min, max): case
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:return.*:(.*)"
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            description = re.sub(r"\s+", " ", m.group(1))
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return description
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|return|rtype)", line):  # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return description
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)(\S+)", line):    # noqa # pylint: disable=C0301
-                    description += re.sub(r"\s+", " ", line)
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\S+)", line):     # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return description
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return description
-
-        def _parse_rtype(file: IO[Any], level: 'RstLevel') -> str:
-            last_pos = file.tell()
-            line = file.readline()
-            # TODO: handle :rtype vert: or :rtype (min, max): case
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:rtype.*?:(.*)"
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            data_type = re.sub(r"\s+", " ", m.group(1))
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return data_type
-                elif self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return data_type
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|return|rtype)", line):  # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    return data_type
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)(\S+)", line):    # noqa
-                    data_type += re.sub(r"\s+", " ", line)
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\S+)", line):     # noqa
-                    file.seek(last_pos)
-                    return data_type
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return data_type
-
-        parameters_types = []
-        parameters_args = []
-        return_type = None
-        return_ = None
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                break
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type):", line):  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(file, level=level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|param|return|rtype)", line):    # noqa # pylint: disable=C0301
-                m = re.match(r"^\s{" + str(level.num_spaces()) + r"}:(type|arg|param|return|rtype)", line)  # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                if m.group(1) == "type":
-                    parameters_types.extend(_parse_type(file, level))
-                elif m.group(1) in ["arg", "param"]:
-                    parameters_args.extend(_parse_arg(file, level))
-                elif m.group(1) == "return":
-                    if return_ is not None:
-                        raise ValueError(
-                            f":return must be appeared only once: "
-                            f"{self.current_file} (File name: {line}, "
-                            f"Level: {level.level()})")
-                    return_ = _parse_return(file, level)
-                elif m.group(1) == "rtype":
-                    if return_type is not None:
-                        raise ValueError(
-                            f":rtype must be appeared only once: "
-                            f"{self.current_file} (File name: {line}, "
-                            f"Level: {level.level()})")
-                    return_type = _parse_rtype(file, level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}:(file):", line):  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(file, level=level)
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                break
-            last_pos = file.tell()
-            line = file.readline()
-
-        # Merge.
-        info = {
-            "parameters": [],
-            "return": None,
-        }
-
-        for pt in parameters_types:
-            param_info = ParameterDetailInfo()
-            param_info.set_name(self._cleanup_string(pt["name"]))
-            for pa in parameters_args:
-                if pt["name"] == pa["name"]:
-                    param_info.append_description(
-                        " " + self._cleanup_string(pa["description"]))
-                    param_info.set_description(
-                        self._cleanup_string(param_info.description()))
-
-            is_optional = False
-            if (param_info.description() is not None) and \
-                    ("optional" in param_info.description()):
-                is_optional = True
-            dt = IntermidiateDataType(self._cleanup_string(pt["data_type"]))
-            dt.set_is_optional(is_optional)
-            param_info.set_data_type(dt)
-
-            info["parameters"].append(param_info)
-        for pa in parameters_args:
-            for pi in parameters_types:
-                if pi["name"] == pa["name"]:
-                    break
-            else:
-                param_info = ParameterDetailInfo()
-                param_info.set_name(self._cleanup_string(pa["name"]))
-                param_info.append_description(
-                    " " + self._cleanup_string(pa["description"]))
-
-                is_optional = False
-                if (param_info.description() is not None) and \
-                        ("optional" in param_info.description()):
-                    is_optional = True
-                dt = IntermidiateDataType(
-                    self._cleanup_string(pa["data_type"]))
-                dt.set_is_optional(is_optional)
-                param_info.set_data_type(dt)
-
-                info["parameters"].append(param_info)
-
-        # Fix: https://github.com/nutti/fake-bpy-module/issues/139
-        if return_ is not None:
-            if self._cleanup_string(return_) == "An instance of this object.":
-                return_type = "Same type with self class"
-
-        if return_type is not None:
-            return_info = ReturnInfo()
-            if return_ is not None:
-                return_info.set_description(self._cleanup_string(return_))
-            return_info.set_data_type(IntermidiateDataType(
-                self._cleanup_string(return_type)))
-            info["return"] = return_info
-
-        return info
-
-    # pylint: disable=R0912,R0915
-    def _split_string_by_comma(self, line: str) -> List[str]:
-        level = 0
-        params = []
-        current = ""
-        line_to_parse = line
-
-        # Handle case "arg1[, arg2]" -> "arg1, arg2"
-        m = re.match(r"^([a-zA-Z0-9_]+[^=]+?)\[,(.*)\]$", line_to_parse)
-        if m:
-            line_to_parse = f"{m.group(1)},{m.group(2)}"
-        # Handle case "[arg1]"
-        m = re.match(r"^\[([a-zA-Z0-9_]+)\]$", line_to_parse)
-        if m:
-            line_to_parse = f"{m.group(1)}"
-
-        for c in line_to_parse:
-            if c in ("(", "{", "["):
-                level += 1
-            elif c in (")", "}", "]"):
-                level -= 1
-                if level < 0:
-                    raise ValueError(f"Level must be >= 0 but {level} "
-                                     f"(File name: {self.current_file}, "
-                                     f"Line: {line})")
-            if level == 0 and c == ",":
-                params.append(current)
-                current = ""
-            else:
-                current += c
-
-        if level != 0:
-            raise ValueError(f"Level must be == 0 but {level} "
-                             f"(File name: {self.current_file}, Line: {line})")
-
-        if current != "":
-            params.append(current)
-
-        def is_builtin_value(value):
-            # Numerical default value.
-            m = re.search(r"^[-0-9.+e*]+$", value)
-            if m is not None:
-                return True
-
-            # String default value.
-            m = re.search(r"^('|\")(.*)('|\")$", value)
-            if m is not None:
-                return True
-
-            # Built-in default value.
-            m = re.search(r"^(None|True|False)$", value)
-            if m is not None:
-                return True
-
-            # Bin, hex, oct default value.
-            m = re.search(r"0[box][0-9A-Fa-f]+", value)
-            if m is not None:
-                return True
-
-            return False
-
-        # Convert data type to string about the custom data type.
-        params_converted = []
-        for p in params:
-            m = re.search(r"(.*)=(.*)", p)
-            if m is None:
-                # No default value.
-                params_converted.append(p)
-                continue
-
-            param_variable = m.group(1)
-            default_value = m.group(2)
-            if is_builtin_value(default_value):
-                params_converted.append(p)
-                continue
-
-            m = re.search(r"^\s*\{(.*)\}\s*$", default_value)
-            if m is not None:
-                # Set default value.
-                params_converted.append(p)
-                continue
-
-            m = re.search(r"^\s*\[(.*)\]\s*$", default_value)
-            if m is not None:
-                # List list value.
-                params_converted.append(p)
-                continue
-
-            m = re.search(r"^\s*\((.*)\)\s*$", default_value)
-            if m is not None:
-                # Tuple default value.
-                params_converted.append(p)
-                continue
-
-            # Custom data type
-            params_converted.append(f"{param_variable}='{default_value}'")
-            output_log(LOG_LEVEL_NOTICE,
-                       f"'{p}' is a parameter with custom data type")
-
-        return params_converted
-
-    def _parse_constant(
-            self, file: IO[Any], level: 'RstLevel') -> 'VariableInfo':
-        def _parse_type(file: IO[Any], level: 'RstLevel') -> str:
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:type: (.*)"
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            type_str = m.group(1)
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    file.seek(last_pos)
-                    return type_str
-                if self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return type_str
-                if self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return type_str
-
-                if re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    type_str += " " + self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))
-                    type_str = self._cleanup_string(type_str)
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return type_str
-
-        line = file.readline()
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (data|attribute|DATA):: ([a-zA-Z0-9_]+):*$"   # noqa # pylint: disable=C0301
-        m = re.match(pattern, line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        info = VariableInfo("constant")
-        info.set_name(self._cleanup_string(m.group(2)))
-        if self.current_module is not None:
-            info.set_module(self.current_module)
-
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return info
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return info
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):type:", line):   # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):type:", line).group(1)    # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.set_data_type(IntermidiateDataType(
-                    self._cleanup_string(_parse_type(
-                        file,
-                        level=level.make_next_level(next_level_spaces)))))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude|deprecated)::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|literalinclude|deprecated)::", line).group(1)  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (to do)", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (to do)", line).group(1)  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. _[a-zA-Z0-9-_]+:", line):    # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. _[a-zA-Z0-9-_]+:", line).group(1)     # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                self._invalid_line(line, level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.append_description(" " + self._cleanup_string(
-                    self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))))
-                info.set_description(self._cleanup_string(info.description()))
-            else:
-                self._invalid_line(line, level)
-            last_pos = file.tell()
-            line = file.readline()
-
-        return info
-
-    def _parse_attribute(
-            self, file: IO[Any], level: 'RstLevel') -> 'VariableInfo':
-        def _parse_type(file: IO[Any], level: 'RstLevel') -> str:
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}:type: (.*)"
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            type_str = m.group(1)
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    file.seek(last_pos)
-                    return type_str
-                if self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return type_str
-                if self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return type_str
-
-                if re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    type_str += " " + self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))
-                    type_str = self._cleanup_string(type_str)
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return type_str
-
-        line = file.readline()
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (data|attribute|property):: ([a-zA-Z0-9_]+)$"  # noqa # pylint: disable=C0301
-        m = re.match(pattern, line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        info = VariableInfo("attribute")
-        info.set_name(self._cleanup_string(m.group(2)))
-        if self.current_module is not None:
-            info.set_module(self.current_module)
-
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return info
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return info
-            elif re.match(
-                    r"^\s{" + str(level.num_spaces()) + r"}(\s+):type:", line):
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):type:", line).group(1)    # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.set_data_type(IntermidiateDataType(self._cleanup_string(
-                    _parse_type(
-                        file,
-                        level=level.make_next_level(next_level_spaces)))))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|warning|note|code-block|deprecated)::", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|warning|note|code-block|deprecated)::", line).group(1)   # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note):", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note):", line).group(1)  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(
-                    r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):
-                self._invalid_line(line, level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.append_description(" " + self._cleanup_string(
-                    self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))))
-                info.set_description(self._cleanup_string(info.description()))
-            else:
-                self._invalid_line(line, level)
-            last_pos = file.tell()
-            line = file.readline()
-
-        return info
-
-    def _get_multiline_string(self, file: IO[Any], _: 'RstLevel') -> str:
-        line = file.readline()
-        line = line.rstrip("\n")
-        long_line = line
-        while len(line) >= 1 and line[-1] == "\\":
-            line = file.readline()
-            line = line.rstrip("\n")
-            long_line += line
-        long_line = re.sub(r"\\", "", long_line)
-
-        return long_line
-
-    def _parse_function(
-            self, file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
-        line = self._get_multiline_string(file, level)
-        pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (function|method|staticmethod):: ([a-zA-Z0-9_]+)\s*\((.*)\)"  # noqa # pylint: disable=C0301
-        m = re.match(pattern, line)
-        if m is None:
-            self._invalid_line(line, level)
-
-        info = FunctionInfo("function")
-        info.set_name(self._cleanup_string(m.group(2)))
-        if self.current_module is not None:
-            info.set_module(self.current_module)
-        for p in self._split_string_by_comma(m.group(3)):
-            info.add_parameter(self._cleanup_string(p))
-
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return info
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return info
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):   # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)    # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                detail = self._parse_func_detail(
-                    file, level=level.make_next_level(next_level_spaces))
-                info.add_parameter_details(detail["parameters"])
-                if detail["return"] is not None:
-                    info.set_return(detail["return"])
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block|deprecated)::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (seealso|note|warning|code-block|deprecated)::", line).group(1)  # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (warning):", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (warning):", line).group(1)   # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                self._invalid_line(line, level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.append_description(" " + self._cleanup_string(
-                    self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))))
-                info.set_description(self._cleanup_string(info.description()))
-            else:
-                self._invalid_line(line, level)
-            last_pos = file.tell()
-            line = file.readline()
-
-        return info
-
-    def _parse_class(self, file: IO[Any], level: 'RstLevel') -> 'ClassInfo':
-        def _parse_method(file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
-            line = self._get_multiline_string(file, level)
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. method:: ([a-zA-Z0-9_]+)\s*\((.*)\):*$"  # noqa # pylint: disable=C0301
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            info = FunctionInfo("method")
-            info.set_name(self._cleanup_string(m.group(1)))
-            if self.current_module is not None:
-                info.set_module(self.current_module)
-            for p in self._split_string_by_comma(m.group(2)):
-                info.add_parameter(self._cleanup_string(p))
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return info
-                elif self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):   # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)    # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    detail = self._parse_func_detail(
-                        file, level=level.make_next_level(next_level_spaces))
-                    info.add_parameter_details(detail["parameters"])
-                    if detail["return"] is not None:
-                        info.set_return(detail["return"])
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line):   # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line).group(1)    # noqa # pylint: disable=C0301
-                    self._skip_until_next_le_level(
-                        file, level=level.make_next_level(next_level_spaces))
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                    self._invalid_line(line, level)
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    info.append_description(" " + self._cleanup_string(
-                        self._parse_description(
-                            file,
-                            level=level.make_next_level(next_level_spaces))))
-                    info.set_description(self._cleanup_string(
-                        info.description()))
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return info
-
-        def _parse_class_method(
-                file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. classmethod:: ([a-zA-Z0-9_]+)\((.*)\):*$"     # noqa # pylint: disable=C0301
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            info = FunctionInfo("classmethod")
-            info.set_name(self._cleanup_string(m.group(1)))
-            if self.current_module is not None:
-                info.set_module(self.current_module)
-            for p in self._split_string_by_comma(m.group(2)):
-                info.add_parameter(self._cleanup_string(p))
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):   # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)    # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    detail = self._parse_func_detail(
-                        file, level=level.make_next_level(next_level_spaces))
-                    info.add_parameter_details(detail["parameters"])
-                    if detail["return"] is not None:
-                        info.set_return(detail["return"])
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning|literalinclude)::", line):     # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|warning|literalinclude)::", line).group(1)  # noqa # pylint: disable=C0301
-                    self._skip_until_next_le_level(
-                        file, level=level.make_next_level(next_level_spaces))
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line).group(1)  # noqa # pylint: disable=C0301
-                    self._invalid_line(line, level)
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    info.append_description(" " + self._cleanup_string(
-                        self._parse_description(
-                            file,
-                            level=level.make_next_level(next_level_spaces))))
-                    info.set_description(
-                        self._cleanup_string(info.description()))
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return info
-
-        def _parse_static_method(
-                file: IO[Any], level: 'RstLevel') -> 'FunctionInfo':
-            line = file.readline()
-            pattern = r"^\s{" + str(level.num_spaces()) + r"}\.\. (staticmethod|function):: ([a-zA-Z0-9_]+)\((.*)\):*$"     # noqa # pylint: disable=C0301
-            m = re.match(pattern, line)
-            if m is None:
-                self._invalid_line(line, level)
-
-            info = FunctionInfo("staticmethod")
-            info.set_name(self._cleanup_string(m.group(2)))
-            if self.current_module is not None:
-                info.set_module(self.current_module)
-            for p in self._split_string_by_comma(m.group(3)):
-                info.add_parameter(self._cleanup_string(p))
-
-            last_pos = file.tell()
-            line = file.readline()
-            while line:
-                if re.match(r"^\s*$", line):
-                    pass
-                elif self._has_le_level_start(line, level):
-                    file.seek(last_pos)
-                    return info
-                elif self._has_le_level_string(line, level):
-                    file.seek(last_pos)
-                    return info
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line):   # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+):(type|arg|param|return|rtype)", line).group(1)    # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    detail = self._parse_func_detail(
-                        file, level=level.make_next_level(next_level_spaces))
-                    info.add_parameter_details(detail["parameters"])
-                    if detail["return"] is not None:
-                        info.set_return(detail["return"])
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|tip)::", line):    # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|tip)::", line).group(1)     # noqa # pylint: disable=C0301
-                    self._skip_until_next_le_level(
-                        file, level=level.make_next_level(next_level_spaces))
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                    self._invalid_line(line, level)
-                elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                    next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                    file.seek(last_pos)
-                    info.append_description(" " + self._cleanup_string(
-                        self._parse_description(
-                            file,
-                            level=level.make_next_level(next_level_spaces))))
-                    info.set_description(
-                        self._cleanup_string(info.description()))
-                else:
-                    self._invalid_line(line, level)
-                last_pos = file.tell()
-                line = file.readline()
-
-            return info
-
-        line = file.readline()
-        m = re.match(r"^\s{" + str(level.num_spaces()) + r"}\.\. class:: ([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,]+\))*", line)   # noqa # pylint: disable=C0301
-        if m is None:
-            self._invalid_line(line, level)
-
-        class_name = self._cleanup_string(m.group(1))
-
-        info = ClassInfo()
-        info.set_name(class_name)
-        if self.current_module is not None:
-            info.set_module(self.current_module)
-        if self.current_base_classes is not None:
-            info.add_base_classes(self.current_base_classes)
-
-        last_pos = file.tell()
-        line = file.readline()
-        while line:
-            if re.match(r"^\s*$", line):
-                pass
-            elif self._has_le_level_start(line, level):
-                file.seek(last_pos)
-                return info
-            elif self._has_le_level_string(line, level):
-                file.seek(last_pos)
-                return info
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (data|property)::", line):  # noqa # pylint: disable=C0301
-                # TODO: Should use assignment expression introduced
-                #       in Python 3.8
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (data|property)::", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                attr = self._parse_attribute(
-                    file, level=level.make_next_level(next_level_spaces))
-                attr.set_class(class_name)
-                info.add_attribute(attr)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line):     # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. attribute::", line).group(1)  # noqa # pylint: disable=C0301
-                is_deprecated = "(Deprecated" in line
-                if self._target() == "upbge" and is_deprecated:
-                    self._skip_until_next_le_level(
-                        file, level=level.make_next_level(next_level_spaces))
-                else:
-                    file.seek(last_pos)
-                    attr = self._parse_attribute(
-                        file, level=level.make_next_level(next_level_spaces))
-                    attr.set_class(class_name)
-                    info.add_attribute(attr)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. method::", line):    # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. method::", line).group(1)     # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                method = _parse_method(
-                    file, level=level.make_next_level(next_level_spaces))
-                method.set_class(class_name)
-                info.add_method(method)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. classmethod::", line):   # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. classmethod::", line).group(1)    # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                method = _parse_class_method(
-                    file, level=level.make_next_level(next_level_spaces))
-                method.set_class(class_name)
-                info.add_method(method)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. staticmethod::", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. staticmethod::", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                method = _parse_static_method(
-                    file, level=level.make_next_level(next_level_spaces))
-                method.set_class(class_name)
-                info.add_method(method)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. function::", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. function::", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                method = _parse_static_method(
-                    file, level=level.make_next_level(next_level_spaces))
-                method.set_class(class_name)
-                info.add_method(method)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\. (note|code-block|warning|literalinclude|seealso|deprecated)::", line).group(1)   # noqa # pylint: disable=C0301
-                self._skip_until_next_le_level(
-                    file, level=level.make_next_level(next_level_spaces))
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\.\.", line):     # noqa # pylint: disable=C0301
-                self._invalid_line(line, level)
-            elif re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line):  # noqa # pylint: disable=C0301
-                next_level_spaces = re.match(r"^\s{" + str(level.num_spaces()) + r"}(\s+)\S+", line).group(1)   # noqa # pylint: disable=C0301
-                file.seek(last_pos)
-                info.append_description(" " + self._cleanup_string(
-                    self._parse_description(
-                        file, level=level.make_next_level(next_level_spaces))))
-                info.set_description(self._cleanup_string(info.description()))
-            else:
-                self._invalid_line(line, level)
-            last_pos = file.tell()
-            line = file.readline()
-
-        return info
-
-    def _modify(self, result: 'AnalysisResult'):
-        pass
-
-    def _analyze_by_file(self, filename: str) -> 'SectionInfo':
-        self.current_file = filename
-
-        with open(filename, "r", encoding="utf-8") as file:
-            last_pos = file.tell()
-            line = file.readline()
-            section = SectionInfo()
-            is_target_upgbe = self._target() == "upbge"
-            self.current_base_classes = None
-            if (is_target_upgbe and REGEX_SEARCH_FILENAME_BGE_TYPES.search(filename) is not None):  # noqa # pylint: disable=C0301
-                self.current_module = "bge.types"
-            else:
-                self.current_module = None
-            while line:
-                if REGEX_MATCH_LINE_BASE_CLASS.match(line):
-                    if self.current_base_classes is not None:
-                        self._invalid_line(line, 0)
-                    file.seek(last_pos)
-                    self.current_base_classes = self._parse_base_class(
-                        file, level=RstLevel())
-                elif REGEX_MATCH_LINE_MODULE.match(line):
-                    if self.current_module is not None:
-                        m = REGEX_MATCH_LINE_MODULE_GROUP.match(line)
-                        if (len(m.groups()) != 2 or m.group(2) != self.current_module):  # noqa # pylint: disable=C0301
-                            self._invalid_line(line, 0)
-                    file.seek(last_pos)
-                    self.current_module = self._cleanup_string(
-                        self._parse_module(file, level=RstLevel()))
-                elif REGEX_MATCH_LINE_CLASS.match(line):
-                    file.seek(last_pos)
-                    class_info = self._parse_class(file, level=RstLevel())
-                    section.add_info(class_info)
-                elif REGEX_MATCH_LINE_FUNCTION.match(line):
-                    deprecated = "(Deprecated" in line
-                    if is_target_upgbe and deprecated:
-                        self._skip_until_next_le_level(file, level=RstLevel())
-                    else:
-                        file.seek(last_pos)
-                        function_info = self._parse_function(
-                            file, level=RstLevel())
-                        section.add_info(function_info)
-                elif REGEX_MATCH_LINE_METHOD.match(line):
-                    file.seek(last_pos)
-                    function_info = self._parse_function(
-                        file, level=RstLevel())
-                    section.add_info(function_info)
-                elif REGEX_MATCH_LINE_DATA.match(line):
-                    deprecated = "(Deprecated" in line
-                    if is_target_upgbe and deprecated:
-                        self._skip_until_next_le_level(file, level=RstLevel())
-                    else:
-                        # _parse_constant
-                        file.seek(last_pos)
-                        data_info = self._parse_constant(
-                            file, level=RstLevel())
-                        section.add_info(data_info)
-                elif REGEX_MATCH_LINE_ATTRIBUTE.match(line):
-                    # _parse_constant
-                    file.seek(last_pos)
-                    data_info = self._parse_constant(file, level=RstLevel())
-                    section.add_info(data_info)
-                elif REGEX_MATCH_LINE_SKIP.match(line):
-                    self._skip_until_next_le_level(file, level=RstLevel())
-                elif REGEX_MATCH_LINE_INVALID_LINE.match(line):
-                    self._invalid_line(line, 0)
-                last_pos = file.tell()
-                line = file.readline()
-
-        section_none_removed = SectionInfo()
-        for info in section.info_list:
-            if info.module() is not None:
-                section_none_removed.add_info(info)
-
-        return section_none_removed
-
-    def analyze(self, filenames: List[str]) -> 'AnalysisResult':
-        assert self.target in support.SUPPORTED_TARGET
-        assert (self.target_version in support.SUPPORTED_BLENDER_VERSION or
-                self.target_version in support.SUPPORTED_UPBGE_VERSION)
-
+    def _modify(self, doc_list: List[nodes.document]) -> AnalysisResult:
         result = AnalysisResult()
-        for f in filenames:
-            info = self._analyze_by_file(f)
-            result.section_info.append(info)
+        for doc in doc_list:
+            doc.transformer.add_transform(
+                transformers.BaseClassFinder, 1,
+                document=doc)
+            doc.transformer.add_transform(
+                transformers.AttributeToDataTransformer, 2,
+                document=doc)
+            doc.transformer.apply_transforms()
 
-        self._modify(result)
+            section_info: SectionInfo = SectionInfo()
+            writer = compat.FakeBpyModuleImmWriter(
+                doc, section_info)
+            writer.translate()
+
+            result.section_info.append(section_info)
+
+        return result
+
+    def _analyze_by_file(self, filename: str) -> nodes.document:
+        with open(filename, "r", encoding="utf-8") as f:
+            contents = f.read()
+
+        configuration.set_target(self.target)
+        configuration.set_target_version(self.target_version)
+
+        settings_overrides = {
+            "exit_status_level": 2,
+            "halt_level": 2,
+            "line_length_limit": 20000,
+        }
+        document: nodes.document = publish_doctree(
+            contents, settings_overrides=settings_overrides,
+            reader=analyzer.readers.BpyRstDocsReader())
+
+        return document
+
+    def analyze_internal(self, filenames: list) -> List[nodes.document]:
+        files_to_exclude = []
+
+        documents: List[nodes.document] = []
+        for f in filenames:
+            exclude = False
+            for ex in files_to_exclude:
+                if f.endswith(ex):
+                    exclude = True
+                    break
+            if exclude:
+                continue
+
+            document = self._analyze_by_file(f)
+            documents.append(document)
+
+        return documents
+
+    def analyze(self, filenames: list) -> AnalysisResult:
+        documents = self.analyze_internal(filenames)
+        result = self._modify(documents)
 
         return result
 
@@ -1306,104 +331,11 @@ class AnalyzerWithModFile(BaseAnalyzer):
                                 continue
                             info.from_dict(item, 'UPDATE')
 
-    def _modify_post_process(self, result: 'AnalysisResult'):
-        pass
-
-    def _modify(self, result: 'AnalysisResult'):
+    def _modify(self, doc_list: List[nodes.document]) -> AnalysisResult:
+        result = super()._modify(doc_list)
         self._modify_with_mod_files(result)
-        self._modify_post_process(result)
 
-
-def _add_getitem_and_setitem_delitem(
-        class_info: 'ClassInfo', dtype: str, elem_access_type: str):
-    info = FunctionInfo("method")
-    info.set_name("__getitem__")
-    info.set_parameters(["key"])
-    param_detail_info = ParameterDetailInfo()
-    param_detail_info.set_name("key")
-    param_detail_info.set_description("")
-    param_detail_info.set_data_type(IntermidiateDataType(elem_access_type))
-    info.set_parameter_details([param_detail_info])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    return_info = ReturnInfo()
-    return_info.set_description("")
-    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-    info.set_return(return_info)
-    class_info.add_method(info)
-
-    info = FunctionInfo("method")
-    info.set_name("__setitem__")
-    info.set_parameters(["key", "value"])
-    param_detail_info_key = ParameterDetailInfo()
-    param_detail_info_key.set_name("key")
-    param_detail_info_key.set_description("")
-    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
-    param_detail_info_value = ParameterDetailInfo()
-    param_detail_info_value.set_name("value")
-    param_detail_info_value.set_description("")
-    param_detail_info_value.set_data_type(CustomDataType(
-        dtype, skip_refine=True))
-    info.set_parameter_details([
-        param_detail_info_key, param_detail_info_value])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    class_info.add_method(info)
-
-    info = FunctionInfo("method")
-    info.set_name("__delitem__")
-    info.set_parameters(["key"])
-    param_detail_info_key = ParameterDetailInfo()
-    param_detail_info_key.set_name("key")
-    param_detail_info_key.set_description("")
-    param_detail_info_key.set_data_type(IntermidiateDataType(elem_access_type))
-    info.set_parameter_details([param_detail_info_key])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    return_info = ReturnInfo()
-    return_info.set_description("")
-    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-    info.set_return(return_info)
-    class_info.add_method(info)
-
-
-def _add_iter_next_len(class_info: 'ClassInfo', dtype: str):
-    info = FunctionInfo("method")
-    info.set_name("__iter__")
-    info.set_parameters([])
-    info.set_parameter_details([])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    return_info = ReturnInfo()
-    return_info.set_description("")
-    return_info.set_data_type(CustomDataType(
-        dtype, ModifierDataType("typing.Iterator"), skip_refine=True))
-    info.set_return(return_info)
-    class_info.add_method(info)
-
-    info = FunctionInfo("method")
-    info.set_name("__next__")
-    info.set_parameters([])
-    info.set_parameter_details([])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    return_info = ReturnInfo()
-    return_info.set_description("")
-    return_info.set_data_type(CustomDataType(dtype, skip_refine=True))
-    info.set_return(return_info)
-    class_info.add_method(info)
-
-    info = FunctionInfo("method")
-    info.set_name("__len__")
-    info.set_parameters([])
-    info.set_parameter_details([])
-    info.set_class(class_info.name())
-    info.set_module(class_info.module())
-    return_info = ReturnInfo()
-    return_info.set_description("")
-    return_info.set_data_type(BuiltinDataType("int"))
-    info.set_return(return_info)
-    class_info.add_method(info)
+        return result
 
 
 class BpyModuleAnalyzer(AnalyzerWithModFile):
@@ -1565,8 +497,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
                     _add_getitem_and_setitem_delitem(
                         info, "typing.Any", "int, str")
 
-    def _modify(self, result: 'AnalysisResult'):
-        super()._modify(result)
+    def _modify(self, doc_list: List[nodes.document]) -> AnalysisResult:
+        result = super()._modify(doc_list)
         self._add_bpy_app_handlers_type(result)
         self._add_bpy_ops_override_parameters(result)
         self._make_bpy_context_variable(result)
@@ -1575,6 +507,8 @@ class BpyModuleAnalyzer(AnalyzerWithModFile):
 
         # After this, we could not infer data types as ItermidiateDataType
         self._tweak_bpy_types_classes(result)
+
+        return result
 
 
 class BmeshModuleAnalyzer(AnalyzerWithModFile):
@@ -1599,8 +533,10 @@ class BmeshModuleAnalyzer(AnalyzerWithModFile):
                         info, seq_to_type[info.name()], "int")
                     _add_iter_next_len(info, seq_to_type[info.name()])
 
-    def _modify(self, result: 'AnalysisResult'):
-        super()._modify(result)
+    def _modify(self, doc_list: List[nodes.document]) -> AnalysisResult:
+        result = super()._modify(doc_list)
 
         # After this, we could not infer data types as ItermidiateDataType
         self._tweak_bmesh_types_classes(result)
+
+        return result

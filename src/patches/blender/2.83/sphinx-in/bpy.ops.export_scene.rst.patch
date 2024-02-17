@@ -1,5 +1,17 @@
---- gen_module-tmp/sphinx-in.orig/bpy.ops.export_scene.rst	2020-07-05 20:45:11.000000000 +0900
-+++ gen_module-tmp/sphinx-in/bpy.ops.export_scene.rst	2020-07-05 20:45:55.000000000 +0900
+--- gen_module-tmp/sphinx-in.orig/bpy.ops.export_scene.rst	2024-01-10 12:52:06.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.ops.export_scene.rst	2024-01-18 21:13:59.946611000 +0900
+@@ -256,9 +256,9 @@ Export Scene Operators
+       Images, Output format for images. PNG is lossless and generally preferred, but JPEG might be preferable for web applications due to the smaller file size
+ 
+       * ``AUTO`` Automatic, Save PNGs as PNGs and JPEGs as JPEGs.
+-      If neither one, use PNG.
++        If neither one, use PNG.
+       * ``JPEG`` JPEG Format (.jpg), Save images as JPEGs. (Images that need alpha are saved as PNGs though.)
+-      Be aware of a possible loss in quality.
++        Be aware of a possible loss in quality.
+ 
+    :type export_image_format: enum in ['AUTO', 'JPEG'], (optional)
+    :arg export_texture_dir:
 @@ -373,9 +373,7 @@ Export Scene Operators
     :type export_force_sampling: boolean, (optional)
     :arg export_nla_strips:

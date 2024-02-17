@@ -1,6 +1,22 @@
---- gen_module-tmp/sphinx-in.orig/bpy.ops.import_scene.rst	2020-07-05 20:47:08.000000000 +0900
-+++ gen_module-tmp/sphinx-in/bpy.ops.import_scene.rst	2020-07-05 20:47:40.000000000 +0900
-@@ -188,8 +188,7 @@ Import Scene Operators
+--- gen_module-tmp/sphinx-in.orig/bpy.ops.import_scene.rst	2024-01-10 12:52:08.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.ops.import_scene.rst	2024-01-13 22:07:27.575987500 +0900
+@@ -177,19 +177,18 @@ Import Scene Operators
+       Bone Dir, Heuristic for placing bones. Tries to make bones pretty
+ 
+       * ``BLENDER`` Blender (best for re-importing), Good for re-importing glTFs exported from Blender.
+-      Bone tips are placed on their local +Y axis (in glTF space).
++        Bone tips are placed on their local +Y axis (in glTF space).
+       * ``TEMPERANCE`` Temperance (average), Decent all-around strategy.
+-      A bone with one child has its tip placed on the local axis
+-      closest to its child.
++        A bone with one child has its tip placed on the local axis
++        closest to its child.
+       * ``FORTUNE`` Fortune (may look better, less accurate), Might look better than Temperance, but also might have errors.
+-      A bone with one child has its tip placed at its child's root.
+-      Non-uniform scalings may get messed up though, so beware.
++        A bone with one child has its tip placed at its child's root.
++        Non-uniform scalings may get messed up though, so beware.
+ 
     :type bone_heuristic: enum in ['BLENDER', 'TEMPERANCE', 'FORTUNE'], (optional)
     :arg guess_original_bind_pose:
  

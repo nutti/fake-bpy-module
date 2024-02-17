@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bl_math.rst	2024-01-13 12:56:08.000000000 +0900
++++ gen_module-tmp/sphinx-in/bl_math.rst	2024-01-14 20:37:03.947761600 +0900
+@@ -20,7 +20,7 @@ Miscellaneous math utilities module
+    :rtype: float
+ 
+ 
+-.. function:: lerp(from, to, factor)
++.. function:: lerp(from_value, to, factor)
+ 
+    Linearly interpolate between two float values based on factor.
+ 
+@@ -34,7 +34,7 @@ Miscellaneous math utilities module
+    :rtype: float
+ 
+ 
+-.. function:: smoothstep(from, to, value)
++.. function:: smoothstep(from_value, to, value)
+ 
+    Performs smooth interpolation between 0 and 1 as value changes between from and to.
+    Outside the range the function returns the same value as the nearest edge.

@@ -1,0 +1,10 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.NodeSocket.rst	2024-01-28 17:29:09.355973000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.NodeSocket.rst	2024-01-28 17:31:17.554009000 +0900
+@@ -99,6 +99,7 @@ subclasses ---
+       List of node links from or to this socket.
+       
+       .. note:: Takes ``O(len(nodetree.links))`` time.
++
+       (readonly)
+ 
+    .. method:: draw(context, layout, node, text)

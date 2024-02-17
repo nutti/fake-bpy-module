@@ -114,7 +114,7 @@ def topological_sort(graph: 'DAG') -> List['Node']:
 
     if graph.num_nodes(with_root=True) != len(sorted_nodes) + 1:
         diff = set(graph.nodes(with_root=True)) \
-             - set(sorted_nodes) - set([graph.root_node()])
+            - set(sorted_nodes) - set([graph.root_node()])
         node_data_list = {n.data() for n in diff}
         raise ValueError(f"Cycle is detected. ({', '.join(node_data_list)})")
 

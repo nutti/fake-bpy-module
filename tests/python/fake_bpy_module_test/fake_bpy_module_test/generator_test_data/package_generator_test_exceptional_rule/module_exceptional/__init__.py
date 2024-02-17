@@ -14,7 +14,7 @@ class ClassExp:
     """
 
     def method_with_keyword_only_argument(
-        self, arg_1: float, arg_2: float = 5.0, *, arg_3: int
+        self, arg_1: float, arg_2: float = 5.0, arg_3: int = None
     ) -> int:
         """method_with_keyword_only_argument description
 

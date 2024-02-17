@@ -18,8 +18,7 @@
                 "module": "module_exceptional",
                 "parameters": [
                     "arg_1",
-                    "arg_2=5.0",
-                    "*",
+                    "arg_2",
                     "arg_3"
                 ],
                 "parameter_details": [
@@ -40,7 +39,8 @@
                         "type": "parameter",
                         "name": "arg_3",
                         "description": "method_with_keyword_only_argument arg_3 description",
-                        "data_type": "int"
+                        "data_type": "int",
+                        "default_value": "None"
                     }
                 ]
             }

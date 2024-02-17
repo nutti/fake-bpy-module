@@ -1,0 +1,10 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.NodeSocketFloatTime.rst	2024-01-10 12:47:36.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.NodeSocketFloatTime.rst	2024-01-18 21:16:10.194884900 +0900
+@@ -20,6 +20,7 @@ base classes --- :class:`bpy_struct`, :c
+       List of node links from or to this socket.
+       
+       .. note:: Takes ``O(len(nodetree.links))`` time.
++
+       (readonly)
+ 
+    .. classmethod:: bl_rna_get_subclass(id, default=None)

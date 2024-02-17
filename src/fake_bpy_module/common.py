@@ -109,11 +109,13 @@ def has_data_type(str_: str, data_type: str) -> bool:
                 ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
             return True
         # example: "list of int"
-        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and \
+        if ((si != start_index) and
+                (str_[si - 1] in ALLOWED_CHAR_BEFORE)) and \
                 (ei == end_index):
             return True
         # example: "list of int or float"
-        if ((si != start_index) and (str_[si-1] in ALLOWED_CHAR_BEFORE)) and \
+        if ((si != start_index) and
+                (str_[si - 1] in ALLOWED_CHAR_BEFORE)) and \
                 ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
             return True
 
@@ -635,6 +637,8 @@ class ParameterDetailInfo(Info):
             default_value = self._data_type.get_metadata().default_value
             if default_value is not None:
                 data["default_value"] = remove_unencodable(default_value)
+            if hasattr(self, "default_value"):
+                data["default_value"] = self.default_value
         else:
             data = {
                 "type": self._type,
@@ -645,6 +649,8 @@ class ParameterDetailInfo(Info):
             default_value = self._data_type.get_metadata().default_value
             if default_value is not None:
                 data["default_value"] = remove_unencodable(default_value)
+            if hasattr(self, "default_value"):
+                data["default_value"] = self.default_value
 
         return data
 
@@ -1513,8 +1519,8 @@ class DataTypeRefiner:
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES.match(dtype_str):
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
                 s = self._parse_custom_data_type(
-                        m.group(1), uniq_full_names, uniq_module_names,
-                        module_name)
+                    m.group(1), uniq_full_names, uniq_module_names,
+                    module_name)
                 if s:
                     dtypes = [
                         BuiltinDataType("float", ModifierDataType(
@@ -2069,6 +2075,7 @@ class DataTypeRefiner:
             additional_info: Dict[str, typing.Any] = None) -> 'DataType':
 
         dtype_str = data_type.to_string()
+        dtype_str.strip()
         metadata, dtype_str = self._build_metadata(
             dtype_str, module_name, parameter_str, variable_kind)
 

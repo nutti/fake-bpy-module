@@ -1,0 +1,11 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            function_1 description
+        <argument-list>

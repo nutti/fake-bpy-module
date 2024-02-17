@@ -21,6 +21,7 @@ def create_generator(
         generator = fbm.PyInterfaceGenerator()
 
     analyzer: 'fbm.BaseAnalyzer' = fbm.BaseAnalyzer()
+
     if name == "bpy":
         analyzer = fbm.BpyModuleAnalyzer(mod_files)
     elif name == "bmesh":

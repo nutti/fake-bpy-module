@@ -1,5 +1,16 @@
---- gen_module-tmp/sphinx-in.orig/aud.rst	2020-07-05 20:48:41.000000000 +0900
-+++ gen_module-tmp/sphinx-in/aud.rst	2020-07-05 20:49:46.000000000 +0900
+--- gen_module-tmp/sphinx-in.orig/aud.rst	2024-01-06 16:41:04.405446700 +0900
++++ gen_module-tmp/sphinx-in/aud.rst	2024-01-06 21:32:11.147863400 +0900
+@@ -1129,8 +1129,8 @@ This script shows how to use the classes
+    
+       .. note::
+    
+-      The two factories have to have the same specifications
+-      (channels and samplerate).
++         The two factories have to have the same specifications
++         (channels and samplerate).
+ 
+ 
+    .. classmethod:: limit(start, end)
 @@ -1301,9 +1301,9 @@ This script shows how to use the classes
     
        :arg threshold: Threshold value over which an amplitude counts

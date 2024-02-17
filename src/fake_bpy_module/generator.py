@@ -266,28 +266,27 @@ class PyCodeGeneratorBase(BaseGenerator):
 
         wt.add("def " + data["name"] + "(")
         for i, p in enumerate(data["parameters"]):
-            sp = p.split("=")
-            default_value = None
-            if len(sp) == 2:
-                name = sp[0]
-                default_value = sp[1]
-            elif len(sp) == 1:
-                name = sp[0]
-            else:
-                raise RuntimeError(f"Invalid format of parameter '{p}'")
             pd_matched = None
             for pd in data["parameter_details"]:
-                if (pd["name"] == name) and (pd["data_type"] is not None) and \
-                        (pd["data_type"] != ""):
+                if pd["name"] == p:
                     pd_matched = pd
                     break
+
             if pd_matched is not None:
-                if default_value is not None:
-                    wt.add(f"{pd_matched['name']}: "
-                           f"{pd_matched['data_type']}="
-                           f"{pd_matched['default_value']}")
+                if pd_matched["data_type"] is not None and pd_matched["data_type"] != "":
+                    if "default_value" in pd_matched:
+                        wt.add(f"{pd_matched['name']}: "
+                               f"{pd_matched['data_type']}="
+                               f"{pd_matched['default_value']}")
+                    else:
+                        wt.add(f"{pd_matched['name']}: "
+                               f"{pd_matched['data_type']}")
                 else:
-                    wt.add(f"{pd_matched['name']}: {pd_matched['data_type']}")
+                    if "default_value" in pd_matched:
+                        wt.add(f"{pd_matched['name']}="
+                               f"{pd_matched['default_value']}")
+                    else:
+                        wt.add(pd_matched['name'])
             else:
                 wt.add(p)
 
@@ -381,32 +380,27 @@ class PyCodeGeneratorBase(BaseGenerator):
                         wt.addln("@staticmethod")
                         wt.add(f"def {m['name']}(")
                 for i, p in enumerate(m["parameters"]):
-                    sp = p.split("=")
-                    default_value = None
-                    if len(sp) == 2:
-                        name = sp[0]
-                        default_value = sp[1]
-                    elif len(sp) == 1:
-                        name = sp[0]
-                    else:
-                        raise RuntimeError(
-                            f"Invalid format of parameter '{p}'")
                     pd_matched = None
                     for pd in m["parameter_details"]:
-                        if (pd["name"] == name) and \
-                                (pd["data_type"] is not None) and \
-                                (pd["data_type"] != ""):
+                        if pd["name"] == p:
                             pd_matched = pd
                             break
+
                     if pd_matched is not None:
-                        if default_value is not None:
-                            wt.add(
-                                f"{pd_matched['name']}: "
-                                f"{pd_matched['data_type']}="
-                                f"{pd_matched['default_value']}")
+                        if pd_matched["data_type"] is not None and pd_matched["data_type"] != "":
+                            if "default_value" in pd_matched:
+                                wt.add(f"{pd_matched['name']}: "
+                                       f"{pd_matched['data_type']}="
+                                       f"{pd_matched['default_value']}")
+                            else:
+                                wt.add(f"{pd_matched['name']}: "
+                                       f"{pd_matched['data_type']}")
                         else:
-                            wt.add(f"{pd_matched['name']}: "
-                                   f"{pd_matched['data_type']}")
+                            if "default_value" in pd_matched:
+                                wt.add(f"{pd_matched['name']}="
+                                       f"{pd_matched['default_value']}")
+                            else:
+                                wt.add(pd_matched['name'])
                     else:
                         wt.add(p)
 
@@ -772,7 +766,7 @@ class PackageAnalyzer:
                 mod_name = name + m.name
                 if len(m.children()) == 0:
                     filename = \
-                            re.sub(r"\.", "/", mod_name) + "/__init__"
+                        re.sub(r"\.", "/", mod_name) + "/__init__"
                     info = gen_info.create_target(filename)
                     info.data = []
                     info.child_modules = []

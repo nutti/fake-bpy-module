@@ -1,0 +1,10 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.NodeSocketEmitters.rst	2024-01-10 12:47:36.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.NodeSocketEmitters.rst	2024-01-15 20:52:29.118359300 +0900
+@@ -14,6 +14,7 @@ base classes --- :class:`bpy_struct`, :c
+       List of node links from or to this socket.
+       
+       .. note:: Takes ``O(len(nodetree.links))`` time.
++
+       (readonly)
+ 
+    .. classmethod:: bl_rna_get_subclass(id, default=None)

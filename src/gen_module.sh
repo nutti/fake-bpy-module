@@ -136,15 +136,47 @@ if [[ "${tmp_dir}/sphinx-in" -ot "${source_dir}/doc/python_api/sphinx_doc_gen.py
     rm -rf "${tmp_dir}/sphinx-in.orig"
 fi
 
-# Apply patches
-#   Note: patch is made by `diff -up gen_module-tmp/sphinx-in.orig/a.rst gen_module-tmp/sphinx-in/a.rst > patches/2.XX/sphinx-in/a.rst.patch`
 if [[ ! -d "${tmp_dir}/sphinx-in.orig" && "${mod_version}" != "not-specified" ]]; then
     cp -rp "${tmp_dir}/sphinx-in" "${tmp_dir}/sphinx-in.orig"
+
+    # Apply patches
+    #   Note: patch is made by `diff -up gen_module-tmp/sphinx-in.orig/a.rst gen_module-tmp/sphinx-in/a.rst > patches/2.XX/sphinx-in/a.rst.patch`
     echo "Applying patches ..."
     # shellcheck disable=SC2044
     for patch_file in $(find "${SCRIPT_DIR}/patches/${target}/${mod_version}/sphinx-in" -name "*.patch"); do
         patch -u -p2 -d "${tmp_dir}/sphinx-in" < "${patch_file}"
     done
+
+    # Fix invalid rst format.
+    echo "Fix invalid rst format ..."
+    if [ "${git_ref}" = "v3.5.0" ]; then
+        # :file:`XXX` -> :file: `XXX`
+        echo "  Fix: ':file:\`' -> ':file: \`"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            search_str=":file:\`"
+            replace_str=":file: \`"
+            if grep -q "${search_str}" "${rst_file}"; then
+                echo "    ${rst_file}"
+                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+            fi
+        done
+    elif [ "${git_ref}" = "v2.90.0" ]; then
+        #       .. note:: Takes ``O(len(nodetree.links))`` time.
+        #       (readonly)
+        # ->
+        #       .. note:: Takes ``O(len(nodetree.links))`` time.
+        #
+        #       (readonly)
+        echo "  Fix: Invalid (readonly) position"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            if ! perl -ne 'BEGIN{$/="";}{exit(1) if /(..note::.*?)\n(\s*\(readonly\))/;}' "${rst_file}"; then
+                echo "    ${rst_file}"
+                perl -i -pe 'BEGIN{$/="";}{s/(..note::.*?)\n(\s*\(readonly\))/$1\n\n$2/g;}' "${rst_file}"
+            fi
+        done
+    fi
 fi
 
 echo "Generating modfiles ..."
