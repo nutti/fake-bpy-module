@@ -1,0 +1,39 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            function_1 description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_1 arg_1 description
+                <data-type-list>
+                    <data-type>
+                        function_1 arg_1 type
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+                <description>
+                    function_1 arg_2 description
+                <data-type-list>
+                    <data-type>
+                        function_1 arg_2 type
+    <function function_type="method">
+        <name>
+            method_1
+        <description>
+            method_1 description
+        <argument-list>
+        <return>
+            <description>
+                method_1 return description
+            <data-type-list>
+                <data-type>
+                    method_1 return type

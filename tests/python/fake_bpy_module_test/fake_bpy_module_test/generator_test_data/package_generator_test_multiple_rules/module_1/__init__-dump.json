@@ -17,7 +17,7 @@
                 "class": "ClassA",
                 "module": "module_1",
                 "parameters": [
-                    "arg_1=5.4"
+                    "arg_1"
                 ],
                 "parameter_details": [
                     {

@@ -1,0 +1,173 @@
+<document ids="noise-noise" names="noise(noise)" source="<string>" title="Noise(Noise)">
+    <title>
+        Noise(Noise)
+    <module>
+        <name>
+            module.a
+        <description>
+    <paragraph>
+        base class --- BaseClass1, BaseClass2
+    <paragraph>
+        <paragraph>
+            Noise
+        .. class:: Noise
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1
+                    description
+                <data-type-list>
+                    <data-type>
+                        attr_1 type,
+                        long
+        <function-list>
+            <function function_type="classmethod">
+                <name>
+                    classmethod_1
+                <description>
+                    classmethod_1
+                    description
+                <argument-list>
+            <function function_type="staticmethod">
+                <name>
+                    staticmethod_1
+                <description>
+                    staticmethod_1
+                    description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            a
+                    <argument argument_type="arg">
+                        <name>
+                            b
+    <paragraph>
+        Noise
+    <class>
+        <name>
+            ClassB
+        <description>
+            ClassB
+            description
+        <attribute-list>
+            <attribute>
+                <name>
+                    data_1
+                <description>
+                    data_1
+                    description
+                <data-type-list>
+                    <data-type>
+                        data_1 type
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                    Noise
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <default-value>
+                            5.4
+                        <description>
+                            method_1
+                            arg_1 description
+                        <data-type-list>
+                            <data-type>
+                                method_1 arg_1
+                                type
+                <return>
+                    <description>
+                        method_1 return
+                        description
+                    <data-type-list>
+                        <data-type>
+                            method_1
+                            return type
+    <paragraph>
+        Noise
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1
+            description
+        <data-type-list>
+            <data-type>
+                DATA_1
+                type
+    <data>
+        <name>
+            DATA_2
+        <description>
+            DATA_2
+            description
+        <data-type-list>
+            <data-type>
+                DATA_2
+                type
+    <paragraph>
+        Noise
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            function_1
+            description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <default-value>
+                    [[1.3, -3.4], [4.5, -0.9]]
+                <description>
+                    function_1
+                    arg_1 description
+                <data-type-list>
+                    <data-type>
+                        function_1 arg_1
+                        type
+        <return>
+            <description>
+                function_1 return
+                description
+            <data-type-list>
+                <data-type>
+                    function_1
+                    return type
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+            function_2
+            description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_2 arg_1 description
+                <data-type-list>
+                    <data-type>
+                        function_2 arg_1 type
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+                <default-value>
+                    "test"
+                <description>
+                    function_2 arg_2 description
+                <data-type-list>
+                    <data-type>
+                        str
+    <paragraph>
+        Noise

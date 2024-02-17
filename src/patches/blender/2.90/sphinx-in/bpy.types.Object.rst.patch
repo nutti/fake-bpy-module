@@ -1,0 +1,29 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.Object.rst	2024-01-10 12:47:38.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.Object.rst	2024-01-13 21:58:58.808213900 +0900
+@@ -678,7 +678,8 @@ base classes --- :class:`bpy_struct`, :c
+ 
+       All the children of this object.
+       
+-              .. note:: Takes ``O(len(bpy.data.objects))`` time.
++      .. note:: Takes ``O(len(bpy.data.objects))`` time.
++      
+       (readonly)
+ 
+    .. data:: users_collection
+@@ -686,13 +687,15 @@ base classes --- :class:`bpy_struct`, :c
+       The collections this object is in.
+       
+       .. note:: Takes ``O(len(bpy.data.collections) + len(bpy.data.scenes))`` time.
++      
+       (readonly)
+ 
+    .. data:: users_scene
+ 
+       The scenes this object is in.
+       
+-              .. note:: Takes ``O(len(bpy.data.scenes) * len(bpy.data.objects))`` time.
++      .. note:: Takes ``O(len(bpy.data.scenes) * len(bpy.data.objects))`` time.
++      
+       (readonly)
+ 
+    .. method:: select_get(view_layer=None)

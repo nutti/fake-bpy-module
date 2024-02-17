@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bmesh.ops.rst	2024-01-13 13:04:24.000000000 +0900
++++ gen_module-tmp/sphinx-in/bmesh.ops.rst	2024-01-14 21:10:39.001136600 +0900
+@@ -297,7 +297,7 @@ This script shows how operators can be u
+    :type uvs: bool
+ 
+ 
+-.. function:: pointmerge_facedata(bm, verts=[], vert_snap)
++.. function:: pointmerge_facedata(bm, verts=[], vert_snap=None)
+ 
+    Face-Data Point Merge.
+ 

@@ -1,0 +1,20 @@
+<document source="<string>">
+    <module>
+        <name>
+            bpy.types
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        attr_1 type
+        <function-list>

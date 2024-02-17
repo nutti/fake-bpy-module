@@ -1,0 +1,47 @@
+--- gen_module-tmp/sphinx-in.orig/gpu.shader.rst	2024-01-08 10:28:38.000000000 +0900
++++ gen_module-tmp/sphinx-in/gpu.shader.rst	2024-01-08 19:44:09.244781800 +0900
+@@ -55,34 +55,34 @@ Its value must be modified using the :cl
+ .. function:: from_builtin(shader_name, config='DEFAULT')
+ 
+    Shaders that are embedded in the blender internal code:
+-``2D_FLAT_COLOR``
++   ``2D_FLAT_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: none
+-``2D_IMAGE``
++   ``2D_IMAGE``
+    :Attributes: vec3 pos, vec2 texCoord
+    :Uniforms: sampler2D image
+-``2D_SMOOTH_COLOR``
++   ``2D_SMOOTH_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: none
+-``2D_UNIFORM_COLOR``
++   ``2D_UNIFORM_COLOR``
+    :Attributes: vec3 pos
+    :Uniforms: vec4 color
+-``3D_FLAT_COLOR``
++   ``3D_FLAT_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: none
+-``3D_SMOOTH_COLOR``
++   ``3D_SMOOTH_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: none
+-``3D_UNIFORM_COLOR``
++   ``3D_UNIFORM_COLOR``
+    :Attributes: vec3 pos
+    :Uniforms: vec4 color
+-``3D_POLYLINE_FLAT_COLOR``
++   ``3D_POLYLINE_FLAT_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: vec2 viewportSize, float lineWidth
+-``3D_POLYLINE_SMOOTH_COLOR``
++   ``3D_POLYLINE_SMOOTH_COLOR``
+    :Attributes: vec3 pos, vec4 color
+    :Uniforms: vec2 viewportSize, float lineWidth
+-``3D_POLYLINE_UNIFORM_COLOR``
++   ``3D_POLYLINE_UNIFORM_COLOR``
+    :Attributes: vec3 pos
+    :Uniforms: vec2 viewportSize, float lineWidth
+ 
