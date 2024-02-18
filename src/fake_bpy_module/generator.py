@@ -472,7 +472,7 @@ class PyCodeGeneratorBase(BaseGenerator):
                 wt.addln(f"import {ext}")
 
             # import depended modules
-            for dep in sorted(data.dependencies, key=lambda x: x.mod_name):
+            for dep in sorted(data.dependencies, key=lambda x: (self._is_relative_import(x.mod_name), x.mod_name)):
                 mod_name = dep.mod_name
                 if self._is_relative_import(mod_name):
                     wt.add(f"from {mod_name} import (")
