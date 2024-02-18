@@ -524,7 +524,7 @@ class MixinDataType(DataType):
 
     @DataType.output_typing_optional
     def to_string(self) -> str:
-        s = [dt.to_string() for dt in self._data_types]
+        s = sorted(dt.to_string() for dt in self._data_types)
         return f"typing.Union[{', '.join(s)}]"
 
     def set_data_type(self, index, data_type: 'DataType'):
