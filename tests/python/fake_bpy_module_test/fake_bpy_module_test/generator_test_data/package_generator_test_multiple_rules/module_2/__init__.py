@@ -1,4 +1,3 @@
-import sys
 import typing
 import module_1
 import module_1.submodule_1
