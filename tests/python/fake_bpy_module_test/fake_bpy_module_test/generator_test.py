@@ -518,7 +518,7 @@ class GenerationInfoByTargetTest(common.FakeBpyModuleTestBase):
         self.assertEqual(info.child_modules, ["submodule_1", "submodule_2"])
         self.assertEqual(info.data, [constant_info])
         self.assertEqual(info.dependencies, [dep_1, dep_2])
-        self.assertEqual(info.external_modules, ["sys", "typing", "os"])
+        self.assertEqual(info.external_modules, ["typing", "os"])
 
 
 class GenerationInfoByRuleTest(common.FakeBpyModuleTestBase):

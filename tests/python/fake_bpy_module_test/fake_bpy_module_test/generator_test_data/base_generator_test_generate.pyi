@@ -1,4 +1,3 @@
-import sys
 import typing
 import os
 import module_2
