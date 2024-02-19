@@ -1,5 +1,5 @@
-import typing
 import os
+import typing
 import bpy.types
 
 GenericType = typing.TypeVar("GenericType")

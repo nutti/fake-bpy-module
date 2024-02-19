@@ -1,5 +1,5 @@
-import typing
 import os
+import typing
 import module_2
 from .submodule_2 import ClassZ
 
