@@ -139,6 +139,7 @@ jobs:
   pypi_release_test:
     name: PyPI Release test
     needs: [build_modules]
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Fetch artifacts
