@@ -468,15 +468,16 @@ class PyCodeGeneratorBase(BaseGenerator):
             wt.reset()
 
             # import external depended modules
-            for ext in data.external_modules:
+            for ext in sorted(data.external_modules):
                 wt.addln(f"import {ext}")
 
             # import depended modules
-            for dep in data.dependencies:
+            for dep in sorted(data.dependencies,
+                              key=lambda x: (self._is_relative_import(x.mod_name), x.mod_name)):
                 mod_name = dep.mod_name
                 if self._is_relative_import(mod_name):
                     wt.add(f"from {mod_name} import (")
-                    for i, type_ in enumerate(dep.type_lists):
+                    for i, type_ in enumerate(sorted(dep.type_lists)):
                         wt.add(type_)
                         if i == len(dep.type_lists) - 1:
                             wt.addln(")")
@@ -489,7 +490,7 @@ class PyCodeGeneratorBase(BaseGenerator):
                 wt.new_line()
 
             # import child module to search child modules
-            for mod in data.child_modules:
+            for mod in sorted(data.child_modules):
                 wt.addln(f"from . import {mod}")
             if len(data.child_modules) > 0:
                 wt.new_line()
