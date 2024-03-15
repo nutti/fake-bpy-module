@@ -269,10 +269,14 @@ class UnknownDataType(DataType):
 
 
 class IntermidiateDataType(DataType):
-    def __init__(self, data_type: str):
+    def __init__(self, data_type: str, skip_refine=False):
         super().__init__()
 
         self._data_type: str = data_type
+        self._skip_refine = skip_refine
+
+    def skip_refine(self) -> bool:
+        return self._skip_refine
 
     def type(self) -> str:
         return 'INTERMIDIATE'
@@ -531,6 +535,32 @@ class MixinDataType(DataType):
         self._data_types[index] = data_type
 
 
+class PassThroughDataType(DataType):
+    def __init__(self, data_type: str):
+        super().__init__()
+
+        self._data_type: str = data_type
+
+    def type(self) -> str:
+        return 'PASS_THROUGH'
+
+    def skip_refine(self):
+        return True
+
+    def has_modifier(self) -> bool:
+        return False
+
+    def modifier(self) -> 'ModifierDataType':
+        return None
+
+    def data_type(self) -> str:
+        return self._data_type
+
+    @DataType.output_typing_optional
+    def to_string(self) -> str:
+        return self._data_type
+
+
 class Info:
     def __init__(self):
         self._type: str = None
@@ -593,6 +623,7 @@ class ParameterDetailInfo(Info):
         self._name: str = None
         self._description: str = None
         self._data_type: 'DataType' = UnknownDataType()
+        self.default_value = None
 
     def name(self) -> str:
         return self._name
@@ -638,7 +669,8 @@ class ParameterDetailInfo(Info):
             if default_value is not None:
                 data["default_value"] = remove_unencodable(default_value)
             if hasattr(self, "default_value"):
-                data["default_value"] = self.default_value
+                if self.default_value is not None:
+                    data["default_value"] = self.default_value
         else:
             data = {
                 "type": self._type,
@@ -650,7 +682,8 @@ class ParameterDetailInfo(Info):
             if default_value is not None:
                 data["default_value"] = remove_unencodable(default_value)
             if hasattr(self, "default_value"):
-                data["default_value"] = self.default_value
+                if self.default_value is not None:
+                    data["default_value"] = self.default_value
 
         return data
 
@@ -659,6 +692,9 @@ class ParameterDetailInfo(Info):
             raise RuntimeError("data must have type")
         if data["type"] != "parameter":
             raise RuntimeError(f"Unsupported type: {data['type']}")
+
+        if "default_value" in data:
+            self.default_value = data["default_value"]
 
         self._type = data["type"]
         if self.is_assignable(self._name, data, "name", method):
@@ -1421,6 +1457,17 @@ class DataTypeRefiner:
         if REGEX_MATCH_DATA_TYPE_SPACE.match(dtype_str):
             return ModifierDataType("typing.Any")
 
+        if m := re.match(r"list of callable\[`([0-9a-zA-Z.]+)`\]", dtype_str):
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names,
+                module_name)
+            if s:
+                return CustomDataType(
+                    s, ModifierDataType("listcallable"),
+                    modifier_add_info={
+                        "arguments": ["bpy.types.Scene"],
+                    })
+
         if dtype_str == "Same type with self class":
             s = self._parse_custom_data_type(
                 additional_info["self_class"], uniq_full_names,
@@ -2081,6 +2128,10 @@ class DataTypeRefiner:
 
         if data_type.type() == 'UNKNOWN':
             return UnknownDataType()
+
+        if (data_type.type() in ['INTERMIDIATE']) and data_type.skip_refine():
+            dt = PassThroughDataType(data_type.to_string())
+            return dt
 
         if (data_type.type() in ['CUSTOM']) and data_type.skip_refine():
             dt = copy.copy(data_type)

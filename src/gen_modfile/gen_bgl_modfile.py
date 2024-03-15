@@ -5,7 +5,7 @@
 # Description:
 #   gen_bgl_modfile.py generates python constant and function definitions
 #   which are defined by bgl.c.
-#   The definitions are output as a modfile format (JSON).
+#   The definitions are output as a modfile format.
 #
 # Note:
 #   You need to download blender source code for passing 'bgl.c' file to
@@ -13,12 +13,16 @@
 #
 # Usage:
 #   python gen_bgl_modfile.py -i <bgl_c_file> -o <output_file>
+#     -f <output_format>
 #
 #     bgl_c_file:
 #       Path to bgl.c.
 #
 #     output_file:
 #       Generated definitions are output to specified file.
+#
+#     output_format:
+#       Output format. Supported formats are "rst" and "json".
 #
 ##############################################################################
 
@@ -31,6 +35,7 @@ import json
 class GenerationConfig:
     bgl_c_file = None
     output_file = None
+    output_format = "rst"
 
 
 def get_function_name(line: str) -> str:
@@ -193,18 +198,53 @@ def parse_options() -> 'GenerationConfig':
         "-o", dest="output_file", type=str, help="Output directory",
         required=True
     )
+    parser.add_argument("-f", dest="output_format", type=str,
+                        help="Output format (rst, json).", required=True)
     args = parser.parse_args()
 
     config = GenerationConfig()
     config.bgl_c_file = args.bgl_c_file
     config.output_file = args.output_file
+    config.output_format = args.output_format
+
+    if config.output_format not in ["rst", "json"]:
+        raise ValueError(f"Unsupported output format: {config.output_format}")
 
     return config
 
 
-def write_to_modfile(info: Dict, config: 'GenerationConfig'):
+def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
     with open(config.output_file, "w", encoding="utf-8") as f:
-        json.dump(info, f, indent=4, sort_keys=True, separators=(",", ": "))
+        f.write(".. mod-type:: new\n\n")
+        f.write(".. module:: bgl\n\n")
+        for info in data["new"]:
+            if info["type"] == "function":
+                func_info = info
+                f.write(f".. function:: {func_info['name']}"
+                        f"({', '.join(func_info['parameters'])})\n\n")
+                for param_info in func_info["parameter_details"]:
+                    f.write(f"   :type {param_info['name']}: {param_info['data_type']}\n")
+                if func_info["return"]["data_type"] == "":
+                    f.write("\n")
+                else:
+                    f.write(f"   :rtype: {func_info['return']['data_type']}\n\n")
+            elif info["type"] == "constant":
+                constant_info = info
+                f.write(f".. data:: {constant_info['name']}\n\n")
+                if "data_type" in constant_info:
+                    f.write(f"   :type: {constant_info['data_type']}\n\n")
+
+
+def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
+    with open(config.output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, sort_keys=True, separators=(",", ": "))
+
+
+def write_to_modfile(data: Dict, config: 'GenerationConfig'):
+    if config.output_format == "rst":
+        write_to_rst_modfile(data, config)
+    elif config.output_format == "json":
+        write_to_json_modfile(data, config)
 
 
 def main():

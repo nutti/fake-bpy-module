@@ -1,0 +1,13 @@
+<document source="<string>">
+    <module>
+        <name>
+            bpy.context
+        <description>
+    <data>
+        <name>
+            attr_2
+        <description>
+            attr_2 description
+        <data-type-list>
+            <data-type>
+                attr_2 type

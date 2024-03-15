@@ -1,11 +1,11 @@
 ##############################################################################
 #
-# gen_module_modfile.py
+# gen_external_modules_modfile.py
 #
 # Description:
-#   gen_module_modfile.py generates python classes and functions definition
-#   from python modules in blender's 'modules' directory.
-#   The definitions are output as a modfile format (JSON).
+#   gen_external_modules_modfile.py generates python classes and functions
+#   definition from python modules in blender's 'modules' directory.
+#   The definitions are output as a modfile format.
 #
 # Note:
 #   This script needs to run from blender.
@@ -13,7 +13,8 @@
 #
 # Usage:
 #   blender -noaudio --factory-startup --background --python \
-#     gen_module_modfile.py -- -m <first_import_module_name> -o <output_dir>
+#     gen_external_modules_modfile.py -- -m <first_import_module_name>
+#     -o <output_dir> -f <output_format>
 #
 #     first_import_module_name:
 #       Module name to import first.
@@ -24,6 +25,9 @@
 #       Generated definitions are output to files which will be located to
 #       specified directory.
 #       (ex. gen_modules_modfile.generated)
+#
+#     output_format:
+#       Output format. Supported formats are "rst" and "json".
 #
 ##############################################################################
 
@@ -58,6 +62,7 @@ class GenerationConfig:
     first_import_module_name = None
     output_dir = None
     output_alias = False
+    output_format = "rst"
 
 
 def get_module_name_list(config: 'GenerationConfig') -> List[str]:
@@ -107,10 +112,13 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
                 inspect.signature(function[1]).parameters.keys())
         except ValueError:
             function_def["parameters"] = []
+    else:
+        function_def["parameters"] = []
 
     return function_def
 
 
+# pylint: disable=C0209
 def analyze_class(module_name: str, class_) -> Dict:
     class_def = {
         "name": class_[0],
@@ -128,7 +136,10 @@ def analyze_class(module_name: str, class_) -> Dict:
         if c.__module__ == "builtins":
             continue
         class_def["base_classes"].append(
-            "{}.{}".format(c.__module__, c.__name__))  # pylint: disable=C0209
+            "{}.{}".format(c.__module__, c.__name__))
+        # This avoids "E0240: Inconsistent method resolution order" error on
+        # pylint_cycles.sh
+        class_def["base_classes"].reverse()
 
     for x in inspect.getmembers(class_[1]):
         if x[0].startswith("_"):
@@ -200,34 +211,90 @@ def analyze(modules: List) -> Dict:
     return results
 
 
+# pylint: disable=C0209
+def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
+    os.makedirs(config.output_dir, exist_ok=True)
+    for module, d in data.items():
+        for info in d["new"]:
+            if info["type"] == "class":
+                class_info = info
+                mod_filename = "{}/{}.{}.mod.rst".format(
+                    config.output_dir, module, class_info["name"])
+                with open(mod_filename, "w", encoding="utf-8") as f:
+                    f.write(".. mod-type:: new\n\n")
+                    f.write(".. module:: {}\n\n".format(module))
+                    if len(class_info["base_classes"]) != 0:
+                        f.write("base classes --- {}\n\n".format(
+                            ', '.join(class_info["base_classes"])))
+                    f.write(".. class:: {}\n\n".format(class_info["name"]))
+                    for attr_info in class_info["attributes"]:
+                        f.write("   .. attribute:: {}\n\n".format(
+                            attr_info["name"]))
+                    for func_info in class_info["methods"]:
+                        f.write("   .. method:: {}({})\n\n".format(
+                            func_info["name"],
+                            ", ".join(func_info["parameters"])))
+            elif info["type"] == "function":
+                func_info = info
+                mod_filename = "{}/{}.mod.rst".format(config.output_dir, module)
+                if os.path.isfile(mod_filename):
+                    f = open(mod_filename, "a", encoding="utf-8")
+                else:
+                    f = open(mod_filename, "w", encoding="utf-8")
+                    f.write(".. mod-type:: new\n\n")
+                    f.write(".. module:: {}\n\n".format(module))
+                f.write(".. function:: {}({})\n\n".format(
+                    func_info["name"], ", ".join(func_info["parameters"])))
+                f.close()
+            elif info["type"] == "constant":
+                constant_info = info
+                mod_filename = "{}/{}.mod.rst".format(
+                    config.output_dir, module)
+                if os.path.isfile(mod_filename):
+                    f = open(mod_filename, "a", encoding="utf-8")
+                else:
+                    # pylint: disable=R1732
+                    f = open(mod_filename, "w", encoding="utf-8")
+                    f.write(".. mod-type:: new\n\n")
+                    f.write(".. module:: {}\n\n".format(module))
+                f.write(".. data:: {}\n\n".format(constant_info["name"]))
+                if "data_type" in constant_info:
+                    f.write("   :type: {}\n\n".format(
+                        constant_info["data_type"]))
+                f.close()
+
+
+# pylint: disable=C0209
+def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
+    os.makedirs(config.output_dir, exist_ok=True)
+    for module, d in data.items():
+        mod_filename = "{}/{}.json".format(config.output_dir, module)
+        with open(mod_filename, "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=4, sort_keys=True, separators=(",", ": "))
+
+
 def write_to_modfile(info: Dict, config: 'GenerationConfig'):
     data = {}
 
     for module_name, module_info in info.items():
-        package_name = module_name
-        index = package_name.find(".")
-        if index != -1:
-            package_name = package_name[:index]
-
-        if package_name not in data:
-            data[package_name] = {
+        if module_name not in data:
+            data[module_name] = {
                 "new": []
             }
         for class_info in module_info["classes"]:
-            data[package_name]["new"].append(class_info)
+            data[module_name]["new"].append(class_info)
         for function_info in module_info["functions"]:
-            data[package_name]["new"].append(function_info)
+            data[module_name]["new"].append(function_info)
         for constant_info in module_info["constants"]:
-            data[package_name]["new"].append(constant_info)
+            data[module_name]["new"].append(constant_info)
 
-    os.makedirs(config.output_dir, exist_ok=True)
-    for pkg, d in data.items():
-        # pylint: disable=C0209
-        with open("{}/{}.json".format(config.output_dir, pkg), "w",
-                  encoding="utf-8") as f:
-            json.dump(d, f, indent=4, sort_keys=True, separators=(",", ": "))
+    if config.output_format == "rst":
+        write_to_rst_modfile(data, config)
+    elif config.output_format == "json":
+        write_to_json_modfile(data, config)
 
 
+# pylint: disable=C0209
 def get_alias_to_bpy_types(results):
     bpy_types = dir(bpy.types)
 
@@ -244,13 +311,14 @@ def get_alias_to_bpy_types(results):
                     "type": "constant",
                     "name": c["name"],
                     "module": "bpy.types",
-                    "data_type": "`{}.{}`".format(c["module"], c["name"]),    # noqa # pylint: disable=C0209
+                    "data_type": "`{}.{}`".format(c["module"], c["name"]),
                 }
                 alias["constants"].append(constant_def)
 
     return alias
 
 
+# pylint: disable=C0209
 def parse_options() -> 'GenerationConfig':
     # Start after "--" option if we run this script from blender binary.
     argv = sys.argv
@@ -260,7 +328,6 @@ def parse_options() -> 'GenerationConfig':
         index = len(argv)
     argv = argv[index:]
 
-    # pylint: disable=C0209
     usage = "Usage: blender -noaudio --factory-startup --background " \
             "--python {} -- [-m <first_import_module_name>] [-a] " \
             "[-o <output_dir>]".format(__file__)
@@ -277,12 +344,19 @@ def parse_options() -> 'GenerationConfig':
         required=True
     )
     parser.add_argument("-a", dest="output_alias", action="store_true")
+    parser.add_argument("-f", dest="output_format", type=str,
+                        help="Output format (rst, json).", required=True)
     args = parser.parse_args(argv)
 
     config = GenerationConfig()
     config.first_import_module_name = args.first_import_module_name
     config.output_dir = args.output_dir
     config.output_alias = args.output_alias
+    config.output_format = args.output_format
+
+    if config.output_format not in ["rst", "json"]:
+        raise ValueError(
+            "Unsupported output format: {}".format(config.output_format))
 
     return config
 

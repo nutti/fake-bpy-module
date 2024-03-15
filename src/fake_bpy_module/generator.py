@@ -652,6 +652,8 @@ class PackageAnalyzer:
         self._generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}   # noqa # pylint: disable=C0301
         self._entry_points: List['EntryPoint'] = []
 
+        self._analyze_result_cache: Dict[PackageGenerationRule, AnalysisResult] = {}
+
     # build package structure
     def _build_package_structure(self):
         analyze_result = self._analyze()
@@ -665,9 +667,15 @@ class PackageAnalyzer:
     def _analyze(self) -> Dict['PackageGenerationRule', AnalysisResult]:
         result = {}
         for rule in self._rules:
-            result[rule] = self._analyze_by_rule(rule)
+            result[rule] = self._get_or_analyze_by_rule(rule)
 
         return result
+
+    def _get_or_analyze_by_rule(
+            self, rule: 'PackageGenerationRule') -> AnalysisResult:
+        if rule not in self._analyze_result_cache:
+            self._analyze_result_cache[rule] = self._analyze_by_rule(rule)
+        return self._analyze_result_cache[rule]
 
     def _analyze_by_rule(
             self, rule: 'PackageGenerationRule') -> AnalysisResult:
@@ -721,7 +729,7 @@ class PackageAnalyzer:
         # at first analyze without DataTypeRefiner
         generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
         for rule in self._rules:
-            analyze_result = self._analyze_by_rule(rule)
+            analyze_result = self._get_or_analyze_by_rule(rule)
             module_structure = self._build_module_structure(
                 self._collect_module_list(analyze_result))
             generation_info[rule] = self._build_generation_info_internal(
@@ -1277,9 +1285,8 @@ class PackageAnalyzer:
         generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
         for rule in self._rules:
             refiner = DataTypeRefiner(package_structure, entry_points)
-            analyze_result = self._analyze_by_rule(rule)
+            analyze_result = self._get_or_analyze_by_rule(rule)
             self._refine_data_type(refiner, analyze_result)
-
             module_structure = self._build_module_structure(
                 self._collect_module_list(analyze_result))
             generation_info[rule] = self._build_generation_info_internal(

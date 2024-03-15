@@ -14,26 +14,27 @@
                     arg_1
                 <description>
                     function_1 arg_1 description
+                <default-value>
                 <data-type-list>
                     <data-type>
                         function_1 arg_1 type
             <argument argument_type="arg">
                 <name>
                     arg_2
-                <default-value>
-                    "test"
                 <description>
                     function_1 arg_2 description
+                <default-value>
+                    "test"
                 <data-type-list>
                     <data-type>
                         function_1 arg_2 type
             <argument argument_type="arg">
                 <name>
                     arg_3
-                <default-value>
-                    1234
                 <description>
                     function_1 arg_3 description
+                <default-value>
+                    1234
                 <data-type-list>
                     <data-type>
                         function_1 arg_3 type

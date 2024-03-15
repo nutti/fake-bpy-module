@@ -11,21 +11,36 @@
             <argument argument_type="arg">
                 <name>
                     arg_1
+                <description>
+                <default-value>
+                <data-type-list>
             <argument argument_type="arg">
                 <name>
                     arg_2
+                <description>
+                <default-value>
+                <data-type-list>
             <argument argument_type="arg">
                 <name>
                     arg_3
+                <description>
                 <default-value>
                     "NONE"
+                <data-type-list>
             <argument argument_type="arg">
                 <name>
                     arg_4
+                <description>
                 <default-value>
                     True
+                <data-type-list>
             <argument argument_type="arg">
                 <name>
                     arg_5
+                <description>
                 <default-value>
                     None
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>

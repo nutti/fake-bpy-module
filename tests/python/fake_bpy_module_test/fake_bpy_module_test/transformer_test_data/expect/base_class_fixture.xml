@@ -1,0 +1,15 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <paragraph>
+        base class --- BaseClass1
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+        <attribute-list>
+        <function-list>

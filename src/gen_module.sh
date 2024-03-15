@@ -190,11 +190,11 @@ generated_mod_dir=${SCRIPT_DIR}/mods/generated_mods
 # generate modfiles if gen_modfile.py is newer
 [ ! -d "${generated_mod_dir}" ] && mkdir -p "${generated_mod_dir}"
 if [[ "${generated_mod_dir}/gen_modules_modfile" -ot "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" ]]; then
-    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m addon_utils -o "${generated_mod_dir}/gen_modules_modfile"
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m addon_utils -o "${generated_mod_dir}/gen_modules_modfile" -f rst
     touch "${generated_mod_dir}/gen_modules_modfile"
 fi
 if [[ "${generated_mod_dir}/gen_startup_modfile" -ot "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" ]]; then
-    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m keyingsets_builtins -a -o "${generated_mod_dir}/gen_startup_modfile"
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_external_modules_modfile.py" -- -m keyingsets_builtins -a -o "${generated_mod_dir}/gen_startup_modfile" -f rst
     touch "${generated_mod_dir}/gen_startup_modfile"
 fi
 
@@ -203,9 +203,9 @@ bgl_c_file="${source_dir}/source/blender/python/generic/bgl.c"
 if [ ! -e "${bgl_c_file}" ]; then
     bgl_c_file="${source_dir}/source/blender/python/generic/bgl.cc"
 fi
-if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.json" -ot "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" || "${generated_mod_dir}/gen_bgl_modfile/bgl.json" -ot "${bgl_c_file}" ]]; then
+if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" || "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${bgl_c_file}" ]]; then
     mkdir -p "${generated_mod_dir}/gen_bgl_modfile"
-    ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.json"
+    ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -f rst
 fi
 
 echo "Generating fake bpy modules ..."

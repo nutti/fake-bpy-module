@@ -4,6 +4,7 @@ import glob
 import argparse
 from typing import List
 import os
+import re
 
 import fake_bpy_module as fbm
 
@@ -20,14 +21,7 @@ def create_generator(
     elif config.output_format == "pyi":
         generator = fbm.PyInterfaceGenerator()
 
-    analyzer: 'fbm.BaseAnalyzer' = fbm.BaseAnalyzer()
-
-    if name == "bpy":
-        analyzer = fbm.BpyModuleAnalyzer(mod_files)
-    elif name == "bmesh":
-        analyzer = fbm.BmeshModuleAnalyzer(mod_files)
-    elif mod_files is not None:
-        analyzer = fbm.AnalyzerWithModFile(mod_files)
+    analyzer = fbm.BaseAnalyzer(mod_files)
 
     return fbm.PackageGenerationRule(name, target_files, analyzer, generator)
 
@@ -38,22 +32,27 @@ def make_bpy_rule(
     excludes_files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
     files = list(set(all_files) - set(excludes_files))
     mod_files = [
-        f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.json".replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/common/analyzer/bpy.types.bpy_prop_array.json"
+        f"{MOD_FILES_DIR}/mods/common/analyzer/append/bpy.types.mod.rst"
         .replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.json"
-        .replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.json"
+        f"{MOD_FILES_DIR}/mods/common/analyzer/new/bpy.types.mod.rst"
         .replace("\\", "/"),
     ]
+    mod_files += glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.*.mod.rst"
+        .replace("\\", "/"))
+    mod_files += glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.*.mod.rst"
+        .replace("\\", "/"))
     return create_generator("bpy", files, mod_files, config)
 
 
 def make_bgl_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bgl*.rst")
-    mod_files = glob.glob(
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_bgl_modfile/*.json")
+    mod_files = [
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_bgl_modfile/bgl.mod.rst"
+        .replace("\\", "/")
+    ]
     return create_generator("bgl", files, mod_files, config)
 
 
@@ -67,13 +66,17 @@ def make_mathutils_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/mathutils*.rst")
     mod_files = [
-        f"{MOD_FILES_DIR}/mods/common/analyzer/mathutils.json"
+        f"{MOD_FILES_DIR}/mods/common/analyzer/append/mathutils.bvhtree.mod.rst"
+        .replace("\\", "/"),
+        f"{MOD_FILES_DIR}/mods/common/analyzer/append/mathutils.kdtree.mod.rst"
+        .replace("\\", "/"),
+        f"{MOD_FILES_DIR}/mods/common/analyzer/append/mathutils.mod.rst"
         .replace("\\", "/"),
     ]
     if config.target == "blender" and config.mod_version in ["2.78", "2.79"]:
         mod_files.append(
-            f"{MOD_FILES_DIR}/mods/{config.mod_version}/analyzer/"
-            "mathutils.json".replace("\\", "/"))
+            f"{MOD_FILES_DIR}/mods/{config.mod_version}/analyzer/new/"
+            "mathutils.noise.types.mod.rst".replace("\\", "/"))
     return create_generator("mathutils", files, mod_files, config)
 
 
@@ -89,34 +92,32 @@ def make_gpu_extras_rule(
     mod_files = []
     if config.target == "blender":
         if config.mod_version not in ["2.78", "2.79"]:
-            mod_files.append(
-                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-                "gpu_extras.json".replace("\\", "/"))
+            mod_files.extend(
+                glob.glob(
+                    f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                    "gpu_extras.*.mod.rst".replace("\\", "/")))
     elif config.target == "upbge":
         if config.mod_version not in ["0.2.5"]:
-            mod_files.append(
-                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-                "gpu_extras.json".replace("\\", "/"))
+            mod_files.extend(
+                glob.glob(
+                    f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
+                    "gpu_extras.*.mod.rst".replace("\\", "/")))
     return create_generator("gpu_extras", files, mod_files, config)
 
 
 def make_freestyle_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/freestyle*.rst")
-    mod_files = [
-        f"{MOD_FILES_DIR}/mods/common/analyzer/freestyle.json"
-        .replace("\\", "/"),
-    ]
-    return create_generator("freestyle", files, mod_files, config)
+    return create_generator("freestyle", files, None, config)
 
 
 def make_bpy_extras_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bpy_extras*.rst")
-    mod_files = [
+    mod_files = glob.glob(
         f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-        "bpy_extras.json".replace("\\", "/")
-    ]
+        "bpy_extras.*.mod.rst".replace("\\", "/"))
+    mod_files = None
     return create_generator("bpy_extras", files, mod_files, config)
 
 
@@ -129,7 +130,10 @@ def make_aud_rule(
 def make_bmesh_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bmesh*.rst")
-    mod_files = []
+    mod_files = [
+        f"{MOD_FILES_DIR}/mods/common/analyzer/append/bmesh.types.mod.rst"
+        .replace("\\", "/"),
+    ]
     return create_generator("bmesh", files, mod_files, config)
 
 
@@ -148,13 +152,7 @@ def make_imbuf_rule(
 def make_bl_math_rule(
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     files = glob.glob(INPUT_DIR + "/bl_math*.rst")
-    mod_files = []
-    if config.target == "blender":
-        if config.mod_version in ["2.90", "2.91", "2.92", "2.93"]:
-            mod_files.append(
-                f"{MOD_FILES_DIR}/mods/{config.mod_version}/"
-                "analyzer/bl_math.json".replace("\\", "/"))
-    return create_generator("bl_math", files, mod_files, config)
+    return create_generator("bl_math", files, None, config)
 
 
 def make_bge_rule(
@@ -166,37 +164,58 @@ def make_bge_rule(
 
 def make_other_rules(config: 'fbm.PackageGeneratorConfig') -> List['fbm.PackageGenerationRule']:    # noqa # pylint: disable=C0301
     mod_files = glob.glob(
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/*.json"
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/*.mod.rst"
         .replace("\\", "/"))
     mod_files += glob.glob(
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/*.json"
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/*.mod.rst"
         .replace("\\", "/"))
-    mod_files = set(mod_files) - {
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.json"
-        .replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-        "bpy_extras.json".replace("\\", "/"),
-        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.json"
-        .replace("\\", "/"),
-    }
+    exclude_mod_files = glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_startup_modfile/bpy.*.mod.rst"
+        .replace("\\", "/"))
+    exclude_mod_files += glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy_extras.*.mod.rst"
+        .replace("\\", "/"))
+    exclude_mod_files += glob.glob(
+        f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/bpy.*.mod.rst"
+        .replace("\\", "/"))
+    mod_files = set(mod_files) - set(exclude_mod_files)
 
     if config.target == "blender":
         if config.mod_version not in ["2.78", "2.79"]:
-            mod_files -= {
+            mod_files -= set(glob.glob(
                 f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-                "gpu_extras.json".replace("\\", "/"),
-            }
+                "gpu_extras.*.mod.rst".replace("\\", "/"),
+            ))
     elif config.target == "upbge":
         if config.mod_version not in ["0.2.5"]:
-            mod_files -= {
+            mod_files -= set(glob.glob(
                 f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/"
-                "gpu_extras.json".replace("\\", "/"),
-            }
+                "gpu_extras.*.mod.rst".replace("\\", "/"),
+            ))
+
+    regex = re.compile(r".. module:: (.*)")
+    modules = {}
+    for mod_file in mod_files:
+        mod_name = None
+        with open(mod_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            for line in lines:
+                if m := regex.match(line):
+                    mod_name = m.group(1)
+                    break
+        if mod_name is None:
+            raise ValueError(f"{mod_file} does not contain module directive.")
+
+        index = mod_name.find(".")
+        if index != -1:
+            mod_name = mod_name[:index]
+        if mod_name not in modules:
+            modules[mod_name] = []
+        modules[mod_name].append(mod_file)
 
     rules = []
-    for mod_file in mod_files:
-        mod_name = mod_file[mod_file.rfind("/") + 1:].replace(".json", "")
-        rules.append(create_generator(mod_name, [], [mod_file], config))
+    for mod_name, files in modules.items():
+        rules.append(create_generator(mod_name, [], files, config))
     return rules
 
 

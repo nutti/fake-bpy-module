@@ -1,0 +1,17 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        BaseClass1
+        <attribute-list>
+        <function-list>

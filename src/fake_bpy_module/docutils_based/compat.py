@@ -31,6 +31,7 @@ from .analyzer.nodes import (
     DataTypeListNode,
 
     CodeNode,
+    CodeDocumentNode,
 )
 
 
@@ -58,22 +59,37 @@ class SubNodeVisitor:
         method = getattr(self, f"visit_{node_name}", self.unknown_visit)
         return method(node)
 
+    def dispatch_depart(self, node: nodes.Node):
+        node_name = node.__class__.__name__
+        method = getattr(self, f"depart_{node_name}", self.unknown_depart)
+        return method(node)
+
     def unknown_visit(self, node: nodes.Node):
         raise ValueError(
             f"{self.__class__} visiting unknown node type: "
-            f"{node.__class__.__name__}")
+            f"{node.__class__.__name__}\n\n{node.pformat()}")
+
+    def unknown_depart(self, node: nodes.Node):
+        raise ValueError(
+            f"{self.__class__} departing unknown node type: "
+            f"{node.__class__.__name__}\n\n{node.pformat()}")
 
 
-def walk_sub_node(node: nodes.Node, visitor: SubNodeVisitor):
+def walk_sub_node(node: nodes.Node, visitor: SubNodeVisitor,
+                  ignore_self: bool = True, call_depart: bool = False):
     should_stop = False
 
     try:
-        visitor.dispatch_visit(node)
+        if not ignore_self:
+            visitor.dispatch_visit(node)
     except nodes.SkipChildren:
         return should_stop
 
     for child in node.children[:]:
-        walk_sub_node(child, visitor)
+        walk_sub_node(child, visitor, ignore_self=False, call_depart=call_depart)
+
+    if call_depart and not ignore_self:
+        visitor.dispatch_depart(node)
 
     return should_stop
 
@@ -91,11 +107,13 @@ class BaseClassNodeVisitor(SubNodeVisitor):
 
     # pylint: disable=C0103
     def visit_DataTypeListNode(self, node: DataTypeListNode):
-        data_type = IntermidiateDataType("")
-        visitor = DataTypeListNodeVisitor(node, data_type)
-        walk_sub_node(node, visitor)
+        if not node.empty():
+            data_type = IntermidiateDataType("")
+            visitor = DataTypeListNodeVisitor(node, data_type)
+            walk_sub_node(node, visitor)
 
-        self.imm._data_type = data_type._data_type      # pylint: disable=W0212
+            self.imm._data_type = data_type._data_type      # pylint: disable=W0212
+            self.imm._skip_refine = data_type._skip_refine  # pylint: disable=W0212
 
         raise nodes.SkipChildren
 
@@ -113,6 +131,11 @@ class DataTypeListNodeVisitor(SubNodeVisitor):
         pass
 
     def visit_DataTypeNode(self, node: DataTypeNode):
+        mod_options = []
+        if "mod-option" in node.attributes:
+            mod_options = [sp.strip() for sp in node.attributes["mod-option"].split(",")]
+        if "skip-refine" in mod_options:
+            self.imm._skip_refine = True    # pylint: disable=W0212
         self.imm._data_type = node.astext()     # pylint: disable=W0212
 
         raise nodes.SkipChildren
@@ -141,11 +164,12 @@ class AttributeNodeVisitor(SubNodeVisitor):
         raise nodes.SkipChildren
 
     def visit_DataTypeListNode(self, node: DataTypeListNode):
-        data_type = IntermidiateDataType("")
-        visitor = DataTypeListNodeVisitor(node, data_type)
-        walk_sub_node(node, visitor)
+        if not node.empty():
+            data_type = IntermidiateDataType("")
+            visitor = DataTypeListNodeVisitor(node, data_type)
+            walk_sub_node(node, visitor)
 
-        self.imm.set_data_type(data_type)
+            self.imm.set_data_type(data_type)
 
         raise nodes.SkipChildren
 
@@ -169,15 +193,17 @@ class ArgumentNodeVisitor(SubNodeVisitor):
         raise nodes.SkipChildren
 
     def visit_DefaultValueNode(self, node: DefaultValueNode):
-        self.imm.default_value = node.astext()
+        if not node.empty():
+            self.imm.default_value = node.astext()
         raise nodes.SkipChildren
 
     def visit_DataTypeListNode(self, node: DataTypeListNode):
-        data_type = IntermidiateDataType("")
-        visitor = DataTypeListNodeVisitor(node, data_type)
-        walk_sub_node(node, visitor)
+        if not node.empty():
+            data_type = IntermidiateDataType("")
+            visitor = DataTypeListNodeVisitor(node, data_type)
+            walk_sub_node(node, visitor)
 
-        self.imm._data_type = data_type     # pylint: disable=W0212
+            self.imm._data_type = data_type     # pylint: disable=W0212
 
         raise nodes.SkipChildren
 
@@ -198,11 +224,12 @@ class FunctionReturnNodeVisitor(SubNodeVisitor):
         raise nodes.SkipChildren
 
     def visit_DataTypeListNode(self, node: DataTypeListNode):
-        data_type = IntermidiateDataType("")
-        visitor = DataTypeListNodeVisitor(node, data_type)
-        walk_sub_node(node, visitor)
+        if not node.empty():
+            data_type = IntermidiateDataType("")
+            visitor = DataTypeListNodeVisitor(node, data_type)
+            walk_sub_node(node, visitor)
 
-        self.imm.set_data_type(data_type)
+            self.imm.set_data_type(data_type)
 
         raise nodes.SkipChildren
 
@@ -251,11 +278,12 @@ class FunctionNodeVisitor(SubNodeVisitor):
         raise nodes.SkipChildren
 
     def visit_FunctionReturnNode(self, node: FunctionReturnNode):
-        return_info = ReturnInfo()
-        visitor = FunctionReturnNodeVisitor(node, return_info)
-        walk_sub_node(node, visitor)
+        if not node.empty():
+            return_info = ReturnInfo()
+            visitor = FunctionReturnNodeVisitor(node, return_info)
+            walk_sub_node(node, visitor)
 
-        self.imm.set_return(return_info)
+            self.imm.set_return(return_info)
 
         raise nodes.SkipChildren
 
@@ -265,6 +293,9 @@ class RstToFakeBpyModuleImmTranslator(nodes.NodeVisitor):
         super().__init__(document)
         self.imm: SectionInfo = imm
         self.module_name = None
+
+    def visit_CodeDocumentNode(self, node: CodeDocumentNode):
+        raise nodes.SkipChildren
 
     def visit_document(self, node: nodes.document):
         pass

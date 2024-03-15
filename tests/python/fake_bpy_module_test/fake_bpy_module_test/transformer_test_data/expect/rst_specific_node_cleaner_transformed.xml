@@ -1,0 +1,79 @@
+<document ids="title" names="title" source="<string>" title="Title">
+    <code-document>
+        <title>
+            Title
+    <code-document>
+        <paragraph>
+            Paragraph Contents
+    <code-document>
+        <bullet_list bullet="*">
+            <list_item>
+                <paragraph>
+                    Bullet List Item 1
+            <list_item>
+                <paragraph>
+                    Bullet List Item 2
+    <code-document>
+        <enumerated_list enumtype="arabic" prefix="" suffix=".">
+            <list_item>
+                <paragraph>
+                    Enumerated List Item 1
+            <list_item>
+                <paragraph>
+                    Enumerated List Item 2
+    <code-document>
+        <definition_list>
+            <definition_list_item>
+                <term>
+                    Definition List Item 1
+                <definition>
+                    <paragraph>
+                        Definition List Item 1 Contents
+    <code-document>
+        <warning>
+            <paragraph>
+                Warning Contents
+    <code-document>
+        <note>
+            <paragraph>
+                Note Contents
+    <code-document>
+        <paragraph>
+            Literal Block
+    <code-document>
+        <literal_block xml:space="preserve">
+            Literal Block Contents
+    <code-document>
+        <section ids="section" names="section">
+    <code-document>
+        <title>
+            Section
+    <code-document>
+        <field_list>
+            <field>
+                <field_name>
+                    field-list-item-1
+                <field_body>
+                    <paragraph>
+                        Field List Item 1 Contents
+            <field>
+                <field_name>
+                    field-list-item-2
+                <field_body>
+                    <paragraph>
+                        Field List Item 2 Contents
+    <code-document>
+        <line_block>
+            <line>
+                Line Block Contents 1
+            <line>
+                Line Block Contents 2
+    <code-document>
+        <block_quote>
+            <paragraph>
+                Quote Block Contents 1
+                Quote Block Contents 2
+    <code-document>
+        <paragraph>
+            <target ids="target" names="target">
+                Target
