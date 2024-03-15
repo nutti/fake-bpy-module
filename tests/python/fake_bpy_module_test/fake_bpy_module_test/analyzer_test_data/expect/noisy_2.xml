@@ -16,6 +16,7 @@
             ClassA
         <description>
             ClassA description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -35,6 +36,9 @@
                     classmethod_1
                     description
                 <argument-list>
+                <return>
+                    <description>
+                    <data-type-list>
             <function function_type="staticmethod">
                 <name>
                     staticmethod_1
@@ -45,9 +49,18 @@
                     <argument argument_type="arg">
                         <name>
                             a
+                        <description>
+                        <default-value>
+                        <data-type-list>
                     <argument argument_type="arg">
                         <name>
                             b
+                        <description>
+                        <default-value>
+                        <data-type-list>
+                <return>
+                    <description>
+                    <data-type-list>
     <paragraph>
         Noise
     <class>
@@ -56,6 +69,7 @@
         <description>
             ClassB
             description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -76,11 +90,11 @@
                     <argument argument_type="arg">
                         <name>
                             arg_1
-                        <default-value>
-                            5.4
                         <description>
                             method_1
                             arg_1 description
+                        <default-value>
+                            5.4
                         <data-type-list>
                             <data-type>
                                 method_1 arg_1
@@ -127,11 +141,11 @@
             <argument argument_type="arg">
                 <name>
                     arg_1
-                <default-value>
-                    [[1.3, -3.4], [4.5, -0.9]]
                 <description>
                     function_1
                     arg_1 description
+                <default-value>
+                    [[1.3, -3.4], [4.5, -0.9]]
                 <data-type-list>
                     <data-type>
                         function_1 arg_1
@@ -156,18 +170,22 @@
                     arg_1
                 <description>
                     function_2 arg_1 description
+                <default-value>
                 <data-type-list>
                     <data-type>
                         function_2 arg_1 type
             <argument argument_type="arg">
                 <name>
                     arg_2
-                <default-value>
-                    "test"
                 <description>
                     function_2 arg_2 description
+                <default-value>
+                    "test"
                 <data-type-list>
                     <data-type>
                         str
+        <return>
+            <description>
+            <data-type-list>
     <paragraph>
         Noise

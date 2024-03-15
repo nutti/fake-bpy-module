@@ -8,6 +8,7 @@
             ClassA
         <description>
             ClassA description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -37,16 +38,17 @@
                             arg_1
                         <description>
                             method_1 arg_1 description
+                        <default-value>
                         <data-type-list>
                             <data-type>
                                 method_1 arg_1 type
                     <argument argument_type="arg">
                         <name>
                             arg_2
-                        <default-value>
-                            "test"
                         <description>
                             method_1 arg_2 description
+                        <default-value>
+                            "test"
                         <data-type-list>
                             <data-type>
                                 method_1 arg_2 type
@@ -67,16 +69,17 @@
                             arg_1
                         <description>
                             classmethod_1 arg_1 description
+                        <default-value>
                         <data-type-list>
                             <data-type>
                                 classmethod_1 arg_1 type
                     <argument argument_type="arg">
                         <name>
                             arg_2
-                        <default-value>
-                            123
                         <description>
                             classmethod_1 arg_2 description
+                        <default-value>
+                            123
                         <data-type-list>
                             <data-type>
                                 classmethod_1 arg_2 type
@@ -97,16 +100,17 @@
                             arg_1
                         <description>
                             staticmethod_1 arg_1 description
+                        <default-value>
                         <data-type-list>
                             <data-type>
                                 staticmethod_1 arg_1 type
                     <argument argument_type="arg">
                         <name>
                             arg_2
-                        <default-value>
-                            (0, 0)
                         <description>
                             staticmethod_1 arg_2 description
+                        <default-value>
+                            (0, 0)
                         <data-type-list>
                             <data-type>
                                 staticmethod_1 arg_2 type
@@ -127,16 +131,17 @@
                             arg_1
                         <description>
                             function_1 arg_1 description
+                        <default-value>
                         <data-type-list>
                             <data-type>
                                 function_1 arg_1 type
                     <argument argument_type="arg">
                         <name>
                             arg_2
-                        <default-value>
-                            None
                         <description>
                             function_1 arg_2 description
+                        <default-value>
+                            None
                         <data-type-list>
                             <data-type>
                                 function_1 arg_2 type

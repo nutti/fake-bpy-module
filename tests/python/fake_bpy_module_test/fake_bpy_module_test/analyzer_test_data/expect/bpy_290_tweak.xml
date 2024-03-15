@@ -8,6 +8,7 @@
             ClassA
         <description>
             ClassA description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>

@@ -1,0 +1,20 @@
+<document source="<string>">
+    <module>
+        <name>
+            bpy
+        <description>
+    <data>
+        <name>
+            data_1
+        <description>
+            data_1 description
+        <data-type-list>
+            <data-type>
+                data_1 type
+    <data>
+        <name>
+            context
+        <description>
+        <data-type-list>
+            <data-type>
+                `bpy.types.Context`

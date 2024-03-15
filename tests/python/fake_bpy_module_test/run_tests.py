@@ -31,9 +31,6 @@ def main():
     import fake_bpy_module_test     # pylint: disable=C0415
 
     test_cases = [
-        fake_bpy_module_test.analyzer_test.AnalyzerWithModFileTest,
-        fake_bpy_module_test.analyzer_test.BpyModuleAnalyzerTest,
-        fake_bpy_module_test.analyzer_test.BmeshModuleAnalyzerTest,
         fake_bpy_module_test.dag_test.DAGTest,
         fake_bpy_module_test.generator_test.CodeWriterIndentTest,
         fake_bpy_module_test.generator_test.CodeWriterTest,
@@ -65,6 +62,8 @@ def main():
         fake_bpy_module_test.utils_test.UtilsTest,
 
         fake_bpy_module_test.docutils_based.analyzer_test.BaseAnalyzerTest,
+        fake_bpy_module_test.docutils_based.transformer_test.TransformerTest,
+        fake_bpy_module_test.docutils_based.mod_applier_test.ModApplierTest,
     ]
 
     suite = unittest.TestSuite()

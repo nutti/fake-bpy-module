@@ -581,7 +581,7 @@ class PackageGenerationRuleTest(common.FakeBpyModuleTestBase):
     module_name = __module__
 
     def test_all(self):
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
 
         rule = PackageGenerationRule(
@@ -626,7 +626,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.target_version = "2.80"
         config.mod_version = "2.80"
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule = PackageGenerationRule("rule", rule_rst_files,
                                      analyzer, generator)
@@ -692,12 +692,12 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.target_version = "2.80"
         config.mod_version = None
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
@@ -815,7 +815,7 @@ class PackageAnalyzerTest(common.FakeBpyModuleTestBase):
         config.target_version = "2.80"
         config.mod_version = None
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule = PackageGenerationRule("rule", rule_rst_files,
                                      analyzer, generator)
@@ -908,7 +908,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         pkg_generator = PackageGenerator(config)
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule = PackageGenerationRule(
             "rule", rule_rst_files, analyzer, generator)
@@ -969,12 +969,12 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         pkg_generator = PackageGenerator(config)
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule_1 = PackageGenerationRule("rule_1", rule_1_rst_files,
                                        analyzer, generator)
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule_2 = PackageGenerationRule("rule_2", rule_2_rst_files,
                                        analyzer, generator)
@@ -1039,7 +1039,7 @@ class PackageGeneratorTest(common.FakeBpyModuleTestBase):
 
         pkg_generator = PackageGenerator(config)
 
-        analyzer = BaseAnalyzer()
+        analyzer = BaseAnalyzer([])
         generator = PyCodeGenerator()
         rule = PackageGenerationRule(
             "rule", rule_rst_files, analyzer, generator)

@@ -1,0 +1,47 @@
+<document source="<string>">
+    <mod-type>
+        append
+    <module>
+        <name>
+            module.a
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        typing.Generic
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_2
+                <description>
+                    attr_2 description
+                <data-type-list>
+                    <data-type>
+                        attr_2 type
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_2
+                <description>
+                    method_2 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_2 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                method_2 arg_1 type
+                <return>
+                    <description>
+                        method_2 return description
+                    <data-type-list>
+                        <data-type>
+                            method_2 return type

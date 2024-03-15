@@ -1,0 +1,8 @@
+.. mod-type:: append
+
+.. module:: module.a
+
+.. function:: function_1(arg_2=10)
+
+   :arg arg_2: function_1 arg_2 description
+   :type arg_2: function_1 arg_2 type

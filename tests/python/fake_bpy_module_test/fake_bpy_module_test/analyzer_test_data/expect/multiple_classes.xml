@@ -10,6 +10,7 @@
             ClassA
         <description>
             ClassA description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -26,11 +27,15 @@
                 <description>
                     method_1 description
                 <argument-list>
+                <return>
+                    <description>
+                    <data-type-list>
     <class>
         <name>
             ClassB
         <description>
             ClassB description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -50,10 +55,10 @@
                     <argument argument_type="arg">
                         <name>
                             arg_1
-                        <default-value>
-                            5.4
                         <description>
                             method_1 arg_1 description
+                        <default-value>
+                            5.4
                         <data-type-list>
                             <data-type>
                                 method_1 arg_1 type

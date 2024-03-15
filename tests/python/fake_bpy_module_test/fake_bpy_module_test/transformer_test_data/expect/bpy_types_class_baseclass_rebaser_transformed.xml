@@ -1,0 +1,21 @@
+<document source="<string>">
+    <module>
+        <name>
+            bpy.types
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        `bpy_prop_collection` of `Attribute`, (readonly)
+        <function-list>

@@ -1,0 +1,13 @@
+<document source="<string>">
+    <module>
+        <name>
+            module.a
+        <description>
+    <attribute>
+        <name>
+            data_1
+        <description>
+            data_1 description
+        <data-type-list>
+            <data-type>
+                data_1 type

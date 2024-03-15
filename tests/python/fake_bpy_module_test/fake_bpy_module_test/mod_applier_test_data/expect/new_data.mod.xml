@@ -1,0 +1,15 @@
+<document source="<string>">
+    <mod-type>
+        new
+    <module>
+        <name>
+            module.a
+        <description>
+    <data>
+        <name>
+            DATA_2
+        <description>
+            DATA_2 description
+        <data-type-list>
+            <data-type>
+                DATA_2 type

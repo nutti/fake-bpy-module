@@ -6,6 +6,8 @@ from docutils import nodes
 from .nodes import (
     ModuleNode,
     ClassNode,
+    BaseClassListNode,
+    BaseClassNode,
     DataNode,
     AttributeNode,
     AttributeListNode,
@@ -21,13 +23,12 @@ from .nodes import (
     DataTypeListNode,
 
     CodeNode,
+    ModTypeNode,
 )
 
 from .. import configuration
 
-
-def append_child(node: nodes.Node, item: nodes.Node):
-    node.insert(len(node.children), item)
+from ..common import append_child
 
 
 class ModuleDirective(rst.Directive):
@@ -40,7 +41,7 @@ class ModuleDirective(rst.Directive):
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
 
-        module_node = ModuleNode()
+        module_node = ModuleNode.create_template()
 
         # Get module name.
         module_name = self.arguments[0]
@@ -55,15 +56,14 @@ class ModuleDirective(rst.Directive):
                     "latest"]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
-        append_child(module_node, NameNode(text=module_name))
+        module_node.element(NameNode).add_text(module_name)
 
         # Get all descriptions.
         desc_str = ""
         for child in paragraph_node.children:
             if isinstance(child, nodes.paragraph):
                 desc_str += child.astext()
-        desc_node = DescriptionNode(text=desc_str)
-        append_child(module_node, desc_node)
+        module_node.element(DescriptionNode).add_text(desc_str)
 
         return [module_node]
 
@@ -80,38 +80,39 @@ class ClassDirective(rst.Directive):
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
 
-        class_node = ClassNode()
+        class_node = ClassNode.create_template()
 
         # Get class name.
         # TODO: Parse argument to create __init__ method
         #       ex. class GPUBatch(type, buf, elem=None):
         if m := self._CLASS_NAME_REGEX.match(self.arguments[0]):
             content = m.group(1)
-            append_child(class_node, NameNode(text=content))
+            class_node.element(NameNode).add_text(content)
 
         # Get all descriptions.
         desc_str = ""
         for child in paragraph_node.children:
             if isinstance(child, nodes.paragraph):
                 desc_str += child.astext()
-        desc_node = DescriptionNode(text=desc_str)
-        append_child(class_node, desc_node)
+        class_node.element(DescriptionNode).add_text(desc_str)
 
         # Get all attributes and methods.
-        attr_list_node = AttributeListNode()
-        method_list_node = FunctionListNode()
+        base_class_list_node = class_node.element(BaseClassListNode)
+        attr_list_node = class_node.element(AttributeListNode)
+        method_list_node = class_node.element(FunctionListNode)
         for child in paragraph_node.children:
-            if isinstance(child, AttributeNode):
-                append_child(attr_list_node, child)
+            if isinstance(child, BaseClassListNode):
+                for c in child.children:
+                    base_class_list_node.append_child(c.deepcopy())
+            elif isinstance(child, AttributeNode):
+                attr_list_node.append_child(child)
             elif isinstance(child, DataNode):
                 attr_node = AttributeNode()
                 for node in child.children:
-                    append_child(attr_node, node)
-                append_child(attr_list_node, attr_node)
+                    attr_node.append_child(node)
+                attr_list_node.append_child(attr_node)
             elif isinstance(child, FunctionNode):
-                append_child(method_list_node, child)
-        append_child(class_node, attr_list_node)
-        append_child(class_node, method_list_node)
+                method_list_node.append_child(child)
 
         return [class_node]
 
@@ -133,33 +134,30 @@ class DataDirective(rst.Directive):
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
-        node = self.node_class()
+        node = self.node_class.create_template()
 
         # TODO: parse "(Deprecated)" from the optional argument.
 
         # Get attribute name.
         if m := self._DATA_NAME_REGEX.match(self.arguments[0]):
-            name = NameNode(text=m.group(1))
-            append_child(node, name)
+            node.element(NameNode).add_text(m.group(1))
 
         # Get all descriptions.
         desc_str = ""
         for child in paragraph.children:
             if isinstance(child, nodes.paragraph):
                 desc_str += child.astext()
-        desc_node = DescriptionNode(text=desc_str)
-        append_child(node, desc_node)
+        node.element(DescriptionNode).add_text(desc_str)
 
         # Get all field values.
+        dtype_list_node = node.element(DataTypeListNode)
         field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
         for field_list in field_lists:
             for field in field_list:
                 fname_node, fbody_node = field.children
                 if fname_node.astext() == "type":
-                    dtype_list = DataTypeListNode()
                     dtype = DataTypeNode(text=fbody_node.astext())
-                    append_child(dtype_list, dtype)
-                    append_child(node, dtype_list)
+                    dtype_list_node.append_child(dtype)
 
         return [node]
 
@@ -183,6 +181,7 @@ class FunctionDirective(rst.Directive):
     _DEPRECATED_REGEX = re.compile(r"\s*\(Deprecated\)$")
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
+    _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+(arg|rtype)\s*(\S*)")
 
     def _parse_parameters(self, line: str) -> list:
         level = 0
@@ -331,70 +330,62 @@ class FunctionDirective(rst.Directive):
         func_nodes: list = []
         # pylint: disable=R1702
         for fdef in func_defs:
-            func_node = FunctionNode(function_type=self.name)
+            func_node = FunctionNode.create_template(function_type=self.name)
 
             m: ast.Module = ast.parse(fdef)
             func_def: ast.FunctionDef = m.body[0]
 
             # Get function name.
-            append_child(func_node, NameNode(text=func_def.name))
+            func_node.element(NameNode).add_text(func_def.name)
 
             # Get all descriptions.
             desc_str = ""
             for child in paragraph.children:
                 if isinstance(child, nodes.paragraph):
                     desc_str += child.astext()
-            desc_node = DescriptionNode(text=desc_str)
-            append_child(func_node, desc_node)
+            func_node.element(DescriptionNode).add_text(desc_str)
 
             func_nodes.append(func_node)
 
             # Get function signature.
-            arg_list_node = ArgumentListNode()
+            arg_list_node = func_node.element(ArgumentListNode)
             for i, arg in enumerate(func_def.args.args):
-                arg_node = ArgumentNode(argument_type="arg")
-                append_child(arg_node, NameNode(text=arg.arg))
+                arg_node = ArgumentNode.create_template(argument_type="arg")
+                arg_node.element(NameNode).add_text(arg.arg)
                 default_start = \
                     len(func_def.args.args) - len(func_def.args.defaults)
                 if i >= default_start:
                     default = func_def.args.defaults[i - default_start]
                     default_value = self._parse_default_value(default)
                     if default_value is not None:
-                        append_child(
-                            arg_node, DefaultValueNode(text=default_value))
-                append_child(arg_list_node, arg_node)
+                        arg_node.element(DefaultValueNode).add_text(default_value)
+                arg_list_node.append_child(arg_node)
 
             if func_def.args.vararg:
-                arg_node = ArgumentNode(argument_type="vararg")
-                append_child(
-                    arg_node, NameNode(text=func_def.args.vararg.arg))
-                append_child(arg_list_node, arg_node)
+                arg_node = ArgumentNode.create_template(argument_type="vararg")
+                arg_node.element(NameNode).add_text(func_def.args.vararg.arg)
+                arg_list_node.append_child(arg_node)
 
             for i, arg in enumerate(func_def.args.kwonlyargs):
-                arg_node = ArgumentNode(argument_type="kwonlyarg")
-                append_child(arg_node, NameNode(text=arg.arg))
+                arg_node = ArgumentNode.create_template(argument_type="kwonlyarg")
+                arg_node.element(NameNode).add_text(arg.arg)
                 default = func_def.args.kw_defaults[i]
                 default_value = self._parse_default_value(default)
                 if default_value is not None:
-                    append_child(
-                        arg_node, DefaultValueNode(text=default_value))
-                append_child(arg_list_node, arg_node)
+                    arg_node.element(DefaultValueNode).add_text(default_value)
+                arg_list_node.append_child(arg_node)
 
             if func_def.args.kwarg:
-                arg_node = ArgumentNode(argument_type="kwarg")
-                append_child(arg_node, NameNode(text=func_def.args.kwarg.arg))
-                append_child(arg_list_node, arg_node)
-
-            append_child(func_node, arg_list_node)
+                arg_node = ArgumentNode.create_template(argument_type="kwarg")
+                arg_node.element(NameNode).add_text(func_def.args.kwarg.arg)
+                arg_list_node.append_child(arg_node)
 
             # Get signature details
-            field_lists: nodes.field_list = paragraph.findall(
-                nodes.field_list)
+            field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
             for field_list in field_lists:
                 for field in field_list:
                     fname_node, fbody_node = field.children
-                    m = self._ARG_FIELD_REGEX.match(fname_node.astext())
-                    if m:
+                    if m := self._ARG_FIELD_REGEX.match(fname_node.astext()):
                         arg_name = m.group(2)
                         arg_node: ArgumentNode = None
                         for child in arg_list_node.children:
@@ -404,30 +395,33 @@ class FunctionDirective(rst.Directive):
                                 break
                         if arg_node:
                             if m.group(1) in ("arg", "param"):
-                                desc_node = DescriptionNode(
-                                    text=fbody_node.astext())
-                                append_child(arg_node, desc_node)
+                                arg_node.element(DescriptionNode).add_text(fbody_node.astext())
                             elif m.group(1) == "type":
-                                data_type_list_node = DataTypeListNode(
-                                    "",
+                                arg_node.element(DataTypeListNode).append_child(
                                     DataTypeNode(text=fbody_node.astext()))
-                                append_child(arg_node, data_type_list_node)
-                    m = self._RETURN_FIELD_REGEX.match(fname_node.astext())
-                    if m:
-                        r = list(func_node.findall(FunctionReturnNode))
-                        if len(r) == 0:
-                            func_ret_node = FunctionReturnNode()
-                            append_child(func_node, func_ret_node)
-                        else:
-                            func_ret_node = r[0]
+                    elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
+                        func_ret_node = func_node.element(FunctionReturnNode)
                         if m.group(1) == "return":
-                            desc_node = DescriptionNode(
-                                text=fbody_node.astext())
-                            append_child(func_ret_node, desc_node)
+                            func_ret_node.element(DescriptionNode).add_text(fbody_node.astext())
                         elif m.group(1) == "rtype":
-                            data_type_list_node = DataTypeListNode(
-                                "", DataTypeNode(text=fbody_node.astext()))
-                            append_child(func_ret_node, data_type_list_node)
+                            func_ret_node.element(DataTypeListNode).append_child(
+                                DataTypeNode(text=fbody_node.astext()))
+                    elif m := self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                        if m.group(1) == "arg":
+                            arg_name = m.group(2)
+                            arg_node: ArgumentNode = None
+                            for child in arg_list_node.children:
+                                n = next(child.findall(NameNode))
+                                if n.astext() == arg_name:
+                                    arg_node = n.parent
+                                    break
+                            if arg_node:
+                                for dtype_node in arg_node.findall(DataTypeNode):
+                                    dtype_node.attributes["mod-option"] = fbody_node.astext()
+                        elif m.group(1) == "rtype":
+                            func_ret_node = func_node.element(FunctionReturnNode)
+                            for dtype_node in func_ret_node.findall(DataTypeNode):
+                                dtype_node.attributes["mod-option"] = fbody_node.astext()
 
         return func_nodes
 
@@ -471,10 +465,54 @@ class NopDirective(rst.Directive):
         return []
 
 
+class ModTypeDirective(rst.Directive):
+    required_arguments = 1
+    final_argument_whitespace = False
+    has_content = False
+
+    def run(self):
+        mod_type: str = self.arguments[0]
+        mod_type_node: ModTypeNode = ModTypeNode(text=mod_type)
+
+        return [mod_type_node]
+
+
+class BaseClassDirective(rst.Directive):
+    required_arguments = 1
+    final_argument_whitespace = True
+    has_content = True
+
+    _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+base-class")
+
+    def run(self):
+        base_classes: str = self.arguments[0]
+        base_class_list_node: BaseClassListNode = BaseClassListNode()
+
+        paragraph: nodes.paragraph = nodes.paragraph()
+        self.state.nested_parse(self.content, self.content_offset, paragraph)
+
+        for sp in base_classes.split(", "):
+            base_class_node = BaseClassNode.create_template()
+            base_class_node.element(DataTypeListNode).append_child(DataTypeNode(text=sp))
+            base_class_list_node.append_child(base_class_node)
+
+        field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
+        for field_list in field_lists:
+            for field in field_list:
+                fname_node, fbody_node = field.children
+                if self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                    for base_class_node in base_class_list_node.children:
+                        for dtype_node in base_class_node.findall(DataTypeNode):
+                            dtype_node.attributes["mod-option"] = fbody_node.astext()
+
+        return [base_class_list_node]
+
+
 def register_directives():
     rst.directives.register_directive("module", ModuleDirective)
     rst.directives.register_directive("currentmodule", ModuleDirective)
     rst.directives.register_directive("class", ClassDirective)
+    rst.directives.register_directive("base-class", BaseClassDirective)
     rst.directives.register_directive("function", FunctionDirective)
     rst.directives.register_directive("method", FunctionDirective)
     rst.directives.register_directive("classmethod", FunctionDirective)
@@ -493,3 +531,5 @@ def register_directives():
     rst.directives.register_directive("deprecated", DocumentDirective)
 
     rst.directives.register_directive("include", NopDirective)
+
+    rst.directives.register_directive("mod-type", ModTypeDirective)

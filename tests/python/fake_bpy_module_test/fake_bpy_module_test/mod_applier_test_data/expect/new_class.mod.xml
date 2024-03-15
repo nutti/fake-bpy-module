@@ -1,0 +1,85 @@
+<document source="<string>">
+    <mod-type>
+        new
+    <module>
+        <name>
+            module.a
+        <description>
+    <class>
+        <name>
+            ClassB
+        <description>
+            ClassB description
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        typing.Generic
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        attr_1 type
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                    method_1 description
+                <argument-list>
+                <return>
+                    <description>
+                        method_1 return description
+                    <data-type-list>
+                        <data-type>
+                            method_1 return type
+            <function function_type="classmethod">
+                <name>
+                    classmethod_1
+                <description>
+                    classmethod_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            classmethod_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                classmethod_1 arg_1 type
+                <return>
+                    <description>
+                    <data-type-list>
+            <function function_type="staticmethod">
+                <name>
+                    staticmethod_1
+                <description>
+                    staticmethod_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            staticmethod_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                staticmethod_1 arg_1 type
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            staticmethod_1 arg_2 description
+                        <default-value>
+                            (0, 0)
+                        <data-type-list>
+                            <data-type>
+                                staticmethod_1 arg_2 type
+                <return>
+                    <description>
+                    <data-type-list>
