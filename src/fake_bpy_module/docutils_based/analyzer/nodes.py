@@ -1,6 +1,8 @@
 from typing import TypeVar, Type
 from docutils import nodes
 
+from .roles import ClassRef
+
 T = TypeVar("T", bound=nodes.Node)
 
 
@@ -23,6 +25,13 @@ class UniqueElementNode(NodeBase):
 
     def element(self, element_type: Type[T]) -> T:
         return self.elements[element_type]
+
+    def deepcopy(self):
+        new_obj = super().deepcopy()
+        new_obj.elements.clear()
+        for child in new_obj.children:
+            new_obj.elements[type(child)] = child
+        return new_obj
 
 
 class ListNode(NodeBase, nodes.Sequential):
@@ -58,6 +67,20 @@ class DataTypeListNode(ListNode):
 class DataTypeNode(TextNode, nodes.Part):
     tagname = "data-type"
     child_text_separator = ""
+
+    def astext(self):
+        return "".join(c.astext() for c in self.children)
+
+    def to_string(self):
+        s = ""
+        for c in self.children:
+            if isinstance(c, nodes.Text):
+                s += c.astext()
+            elif isinstance(c, ClassRef):
+                s += c.to_string()
+            else:
+                raise NotImplementedError(f"{type(c)} is not supported")
+        return s
 
 
 class DescriptionNode(TextNode, nodes.Part):

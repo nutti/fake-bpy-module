@@ -1,7 +1,6 @@
 
 from .analyzer import (
     BaseAnalyzer,
-    AnalysisResult,
 )
 from .generator import (
     BaseGenerator,

@@ -350,6 +350,9 @@ class FunctionDirective(rst.Directive):
             # Get function signature.
             arg_list_node = func_node.element(ArgumentListNode)
             for i, arg in enumerate(func_def.args.args):
+                # Remove self argument which will be added later.
+                if i == 0 and arg.arg == "self":
+                    continue
                 arg_node = ArgumentNode.create_template(argument_type="arg")
                 arg_node.element(NameNode).add_text(arg.arg)
                 default_start = \

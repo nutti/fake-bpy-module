@@ -4,20 +4,10 @@ from docutils import nodes
 from docutils.core import publish_doctree
 
 from .docutils_based.transformer import transformer
-
-from .common import (
-    SectionInfo,
-)
-from .docutils_based import analyzer, compat, configuration
+from .docutils_based import analyzer, configuration
 
 
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
-
-
-# pylint: disable=R0903
-class AnalysisResult:
-    def __init__(self):
-        self.section_info: List['SectionInfo'] = []
 
 
 class BaseAnalyzer:
@@ -38,19 +28,6 @@ class BaseAnalyzer:
 
     def _target(self) -> str:
         return self.target
-
-    def _modify(self, doc_list: List[nodes.document]) -> AnalysisResult:
-        result = AnalysisResult()
-
-        for doc in doc_list:
-            section_info: SectionInfo = SectionInfo()
-            writer = compat.FakeBpyModuleImmWriter(
-                doc, section_info)
-            writer.translate()
-
-            result.section_info.append(section_info)
-
-        return result
 
     def apply_transform(self, doc_list: List[nodes.document]) -> List[nodes.document]:
         t = transformer.Transformer([
@@ -91,26 +68,15 @@ class BaseAnalyzer:
         return document
 
     def analyze_internal(self, filenames: list) -> List[nodes.document]:
-        files_to_exclude = []
-
         documents: List[nodes.document] = []
         for f in filenames:
-            exclude = False
-            for ex in files_to_exclude:
-                if f.endswith(ex):
-                    exclude = True
-                    break
-            if exclude:
-                continue
-
             document = self._analyze_by_file(f)
             documents.append(document)
 
         return documents
 
-    def analyze(self, filenames: list) -> AnalysisResult:
+    def analyze(self, filenames: list) -> List[nodes.document]:
         documents = self.analyze_internal(filenames)
         documents = self.apply_transform(documents)
-        result = self._modify(documents)
 
-        return result
+        return documents

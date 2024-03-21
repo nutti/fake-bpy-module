@@ -8,6 +8,9 @@ class PythonAPIRef(nodes.Inline, nodes.TextElement):
 
         return f"`{name}`"
 
+    def to_string(self) -> str:
+        return super().astext()
+
 
 class ClassRef(PythonAPIRef):
     tagname = "class-ref"
