@@ -1,34 +1,25 @@
-import copy
 import re
 from typing import List, Dict, Set, Tuple
 import typing
+from docutils import nodes
+
+from .docutils_based.analyzer.nodes import (
+    DataTypeNode,
+)
+from .docutils_based.analyzer.roles import (
+    ClassRef,
+)
+from .docutils_based.common import append_child
 
 from .utils import (
-    check_os,
-    remove_unencodable,
     output_log,
     LOG_LEVEL_WARN,
     LOG_LEVEL_DEBUG,
 )
 
-REPLACE_DATA_TYPE: Dict[str, str] = {
-    "Enumerated constant": "str, int",
-    "enum": "str, int",
-    "BMEdgeSeq": "BMEdgeSeq of BMEdge",
-    "BMFaceSeq": "BMFaceSeq of BMFace",
-    "BMLoopSeq": "BMLoopSeq of BMLoop",
-    "BMVertSeq": "BMVertSeq of BMVert",
-    "BMEditSelSeq": "BMEditSelSeq of BMEditSel",
-}
-
 BUILTIN_DATA_TYPE: List[str] = [
     "bool", "str", "bytes", "float", "int",
 ]
-
-BUILTIN_DATA_TYPE_ALIASES: Dict[str, str] = {
-    "string": "str",
-    "boolean": "bool",
-}
 
 MODIFIER_DATA_TYPE: List[str] = [
     "list", "dict", "set", "tuple",
@@ -48,29 +39,6 @@ CUSTOM_MODIFIER_MODIFIER_DATA_TYPE: List[str] = [
     "bpy.types.bpy_prop_array",
 ]
 
-MODIFIER_DATA_TYPE_ALIASES: Dict[str, str] = {
-    "List": "list",
-    "sequence": "list",
-    "array": "list",
-}
-
-# True:  XXX of YYY -> Union[List[YYY], XXXX]
-# False:  XXX of YYY -> Union[List[YYY]]
-LISTOF_FORMAT: Dict[str, bool] = {
-    "bpy_prop_collection": True,
-    "BMElemSeq": True,
-    "BMEdgeSeq": True,
-    "BMFaceSeq": True,
-    "BMLoopSeq": True,
-    "BMVertSeq": True,
-    "BMEditSelSeq": True,
-}
-
-# Key is string, and value is XXX -> Dict[str, XXX]
-DICT_WITH_STRKEY_FORMAT: List[str] = {
-    "bpy_prop_collection",
-}
-
 MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "list": "typing.List",
     "dict": "typing.Dict",
@@ -84,74 +52,10 @@ MODIFIER_DATA_TYPE_TO_TYPING: Dict[str, str] = {
     "typing.Any": "typing.Any",
 }
 
-
 ALLOWED_CHAR_BEFORE = {" ", "("}
 ALLOWED_CHAR_AFTER = {" ", ",", ")"}
 
-
-def has_data_type(str_: str, data_type: str) -> bool:
-    start_index = 0
-    end_index = len(str_)
-    data_type_len = len(data_type)
-
-    ei = -1
-    while True:
-        si = str_.find(data_type, ei + 1)
-        if si == -1:
-            return False
-
-        ei = si + data_type_len
-        # example: "int"
-        if (si == start_index) and (ei == end_index):
-            return True
-        # example: "int or float"
-        if (si == start_index) and \
-                ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
-            return True
-        # example: "list of int"
-        if ((si != start_index) and
-                (str_[si - 1] in ALLOWED_CHAR_BEFORE)) and \
-                (ei == end_index):
-            return True
-        # example: "list of int or float"
-        if ((si != start_index) and
-                (str_[si - 1] in ALLOWED_CHAR_BEFORE)) and \
-                ((ei != end_index) and (str_[ei] in ALLOWED_CHAR_AFTER)):
-            return True
-
-
-FROM_DICT_METHOD: List[str] = [
-    'NONE',
-    'NEW',
-    'APPEND',
-    'UPDATE',
-]
-
-
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
-
-# strip non-sense string
-REGEX_SUB_DATA_TYPE_STRIP = re.compile("|".join([
-    r"\s+type\s*$",
-    r"^\s*type\s+",
-    r"^type$",
-    r"default (True|False|[-0-9.]+)",
-    r"default \".*\"",
-    r"default \'.*\'",
-    r"default \‘.*\’",
-    r"default \“.*\”",
-    r"default \{.*\}",
-    r"default \([-0-9., ]*\)",
-    r"\(optional\)",
-    r"\(readonly\)",
-    r"\(never None\)",
-    r"\(optional, never None\)",
-    r"\(readonly, never None\)",
-    r"in \[.*\]",
-    r"in \{.*\}",
-    r"of [0-9]+ items",
-    r"`",
-]))
 
 # pylint: disable=line-too-long
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
@@ -185,6 +89,33 @@ REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 # pylint: enable=line-too-long
 
 
+def make_data_type_node(dtype_str) -> DataTypeNode:
+    in_quote = False
+    current_text = ""
+    result = []
+    for c in dtype_str:
+        if c == "`":
+            if in_quote:
+                if current_text != "":
+                    result.append(nodes.Text(current_text))
+                    current_text = ""
+                in_quote = True
+            else:
+                result.append(ClassRef(text=current_text))
+                current_text = ""
+                in_quote = False
+        else:
+            current_text += c
+    if current_text != "":
+        result.append(nodes.Text(current_text))
+
+    dtype_node = DataTypeNode()
+    for r in result:
+        append_child(dtype_node, r)
+
+    return dtype_node
+
+
 class DataTypeMetadata:
     def __init__(self):
         self.variable_kind = None
@@ -204,1121 +135,6 @@ class DataTypeMetadata:
 
         return f"Kind: {self.variable_kind}, Flags: {flags}, " \
                f"Default Value: {self.default_value}"
-
-
-class DataType:
-    def __init__(self):
-        self._metadata: DataTypeMetadata = DataTypeMetadata()
-        self._is_optional: bool = False
-
-    @staticmethod
-    def output_typing_optional(func):
-        def wrapper(self, *args, **kwargs):
-            inner_str: str = func(self, *args, **kwargs)
-            metadata: DataTypeMetadata = self.get_metadata()
-            if metadata.variable_kind == 'FUNC_ARG' and \
-               not metadata.never_none:
-                inner_str = f"typing.Optional[{inner_str}]"
-            return inner_str
-        return wrapper
-
-    def get_metadata(self) -> DataTypeMetadata:
-        return self._metadata
-
-    def set_metadata(self, metadata: DataTypeMetadata):
-        self._metadata = metadata
-
-    def set_is_optional(self, is_optional: bool):
-        self._is_optional = is_optional
-
-    def is_optional(self) -> bool:
-        return self._is_optional
-
-    def type(self) -> str:
-        raise NotImplementedError()
-
-    def has_modifier(self) -> bool:
-        raise NotImplementedError()
-
-    def modifier(self) -> 'ModifierDataType':
-        raise NotImplementedError()
-
-    def data_type(self) -> str:
-        raise NotImplementedError()
-
-    def to_string(self) -> str:
-        raise NotImplementedError()
-
-
-class UnknownDataType(DataType):
-
-    def type(self) -> str:
-        return 'UNKNOWN'
-
-    def has_modifier(self) -> bool:
-        raise RuntimeError("has_modifier() is not callable")
-
-    def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError("module() is not callable")
-
-    def data_type(self) -> str:
-        raise RuntimeError("data_type() is not callable")
-
-    def to_string(self) -> str:
-        return ""
-
-
-class IntermidiateDataType(DataType):
-    def __init__(self, data_type: str, skip_refine=False):
-        super().__init__()
-
-        self._data_type: str = data_type
-        self._skip_refine = skip_refine
-
-    def skip_refine(self) -> bool:
-        return self._skip_refine
-
-    def type(self) -> str:
-        return 'INTERMIDIATE'
-
-    def has_modifier(self) -> bool:
-        raise RuntimeError(
-            f"has_modifier() is not callable ({self._data_type})")
-
-    def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError(f"module() is not callable ({self._data_type})")
-
-    def data_type(self) -> str:
-        raise RuntimeError(f"data_type() is not callable ({self._data_type})")
-
-    def to_string(self) -> str:
-        return self._data_type
-
-
-class BuiltinDataType(DataType):
-    def __init__(
-            self, data_type: str, modifier: 'ModifierDataType' = None,
-            modifier_add_info=None):
-        super().__init__()
-
-        assert (modifier is None) or (not isinstance(modifier, str))
-
-        if not isinstance(data_type, str):
-            raise ValueError(f"Argument 'data_type' must be str ({data_type})")
-
-        if data_type not in BUILTIN_DATA_TYPE:
-            raise ValueError(
-                f"data_type must be {BUILTIN_DATA_TYPE} but {data_type}")
-        self._data_type: str = data_type
-        self._modifier: 'ModifierDataType' = modifier
-        self._modifier_add_info = modifier_add_info
-
-    def type(self) -> str:
-        return 'BUILTIN'
-
-    def has_modifier(self) -> bool:
-        return self._modifier is not None
-
-    def modifier(self) -> 'ModifierDataType':
-        return self._modifier
-
-    def modifier_add_info(self):
-        return self._modifier_add_info
-
-    def data_type(self) -> str:
-        return self._data_type
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        if self._modifier is None:
-            return self._data_type
-
-        if self._modifier.modifier_data_type() == "dict":
-            if self._modifier_add_info is not None:
-                if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
-                    return f"{self._modifier.to_string()}[" \
-                        f"{self._modifier_add_info['dict_key']}, " \
-                        f"{self._data_type}]"
-                return f"{self._modifier.to_string()}[" \
-                    f"'{self._modifier_add_info['dict_key']}', " \
-                    f"{self._data_type}]"
-        elif self._modifier.modifier_data_type() == "tuple":
-            if self._modifier_add_info is not None:
-                elms_strs = [elm.to_string()
-                             for elm in self._modifier_add_info['tuple_elms']]
-                return f"{self._modifier.to_string()}[" \
-                    f"{', '.join(elms_strs)}]"
-        elif self._modifier.modifier_data_type() == "tupletuple":
-            if self._modifier_add_info is not None:
-                inner_str = []
-                for elms in self._modifier_add_info["tuple_elms"]:
-                    inner_str.append(f"typing.Tuple[{', '.join(elms)}]")
-                return f"typing.Tuple[{', '.join(inner_str)}]"
-        elif self._modifier.modifier_data_type() == "listlist":
-            return f"typing.List[typing.List[{self._data_type}]]"
-        elif self._modifier.modifier_data_type() == "iteriter":
-            return f"typing.Iterable[typing.Iterable[{self._data_type}]]"
-        elif self._modifier.modifier_data_type() == 'listtuple':
-            if self._modifier_add_info is not None:
-                return "typing.List[typing.Tuple[" \
-                    f"{', '.join(self._modifier_add_info['tuple_elms'])}]]"
-
-        return f"{self._modifier.to_string()}[{self._data_type}]"
-
-
-class ModifierDataType(DataType):
-    def __init__(self, modifier: str):
-        super().__init__()
-
-        if (modifier is None) or (modifier not in MODIFIER_DATA_TYPE):
-            raise ValueError(
-                f"modifier must be {MODIFIER_DATA_TYPE} but {modifier}")
-        self._modifier: str = modifier
-
-    def type(self) -> str:
-        return 'MODIFIER'
-
-    def has_modifier(self) -> bool:
-        raise RuntimeError(
-            f"has_modifier() is not callable ({self._modifier})")
-
-    def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError(f"modifier() is not callable ({self._modifier})")
-
-    def data_type(self) -> str:
-        raise RuntimeError(f"data_type is not callable ({self._modifier})")
-
-    def modifier_data_type(self) -> str:
-        return self._modifier
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        return MODIFIER_DATA_TYPE_TO_TYPING[self._modifier]
-
-
-class CustomDataType(DataType):
-    def __init__(
-            self, data_type: str, modifier: 'ModifierDataType' = None,
-            modifier_add_info=None, skip_refine=False):
-        super().__init__()
-
-        assert (modifier is None) or (not isinstance(modifier, str))
-
-        if not isinstance(data_type, str):
-            raise ValueError(f"Argument 'data_type' must be str ({data_type})")
-
-        self._data_type: str = data_type
-        self._modifier: 'ModifierDataType' = modifier
-        self._modifier_add_info = modifier_add_info
-        self._skip_refine = skip_refine
-
-    def type(self) -> str:
-        return 'CUSTOM'
-
-    def skip_refine(self):
-        return self._skip_refine
-
-    def has_modifier(self) -> bool:
-        return self._modifier is not None
-
-    def modifier(self) -> 'ModifierDataType':
-        return self._modifier
-
-    def modifier_add_info(self):
-        return self._modifier_add_info
-
-    def data_type(self) -> str:
-        return self._data_type
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        if self._modifier is None:
-            return f"'{self._data_type}'"
-
-        if self._modifier.modifier_data_type() == "dict":
-            if self._modifier_add_info is not None:
-                if self._modifier_add_info["dict_key"] in BUILTIN_DATA_TYPE:
-                    return f"{self._modifier.to_string()}" \
-                        f"[{self._modifier_add_info['dict_key']}, " \
-                        f"'{self._data_type}']"
-                return f"{self._modifier.to_string()}['" \
-                    f"{self._modifier_add_info['dict_key']}', " \
-                    f"'{self._data_type}']"
-        elif self._modifier.modifier_data_type() == "tuple":
-            if self._modifier_add_info is not None:
-                elms_strs = [elm.to_string()
-                             for elm in self._modifier_add_info['tuple_elms']]
-                return f"{self._modifier.to_string()}[" \
-                    f"{', '.join(elms_strs)}]"
-        elif self._modifier.modifier_data_type() == "listlist":
-            return f"typing.List[typing.List['{self._data_type}']]"
-        elif self._modifier.modifier_data_type() == "iteriter":
-            return f"typing.Iterable[typing.Iterable['{self._data_type}']]"
-        elif self._modifier.modifier_data_type() == "listcallable":
-            return "typing.List[typing.Callable[['" \
-                f"{','.join(self._modifier_add_info['arguments'])}'], None]]"
-
-        return f"{self._modifier.to_string()}['{self._data_type}']"
-
-
-class CustomModifierDataType(ModifierDataType):
-    # pylint: disable=W0231
-    def __init__(self, modifier: str):
-        self._is_optional: bool = False
-        self._metadata: DataTypeMetadata = DataTypeMetadata()
-
-        if (modifier is None) or \
-                (modifier not in CUSTOM_MODIFIER_MODIFIER_DATA_TYPE):
-            raise ValueError(
-                f"modifier must be {CUSTOM_MODIFIER_MODIFIER_DATA_TYPE} but "
-                f"{modifier}")
-        self._modifier: str = modifier
-        self._output_modifier_name = modifier
-
-    def type(self) -> str:
-        return 'CUSTOM_MODIFIER'
-
-    def has_modifier(self) -> bool:
-        raise RuntimeError(
-            f"has_modifier() is not callable ({self._modifier})")
-
-    def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError(f"modifier() is not callable ({self._modifier})")
-
-    def data_type(self) -> str:
-        raise RuntimeError(f"data_type() is not callable ({self._modifier})")
-
-    def modifier_data_type(self) -> str:
-        return self._modifier
-
-    def output_modifier_name(self) -> str:
-        return self._output_modifier_name
-
-    def set_output_modifier_name(self, modifier_name: str):
-        self._output_modifier_name = modifier_name
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        return self._output_modifier_name
-
-
-class MixinDataType(DataType):
-    def __init__(self, data_types: List['DataType']):
-        super().__init__()
-
-        if len(data_types) <= 1:
-            raise ValueError(
-                f"length of data_types must be >= 2 but {len(data_types)}")
-        self._data_types: List['DataType'] = data_types
-
-    def type(self) -> str:
-        return 'MIXIN'
-
-    def data_type(self) -> str:
-        raise RuntimeError("data_type() is not callable")
-
-    def has_modifier(self) -> bool:
-        raise RuntimeError("has_modifier() is not callable")
-
-    def modifier(self) -> 'ModifierDataType':
-        raise RuntimeError("modifier() is not callable")
-
-    def data_types(self) -> List['DataType']:
-        return self._data_types
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        s = sorted(dt.to_string() for dt in self._data_types)
-        return f"typing.Union[{', '.join(s)}]"
-
-    def set_data_type(self, index, data_type: 'DataType'):
-        self._data_types[index] = data_type
-
-
-class PassThroughDataType(DataType):
-    def __init__(self, data_type: str):
-        super().__init__()
-
-        self._data_type: str = data_type
-
-    def type(self) -> str:
-        return 'PASS_THROUGH'
-
-    def skip_refine(self):
-        return True
-
-    def has_modifier(self) -> bool:
-        return False
-
-    def modifier(self) -> 'ModifierDataType':
-        return None
-
-    def data_type(self) -> str:
-        return self._data_type
-
-    @DataType.output_typing_optional
-    def to_string(self) -> str:
-        return self._data_type
-
-
-class Info:
-    def __init__(self):
-        self._type: str = None
-
-    def is_assignable(self, variable, data: dict, key: str, method: str):
-        if method == 'NEW':
-            if key in data:
-                return True
-            return False
-        if method == 'APPEND':
-            if (key in data) and (variable is None):
-                return True
-            return False
-        if method == 'UPDATE':
-            if key in data:
-                return True
-            return False
-
-        raise RuntimeError(f"Unsupported method: {method}")
-
-    def is_data_type_assinable(
-            self, variable, data: dict, key: str, method: str):
-        if method == 'NEW':
-            if key in data:
-                return True
-            return False
-        if method == 'APPEND':
-            if (key in data) and isinstance(variable, UnknownDataType):
-                return True
-            return False
-        if method == 'UPDATE':
-            if key in data:
-                return True
-            return False
-
-        raise RuntimeError(f"Unsupported method: {method}")
-
-    def name(self) -> str:
-        raise NotImplementedError()
-
-    def module(self) -> str:
-        raise NotImplementedError()
-
-    def type(self) -> str:
-        if self._type is None:
-            raise RuntimeError("'type' is empty")
-        return self._type
-
-    def to_dict(self) -> dict:
-        raise NotImplementedError()
-
-    def from_dict(self, data: dict, method: str = False):
-        raise NotImplementedError()
-
-
-class ParameterDetailInfo(Info):
-    def __init__(self):
-        super().__init__()
-        self._type: str = "parameter"
-        self._name: str = None
-        self._description: str = None
-        self._data_type: 'DataType' = UnknownDataType()
-        self.default_value = None
-
-    def name(self) -> str:
-        return self._name
-
-    def module(self) -> str:
-        raise RuntimeError("module() is not callable")
-
-    def set_name(self, name: str):
-        self._name = name
-
-    def set_description(self, desc: str):
-        self._description = desc
-
-    def append_description(self, desc: str):
-        if self._description is None:
-            self._description = ""
-        self._description += desc
-
-    def description(self) -> str:
-        return self._description
-
-    def set_data_type(self, dtype: 'DataType'):
-        self._data_type = dtype
-
-    def data_type(self) -> 'DataType':
-        return self._data_type
-
-    def to_dict(self) -> dict:
-        if self._name is None:
-            raise RuntimeError("'name' is empty")
-
-        if self._description is None:
-            self._description = ""
-
-        if check_os() == "Windows":
-            data = {
-                "type": self._type,
-                "name": remove_unencodable(self._name),
-                "description": remove_unencodable(self._description),
-                "data_type": remove_unencodable(self._data_type.to_string()),
-            }
-            default_value = self._data_type.get_metadata().default_value
-            if default_value is not None:
-                data["default_value"] = remove_unencodable(default_value)
-            if hasattr(self, "default_value"):
-                if self.default_value is not None:
-                    data["default_value"] = self.default_value
-        else:
-            data = {
-                "type": self._type,
-                "name": self._name,
-                "description": self._description,
-                "data_type": self._data_type.to_string(),
-            }
-            default_value = self._data_type.get_metadata().default_value
-            if default_value is not None:
-                data["default_value"] = remove_unencodable(default_value)
-            if hasattr(self, "default_value"):
-                if self.default_value is not None:
-                    data["default_value"] = self.default_value
-
-        return data
-
-    def from_dict(self, data: dict, method: str = 'NONE'):
-        if "type" not in data:
-            raise RuntimeError("data must have type")
-        if data["type"] != "parameter":
-            raise RuntimeError(f"Unsupported type: {data['type']}")
-
-        if "default_value" in data:
-            self.default_value = data["default_value"]
-
-        self._type = data["type"]
-        if self.is_assignable(self._name, data, "name", method):
-            self._name = data["name"]
-        if self.is_assignable(self._description, data, "description", method):
-            self._description = data["description"]
-        if self.is_data_type_assinable(
-                self._data_type, data, "data_type", method):
-            self._data_type = IntermidiateDataType(data["data_type"])
-
-
-class ReturnInfo(Info):
-    def __init__(self):
-        super().__init__()
-        self._type: str = "return"
-        self._description: str = None
-        self._data_type: 'DataType' = UnknownDataType()
-
-    def name(self) -> str:
-        raise RuntimeError("name() is not callable")
-
-    def module(self) -> str:
-        raise RuntimeError("module() is not callable")
-
-    def data_type(self) -> 'DataType':
-        return self._data_type
-
-    def set_description(self, desc: str):
-        self._description = desc
-
-    def append_description(self, desc: str):
-        if self._description is None:
-            self._description = ""
-        self._description += desc
-
-    def description(self) -> str:
-        return self._description
-
-    def set_data_type(self, dtype: 'DataType'):
-        self._data_type = dtype
-
-    def to_dict(self) -> dict:
-        if self._description is None:
-            self._description = ""
-
-        if check_os() == "Windows":
-            data = {
-                "type": self._type,
-                "description": remove_unencodable(self._description),
-                "data_type": remove_unencodable(self._data_type.to_string()),
-            }
-        else:
-            data = {
-                "type": self._type,
-                "description": self._description,
-                "data_type": self._data_type.to_string(),
-            }
-
-        return data
-
-    def from_dict(self, data: dict, method: str = 'NONE'):
-        if "type" not in data:
-            raise RuntimeError("data must have type")
-        if data["type"] != "return":
-            raise RuntimeError(f"Unsupported type: {data['type']}")
-
-        self._type = data["type"]
-        if self.is_assignable(self._description, data, "description", method):
-            self._description = data["description"]
-        if self.is_data_type_assinable(
-                self._data_type, data, "data_type", method):
-            self._data_type = IntermidiateDataType(data["data_type"])
-
-
-class VariableInfo(Info):
-    supported_type: List[str] = ["constant", "attribute"]
-
-    def __init__(self, type_: str):
-        super().__init__()
-        if type_ not in self.supported_type:
-            raise RuntimeError(
-                f"VariableInfo must be type {self.supported_type} "
-                f"but {type_}")
-        self._type: str = type_
-        self._name: str = None
-        self._description: str = None
-        self._class: str = None
-        self._module: str = None
-        self._data_type: 'DataType' = UnknownDataType()
-
-    def name(self) -> str:
-        return self._name
-
-    def data_type(self) -> 'DataType':
-        return self._data_type
-
-    def set_name(self, name: str):
-        self._name = name
-
-    def set_description(self, desc: str):
-        self._description = desc
-
-    def append_description(self, desc: str):
-        if self._description is None:
-            self._description = ""
-        self._description += desc
-
-    def description(self) -> str:
-        return self._description
-
-    def set_class(self, class_: str):
-        self._class = class_
-
-    def module(self) -> str:
-        return self._module
-
-    def set_module(self, module_: str):
-        self._module = module_
-
-    def set_data_type(self, data_type: 'DataType'):
-        self._data_type = data_type
-
-    def to_dict(self) -> dict:
-        if self._name is None:
-            raise RuntimeError("'name' is empty")
-
-        if self._description is None:
-            self._description = ""
-
-        if self._class is None:
-            self._class = ""
-
-        if self._module is None:
-            self._module = ""
-
-        if check_os() == "Windows":
-            data = {
-                "type": self._type,
-                "name": remove_unencodable(self._name),
-                "description": remove_unencodable(self._description),
-                "class": remove_unencodable(self._class),
-                "module": remove_unencodable(self._module),
-                "data_type": remove_unencodable(self._data_type.to_string()),
-            }
-        else:
-            data = {
-                "type": self._type,
-                "name": self._name,
-                "description": self._description,
-                "class": self._class,
-                "module": self._module,
-                "data_type": self._data_type.to_string(),
-            }
-
-        return data
-
-    def from_dict(self, data: dict, method: str = 'NONE'):
-        if "type" not in data:
-            raise RuntimeError("data must have type")
-        if data["type"] not in self.supported_type:
-            raise RuntimeError(f"Unsupported type: {data['type']}")
-
-        self._type = data["type"]
-        if self.is_assignable(self._name, data, "name", method):
-            self._name = data["name"]
-        if self.is_assignable(self._description, data, "description", method):
-            self._description = data["description"]
-        if self.is_assignable(self._class, data, "class", method):
-            self._class = data["class"]
-        if self.is_assignable(self._module, data, "module", method):
-            self._module = data["module"]
-        if self.is_data_type_assinable(
-                self._data_type, data, "data_type", method):
-            self._data_type = IntermidiateDataType(data["data_type"])
-
-
-class FunctionInfo(Info):
-    supported_type: List[str] = [
-        "function", "method", "classmethod", "staticmethod"]
-
-    def __init__(self, type_: str):
-        super().__init__()
-        if type_ not in self.supported_type:
-            raise RuntimeError(
-                f"FunctionInfo must be type {self.supported_type} but {type_}")
-        self._type: str = type_
-        self._name: str = None
-        self._parameters: List[str] = []
-        self._parameter_details: List['ParameterDetailInfo'] = []
-        self._return: 'ReturnInfo' = None
-        self._class: str = None
-        self._module: str = None
-        self._description: str = None
-
-    def name(self) -> str:
-        return self._name
-
-    def set_name(self, name: str):
-        self._name = name
-
-    def parameters(self) -> List[str]:
-        return self._parameters
-
-    def parameter(self, idx: int) -> str:
-        if idx >= len(self._parameters):
-            raise RuntimeError("Out of range")
-        return self._parameters[idx]
-
-    def parameter_details(self) -> List['ParameterDetailInfo']:
-        return self._parameter_details
-
-    def return_(self) -> 'ReturnInfo':
-        return self._return
-
-    def set_parameters(self, params: List[str]):
-        self._parameters = []
-        self.add_parameters(params)
-
-    def set_parameter(self, idx: int, param: str):
-        if idx >= len(self._parameters):
-            raise RuntimeError("Out of range")
-        self._parameters[idx] = param
-
-    def add_parameter(self, param: str, pos: int = -1):
-        if param in self._parameters:
-            output_log(
-                LOG_LEVEL_WARN,
-                f"Parameter {param} is already registered in "
-                f"({' | '.join(self._parameters)}, so skip to add this "
-                f"parameter. (module: {self._module}, name: {self._name})")
-            return
-        if pos == -1:
-            self._parameters.append(param)
-        else:
-            self._parameters.insert(pos, param)
-
-    def add_parameters(self, params: List[str]):
-        for p in params:
-            self.add_parameter(p)
-
-    def remove_parameter(self, idx: int):
-        if idx >= len(self._parameters):
-            raise RuntimeError("Out of range")
-        del self._parameters[idx]
-
-    def add_parameter_detail(
-            self, param: 'ParameterDetailInfo', pos: int = -1):
-        if param.type() != "parameter":
-            raise RuntimeError(
-                f"Expected Info.type() is parameter but {param.type()}.")
-        if pos == -1:
-            self._parameter_details.append(param)
-        else:
-            self._parameter_details.insert(pos, param)
-
-    def add_parameter_details(self, params: List['ParameterDetailInfo']):
-        for p in params:
-            if p.type() != "parameter":
-                raise RuntimeError(
-                    f"Expected Info.type() is parameter but {p.type()}.")
-            self.add_parameter_detail(p)
-
-    def set_parameter_details(self, params: List['ParameterDetailInfo']):
-        self._parameter_details = []
-        self.add_parameter_details(params)
-
-    def set_class(self, class_: str):
-        self._class = class_
-
-    def module(self) -> str:
-        return self._module
-
-    def set_module(self, module_: str):
-        self._module = module_
-
-    def set_return(self, return_: 'ReturnInfo'):
-        self._return = return_
-
-    def set_description(self, desc: str):
-        self._description = desc
-
-    def append_description(self, desc: str):
-        if self._description is None:
-            self._description = ""
-        self._description += desc
-
-    def description(self) -> str:
-        return self._description
-
-    def to_dict(self) -> dict:
-        if self._type not in self.supported_type:
-            raise RuntimeError(f"'type' must be ({self.supported_type})")
-
-        if self._name is None:
-            raise RuntimeError("'name' is empty")
-
-        if self._return is None:
-            self._return = ReturnInfo()
-
-        if self._class is None:
-            self._class = ""
-
-        if self._module is None:
-            self._module = ""
-
-        if self._description is None:
-            self._description = ""
-
-        # remove 'self' parameter
-        try:
-            self._parameters.remove("self")
-        except ValueError:
-            pass
-
-        if check_os() == "Windows":
-            data = {
-                "type": self._type,
-                "name": remove_unencodable(self._name),
-                "description": remove_unencodable(self._description),
-                "return": self._return.to_dict(),
-                "class": remove_unencodable(self._class),
-                "module": remove_unencodable(self._module),
-                "parameters": list(self._parameters),
-                "parameter_details": [p.to_dict()
-                                      for p in self._parameter_details],
-            }
-        else:
-            data = {
-                "type": self._type,
-                "name": self._name,
-                "description": self._description,
-                "return": self._return.to_dict(),
-                "class": self._class,
-                "module": self._module,
-                "parameters": list(self._parameters),
-                "parameter_details": [p.to_dict()
-                                      for p in self._parameter_details],
-            }
-
-        return data
-
-    def from_dict(self, data: dict, method: str = 'NONE'):
-        if "type" not in data:
-            raise RuntimeError("data must have type")
-        if data["type"] not in self.supported_type:
-            raise RuntimeError(f"Unsupported type: {data['type']}")
-
-        self._type = data["type"]
-        if self.is_assignable(self._name, data, "name", method):
-            self._name = data["name"]
-        if self.is_assignable(self._description, data, "description", method):
-            self._description = data["description"]
-        if self.is_assignable(self._class, data, "class", method):
-            self._class = data["class"]
-        if self.is_assignable(self._module, data, "module", method):
-            self._module = data["module"]
-
-        if "parameters" in data:
-            if method == 'NEW':
-                if len(self._parameters) == 0:
-                    self._parameters = data["parameters"]
-            elif method == 'APPEND':
-                self._parameters.extend(data["parameters"])
-            elif method == 'UPDATE':
-                self._parameters = data["parameters"]
-
-        if "parameter_details" in data:
-            if method == 'NEW':
-                for pd in data["parameter_details"]:
-                    new_pd = ParameterDetailInfo()
-                    new_pd.from_dict(pd, 'NEW')
-                    self._parameter_details.append(new_pd)
-            elif method == 'APPEND':
-                for pd in data["parameter_details"]:
-                    for update_pd in self._parameter_details:
-                        if update_pd.name() == pd["name"]:
-                            update_pd.from_dict(pd, 'APPEND')
-                            break
-                    else:
-                        new_pd = ParameterDetailInfo()
-                        new_pd.from_dict(pd, 'NEW')
-                        self._parameter_details.append(new_pd)
-            elif method == 'UPDATE':
-                for pd in data["parameter_details"]:
-                    for update_pd in self._parameter_details:
-                        if update_pd.name() == pd["name"]:
-                            update_pd.from_dict(pd, 'UPDATE')
-                            break
-                    else:
-                        raise RuntimeError(f"{pd['name']} is not found")
-
-        if "return" in data:
-            if method == 'NEW':
-                if self._return is None:
-                    self._return = ReturnInfo()
-                    self._return.from_dict(data["return"], 'NEW')
-            elif method == 'APPEND':
-                if self._return is not None:
-                    self._return.from_dict(data["return"], 'APPEND')
-                else:
-                    self._return = ReturnInfo()
-                    self._return.from_dict(data["return"], 'NEW')
-            elif method == 'UPDATE':
-                if self._return is not None:
-                    self._return.from_dict(data["return"], 'UPDATE')
-
-
-class ClassInfo(Info):
-    def __init__(self):
-        super().__init__()
-        self._type: str = "class"
-        self._name: str = None
-        self._description: str = None
-        self._module: str = None
-        self._methods: List['FunctionInfo'] = []
-        self._attributes: List['VariableInfo'] = []
-        self._base_classes: List['DataType'] = []
-
-    def name(self) -> str:
-        return self._name
-
-    def set_name(self, name: str):
-        self._name = name
-
-    def module(self) -> str:
-        return self._module
-
-    def attributes(self) -> List['VariableInfo']:
-        return self._attributes
-
-    def set_module(self, module_: str):
-        self._module = module_
-
-    def set_description(self, desc: str):
-        self._description = desc
-
-    def append_description(self, desc: str):
-        if self._description is None:
-            self._description = ""
-        self._description += desc
-
-    def description(self) -> str:
-        return self._description
-
-    def methods(self) -> List['FunctionInfo']:
-        return self._methods
-
-    def base_classes(self) -> List['DataType']:
-        return self._base_classes
-
-    def add_method(self, method: 'FunctionInfo'):
-        supported = ["method", "classmethod", "staticmethod"]
-        if method.type() not in supported:
-            raise RuntimeError(
-                f"Expected Info.type() is {supported} but {method.type()}.")
-        self._methods.append(method)
-
-    def add_methods(self, methods: List['FunctionInfo']):
-        supported = ["method", "classmethod", "staticmethod"]
-        for m in methods:
-            if m.type() not in supported:
-                raise RuntimeError(
-                    f"Expected Info.type() is {supported} but {m.type()}.")
-            self.add_method(m)
-
-    def set_methods(self, methods: List['FunctionInfo']):
-        self._methods = []
-        self.add_methods(methods)
-
-    def add_attribute(self, attr: 'VariableInfo'):
-        if attr.type() != "attribute":
-            raise RuntimeError(
-                f"Expected Info.type() is attribute but {attr.type()}.")
-        self._attributes.append(attr)
-
-    def add_attributes(self, attrs: List['VariableInfo']):
-        for a in attrs:
-            if a.type() != "attribute":
-                raise RuntimeError(
-                    f"Expected Info.type() is attribute but {a.type()}.")
-            self.add_attribute(a)
-
-    def set_attributes(self, attrs: List['VariableInfo']):
-        self._attributes = []
-        self.add_attributes(attrs)
-
-    def add_base_class(self, class_: 'DataType'):
-        self._base_classes.append(class_)
-
-    def add_base_classes(self, classes: List['DataType']):
-        for c in classes:
-            self.add_base_class(c)
-
-    def remove_base_class(self, class_: 'DataType'):
-        self._base_classes.remove(class_)
-
-    def set_base_class(self, index: int, class_: 'DataType'):
-        self._base_classes[index] = class_
-
-    def to_dict(self) -> dict:
-        if self._name is None:
-            raise RuntimeError("'name' is empty")
-
-        if self._module is None:
-            self._module = ""
-
-        if self._description is None:
-            self._description = ""
-
-        if check_os() == "Windows":
-            data = {
-                "type": self._type,
-                "name": remove_unencodable(self._name),
-                "description": remove_unencodable(self._description),
-                "module": remove_unencodable(self._module),
-                "methods": [m.to_dict() for m in self._methods],
-                "attributes": [a.to_dict() for a in self._attributes],
-                "base_classes": [remove_unencodable(c.to_string())
-                                 for c in self._base_classes]
-            }
-        else:
-            data = {
-                "type": self._type,
-                "name": self._name,
-                "description": self._description,
-                "module": self._module,
-                "methods": [m.to_dict() for m in self._methods],
-                "attributes": [a.to_dict() for a in self._attributes],
-                "base_classes": [c.to_string() for c in self._base_classes]
-            }
-
-        return data
-
-    def from_dict(self, data: dict, method: str = 'NONE'):
-        if "type" not in data:
-            raise RuntimeError("data must have type")
-        if data["type"] != "class":
-            raise RuntimeError(f"Unsupported type: {data['type']}")
-
-        self._type = data["type"]
-        if self.is_assignable(self._name, data, "name", method):
-            self._name = data["name"]
-        if self.is_assignable(self._description, data, "description", method):
-            self._description = data["description"]
-        if self.is_assignable(self._module, data, "module", method):
-            self._module = data["module"]
-
-        if "methods" in data:
-            if method == 'NEW':
-                for m in data["methods"]:
-                    new_m = FunctionInfo("method")
-                    new_m.from_dict(m, 'NEW')
-                    self._methods.append(new_m)
-            elif method == 'APPEND':
-                for m in data["methods"]:
-                    for update_m in self._methods:
-                        if update_m.name() == m["name"]:
-                            update_m.from_dict(m, 'APPEND')
-                            break
-                    else:
-                        new_m = FunctionInfo("method")
-                        new_m.from_dict(m, 'NEW')
-                        self._methods.append(new_m)
-            elif method == 'UPDATE':
-                for m in data["methods"]:
-                    for update_m in self._methods:
-                        if update_m.name() == m["name"]:
-                            update_m.from_dict(m, 'UPDATE')
-                            break
-                    else:
-                        raise RuntimeError(
-                            f"Method '{m['name']}' is not found at class "
-                            f"'{self._module}.{self._name}'")
-            else:
-                raise RuntimeError(f"Unsupported method: {method}")
-
-        if "attributes" in data:
-            if method == 'NEW':
-                for a in data["attributes"]:
-                    new_a = VariableInfo("attribute")
-                    new_a.from_dict(a, 'NEW')
-                    self._attributes.append(new_a)
-            elif method == 'APPEND':
-                for a in data["attributes"]:
-                    for update_a in self._attributes:
-                        if update_a.name() == a["name"]:
-                            update_a.from_dict(a, 'APPEND')
-                            break
-                    else:
-                        new_a = VariableInfo("attribute")
-                        new_a.from_dict(a, 'NEW')
-                        self._attributes.append(new_a)
-            elif method == 'UPDATE':
-                for a in data["attributes"]:
-                    for update_a in self._attributes:
-                        if update_a.name() == a["name"]:
-                            update_a.from_dict(a, 'UPDATE')
-                            break
-                    else:
-                        raise RuntimeError(f"{a['name']} is not found")
-            else:
-                raise RuntimeError(f"Unsupported method: {method}")
-
-        if "base_classes" in data:
-            if method == 'NEW':
-                for c in data["base_classes"]:
-                    new_c = IntermidiateDataType(c)
-                    self._base_classes.append(new_c)
-            else:
-                raise RuntimeError(f"Unsupported method: {method}")
-
-
-class SectionInfo:
-    def __init__(self):
-        self.info_list: List['Info'] = []
-
-    def add_info(self, info: 'Info'):
-        self.info_list.append(info)
-
-    def to_dict(self) -> dict:
-        result = {"info_list": []}
-        for info in self.info_list:
-            result["info_list"].append(info.to_dict())
-        return result
 
 
 class ModuleStructure:
@@ -1452,34 +268,32 @@ class DataTypeRefiner:
             self, dtype_str: str, uniq_full_names: Set[str],
             uniq_module_names: Set[str], module_name: str,
             variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
+            additional_info: Dict[str, typing.Any] = None) -> List['DataTypeNode']:
         # pylint: disable=R0912,R0911,R0915
         if REGEX_MATCH_DATA_TYPE_SPACE.match(dtype_str):
-            return ModifierDataType("typing.Any")
+            return [make_data_type_node("typing.Any")]
 
         if m := re.match(r"list of callable\[`([0-9a-zA-Z.]+)`\]", dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                return CustomDataType(
-                    s, ModifierDataType("listcallable"),
-                    modifier_add_info={
-                        "arguments": ["bpy.types.Scene"],
-                    })
+                return [
+                    make_data_type_node("typing.List[typing.Callable[[`bpy.types.Scene`, None]]]")
+                ]
 
         if dtype_str == "Same type with self class":
             s = self._parse_custom_data_type(
                 additional_info["self_class"], uniq_full_names,
                 uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if dtype_str in ("type", "object", "function"):
-            return ModifierDataType("typing.Any")
+            return [make_data_type_node("typing.Any")]
 
         if dtype_str.startswith("Depends on function prototype"):
-            return ModifierDataType("typing.Any")
+            return [make_data_type_node("typing.Any")]
 
         # [Pattern] `AnyType`
         # [Test]
@@ -1487,81 +301,62 @@ class DataTypeRefiner:
         #   Function: test_get_refined_data_type_for_various_patterns
         #   Pattern: `AnyType`
         if dtype_str.startswith("`AnyType`"):
-            return ModifierDataType("typing.Any")
+            return [make_data_type_node("typing.Any")]
 
         if dtype_str in ("any", "Any type."):
-            return ModifierDataType("typing.Any")
+            return [make_data_type_node("typing.Any")]
 
         # "[23][dD] [Vv]ector"
         if dtype_str[1:].lower() == "d vector":
             s = self._parse_custom_data_type(
                 "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
         if dtype_str == "4x4 mathutils.Matrix":
             s = self._parse_custom_data_type(
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
-            dtypes = [
-                BuiltinDataType("str"),
-                BuiltinDataType("int")
-            ]
-            return MixinDataType(dtypes)
+            return [make_data_type_node("str"), make_data_type_node("int")]
         # Ex: enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
         if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
-            dtypes = [
-                BuiltinDataType("str"),
-                BuiltinDataType("int")
-            ]
-            return MixinDataType(dtypes)
+            return [make_data_type_node("str"), make_data_type_node("int")]
 
         # Ex: enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
-            dtypes = [
-                BuiltinDataType("str", ModifierDataType("set")),
-                BuiltinDataType("int", ModifierDataType("set"))
-            ]
-            return MixinDataType(dtypes)
+            return [make_data_type_node("typing.Set[str]"),
+                    make_data_type_node("typing.Set[int]")]
 
         # Ex: enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in :ref:`rna"):
-            dtypes = [
-                BuiltinDataType("str"),
-                BuiltinDataType("int")
-            ]
-            return MixinDataType(dtypes)
+            return [make_data_type_node("str"), make_data_type_node("int")]
 
         # Ex: Enumerated constant
         if dtype_str == "Enumerated constant":
-            dtypes = [
-                BuiltinDataType("str", ModifierDataType("set")),
-                BuiltinDataType("int", ModifierDataType("set"))
-            ]
-            return MixinDataType(dtypes)
+            return [make_data_type_node("typing.Set[str]"),
+                    make_data_type_node("typing.Set[int]")]
 
         # Ex: boolean, default False
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT.match(dtype_str):
-            return BuiltinDataType("bool")
+            return [make_data_type_node("bool")]
         # Ex: boolean array of 3 items, (optional)
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF.match(dtype_str):
-            return BuiltinDataType("bool", ModifierDataType("list"))
+            return [make_data_type_node("typing.List[bool]")]
 
         if dtype_str == "boolean":
-            return BuiltinDataType("bool")
+            return [make_data_type_node("bool")]
         if dtype_str == "bool":
-            return BuiltinDataType("bool")
+            return [make_data_type_node("bool")]
 
         if dtype_str == "bytes":
-            return BuiltinDataType("bytes")
+            return [make_data_type_node("bytes")]
         if dtype_str.startswith("byte sequence"):
-            return BuiltinDataType(
-                "bytes", ModifierDataType("typing.Sequence"))
+            return [make_data_type_node("typing.Sequence[bytes]")]
 
         if dtype_str.lower().startswith("callable"):
-            return ModifierDataType("typing.Callable")
+            return [make_data_type_node("typing.Callable")]
 
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES.match(dtype_str):
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
@@ -1569,21 +364,15 @@ class DataTypeRefiner:
                     m.group(1), uniq_full_names, uniq_module_names,
                     module_name)
                 if s:
-                    dtypes = [
-                        BuiltinDataType("float", ModifierDataType(
-                            "typing.Sequence")),
-                        CustomDataType(s)
-                    ]
-                    return MixinDataType(dtypes)
+                    return [make_data_type_node("typing.Sequence[float]"),
+                            make_data_type_node(f"`{s}`")]
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF.match(dtype_str):
             if m.group(1) in ("int", "float"):
                 if variable_kind == 'FUNC_ARG':
-                    return BuiltinDataType(m.group(1), ModifierDataType(
-                        "typing.Iterable"))
-                return BuiltinDataType(m.group(1), CustomModifierDataType(
-                    "bpy.types.bpy_prop_array"))
+                    return [make_data_type_node(f"typing.Iterable[{m.group(1)}]")]
+                return [make_data_type_node(f"`bpy.types.bpy_prop_array`[{m.group(1)}]")]
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF.match(dtype_str):
@@ -1591,84 +380,74 @@ class DataTypeRefiner:
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                tuple_elms = [BuiltinDataType("float")] * int(m.group(3))
-                dtypes = [
-                    BuiltinDataType("float", ModifierDataType("list")),
-                    BuiltinDataType(
-                        "float", ModifierDataType("tuple"),
-                        modifier_add_info={
-                            "tuple_elms": tuple_elms
-                        }),
-                    CustomDataType(s)
+                tuple_elms = ["float"] * int(m.group(3))
+                return [
+                    make_data_type_node("typing.List[float]"),
+                    make_data_type_node(f"typing.Tuple[{', '.join(tuple_elms)}]"),
+                    make_data_type_node(f"`{s}`")
                 ]
-                return MixinDataType(dtypes)
+
         # Ex: float triplet
         if dtype_str == "float triplet":
             s = self._parse_custom_data_type(
                 "mathutils.Vector", uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                dtypes = [
-                    BuiltinDataType("float", ModifierDataType(
-                        "typing.Sequence")),
-                    CustomDataType(s)
+                return [
+                    make_data_type_node("typing.Sequence[float]"),
+                    make_data_type_node(f"`{s}`")
                 ]
-                return MixinDataType(dtypes)
         # Ex: int in [-inf, inf], default 0, (readonly)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_IN.match(dtype_str):
-            return BuiltinDataType(m.group(1))
+            return [make_data_type_node(m.group(1))]
         if m := REGEX_MATCH_DATA_TYPE_ENDSWITH_NUMBER.match(dtype_str):
-            return BuiltinDataType(m.group(1))
+            return [make_data_type_node(m.group(1))]
         if dtype_str in ("unsigned int", "int (boolean)"):
-            return BuiltinDataType("int")
+            return [make_data_type_node("int")]
         if dtype_str == "int sequence":
-            return BuiltinDataType("int", ModifierDataType("typing.Sequence"))
+            return [make_data_type_node("typing.Sequence[int]")]
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(dtype_str):  # noqa # pylint: disable=C0301
-            dtypes = [
-                BuiltinDataType("float", ModifierDataType("listlist")),
-                BuiltinDataType(
-                    "float", ModifierDataType("tupletuple"),
-                    modifier_add_info={
-                        "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))   # noqa # pylint: disable=C0301
-                    }
-                )
+            tuple_elems = [
+                f"typing.Tuple[{', '.join(['float'] * int(m.group(1)))}]"
+            ] * int(m.group(2))
+            return [
+                make_data_type_node("typing.List[typing.List[float]]"),
+                make_data_type_node(f"typing.Tuple[{', '.join(tuple_elems)}]")
             ]
-            return MixinDataType(dtypes)
+
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 "mathutils.Matrix", uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                dtypes = [
-                    BuiltinDataType("float", ModifierDataType("listlist")),
-                    BuiltinDataType(
-                        "float", ModifierDataType("tupletuple"),
-                        modifier_add_info={
-                            "tuple_elms": [["float"] * int(m.group(1))] * int(m.group(2))   # noqa # pylint: disable=C0301
-                        }
-                    ),
-                    CustomDataType(s)
+                tuple_elems = [
+                    f"typing.Tuple[{', '.join(['float'] * int(m.group(1)))}]"
+                ] * int(m.group(2))
+                return [
+                    make_data_type_node("typing.List[typing.List[float]]"),
+                    make_data_type_node(f"typing.Tuple[{', '.join(tuple_elems)}]"),
+                    make_data_type_node(f"`{s}`")
                 ]
-                return MixinDataType(dtypes)
+
         if dtype_str == "double":
-            return BuiltinDataType("float")
+            return [make_data_type_node("float")]
         if dtype_str.startswith("double (float)"):
-            return BuiltinDataType("float")
+            return [make_data_type_node("float")]
 
         if REGEX_MATCH_DATA_TYPE_STRING.match(dtype_str):
-            return BuiltinDataType("str")
+            return [make_data_type_node("str")]
         if dtype_str == "tuple":
-            return ModifierDataType("tuple")
+            return [make_data_type_node("typing.Tuple")]
         if dtype_str == "sequence":
-            return ModifierDataType("typing.Sequence")
+            return [make_data_type_node("typing.Sequence")]
 
         if dtype_str.startswith("`bgl.Buffer` "):
             s1 = self._parse_custom_data_type(
                 "bgl.Buffer", uniq_full_names, uniq_module_names, module_name)
             if s1:
-                return CustomDataType(s1)
+                return [make_data_type_node(f"`{s1}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF.match(dtype_str):  # noqa # pylint: disable=C0301
             s1 = self._parse_custom_data_type(
@@ -1676,10 +455,10 @@ class DataTypeRefiner:
             s2 = self._parse_custom_data_type(
                 m.group(2), uniq_full_names, uniq_module_names, module_name)
             if s1 and s2:
-                return CustomDataType(s1)
+                return [make_data_type_node(f"`{s1}`")]
 
         if dtype_str.startswith("set of strings"):
-            return BuiltinDataType("str", ModifierDataType("set"))
+            return [make_data_type_node("typing.Set[str]")]
 
         # [Pattern] sequence of string tuples or a function
         # [Test]
@@ -1687,40 +466,38 @@ class DataTypeRefiner:
         #   Function: test_get_refined_data_type_for_various_patterns
         #   Pattern: sequence of string tuples or a function
         if dtype_str == "sequence of string tuples or a function":
-            dtypes = [
-                BuiltinDataType("str", ModifierDataType("iteriter")),
-                ModifierDataType("typing.Callable")
+            return [
+                make_data_type_node("typing.Iterable[typing.Iterable[str]]"),
+                make_data_type_node("typing.Callable")
             ]
-            return MixinDataType(dtypes)
         # Ex: sequence of bpy.types.Action
         if m := REGEX_MATCH_DATA_TYPE_SEQUENCE_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, ModifierDataType("typing.Iterable"))
+                return [make_data_type_node(f"typing.Iterable[`{s}`]")]
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(
-                    s, CustomModifierDataType("bpy.types.bpy_prop_collection"))
+                return [make_data_type_node(f"`bpy.types.bpy_prop_collection`[`{s}`]")]
         # Ex: List of FEdge objects
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, ModifierDataType("list"))
+                return [make_data_type_node(f"typing.List[`{s}`]")]
         # Ex: list of FEdge
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s, ModifierDataType("list"))
+                return [make_data_type_node(f"typing.List[`{s}`]")]
         # Ex: list of ints
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING.match(dtype_str):  # noqa # pylint: disable=C0301
-            return BuiltinDataType(m.group(2), ModifierDataType("list"))
+            return [make_data_type_node(f"typing.List[`{m.group(2)}`]")]
         # Ex: list of (bmesh.types.BMVert)
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE.match(dtype_str):  # noqa # pylint: disable=C0301
             items = m.group(1).split(",")
@@ -1732,49 +509,39 @@ class DataTypeRefiner:
                         im.group(1), uniq_full_names, uniq_module_names,
                         module_name)
                     if s:
-                        dtypes.append(
-                            CustomDataType(s, ModifierDataType("list")))
-            if len(dtypes) == 1:
-                return dtypes[0]
-            if len(dtypes) > 1:
-                return MixinDataType(dtypes)
+                        dtypes.append(make_data_type_node(f"typing.List[`{s}`]"))
+            return dtypes
         # Ex: BMElemSeq of BMEdge
         if m := REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                dtypes = [
-                    CustomDataType(s, ModifierDataType("list")),
-                    CustomDataType("bmesh.types.BMElemSeq")
+                return [
+                    make_data_type_node(f"typing.List[`{s}`]"),
+                    make_data_type_node("`bmesh.types.BMElemSeq`")
                 ]
-                return MixinDataType(dtypes)
         # Ex: tuple of mathutils.Vector's
         if m := REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                dd = CustomDataType(
-                    s, ModifierDataType("tuple"),
-                    modifier_add_info={"tuple_elms": [CustomDataType(s)]},
-                    skip_refine=True)
-                return dd
+                return [make_data_type_node(f"typing.Tuple[`{s}`]")]
 
         if dtype_str in ("BMVertSeq", "BMEdgeSeq", "BMFaceSeq", "BMLoopSeq", "BMEditSelSeq"):  # noqa # pylint: disable=C0301
             s = self._parse_custom_data_type(
                 dtype_str, uniq_full_names, uniq_module_names, module_name)
             if s:
-                dtypes = [
-                    CustomDataType(s.rstrip("Seq"), ModifierDataType("list")),
-                    CustomDataType(s)
+                return [
+                    make_data_type_node(f"typing.List[`{s.rstrip('Seq')}`]"),
+                    make_data_type_node(f"`{s}`")
                 ]
-                return MixinDataType(dtypes)
 
         if dtype_str == "dict with string keys":
-            return ModifierDataType("dict")
+            return [make_data_type_node("typing.Dict")]
         if dtype_str == "iterable object":
-            return ModifierDataType("list")
+            return [make_data_type_node("typing.List")]
         if m := REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE.match(dtype_str):  # noqa # pylint: disable=C0301
-            return ModifierDataType(m.group(1))
+            return [make_data_type_node(f"{m.group(1)}")]
 
         # Ex: bpy.types.Struct subclass
         if dtype_str == "`bpy.types.Struct` subclass":
@@ -1782,13 +549,13 @@ class DataTypeRefiner:
                 "bpy.types.Struct", uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if dtype_str == "`bpy_struct`":
             s = self._parse_custom_data_type(
                 "bpy_struct", uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         # Ex: CLIP_OT_add_marker
         if m := REGEX_MATCH_DATA_TYPE_OT.match(dtype_str):
@@ -1796,262 +563,27 @@ class DataTypeRefiner:
             s = self._parse_custom_data_type(
                 idname, uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_DOT.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_NAME.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(0), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return CustomDataType(s)
+                return [make_data_type_node(f"`{s}`")]
 
         return None
-
-    def _get_refined_data_type_slow(
-            self, data_type: 'DataType', module_name: str,
-            variable_kind: str) -> 'DataType':
-        # convert to aliased data type string
-        dtype_str = data_type.to_string()
-        for (key, value) in REPLACE_DATA_TYPE.items():
-            if has_data_type(dtype_str, key):
-                dtype_str = dtype_str.replace(key, value)
-
-        dtype_str = REGEX_SUB_DATA_TYPE_STRIP.sub("", dtype_str)
-
-        def only_nonsense_chars(string_to_parse: str) -> bool:
-            NONSENSE_CHARS = [",", " ", "(", ")"]
-            for c in string_to_parse:
-                if c not in NONSENSE_CHARS:
-                    return False
-            return True
-
-        def parse_builtin_dtype(string_to_parse: str) -> Tuple[List[str], str]:
-            dtype = []
-            stripped_string = string_to_parse
-            for type_ in BUILTIN_DATA_TYPE:
-                if has_data_type(stripped_string, type_):
-                    dtype.append(type_)
-                    stripped_string = stripped_string.replace(type_, "")
-            for (key, value) in BUILTIN_DATA_TYPE_ALIASES.items():
-                if has_data_type(stripped_string, key):
-                    dtype.append(value)
-                    stripped_string = stripped_string.replace(key, "")
-            if only_nonsense_chars(stripped_string):
-                stripped_string = ""
-            return dtype, stripped_string
-
-        def parse_custom_dtype(string_to_parse: str) -> Tuple[List[str], str]:
-            dtype = []
-            stripped_string = string_to_parse
-            for entry in self._entry_points:
-                if len(stripped_string) == 0:
-                    break
-                if entry.type not in ["constant", "class"]:
-                    continue
-                if has_data_type(stripped_string, entry.fullname()):
-                    dtype.append(entry.fullname())
-                    stripped_string = stripped_string.replace(
-                        entry.fullname(), "")
-                    if only_nonsense_chars(stripped_string):
-                        stripped_string = ""
-                    continue
-                full_data_type = f"{module_name}.{stripped_string}"
-                if has_data_type(full_data_type, entry.fullname()):
-                    dtype.append(entry.fullname())
-                    stripped_string = stripped_string.replace(entry.name, "")
-                    if only_nonsense_chars(stripped_string):
-                        stripped_string = ""
-                    continue
-                full_data_type = full_data_type.replace(" ", "")
-                if has_data_type(full_data_type, entry.fullname()):
-                    dtype.append(entry.fullname())
-                    stripped_string = stripped_string.replace(entry.name, "")
-                    if only_nonsense_chars(stripped_string):
-                        stripped_string = ""
-                    continue
-                if has_data_type(stripped_string, entry.name):
-                    dtype.append(entry.fullname())
-                    stripped_string = stripped_string.replace(entry.name, "")
-                    if only_nonsense_chars(stripped_string):
-                        stripped_string = ""
-                    continue
-            if only_nonsense_chars(stripped_string):
-                stripped_string = ""
-            return dtype, stripped_string
-
-        def parse_dict_with_strkey_case(
-                string_to_parse: str) -> Tuple[List[Dict[str, str]], str]:
-            dict_case = []
-            stripped_string = string_to_parse
-            for class_ in DICT_WITH_STRKEY_FORMAT:
-                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)     # noqa # pylint: disable=C0209
-                m = re.search(regex, stripped_string)
-                if m:
-                    case = {}
-                    case["modifier"] = "dict"
-                    case["builtin_dtype"], _ = parse_builtin_dtype(
-                        m.groups()[0])
-                    case["custom_dtype"] = []
-                    case["dict_key"] = "str"
-                    if not case["builtin_dtype"]:
-                        case["custom_dtype"], _ = parse_custom_dtype(
-                            m.groups()[0])
-                        if not case["custom_dtype"]:
-                            continue
-                    dict_case.append(case)
-            return dict_case, stripped_string
-
-        # Check "XXX of YYY" format
-        def parse_listof_case(
-                string_to_parse: str) -> Tuple[List[Dict[str, str]], str]:
-            listof_case = []
-            stripped_string = string_to_parse
-            for class_, need_to_add in LISTOF_FORMAT.items():
-                regex = r"{} of ([a-zA-z0-9_]+)".format(class_)     # noqa # pylint: disable=C0209
-                m = re.search(regex, stripped_string)
-                if m:
-                    case = {}
-                    case["modifier"] = "list"
-                    case["builtin_dtype"], _ = parse_builtin_dtype(
-                        m.groups()[0])
-                    case["custom_dtype"] = []
-                    case["self_dtype"] = None
-                    if not case["builtin_dtype"]:
-                        case["custom_dtype"], _ = parse_custom_dtype(
-                            m.groups()[0])
-                        if not case["custom_dtype"]:
-                            continue
-                    if need_to_add:
-                        case["self_dtype"] = class_
-                    stripped_string = stripped_string.replace(m.group(), "")
-                    listof_case.append(case)
-            if only_nonsense_chars(stripped_string):
-                stripped_string = ""
-            return listof_case, stripped_string
-
-        def parse_modifier(string_to_parse: str) -> Tuple[List[str], str]:
-            modifier = None
-            stripped_string = string_to_parse
-            for type_ in MODIFIER_DATA_TYPE:
-                if has_data_type(stripped_string, type_):
-                    modifier = type_
-                    # remove modifier from stripped_string
-                    # pylint: disable=W0511
-                    # TODO: need to clip only modifier string
-                    #       (issue ex. hogelist -> hoge)
-                    stripped_string = stripped_string.replace(type_, "")
-                    break
-            if not modifier:
-                for (key, value) in MODIFIER_DATA_TYPE_ALIASES.items():
-                    if has_data_type(stripped_string, key):
-                        modifier = value
-                        # remove modifier from stripped_string
-                        # pylint: disable=W0511
-                        # TODO: need to clip only modifier string
-                        #       (issue ex. hogelist -> hoge)
-                        stripped_string = stripped_string.replace(key, "")
-                        break
-            if only_nonsense_chars(stripped_string):
-                stripped_string = ""
-            return modifier, stripped_string
-
-        dict_case, dtype_str = parse_dict_with_strkey_case(dtype_str)
-
-        listof_case, dtype_str = parse_listof_case(dtype_str)
-        modifier, dtype_str = parse_modifier(dtype_str)
-
-        # at first we check built-in data type
-        builtin_dtypes, dtype_str = parse_builtin_dtype(dtype_str)
-        builtin_dtypes = list(set(builtin_dtypes))
-
-        # and then, search from package entry points
-        custom_dtypes, dtype_str = parse_custom_dtype(dtype_str)
-        if not builtin_dtypes and not custom_dtypes and not modifier and \
-                not listof_case:
-            output_log(LOG_LEVEL_WARN,
-                       f"Could not find any data type "
-                       f"({remove_unencodable(data_type.to_string())})")
-        custom_dtypes = list(set(custom_dtypes))
-
-        if dtype_str:
-            output_log(
-                LOG_LEVEL_DEBUG,
-                f"dtype_str is still exists ({remove_unencodable(dtype_str)})")
-
-        dtype_list = []
-        for case in dict_case:
-            if case["builtin_dtype"]:
-                dtype_list.append(
-                    BuiltinDataType(
-                        case["builtin_dtype"][0],
-                        ModifierDataType(case["modifier"]),
-                        {"dict_key": case["dict_key"]}))
-            elif case["custom_dtype"]:
-                dtype_list.append(
-                    CustomDataType(
-                        case["custom_dtype"][0],
-                        ModifierDataType(case["modifier"]),
-                        {"dict_key": case["dict_key"]}))
-
-        for case in listof_case:
-            if case["builtin_dtype"]:
-                dtype_list.append(BuiltinDataType(
-                    case["builtin_dtype"][0],
-                    ModifierDataType(case["modifier"])))
-            elif case["custom_dtype"]:
-                dtype_list.append(CustomDataType(
-                    case["custom_dtype"][0],
-                    ModifierDataType(case["modifier"])))
-            if case["self_dtype"]:
-                dtype_list.append(CustomDataType(case["self_dtype"]))
-
-        if modifier is None:
-            for d in builtin_dtypes:
-                dtype_list.append(BuiltinDataType(d))
-            for d in custom_dtypes:
-                dtype_list.append(CustomDataType(d))
-        else:
-            for d in builtin_dtypes:
-                if modifier not in ("list", "set"):
-                    output_log(LOG_LEVEL_WARN,
-                               f"Modifier '{modifier}' does not support "
-                               f"element type inference ({d})")
-                    dtype_list.append(ModifierDataType(modifier))
-                else:
-                    dtype_list.append(BuiltinDataType(
-                        d, ModifierDataType(modifier)))
-            for d in custom_dtypes:
-                if modifier not in ("list", "set"):
-                    output_log(LOG_LEVEL_WARN,
-                               f"Modifier '{modifier}' does not support "
-                               f"element type inference ({d})")
-                    dtype_list.append(ModifierDataType(modifier))
-                else:
-                    dtype_list.append(CustomDataType(
-                        d, ModifierDataType(modifier)))
-            if not builtin_dtypes and not custom_dtypes:
-                dtype_list.append(ModifierDataType(modifier))
-
-        if len(dtype_list) == 1:
-            return dtype_list[0]
-        if len(dtype_list) >= 2:
-            return MixinDataType(dtype_list)
-
-        if variable_kind == 'CLS_BASE':
-            return UnknownDataType()
-
-        return ModifierDataType("typing.Any")
 
     def _tweak_metadata(self, data_type: 'DataType', variable_kind: str):
         metadata = data_type.get_metadata()
@@ -2095,84 +627,62 @@ class DataTypeRefiner:
                         metadata.default_value = "None"
 
     def get_refined_data_type(
-            self, data_type: 'DataType', module_name: str,
+            self, dtype_str: str, module_name: str,
             variable_kind: str, parameter_str: str = None,
-            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
+            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
         result = self._get_refined_data_type_internal(
-            data_type, module_name, variable_kind, parameter_str,
+            dtype_str, module_name, variable_kind, parameter_str,
             additional_info)
 
-        self._tweak_metadata(result, variable_kind)
+        # self._tweak_metadata(result, variable_kind)
 
         output_log(
             LOG_LEVEL_DEBUG,
             f"Result of refining (kind={variable_kind}): "
-            f"{data_type.to_string()} -> {result.to_string()} "
-            f"({result.type()})")
+            f"{dtype_str} -> {', '.join(r.to_string() for r in result)}")
 
         return result
 
     def _get_refined_data_type_internal(
-            self, data_type: 'DataType', module_name: str,
+            self, dtype_str: str, module_name: str,
             variable_kind: str, parameter_str: str,
-            additional_info: Dict[str, typing.Any] = None) -> 'DataType':
+            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
-        dtype_str = data_type.to_string()
         dtype_str.strip()
-        metadata, dtype_str = self._build_metadata(
+        _, dtype_str = self._build_metadata(
             dtype_str, module_name, parameter_str, variable_kind)
-
-        if data_type.type() == 'UNKNOWN':
-            return UnknownDataType()
-
-        if (data_type.type() in ['INTERMIDIATE']) and data_type.skip_refine():
-            dt = PassThroughDataType(data_type.to_string())
-            return dt
-
-        if (data_type.type() in ['CUSTOM']) and data_type.skip_refine():
-            dt = copy.copy(data_type)
-            dt.set_metadata(metadata)
-            return data_type
-
-        if data_type.type() != 'INTERMIDIATE':
-            output_log(
-                LOG_LEVEL_WARN,
-                f"data_type should be 'INTERMIDIATE' but {data_type.type()}")
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
-        is_optional = data_type.is_optional()
+        # TODO: is_optional = data_type.is_optional()
 
         # Ex. (Quaternion, float) pair
         if m := REGEX_MATCH_DATA_TYPE_PAIR.match(dtype_str):
             sp = m.group(1).split(",")
-            dtypes = []
+            dtypes: List[DataTypeNode] = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
                     s.strip(), uniq_full_names, uniq_module_names,
                     module_name, variable_kind, additional_info)
-                if d:
-                    dtypes.append(d.data_type())
+                if d is not None:
+                    dtypes.extend(d)
             if len(dtypes) >= 1:
-                elms = [CustomDataType(d) for d in dtypes]
-                dd = CustomDataType(
-                    dtypes[0], ModifierDataType("tuple"),
-                    modifier_add_info={"tuple_elms": elms},
-                    skip_refine=True)
-                dd.set_metadata(metadata)
-                return dd
+                return [make_data_type_node(
+                    f"typing.Tuple[{', '.join([d.astext() for d in dtypes])}]")]
+                # dd.set_metadata(metadata)
+                # return dd
 
         result = self._get_refined_data_type_fast(
             dtype_str, uniq_full_names, uniq_module_names, module_name,
             variable_kind, additional_info)
         if result is not None:
-            result.set_is_optional(is_optional)
-            result.set_metadata(metadata)
+            # result.set_is_optional(is_optional)
+            # result.set_metadata(metadata)
             return result
 
         if ("," in dtype_str) or (" or " in dtype_str):
@@ -2190,29 +700,11 @@ class DataTypeRefiner:
                     s, uniq_full_names, uniq_module_names, module_name,
                     variable_kind, additional_info)
                 if result is not None:
-                    if result.type() in ['BUILTIN', 'CUSTOM', 'MODIFIER']:
-                        dtypes.append(result)
-                    elif result.type() == 'MIXIN':
-                        dtypes.extend(result.data_types())
-            if len(dtypes) == 1:
-                dtypes[0].set_is_optional(is_optional)
-                dtypes[0].set_metadata(metadata)
-                return dtypes[0]
-            if len(dtypes) >= 2:
-                result = MixinDataType(dtypes)
-                result.set_is_optional(is_optional)
-                result.set_metadata(metadata)
-                return result
-
-        output_log(
-            LOG_LEVEL_DEBUG,
-            f"Slow data type refining: {data_type.to_string()}")
-
-        result = self._get_refined_data_type_slow(
-            data_type, module_name, variable_kind)
-        result.set_is_optional(is_optional)
-        result.set_metadata(metadata)
-        return result
+                    dtypes.extend(result)
+            # dtypes[0].set_is_optional(is_optional)
+            # dtypes[0].set_metadata(metadata)
+            return dtypes
+        return []
 
     def get_base_name(self, data_type: str) -> str:
         if data_type is None:
@@ -2321,34 +813,10 @@ class DataTypeRefiner:
 
 
 class EntryPoint:
-    def __init__(self):
-        self._type: str = None
-        self._name: str = None
-        self._module: str = None
-
-    @property
-    def type(self) -> str:
-        return self._type
-
-    @type.setter
-    def type(self, value: str):
-        self._type = value
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value
-
-    @property
-    def module(self) -> str:
-        return self._module
-
-    @module.setter
-    def module(self, value: str):
-        self._module = value
+    def __init__(self, module: str, name: str, type_: str):
+        self.module: str = module
+        self.name: str = name
+        self.type: str = type_
 
     def fullname(self) -> str:
-        return f"{self._module}.{self._name}"
+        return f"{self.module}.{self.name}"

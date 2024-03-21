@@ -115,6 +115,10 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
     else:
         function_def["parameters"] = []
 
+    if len(function_def["parameters"]) >= 1:
+        if function_def["parameters"][0] == "self":
+            function_def["parameters"].remove("self")
+
     return function_def
 
 

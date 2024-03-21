@@ -1,0 +1,20 @@
+--- gen_module-tmp/sphinx-in.orig/bmesh.ops.rst	2024-01-08 05:55:20.000000000 +0900
++++ gen_module-tmp/sphinx-in/bmesh.ops.rst	2024-03-20 20:16:10.650350000 +0900
+@@ -1824,7 +1824,7 @@ This script shows how operators can be u
+    :rtype: dict with string keys
+ 
+ 
+-.. function:: wireframe(bm, faces, thickness, offset, use_replace, use_boundary, use_even_offset, use_crease, crease_weight, thickness, use_relative_offset, material_offset)
++.. function:: wireframe(bm, faces, thickness, offset, use_replace, use_boundary, use_even_offset, use_crease, crease_weight, use_relative_offset, material_offset)
+ 
+    Wire Frame.
+ 
+@@ -1848,8 +1848,6 @@ This script shows how operators can be u
+    :type use_crease: bool
+    :arg crease_weight: Undocumented.
+    :type crease_weight: float
+-   :arg thickness: Undocumented.
+-   :type thickness: float
+    :arg use_relative_offset: Undocumented.
+    :type use_relative_offset: bool
+    :arg material_offset: Undocumented.

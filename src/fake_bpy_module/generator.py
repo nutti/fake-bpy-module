@@ -3,33 +3,48 @@ import re
 import pathlib
 import abc
 import io
+import typing
 from typing import List, Dict
 from collections import OrderedDict
 import subprocess
 from yapf.yapflib.yapf_api import FormatCode
-from tqdm import tqdm
+from docutils import nodes
+
+from .docutils_based.analyzer.nodes import (
+    ModuleNode,
+    NameNode,
+    ClassNode,
+    FunctionListNode,
+    FunctionNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    ArgumentListNode,
+    ArgumentNode,
+    FunctionReturnNode,
+    AttributeListNode,
+    AttributeNode,
+    BaseClassListNode,
+    BaseClassNode,
+    NodeBase,
+    DefaultValueNode,
+    DescriptionNode,
+)
+from .docutils_based.analyzer.roles import (
+    ClassRef,
+)
+from .docutils_based.common import get_first_child, find_children
 
 from .analyzer import (
     BaseAnalyzer,
-    AnalysisResult,
 )
 from .common import (
-    Info,
-    ParameterDetailInfo,
-    VariableInfo,
-    FunctionInfo,
-    ClassInfo,
-    DataType,
-    CustomDataType,
     ModuleStructure,
     DataTypeRefiner,
     EntryPoint,
 )
 from .utils import (
-    LOG_LEVEL_DEBUG,
     remove_unencodable,
-    output_log,
-    LOG_LEVEL_WARN,
 )
 from .dag import (
     DAG,
@@ -116,108 +131,80 @@ class BaseGenerator(metaclass=abc.ABCMeta):
         self._writer: 'CodeWriter' = CodeWriter()
 
     @abc.abstractmethod
-    def _gen_function_code(self, info: Info):
+    def _gen_function_code(self, func_node: FunctionNode):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _gen_class_code(self, info: Info):
+    def _gen_class_code(self, class_node: ClassNode):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _gen_constant_code(self, info: Info):
+    def _gen_constant_code(self, data_node: DataNode):
         raise NotImplementedError()
 
     def _is_relative_import(self, mod_name: str):
         return mod_name[0] == "."
 
     def _sorted_generation_info(
-            self, data: 'GenerationInfoByTarget') -> List[Info]:
-        class_data: List[ClassInfo] = []
-        function_data: List[FunctionInfo] = []
-        constant_data: List[VariableInfo] = []
-        high_priority_class_data: List[ClassInfo] = []
-        for d in data.data:
-            # TODO: use class variable instead of "class", "function",
-            #       "constant"
-            if d.type() == "class":
-                if d.name() in ("bpy_prop_collection", "bpy_prop_array",
-                                "bpy_struct"):
-                    high_priority_class_data.append(d)
+            self, data: 'GenerationInfoByTarget') -> List[NodeBase]:
+        all_class_nodes: List[ClassNode] = []
+        all_function_nodes: List[FunctionNode] = []
+        all_data_nodes: List[DataNode] = []
+        all_high_priority_class_nodes: List[ClassNode] = []
+        for document in data.data:
+            class_nodes = find_children(document, ClassNode)
+            for class_node in class_nodes:
+                class_name = class_node.element(NameNode).astext()
+                if class_name in ("bpy_prop_collection", "bpy_prop_array",
+                                  "bpy_struct"):
+                    all_high_priority_class_nodes.append(class_node)
                 else:
-                    class_data.append(d)
-            elif d.type() == "function":
-                function_data.append(d)
-            elif d.type() == "constant":
-                constant_data.append(d)
-            else:
-                raise ValueError(f"Invalid data type. ({d.type})")
-        class_data = high_priority_class_data \
-            + sorted(class_data, key=lambda x: x.name())
+                    all_class_nodes.append(class_node)
+            all_function_nodes.extend(find_children(document, FunctionNode))
+            all_data_nodes.extend(find_children(document, DataNode))
+
+        all_class_nodes = all_high_priority_class_nodes \
+            + sorted(all_class_nodes, key=lambda n: n.element(NameNode).astext())
 
         # Sort class data (with class inheritance dependencies)
         graph = DAG()
         class_name_to_nodes = OrderedDict()
-        for class_ in class_data:
-            class_name_to_nodes[class_.name()] = graph.make_node(class_)
-        for class_ in class_data:
-            class_node = class_name_to_nodes[class_.name()]
-            for base_class in class_.base_classes():
-                if base_class.type() == 'MIXIN':
-                    raise ValueError(
-                        "DataType of base class must not be MixinDataType.")
-                if base_class.type() == 'UNKNOWN':
-                    continue
+        for class_node in all_class_nodes:
+            class_name = class_node.element(NameNode).astext()
+            class_name_to_nodes[class_name] = graph.make_node(class_node)
+        for class_node in all_class_nodes:
+            class_name = class_node.element(NameNode).astext()
+            src_node = class_name_to_nodes[class_name]
 
-                dtype = None
-                if base_class.type() == 'MODIFIER':
-                    dtype = base_class.modifier_data_type()
-                else:
-                    dtype = base_class.data_type()
+            base_class_list_node = class_node.element(BaseClassListNode)
+            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            for base_class_node in base_class_nodes:
+                dtype_list_node = base_class_node.element(DataTypeListNode)
+                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                dtypes = [dt.astext().replace("`", "") for dt in dtype_nodes]
 
-                if dtype == class_.name():
-                    output_log(
-                        LOG_LEVEL_DEBUG,
-                        f"Self dependency {base_class.data_type()} is found.")
-                    continue
+                for dtype in dtypes:
+                    dst_node = class_name_to_nodes.get(dtype)
+                    if dst_node:
+                        graph.make_edge(src_node, dst_node)
 
-                base_class_node = class_name_to_nodes.get(dtype)
-                if base_class_node:
-                    graph.make_edge(base_class_node, class_node)
-                else:
-                    output_log(
-                        LOG_LEVEL_WARN,
-                        f"Base class node (type={dtype}) is not found")
         sorted_nodes = topological_sort(graph)
-        sorted_class_data = [node.data() for node in sorted_nodes]
-
-        # Sort base classes
-        order = {}
-        for i, class_ in enumerate(sorted_class_data):
-            order[class_.name()] = i
-        for class_ in sorted_class_data:
-            def sort_func(x):
-                if x.type() in ('UNKNOWN', 'MODIFIER'):
-                    return 0
-                if x.data_type() not in order:
-                    return 0
-                return -order[x.data_type()]
-
-            new_base_classes = sorted(class_.base_classes(), key=sort_func)
-            for i, c in enumerate(new_base_classes):
-                class_.set_base_class(i, c)
+        sorted_class_nodes = [node.data() for node in sorted_nodes]
 
         # Sort function data
-        sorted_function_data = sorted(function_data, key=lambda x: x.name())
+        sorted_function_nodes = sorted(
+            all_function_nodes, key=lambda n: n.element(NameNode).astext())
 
         # Sort constant data
-        sorted_constant_data = sorted(constant_data, key=lambda x: x.name())
+        sorted_constant_nodes = sorted(
+            all_data_nodes, key=lambda n: n.element(NameNode).astext())
 
         # Merge
-        sorted_data = sorted_class_data
-        sorted_data.extend(sorted_function_data)
-        sorted_data.extend(sorted_constant_data)
+        sorted_nodes = sorted_class_nodes
+        sorted_nodes.extend(sorted_function_nodes)
+        sorted_nodes.extend(sorted_constant_nodes)
 
-        return sorted_data
+        return sorted_nodes
 
     def print_header(self, file):
         pass
@@ -260,195 +247,305 @@ class PyCodeGeneratorBase(BaseGenerator):
         }
         self.file_format = "py"
 
-    def _gen_function_code(self, info: Info):
-        data = info.to_dict()
+    # pylint: disable=R0912
+    def _gen_function_code(self, func_node: FunctionNode):
+        func_name = func_node.element(NameNode).astext()
+        arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
+        return_node = func_node.element(FunctionReturnNode)
+
         wt = self._writer
 
-        wt.add("def " + data["name"] + "(")
-        for i, p in enumerate(data["parameters"]):
-            pd_matched = None
-            for pd in data["parameter_details"]:
-                if pd["name"] == p:
-                    pd_matched = pd
-                    break
+        wt.add("def " + func_name + "(")
+        for i, arg_node in enumerate(arg_nodes):
+            arg_name = arg_node.element(NameNode).astext()
+            dtype_list_node = arg_node.element(DataTypeListNode)
+            default_value_node = arg_node.element(DefaultValueNode)
 
-            if pd_matched is not None:
-                if pd_matched["data_type"] is not None and pd_matched["data_type"] != "":
-                    if "default_value" in pd_matched:
-                        wt.add(f"{pd_matched['name']}: "
-                               f"{pd_matched['data_type']}="
-                               f"{pd_matched['default_value']}")
-                    else:
-                        wt.add(f"{pd_matched['name']}: "
-                               f"{pd_matched['data_type']}")
+            if not dtype_list_node.empty():
+                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                if len(dtype_nodes) >= 2:
+                    dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
                 else:
-                    if "default_value" in pd_matched:
-                        wt.add(f"{pd_matched['name']}="
-                               f"{pd_matched['default_value']}")
-                    else:
-                        wt.add(pd_matched['name'])
+                    dtype = dtype_nodes[0].to_string()
+                if not default_value_node.empty():
+                    wt.add(f"{arg_name}: {dtype}={default_value_node.astext()}")
+                else:
+                    wt.add(f"{arg_name}: {dtype}")
             else:
-                wt.add(p)
+                if not default_value_node.empty():
+                    wt.add(f"{arg_name}={default_value_node.astext()}")
+                else:
+                    wt.add(f"{arg_name}")
 
-            if i != len(data["parameters"]) - 1:
+            if i != len(arg_nodes) - 1:
                 wt.add(", ")
-        if data["return"]["data_type"] == "":
+        if return_node.empty():
             wt.addln("):")
         else:
-            wt.addln(f") -> {data['return']['data_type']}:")
+            dtype_list_node = return_node.element(DataTypeListNode)
+            if not dtype_list_node.empty():
+                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                if len(dtype_nodes) >= 2:
+                    dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+                else:
+                    dtype = dtype_nodes[0].to_string()
+                wt.addln(f") -> {dtype}:")
+            else:
+                wt.addln("):")
+
+        desc_node = func_node.element(DescriptionNode)
 
         with CodeWriterIndent(1):
             # documentation
             if (
-                data["description"] != ""
+                not desc_node.empty()
                 or any(
-                    p["description"] != "" or p["data_type"] != ""
-                    for p in data["parameter_details"]
+                    not n.element(DescriptionNode).empty() != ""
+                    or not n.element(DataTypeListNode).empty()
+                    for n in arg_nodes
                 )
-                or data["return"]["data_type"] != ""
-                or data["return"]["description"] != ""
+                or not return_node.empty()
             ):
-                wt.add(f"''' {data['description']}")
+                wt.add(f"''' {desc_node.astext()}")
                 wt.new_line(2)
-                for p in data["parameter_details"]:
-                    if p["description"] != "":
-                        wt.addln(f":param {p['name']}: {p['description']}")
-                    if p["data_type"] != "":
-                        wt.addln(f":type {p['name']}: {p['data_type']}")
-                if data["return"]["data_type"] != "":
-                    wt.addln(f":rtype: {data['return']['data_type']}")
-                if data["return"]["description"] != "":
-                    wt.addln(f":return: {data['return']['description']}")
+                for arg_node in arg_nodes:
+                    name_node = arg_node.element(NameNode)
+                    desc_node = arg_node.element(DescriptionNode)
+                    dtype_list_node = arg_node.element(DataTypeListNode)
+                    if not desc_node.empty():
+                        wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
+                    if not dtype_list_node.empty():
+                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        if len(dtype_nodes) >= 2:
+                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                            dtype = f"typing.Union[{dtype_str}]"
+                        else:
+                            dtype = dtype_nodes[0].to_string()
+                        wt.addln(f":type {name_node.astext()}: {dtype}")
+                if not return_node.empty():
+                    desc_node = return_node.element(DescriptionNode)
+                    dtype_list_node = return_node.element(DataTypeListNode)
+                    if not desc_node.empty():
+                        wt.addln(f":return: {desc_node.astext()}")
+                    if not dtype_list_node.empty():
+                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        if len(dtype_nodes) >= 2:
+                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                            dtype = f"typing.Union[{dtype_str}]"
+                        else:
+                            dtype = dtype_nodes[0].to_string()
+                        wt.addln(f":rtype: {dtype}")
                 wt.addln("'''")
                 wt.new_line(1)
             wt.addln(self.ellipsis_strings["function"])
             wt.new_line(2)
 
-    def _gen_class_code(self, info: Info):
-        data = info.to_dict()
+    def _gen_class_code(self, class_node: ClassNode):
         wt = self._writer
 
-        if len(data["base_classes"]) == 0:
-            wt.addln(f"class {data['name']}:")
+        base_class_list_node = class_node.element(BaseClassListNode)
+        name_node = class_node.element(NameNode)
+        desc_node = class_node.element(DescriptionNode)
+        attr_nodes = find_children(class_node.element(AttributeListNode), AttributeNode)
+        method_nodes = find_children(class_node.element(FunctionListNode), FunctionNode)
+
+        if base_class_list_node.empty():
+            wt.addln(f"class {name_node.astext()}:")
         else:
-            base_classes = ", ".join(data["base_classes"]).replace("'", "")
-            wt.addln(f"class {data['name']}({base_classes}):")
+            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            dtypes = []
+            for base_class_node in base_class_nodes:
+                dtype_list_node = base_class_node.element(DataTypeListNode)
+                if not dtype_list_node.empty():
+                    dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                    if len(dtype_nodes) >= 2:
+                        dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+                    else:
+                        dtype = dtype_nodes[0].to_string()
+                    dtypes.append(dtype)
+            wt.addln(f"class {name_node.astext()}({', '.join(dtypes)}):")
 
         with CodeWriterIndent(1):
-            if data["description"] != "":
-                wt.addln(f"''' {data['description']}")
+            if not desc_node.empty():
+                wt.addln(f"''' {desc_node.astext()}")
                 wt.addln("'''")
                 wt.new_line(1)
 
-            for a in data["attributes"]:
-                if a["data_type"] != "":
-                    wt.addln(f"{a['name']}: {a['data_type']}"
+            for attr_node in attr_nodes:
+                name_node = attr_node.element(NameNode)
+                dtype_list_node = attr_node.element(DataTypeListNode)
+                desc_node = attr_node.element(DescriptionNode)
+
+                if not dtype_list_node.empty():
+                    dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                    if len(dtype_nodes) >= 2:
+                        dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+                    else:
+                        dtype = dtype_nodes[0].to_string()
+                    wt.addln(f"{name_node.astext()}: {dtype}"
                              f"{self.ellipsis_strings['attribute']}")
                 else:
-                    wt.addln(f"{a['name']}: typing.Any"
+                    wt.addln(f"{name_node.astext()}: typing.Any"
                              f"{self.ellipsis_strings['attribute']}")
-                if a["description"] != "" or a["data_type"] != "":
+
+                if not desc_node.empty() or not dtype_list_node.empty():
                     wt.add("''' ")
-                    if a["description"] != "":
-                        wt.add(f"{a['description']}")
-                    if a["data_type"] != "":
+                    if not desc_node.empty():
+                        wt.add(f"{desc_node.astext()}")
+                    if not dtype_list_node.empty():
+                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        if len(dtype_nodes) >= 2:
+                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                            dtype = f"typing.Union[{dtype_str}]"
+                        else:
+                            dtype = dtype_nodes[0].to_string()
                         wt.new_line(2)
-                        wt.addln(f":type: {a['data_type']}")
+                        wt.addln(f":type: {dtype}")
                     wt.addln("'''")
                     wt.new_line(1)
-            if len(data["attributes"]) > 0:
+            if len(attr_nodes) > 0:
                 wt.new_line(1)
 
-            for m in data["methods"]:
-                if m["type"] == "method":
-                    if len(m["parameters"]) > 0:
-                        wt.add(f"def {m['name']}(self, ")
-                    else:
-                        wt.add(f"def {m['name']}(self")
-                elif m["type"] == "classmethod":
-                    if len(m["parameters"]) > 0:
-                        wt.addln("@classmethod")
-                        wt.add(f"def {m['name']}(cls, ")
-                    else:
-                        wt.addln("@classmethod")
-                        wt.add(f"def {m['name']}(cls")
-                elif m["type"] == "staticmethod":
-                    if len(m["parameters"]) > 0:
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {m['name']}(")
-                    else:
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {m['name']}(")
-                for i, p in enumerate(m["parameters"]):
-                    pd_matched = None
-                    for pd in m["parameter_details"]:
-                        if pd["name"] == p:
-                            pd_matched = pd
-                            break
+            for method_node in method_nodes:
+                func_type = method_node.attributes["function_type"]
+                arg_list_node = method_node.element(ArgumentListNode)
+                name_node = method_node.element(NameNode)
 
-                    if pd_matched is not None:
-                        if pd_matched["data_type"] is not None and pd_matched["data_type"] != "":
-                            if "default_value" in pd_matched:
-                                wt.add(f"{pd_matched['name']}: "
-                                       f"{pd_matched['data_type']}="
-                                       f"{pd_matched['default_value']}")
-                            else:
-                                wt.add(f"{pd_matched['name']}: "
-                                       f"{pd_matched['data_type']}")
+                if func_type in ("function", "method"):
+                    if not arg_list_node.empty():
+                        wt.add(f"def {name_node.astext()}(self, ")
+                    else:
+                        wt.add(f"def {name_node.astext()}(self")
+                elif func_type == "classmethod":
+                    if not arg_list_node.empty():
+                        wt.addln("@classmethod")
+                        wt.add(f"def {name_node.astext()}(cls, ")
+                    else:
+                        wt.addln("@classmethod")
+                        wt.add(f"def {name_node.astext()}(cls")
+                elif func_type == "staticmethod":
+                    if not arg_list_node.empty():
+                        wt.addln("@staticmethod")
+                        wt.add(f"def {name_node.astext()}(")
+                    else:
+                        wt.addln("@staticmethod")
+                        wt.add(f"def {name_node.astext()}(")
+                else:
+                    raise NotImplementedError(f"func_type={func_type} is not supported")
+
+                arg_nodes = find_children(arg_list_node, ArgumentNode)
+                for i, arg_node in enumerate(arg_nodes):
+                    name_node = arg_node.element(NameNode)
+                    dtype_list_node = arg_node.element(DataTypeListNode)
+                    default_value_node = arg_node.element(DefaultValueNode)
+
+                    if not dtype_list_node.empty():
+                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        if len(dtype_nodes) >= 2:
+                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                            dtype = f"typing.Union[{dtype_str}]"
                         else:
-                            if "default_value" in pd_matched:
-                                wt.add(f"{pd_matched['name']}="
-                                       f"{pd_matched['default_value']}")
-                            else:
-                                wt.add(pd_matched['name'])
-                    else:
-                        wt.add(p)
+                            dtype = dtype_nodes[0].to_string()
 
-                    if i != len(m["parameters"]) - 1:
+                        if not default_value_node.empty():
+                            wt.add(f"{name_node.astext()}: {dtype}="
+                                   f"{default_value_node.astext()}")
+                        else:
+                            wt.add(f"{name_node.astext()}: {dtype}")
+                    else:
+                        if not default_value_node.empty():
+                            wt.add(f"{name_node.astext()}="
+                                   f"{default_value_node.astext()}")
+                        else:
+                            wt.add(name_node.astext())
+
+                    if i != len(arg_nodes) - 1:
                         wt.add(", ")
-                if m["return"]["data_type"] == "":
+
+                return_node = method_node.element(FunctionReturnNode)
+                if return_node.empty():
                     wt.addln("):")
                 else:
-                    wt.addln(f") -> {m['return']['data_type']}:")
+                    if not dtype_list_node.empty():
+                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        if len(dtype_nodes) >= 2:
+                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                            dtype = f"typing.Union[{dtype_str}]"
+                        else:
+                            dtype = dtype_nodes[0].to_string()
+                        wt.addln(f") -> {dtype}:")
+                    else:
+                        wt.addln("):")
 
+                desc_node = method_node.element(DescriptionNode)
                 with CodeWriterIndent(2):
                     # documentation
                     if (
-                        m["description"] != ""
-                        or len(m["parameter_details"]) > 0
-                        or m["return"]["data_type"] != ""
-                        or m["return"]["description"] != ""
+                        not desc_node.empty()
+                        or not arg_list_node.empty()
+                        or not return_node.empty()
                     ):
-                        wt.addln(f"''' {m['description']}")
+                        wt.addln(f"''' {desc_node.astext()}")
                         wt.new_line(1)
-                        for p in m["parameter_details"]:
-                            wt.addln(f":param {p['name']}: {p['description']}")
-                            wt.addln(f":type {p['name']}: {p['data_type']}")
-                        if m["return"]["data_type"] != "":
-                            wt.addln(f":rtype: {m['return']['data_type']}")
-                        if m["return"]["description"] != "":
-                            wt.addln(f":return: {m['return']['description']}")
+
+                        arg_nodes = find_children(arg_list_node, ArgumentNode)
+                        for arg_node in arg_nodes:
+                            name_node = arg_node.element(NameNode)
+                            desc_node = arg_node.element(DescriptionNode)
+                            dtype_list_node = arg_node.element(DataTypeListNode)
+                            wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
+                            if not dtype_list_node.empty():
+                                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                                if len(dtype_nodes) >= 2:
+                                    dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                                    dtype = f"typing.Union[{dtype_str}]"
+                                else:
+                                    dtype = dtype_nodes[0].to_string()
+                                wt.addln(f":type {name_node.astext()}: {dtype}")
+
+                        if not return_node.empty():
+                            desc_node = return_node.element(DescriptionNode)
+                            dtype_list_node = return_node.element(DataTypeListNode)
+
+                            wt.addln(f":return: {desc_node.astext()}")
+
+                            if not dtype_list_node.empty():
+                                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                                if len(dtype_nodes) >= 2:
+                                    dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                                    dtype = f"typing.Union[{dtype_str}]"
+                                else:
+                                    dtype = dtype_nodes[0].to_string()
+                                wt.addln(f":rtype: {dtype}")
                         wt.addln("'''")
 
                     wt.addln(self.ellipsis_strings["method"])
                     wt.new_line()
 
-            if len(data["attributes"]) == 0 and len(data["methods"]) == 0:
+            if len(attr_nodes) == 0 and len(method_nodes) == 0:
                 wt.addln(self.ellipsis_strings["class"])
                 wt.new_line(2)
 
-    def _gen_constant_code(self, info: Info):
-        data = info.to_dict()
+    def _gen_constant_code(self, data_node: DataNode):
         wt = self._writer
 
-        if data["data_type"] != "":
-            wt.addln(f"{data['name']}: {data['data_type']}"
+        name_node = data_node.element(NameNode)
+        dtype_list_node = data_node.element(DataTypeListNode)
+        desc_node = data_node.element(DescriptionNode)
+
+        if not dtype_list_node.empty():
+            dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+            if len(dtype_nodes) >= 2:
+                dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+            else:
+                dtype = dtype_nodes[0].to_string()
+            wt.addln(f"{name_node.astext()}: {dtype}"
                      f"{self.ellipsis_strings['constant']}")
         else:
-            wt.addln(f"{data['name']}: typing.Any"
+            wt.addln(f"{name_node.astext()}: typing.Any"
                      f"{self.ellipsis_strings['constant']}")
-        if data["description"] != "":
-            wt.addln(f"''' {remove_unencodable(data['description'])}")
+        if not desc_node.empty():
+            wt.addln(f"''' {remove_unencodable(desc_node.astext())}")
             wt.addln("'''")
         wt.new_line(2)
 
@@ -502,13 +599,13 @@ class PyCodeGeneratorBase(BaseGenerator):
             wt.new_line()
             wt.addln('GenericType = typing.TypeVar("GenericType")')
 
-            for info in sorted_data:
-                if info.type() == "function":
-                    self._gen_function_code(info)
-                elif info.type() == "class":
-                    self._gen_class_code(info)
-                elif info.type() == "constant":
-                    self._gen_constant_code(info)
+            for node in sorted_data:
+                if isinstance(node, FunctionNode):
+                    self._gen_function_code(node)
+                elif isinstance(node, ClassNode):
+                    self._gen_class_code(node)
+                elif isinstance(node, DataNode):
+                    self._gen_constant_code(node)
 
             wt.format(style_config, self.file_format)
             wt.write(file)
@@ -571,7 +668,7 @@ class Dependency:
 class GenerationInfoByTarget:
     def __init__(self):
         self.name: str = None       # Module name
-        self.data: List[Info] = []
+        self.data: List[nodes.document] = []
         self.child_modules: List[str] = []
         self.dependencies: List['Dependency'] = []
         self.external_modules: List[str] = ["typing"]
@@ -649,47 +746,36 @@ class PackageAnalyzer:
         self._config: 'PackageGeneratorConfig' = config
         self._rules: List['PackageGenerationRule'] = rules
         self._package_structure: 'ModuleStructure' = None
-        self._generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}   # noqa # pylint: disable=C0301
+        self._generation_info: 'GenerationInfoByRule' = None
         self._entry_points: List['EntryPoint'] = []
 
-        self._analyze_result_cache: Dict[PackageGenerationRule, AnalysisResult] = {}
+        self._analyze_result_cache: List[nodes.document] = []
 
     # build package structure
-    def _build_package_structure(self):
-        analyze_result = self._analyze()
-
-        # collect module list
-        module_list = []
-        for result in analyze_result.values():
-            module_list.extend(self._collect_module_list(result))
+    def _build_package_structure(self) -> 'ModuleStructure':
+        documents = self._analyze()
+        module_list = self._collect_module_list(documents)
         return self._build_module_structure(module_list)
 
-    def _analyze(self) -> Dict['PackageGenerationRule', AnalysisResult]:
-        result = {}
-        for rule in self._rules:
-            result[rule] = self._get_or_analyze_by_rule(rule)
-
-        return result
-
-    def _get_or_analyze_by_rule(
-            self, rule: 'PackageGenerationRule') -> AnalysisResult:
-        if rule not in self._analyze_result_cache:
-            self._analyze_result_cache[rule] = self._analyze_by_rule(rule)
-        return self._analyze_result_cache[rule]
+    def _analyze(self) -> List[nodes.document]:
+        if len(self._analyze_result_cache) == 0:
+            for rule in self._rules:
+                self._analyze_result_cache.extend(self._analyze_by_rule(rule))
+        return self._analyze_result_cache
 
     def _analyze_by_rule(
-            self, rule: 'PackageGenerationRule') -> AnalysisResult:
+            self, rule: 'PackageGenerationRule') -> List[nodes.document]:
         # replace windows path separator
         target_files = [f.replace("\\", "/") for f in rule.target_files()]
         # analyze all .rst files
         rule.analyzer().set_target(self._config.target)
         rule.analyzer().set_target_version(self._config.target_version)
-        result = rule.analyzer().analyze(target_files)
+        documents = rule.analyzer().analyze(target_files)
 
-        return result
+        return documents
 
     # build module structure
-    def _build_module_structure(self, modules) -> 'ModuleStructure':
+    def _build_module_structure(self, modules: List[str]) -> 'ModuleStructure':
         def build(mod_name: str, structure_: 'ModuleStructure'):
             sp = mod_name.split(".")
             for i in structure_.children():
@@ -711,47 +797,52 @@ class PackageAnalyzer:
         return structure
 
     # collect module list
-    def _collect_module_list(
-            self, analyze_result: AnalysisResult) -> List[str]:
+    def _collect_module_list(self, documents: List[nodes.document]) -> List[str]:
         module_list = []
-        for section in analyze_result.section_info:
-            for info in section.info_list:
-                if info.module() is None:
-                    output_log(
-                        LOG_LEVEL_WARN, f"{info.name()}'s module is None")
-                    continue
-                if info.module() not in module_list:
-                    module_list.append(info.module())
+        for document in documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name_node = module_node.element(NameNode)
+            module_list.append(module_name_node.astext())
 
         return module_list
 
     def _build_entry_points(self) -> List['EntryPoint']:
         # at first analyze without DataTypeRefiner
-        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
-        for rule in self._rules:
-            analyze_result = self._get_or_analyze_by_rule(rule)
-            module_structure = self._build_module_structure(
-                self._collect_module_list(analyze_result))
-            generation_info[rule] = self._build_generation_info_internal(
-                analyze_result, module_structure)
+        documents = self._analyze()
+        module_structure = self._build_module_structure(
+            self._collect_module_list(documents))
+        generation_info = self._build_generation_info_internal(
+            documents, module_structure)
 
         # build entry points
-        entry_points = []
-        for gen_info in generation_info.values():
-            for target in gen_info.targets():
-                info = gen_info.get_target(target)
-                for data in info.data:
-                    if data.type() not in ["class", "constant", "function"]:
-                        continue
-                    entry = EntryPoint()
-                    entry.type = data.type()
-                    entry.module = info.name
-                    entry.name = data.name()
+        entry_points: List['EntryPoint'] = []
+        for target in generation_info.targets():
+            info = generation_info.get_target(target)
+            for document in info.data:
+                class_nodes = find_children(document, ClassNode)
+                for class_node in class_nodes:
+                    class_name = class_node.element(NameNode).astext()
+                    entry = EntryPoint(info.name, class_name, "class")
                     entry_points.append(entry)
+
+                func_nodes = find_children(document, FunctionNode)
+                for func_node in func_nodes:
+                    func_name = func_node.element(NameNode).astext()
+                    entry = EntryPoint(info.name, func_name, "function")
+                    entry_points.append(entry)
+
+                data_nodes = find_children(document, DataNode)
+                for data_node in data_nodes:
+                    data_name = data_node.element(NameNode).astext()
+                    entry = EntryPoint(info.name, data_name, "constant")
+                    entry_points.append(entry)
+
         return entry_points
 
     def _build_generation_info_internal(
-            self, analyze_result: AnalysisResult,
+            self, documents: List[nodes.document],
             module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
         def find_target_file(
                 name: str, structure: 'ModuleStructure', target: str,
@@ -794,15 +885,18 @@ class PackageAnalyzer:
         build_child_modules(generator_info, "", module_structure, 0)
 
         # build data
-        for section in analyze_result.section_info:
-            for info in section.info_list:
-                target = find_target_file("", module_structure,
-                                          re.sub(r"\.", "/", info.module()), 0)
-                if target is None:
-                    raise RuntimeError("Could not find target file to "
-                                       f"generate (target: {info.module()})")
-                gen_info = generator_info.get_target(target)
-                gen_info.data.append(info)
+        for document in documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name = module_node.element(NameNode).astext()
+            target = find_target_file("", module_structure,
+                                      re.sub(r"\.", "/", module_name), 0)
+            if target is None:
+                raise RuntimeError("Could not find target file to "
+                                   f"generate (target: {module_name})")
+            gen_info = generator_info.get_target(target)
+            gen_info.data.append(document)
 
         return generator_info
 
@@ -870,43 +964,26 @@ class PackageAnalyzer:
 
     def _add_dependency(self, dependencies: List['Dependency'],
                         refiner: 'DataTypeRefiner',
-                        data_type_1: DataType, data_type_2: str):
-        if data_type_1.type() == 'UNKNOWN':
-            return
-        if data_type_1.type() == 'BUILTIN':
-            return
-        if data_type_1.type() == 'MODIFIER':
+                        data_type_1: str, data_type_2: str):
+
+        mod = self._get_import_module_path(refiner, data_type_1, data_type_2)
+        base = refiner.get_base_name(data_type_1)
+        if mod is None:
             return
 
-        def register_dependency(dtype: str):
-            mod = self._get_import_module_path(refiner, dtype, data_type_2)
-            base = refiner.get_base_name(dtype)
-            if mod is None:
-                return
-
-            target_dep = None
-            for dep in dependencies:
-                if dep.mod_name == mod:
-                    target_dep = dep
-                    break
-            if target_dep is None:
-                target_dep = Dependency()
-                target_dep.mod_name = mod
-                target_dep.add_type(base)
-                dependencies.append(target_dep)
-            else:
-                if base not in target_dep.type_lists:
-                    target_dep.add_type(base)
-
-        if data_type_1.type() == 'MIXIN':
-            for d in data_type_1.data_types():
-                self._add_dependency(dependencies, refiner, d, data_type_2)
+        target_dep = None
+        for dep in dependencies:
+            if dep.mod_name == mod:
+                target_dep = dep
+                break
+        if target_dep is None:
+            target_dep = Dependency()
+            target_dep.mod_name = mod
+            target_dep.add_type(base)
+            dependencies.append(target_dep)
         else:
-            if data_type_1.has_modifier() and \
-                    data_type_1.modifier().type() == 'CUSTOM_MODIFIER':
-                register_dependency(
-                    data_type_1.modifier().modifier_data_type())
-            register_dependency(data_type_1.data_type())
+            if base not in target_dep.type_lists:
+                target_dep.add_type(base)
 
     def _build_dependencies(
             self, package_structure: 'ModuleStructure',
@@ -915,174 +992,124 @@ class PackageAnalyzer:
         refiner = DataTypeRefiner(package_structure, entry_points)
 
         dependencies = []
-        for data in info.data:
-            if data.type() == "function":
-                for p in data.parameter_details():
+        for document in info.data:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name = module_node.element(NameNode).astext()
+
+            class_nodes = find_children(document, ClassNode)
+            for class_node in class_nodes:
+                class_name = class_node.element(NameNode).astext()
+                class_refs = class_node.traverse(ClassRef)
+                for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, p.data_type(),
-                        data.module() + "." + data.name())
-                r = data.return_()
-                if r is not None:
+                        dependencies, refiner, class_ref.to_string(),
+                        f"{module_name}.{class_name}")
+
+            func_nodes = find_children(document, FunctionNode)
+            for func_node in func_nodes:
+                func_name = func_node.element(NameNode).astext()
+                class_refs = func_node.traverse(ClassRef)
+                for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, r.data_type(),
-                        data.module() + "." + data.name())
-            elif data.type() == "constant":
-                self._add_dependency(
-                    dependencies, refiner, data.data_type(),
-                    data.module() + "." + data.name())
-            elif data.type() == "class":
-                for m in data.methods():
-                    for p in m.parameter_details():
-                        self._add_dependency(
-                            dependencies, refiner, p.data_type(),
-                            data.module() + "." + data.name())
-                    r = m.return_()
-                    if r is not None:
-                        self._add_dependency(
-                            dependencies, refiner, r.data_type(),
-                            data.module() + "." + data.name())
-                for a in data.attributes():
+                        dependencies, refiner, class_ref.to_string(),
+                        f"{module_name}.{func_name}")
+
+            data_nodes = find_children(document, DataNode)
+            for data_node in data_nodes:
+                data_name = data_node.element(NameNode).astext()
+                class_refs = data_node.traverse(ClassRef)
+                for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, a.data_type(),
-                        data.module() + "." + data.name())
-                for c in data.base_classes():
-                    self._add_dependency(
-                        dependencies, refiner, c,
-                        data.module() + "." + data.name())
+                        dependencies, refiner, class_ref.to_string(),
+                        f"{module_name}.{data_name}")
 
         return dependencies
 
     def _refine_data_type(
-            self, refiner: 'DataTypeRefiner',
-            analysis_result: AnalysisResult):
+            self, refiner: 'DataTypeRefiner', documents: List[nodes.document]):
 
-        def get_parameter_from_parameter_detail(
-                parameters: List[str],
-                parameter_detail: ParameterDetailInfo) -> str:
+        def refine(dtype_list_node: DataTypeListNode, module_name: str,
+                   variable_kind: str, parameter_str: str = None,
+                   additional_info: Dict[str, typing.Any] = None):
+            dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+            new_dtype_nodes = []
+            for dtype_node in dtype_nodes:
+                mod_options = []
+                skip_refine = False
+                if "mod-option" in dtype_node.attributes:
+                    mod_options = [
+                        sp.strip()
+                        for sp in dtype_node.attributes["mod-option"].split(",")
+                    ]
+                    skip_refine = "skip-refine" in mod_options
+                if skip_refine:
+                    continue
+                new_dtype_nodes.extend(refiner.get_refined_data_type(
+                    dtype_node.astext(), module_name, variable_kind,
+                    parameter_str=parameter_str, additional_info=additional_info))
+                dtype_list_node.remove(dtype_node)
+            for node in new_dtype_nodes:
+                dtype_list_node.append_child(node)
 
-            for param in parameters:
-                param_str = param
-                m = re.match(r"^([a-zA-Z0-9_]+?)[=:]", param_str)
-                if m:
-                    param_str = m.group(1)
-                if param_str == parameter_detail.name():
-                    return param
-
-            return None
-
-        data_to_refine: List[Info] = []
-        for section in analysis_result.section_info:
-            data_to_refine.extend(list(section.info_list))
-        for info in tqdm(data_to_refine):
-            # refine function parameters and return value
-            if info.type() == "function":
-                p: ParameterDetailInfo
-                for p in info.parameter_details():
-                    parameter = get_parameter_from_parameter_detail(
-                        info.parameters(), p)
-                    refined_type = refiner.get_refined_data_type(
-                        p.data_type(), info.module(), 'FUNC_ARG',
-                        parameter_str=parameter)
-                    p.set_data_type(refined_type)
-
-                return_ = info.return_()
-                if return_ is not None:
-                    refined_type = refiner.get_refined_data_type(
-                        return_.data_type(), info.module(), 'FUNC_RET')
-                    return_.set_data_type(refined_type)
-            # refine constant
-            elif info.type() == "constant":
-                refined_type = refiner.get_refined_data_type(
-                    info.data_type(), info.module(), 'CONST')
-                info.set_data_type(refined_type)
-            # refine class attributes and method parameters and return value
-            elif info.type() == "class":
-                for a in info.attributes():
-                    refined_type = refiner.get_refined_data_type(
-                        a.data_type(), info.module(), 'CLS_ATTR',
-                        additional_info={
-                            "self_class": f"{info.module()}.{info.name()}"
-                        })
-                    a.set_data_type(refined_type)
-                for m in info.methods():
-                    p: ParameterDetailInfo
-                    for p in m.parameter_details():
-                        parameter = get_parameter_from_parameter_detail(
-                            m.parameters(), p)
-                        refined_type = refiner.get_refined_data_type(
-                            p.data_type(), info.module(), 'FUNC_ARG',
-                            parameter_str=parameter,
-                            additional_info={
-                                "self_class": f"{info.module()}.{info.name()}"
-                            })
-                        p.set_data_type(refined_type)
-
-                    return_ = m.return_()
-                    if return_ is not None:
-                        refined_type = refiner.get_refined_data_type(
-                            return_.data_type(), info.module(), 'FUNC_RET',
-                            additional_info={
-                                "self_class": f"{info.module()}.{info.name()}"
-                            })
-                        return_.set_data_type(refined_type)
-
-                remove_classes = []
-                for i, c in enumerate(info.base_classes()):
-                    refined_type = refiner.get_refined_data_type(
-                        c, info.module(), 'CLS_BASE',
-                        additional_info={
-                            "self_class": f"{info.module()}.{info.name()}"
-                        })
-                    if refined_type.type() == 'UNKNOWN':
-                        remove_classes.append(c)
-                    else:
-                        info.set_base_class(i, refined_type)
-                for c in remove_classes:
-                    info.remove_base_class(c)
-
-    def _remove_duplicate(
-            self,
-            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
-        processed_info = GenerationInfoByTarget()
-        processed_info.name = gen_info.name
-        processed_info.external_modules = gen_info.external_modules
-        processed_info.dependencies = gen_info.dependencies
-        processed_info.child_modules = gen_info.child_modules
-
-        # remove duplicate constant
-        for d1 in gen_info.data:
-            if d1.type() != "constant":
-                processed_info.data.append(d1)
+        for document in documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
                 continue
+            module_name = module_node.element(NameNode).astext()
 
-            found = False
-            for d2 in processed_info.data:
-                if (d1.type() == d2.type()) and (d1.name() == d2.name()):
-                    found = True
-                    break
-            if not found:
-                processed_info.data.append(d1)
+            class_nodes = find_children(document, ClassNode)
+            for class_node in class_nodes:
+                class_name = class_node.element(NameNode).astext()
 
-        # remove duplicate attributes of class
-        for d in processed_info.data:
-            if d.type() != "class":
-                continue
+                func_list_node = class_node.element(FunctionListNode)
+                func_nodes = find_children(func_list_node, FunctionNode)
+                for func_node in func_nodes:
+                    arg_list_node = func_node.element(ArgumentListNode)
+                    arg_nodes = find_children(arg_list_node, ArgumentNode)
+                    for arg_node in arg_nodes:
+                        arg_name = arg_node.element(NameNode).astext()
+                        dtype_list_node = arg_node.element(DataTypeListNode)
+                        refine(dtype_list_node, module_name, 'FUNC_ARG',
+                               parameter_str=arg_name,
+                               additional_info={"self_class": f"{module_name}.{class_name}"})
 
-            new_attributes: List[VariableInfo] = []
-            for a1 in d.attributes():
-                found = False
-                for a2 in new_attributes:
-                    if (a1.type() == a2.type()) and (a1.name() == a2.name()):
-                        found = True
-                        break
-                if not found:
-                    new_attributes.append(a1)
-            d.set_attributes(new_attributes)
+                    return_node = func_node.element(FunctionReturnNode)
+                    dtype_list_node = return_node.element(DataTypeListNode)
+                    refine(dtype_list_node, module_name, 'FUNC_RET',
+                           additional_info={"self_class": f"{module_name}.{class_name}"})
 
-        # TODO: check class-method/function as well. But be careful to remove
-        # duplicate because of override method is allowed
+                attr_list_node = class_node.element(AttributeListNode)
+                attr_nodes = find_children(attr_list_node, AttributeNode)
+                for attr_node in attr_nodes:
+                    dtype_list_node = attr_node.element(DataTypeListNode)
+                    refine(dtype_list_node, module_name, 'CONST')
 
-        return processed_info
+                base_class_list_node = class_node.element(BaseClassListNode)
+                base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+                for base_class_node in base_class_nodes:
+                    dtype_list_node = base_class_node.element(DataTypeListNode)
+                    refine(dtype_list_node, module_name, 'CLS_BASE')
+
+            func_nodes = find_children(document, FunctionNode)
+            for func_node in func_nodes:
+                arg_list_node = func_node.element(ArgumentListNode)
+                arg_nodes = find_children(arg_list_node, ArgumentNode)
+                for arg_node in arg_nodes:
+                    arg_name = arg_node.element(NameNode).astext()
+                    dtype_list_node = arg_node.element(DataTypeListNode)
+                    refine(dtype_list_node, module_name, 'FUNC_ARG',
+                           parameter_str=arg_name)
+
+                return_node = func_node.element(FunctionReturnNode)
+                dtype_list_node = return_node.element(DataTypeListNode)
+                refine(dtype_list_node, module_name, 'FUNC_RET')
+
+            data_nodes = find_children(document, DataNode)
+            for data_node in data_nodes:
+                dtype_list_node = data_node.element(DataTypeListNode)
+                refine(dtype_list_node, module_name, 'CONST')
 
     def _rewrite_data_type(
             self, refiner: 'DataTypeRefiner',
@@ -1093,212 +1120,66 @@ class PackageAnalyzer:
         processed_info.dependencies = gen_info.dependencies
         processed_info.child_modules = gen_info.child_modules
 
-        def rewrite_for_custom(data_type: 'CustomDataType'):
-            new_data_type = refiner.get_generation_data_type(
-                data_type.data_type(), gen_info.name)
-            dt = CustomDataType(
-                new_data_type, data_type.modifier(),
-                data_type.modifier_add_info())
-            dt.set_is_optional(data_type.is_optional())
-            dt.set_metadata(data_type.get_metadata())
-            return dt
+        def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
+            class_name = class_ref.to_string()
+            new_class_name = refiner.get_generation_data_type(
+                class_name, module_name)
+            new_class_ref = ClassRef(text=new_class_name)
+            return new_class_ref
 
-        def rewrite_for_custom_modifier(data_type: 'CustomDataType'):
-            new_modifier_name = refiner.get_generation_data_type(
-                data_type.modifier().output_modifier_name(), gen_info.name)
-            dt = data_type
-            dt.modifier().set_output_modifier_name(new_modifier_name)
-            return dt
+        def replace(from_node: nodes.Node, to_node: nodes.Node):
+            parent = from_node.parent
+            index = from_node.parent.index(from_node)
+            parent.remove(from_node)
+            parent.insert(index, to_node)
 
-        def rewrite_for_tuple_elms(data_type: 'CustomDataType'):
-            dt = data_type
-            if dt.modifier().modifier_data_type() == 'tuple':
-                add_info = dt.modifier_add_info()
-                elms_old = add_info["tuple_elms"]
-                elms_new = []
-                for elm_old in elms_old:
-                    if elm_old.type() == 'CUSTOM':
-                        elm_new = rewrite_for_custom(elm_old)
-                        elms_new.append(elm_new)
-                    else:
-                        elms_new.append(elm_old)
-                add_info["tuple_elms"] = elms_new
-            return dt
+        for document in gen_info.data:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name = module_node.element(NameNode).astext()
 
-        def rewrite(info_to_rewrite: Info):
-            dtype_to_rewrite = info_to_rewrite.data_type()
-            if dtype_to_rewrite.type() == 'BUILTIN':
-                if dtype_to_rewrite.has_modifier():
-                    modifier = dtype_to_rewrite.modifier()
-                    if modifier.type() == 'MODIFIER':
-                        rewrite_for_tuple_elms(dtype_to_rewrite)
-                    elif modifier.type() == 'CUSTOM_MODIFIER':
-                        info_to_rewrite.set_data_type(
-                            rewrite_for_custom_modifier(dtype_to_rewrite))
-            elif dtype_to_rewrite.type() == 'CUSTOM':
-                dt = rewrite_for_custom(dtype_to_rewrite)
-                if dt.has_modifier():
-                    if dt.modifier().type() == 'MODIFIER':
-                        dt = rewrite_for_tuple_elms(dt)
-                    elif dt.modifier().type() == 'CUSTOM_MODIFIER':
-                        dt = rewrite_for_custom_modifier(dt)
-                info_to_rewrite.set_data_type(dt)
-            elif dtype_to_rewrite.type() == 'MIXIN':
-                mixin_dt = dtype_to_rewrite
-                for i, d in enumerate(mixin_dt.data_types()):
-                    if d.type() == 'BUILTIN':
-                        if d.has_modifier():
-                            if d.modifier().type() == 'MODIFIER':
-                                rewrite_for_tuple_elms(d)
-                            elif d.modifier().type() == 'CUSTOM_MODIFIER':
-                                mixin_dt.set_data_type(
-                                    i, rewrite_for_custom_modifier(d))
-                    elif d.type() == 'CUSTOM':
-                        dt = rewrite_for_custom(d)
-                        if dt.has_modifier():
-                            if dt.modifier().type() == 'MODIFIER':
-                                rewrite_for_tuple_elms(dt)
-                            elif dt.modifier().type() == 'CUSTOM_MODIFIER':
-                                dt = rewrite_for_custom_modifier(dt)
-                        mixin_dt.set_data_type(i, dt)
+            class_nodes = find_children(document, ClassNode)
+            for class_node in class_nodes:
+                class_refs = class_node.traverse(ClassRef)
+                for class_ref in class_refs:
+                    new_class_ref = rewrite(class_ref, module_name)
+                    replace(class_ref, new_class_ref)
 
-        for info in gen_info.data:
-            # rewrite function parameters and return value
-            if info.type() == "function":
-                for p in info.parameter_details():
-                    rewrite(p)
+            func_nodes = find_children(document, FunctionNode)
+            for func_node in func_nodes:
+                class_refs = func_node.traverse(ClassRef)
+                for class_ref in class_refs:
+                    new_class_ref = rewrite(class_ref, module_name)
+                    replace(class_ref, new_class_ref)
 
-                return_ = info.return_()
-                if return_ is not None:
-                    rewrite(return_)
+            data_nodes = find_children(document, DataNode)
+            for data_node in data_nodes:
+                class_refs = data_node.traverse(ClassRef)
+                for class_ref in class_refs:
+                    new_class_ref = rewrite(class_ref, module_name)
+                    replace(class_ref, new_class_ref)
 
-            # rewrite constant
-            elif info.type() == "constant":
-                rewrite(info)
-
-            # rewrite class attributes and method parameters and return value
-            elif info.type() == "class":
-                for a in info.attributes():
-                    rewrite(a)
-
-                for m in info.methods():
-                    for p in m.parameter_details():
-                        rewrite(p)
-
-                    return_ = m.return_()
-                    if return_ is not None:
-                        rewrite(return_)
-
-                for i, c in enumerate(info.base_classes()):
-                    if c.type() == 'CUSTOM':
-                        dt = rewrite_for_custom(c)
-                        if dt.has_modifier() and \
-                                dt.modifier().type() == 'CUSTOM_MODIFIER':
-                            dt = rewrite_for_custom_modifier(dt)
-                        info.set_base_class(i, dt)
-                    elif c.type() == 'MIXIN':
-                        raise ValueError(
-                            "Base classes must not be MixinDataType (Class: "
-                            f"{info.module()}.{info.name()}, "
-                            f"Data type: {c.to_string()})")
-
-            processed_info.data.append(info)
-
-        return processed_info
-
-    def _add_keyword_only_argument(
-            self,
-            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
-        processed_info = GenerationInfoByTarget()
-        processed_info.name = gen_info.name
-        processed_info.external_modules = gen_info.external_modules
-        processed_info.dependencies = gen_info.dependencies
-        processed_info.child_modules = gen_info.child_modules
-
-        def fix(params: List[str]) -> List[str]:
-            found_default_arg = False
-            keyword_only_arg_position = -1
-            for i, p in enumerate(params):
-                if "=" in p:
-                    found_default_arg = True
-                else:
-                    if found_default_arg and keyword_only_arg_position == -1:
-                        keyword_only_arg_position = i - 1
-
-            fixed_params = []
-            for i, p in enumerate(params):
-                fixed_params.append(p)
-                if i == keyword_only_arg_position:
-                    fixed_params.append("*")
-
-            return fixed_params
-
-        for info in gen_info.data:
-            if info.type() == "function":
-                info.set_parameters(fix(info.parameters()))
-
-            elif info.type() == "class":
-                for m in info.methods():
-                    m.set_parameters(fix(m.parameters()))
-
-            processed_info.data.append(info)
-
-        return processed_info
-
-    def _remove_type_hint(
-            self,
-            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
-        processed_info = GenerationInfoByTarget()
-        processed_info.name = gen_info.name
-        processed_info.external_modules = gen_info.external_modules
-        processed_info.dependencies = gen_info.dependencies
-        processed_info.child_modules = gen_info.child_modules
-
-        def fix(params: List[str]) -> List[str]:
-            fixed_params = []
-            for p in params:
-                m = re.search(r"[a-zA-Z0-9]+: [a-zA-Z0-9]", p)
-                if m:
-                    fixed_params.append(p[:m.start()+1])
-                else:
-                    fixed_params.append(p)
-
-            return fixed_params
-
-        for info in gen_info.data:
-            if info.type() == "function":
-                info.set_parameters(fix(info.parameters()))
-
-            elif info.type() == "class":
-                for m in info.methods():
-                    m.set_parameters(fix(m.parameters()))
-
-            processed_info.data.append(info)
+            processed_info.data.append(document)
 
         return processed_info
 
     # map between result of analyze and module structure
     def _build_generation_info(
             self, package_structure: 'ModuleStructure',
-            entry_points: List['EntryPoint']) -> Dict[
-                'PackageGenerationRule', 'GenerationInfoByRule']:
-        generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule'] = {}     # noqa # pylint: disable=C0301
-        for rule in self._rules:
-            refiner = DataTypeRefiner(package_structure, entry_points)
-            analyze_result = self._get_or_analyze_by_rule(rule)
-            self._refine_data_type(refiner, analyze_result)
-            module_structure = self._build_module_structure(
-                self._collect_module_list(analyze_result))
-            generation_info[rule] = self._build_generation_info_internal(
-                analyze_result, module_structure)
+            entry_points: List['EntryPoint']) -> 'GenerationInfoByRule':
+        refiner = DataTypeRefiner(package_structure, entry_points)
+        documents = self._analyze()
+        self._refine_data_type(refiner, documents)
+        module_structure = self._build_module_structure(
+            self._collect_module_list(documents))
+        generation_info = self._build_generation_info_internal(
+            documents, module_structure)
 
-            for target in generation_info[rule].targets():
-                info = self._remove_duplicate(
-                    generation_info[rule].get_target(target))
-                info = self._rewrite_data_type(refiner, info)
-                info = self._add_keyword_only_argument(info)
-                info = self._remove_type_hint(info)
-                generation_info[rule].update_target(target, info)
+        for target in generation_info.targets():
+            info = generation_info.get_target(target)
+            info = self._rewrite_data_type(refiner, info)
+            generation_info.update_target(target, info)
 
         return generation_info
 
@@ -1308,7 +1189,7 @@ class PackageAnalyzer:
     def entry_points(self) -> List['EntryPoint']:
         return self._entry_points
 
-    def generation_info(self) -> Dict['PackageGenerationRule', 'GenerationInfoByRule']:     # noqa # pylint: disable=C0301
+    def generation_info(self) -> 'GenerationInfoByRule':
         return self._generation_info
 
     def analyze(self):
@@ -1317,11 +1198,10 @@ class PackageAnalyzer:
 
         self._generation_info = self._build_generation_info(
             self._package_structure, self._entry_points)
-        for gen_info in self._generation_info.values():
-            for target in gen_info.targets():
-                info = gen_info.get_target(target)
-                info.dependencies = self._build_dependencies(
-                    self._package_structure, self._entry_points, info)
+        for target in self._generation_info.targets():
+            info = self._generation_info.get_target(target)
+            info.dependencies = self._build_dependencies(
+                self._package_structure, self._entry_points, info)
 
 
 class PackageGenerator:
@@ -1373,11 +1253,10 @@ class PackageGenerator:
                 self._config.style_format)
 
     def _generate(
-            self, package_strcuture: 'ModuleStructure',
-            generation_info: Dict['PackageGenerationRule', 'GenerationInfoByRule']):    # noqa # pylint: disable=C0301
-        for rule in generation_info.keys():
-            self._generate_by_rule(
-                rule, package_strcuture, generation_info[rule])
+            self, rule: 'PackageGenerationRule',
+            package_strcuture: 'ModuleStructure',
+            generation_info: 'GenerationInfoByRule'):
+        self._generate_by_rule(rule, package_strcuture, generation_info)
 
     def _create_py_typed_file(self, directory: str):
         filename = f"{directory}/py.typed"
@@ -1392,5 +1271,5 @@ class PackageGenerator:
         analyzer.analyze()
 
         self._create_empty_modules(analyzer.package_structure())
-        self._generate(
-            analyzer.package_structure(), analyzer.generation_info())
+        self._generate(self._rules[0],
+                       analyzer.package_structure(), analyzer.generation_info())
