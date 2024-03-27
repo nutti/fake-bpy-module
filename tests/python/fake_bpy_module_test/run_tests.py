@@ -36,6 +36,8 @@ def main():
 
         fake_bpy_module_test.docutils_based.analyzer_test.BaseAnalyzerTest,
         fake_bpy_module_test.docutils_based.transformer_test.TransformerTest,
+        fake_bpy_module_test.docutils_based.cannonical_data_type_rewriter_test.CannonicalDataTypeRewriterTest,  # pylint: disable=C0301
+        fake_bpy_module_test.docutils_based.data_type_refiner_test.DataTypeRefinerTest,
         fake_bpy_module_test.docutils_based.mod_applier_test.ModApplierTest,
     ]
 

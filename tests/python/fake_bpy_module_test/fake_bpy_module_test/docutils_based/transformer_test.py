@@ -31,7 +31,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -55,7 +55,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -79,7 +79,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -103,7 +103,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -127,7 +127,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -174,7 +174,7 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 3)
         for i, document in enumerate(documents):
@@ -189,10 +189,10 @@ class TransformerTest(common.FakeBpyModuleTestBase):
             self.compare_with_file_contents(t.pformat(),
                                             expect_transformed_files[i])
 
-    def test_bpy_types_class_baseclass_rebaser(self):
-        rst_files = ["bpy_types_class_baseclass_rebaser.rst"]
-        expect_files = ["bpy_types_class_baseclass_rebaser.xml"]
-        expect_transformed_files = ["bpy_types_class_baseclass_rebaser_transformed.xml"]
+    def test_bpy_types_class_base_class_rebaser(self):
+        rst_files = ["bpy_types_class_base_class_rebaser.rst"]
+        expect_files = ["bpy_types_class_base_class_rebaser.xml"]
+        expect_transformed_files = ["bpy_types_class_base_class_rebaser_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
@@ -200,13 +200,13 @@ class TransformerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
                                         expect_files[0])
 
-        transformer = Transformer(["bpy_types_class_baseclass_rebaser"])
+        transformer = Transformer(["bpy_types_class_base_class_rebaser"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), 1)

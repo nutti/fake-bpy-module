@@ -1,6 +1,6 @@
 .. mod-type:: new
 
-.. module:: module.a
+.. module:: module_1
 
 .. function:: function_1(arg_1)
 

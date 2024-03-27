@@ -29,7 +29,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -44,7 +44,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -59,7 +59,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -74,7 +74,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -89,7 +89,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -104,7 +104,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -119,7 +119,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -134,7 +134,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -149,7 +149,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -164,7 +164,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -179,7 +179,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -193,7 +193,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         with self.assertRaises(docutils.utils.SystemMessage):
-            _ = analyzer.analyze_internal(rst_files)
+            _ = analyzer.analyze(rst_files)
 
     def test_invalid_rst_format_2(self):
         rst_files = ["invalid_rst_format_2.rst"]
@@ -203,7 +203,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         with self.assertRaises(docutils.utils.SystemMessage):
-            _ = analyzer.analyze_internal(rst_files)
+            _ = analyzer.analyze(rst_files)
 
     # TODO: move to transform_test.py
     # pylint: disable=W0101
@@ -218,7 +218,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         with self.assertRaises(docutils.utils.SystemMessage):
-            _ = analyzer.analyze_internal(rst_files)
+            _ = analyzer.analyze(rst_files)
 
     def test_bpy_290_tweak(self):
         rst_files = ["bpy_290_tweak.rst"]
@@ -229,7 +229,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("blender")
         analyzer.set_target_version("2.90")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -244,7 +244,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("upbge")
         analyzer.set_target_version("0.2.5")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -261,7 +261,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("upbge")
         analyzer.set_target_version("0.2.5")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         return
 
@@ -278,7 +278,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("upbge")
         analyzer.set_target_version("0.2.5")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),
@@ -293,7 +293,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer([])
         analyzer.set_target("upbge")
         analyzer.set_target_version("0.2.5")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), 1)
         self.compare_with_file_contents(documents[0].pformat(),

@@ -17,5 +17,13 @@
                     attr_1 description
                 <data-type-list>
                     <data-type>
-                        `bpy_prop_collection` of `Attribute`, (readonly)
+                        <class-ref>
+                            Attributes
+                         
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute
+                        , (readonly)
         <function-list>

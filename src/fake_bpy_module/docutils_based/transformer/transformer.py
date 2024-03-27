@@ -6,7 +6,9 @@ from .base_class_fixture import BaseClassFixture
 from .bpy_app_handlers_data_type_adder import BpyAppHandlersDataTypeAdder
 from .bpy_context_variable_converter import BpyContextVariableConverter
 from .bpy_ops_override_parameters_adder import BpyOpsOverrideParameterAdder
-from .bpy_types_class_baseclass_rebaser import BpyTypesClassBaseClassRebaser
+from .bpy_types_class_base_class_rebaser import BpyTypesClassBaseClassRebaser
+from .cannonical_data_type_rewriter import CannonicalDataTypeRewriter
+from .data_type_refiner import DataTypeRefiner
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
@@ -31,50 +33,43 @@ class Transformer:
     def transform(self, documents: List[nodes.document],
                   parameters: dict = None):
         transformer_specs = {
-            "base_class_fixture": {
+            BaseClassFixture.name(): {
                 "class": BaseClassFixture,
-                "priority": 1,
             },
-            "rst_specific_node_cleaner": {
+            RstSpecificNodeCleaner.name(): {
                 "class": RstSpecificNodeCleaner,
-                "priority": 2,
             },
-            "module_level_attribute_fixture": {
+            ModuleLevelAttributeFixture.name(): {
                 "class": ModuleLevelAttributeFixture,
-                "priority": 3,
             },
-            "bpy_app_handlers_data_type_adder": {
+            BpyAppHandlersDataTypeAdder.name(): {
                 "class": BpyAppHandlersDataTypeAdder,
-                "priority": 4,
             },
-            "bpy_ops_override_parameters_adder": {
+            BpyOpsOverrideParameterAdder.name(): {
                 "class": BpyOpsOverrideParameterAdder,
-                "priority": 5,
             },
-            "bpy_types_class_baseclass_rebaser": {
+            BpyTypesClassBaseClassRebaser.name(): {
                 "class": BpyTypesClassBaseClassRebaser,
-                "priority": 6,
             },
-            "bpy_context_variable_converter": {
+            BpyContextVariableConverter.name(): {
                 "class": BpyContextVariableConverter,
-                "priority": 7,
             },
-            "mod_applier": {
+            ModApplier.name(): {
                 "class": ModApplier,
-                "priority": 8,
             },
-            "format_validator": {
+            DataTypeRefiner.name(): {
+                "class": DataTypeRefiner,
+            },
+            CannonicalDataTypeRewriter.name(): {
+                "class": CannonicalDataTypeRewriter,
+            },
+            FormatValidator.name(): {
                 "class": FormatValidator,
-                "priority": 999
             }
         }
 
-        transform_kinds = sorted(
-            self.transform_kinds,
-            key=lambda kind: transformer_specs[kind]["priority"])
-
         self.transformers = []
-        for kind in transform_kinds:
+        for kind in self.transform_kinds:
             spec = transformer_specs[kind]
             init_params = {}
             if kind in self.init_parameters:

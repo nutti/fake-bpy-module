@@ -24,11 +24,27 @@ from .nodes import (
 
     CodeNode,
     ModTypeNode,
+
+    make_data_type_node,
 )
 
 from .. import configuration
 
 from ..common import append_child
+
+
+def parse_field_body(fbody_node: nodes.field_body) -> DataTypeNode:
+    if len(fbody_node.children) == 0:
+        return DataTypeNode(text=fbody_node.astext())
+
+    para_node = fbody_node.children[0]
+    if not isinstance(para_node, nodes.paragraph):
+        return DataTypeNode(text=fbody_node.astext())
+
+    dtype = DataTypeNode()
+    for c in para_node.children:
+        append_child(dtype, c)
+    return dtype
 
 
 class ModuleDirective(rst.Directive):
@@ -156,7 +172,7 @@ class DataDirective(rst.Directive):
             for field in field_list:
                 fname_node, fbody_node = field.children
                 if fname_node.astext() == "type":
-                    dtype = DataTypeNode(text=fbody_node.astext())
+                    dtype = parse_field_body(fbody_node)
                     dtype_list_node.append_child(dtype)
 
         return [node]
@@ -400,15 +416,15 @@ class FunctionDirective(rst.Directive):
                             if m.group(1) in ("arg", "param"):
                                 arg_node.element(DescriptionNode).add_text(fbody_node.astext())
                             elif m.group(1) == "type":
-                                arg_node.element(DataTypeListNode).append_child(
-                                    DataTypeNode(text=fbody_node.astext()))
+                                dtype = parse_field_body(fbody_node)
+                                arg_node.element(DataTypeListNode).append_child(dtype)
                     elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
                         func_ret_node = func_node.element(FunctionReturnNode)
                         if m.group(1) == "return":
                             func_ret_node.element(DescriptionNode).add_text(fbody_node.astext())
                         elif m.group(1) == "rtype":
-                            func_ret_node.element(DataTypeListNode).append_child(
-                                DataTypeNode(text=fbody_node.astext()))
+                            dtype = parse_field_body(fbody_node)
+                            func_ret_node.element(DataTypeListNode).append_child(dtype)
                     elif m := self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
                         if m.group(1) == "arg":
                             arg_name = m.group(2)
@@ -496,7 +512,7 @@ class BaseClassDirective(rst.Directive):
 
         for sp in base_classes.split(", "):
             base_class_node = BaseClassNode.create_template()
-            base_class_node.element(DataTypeListNode).append_child(DataTypeNode(text=sp))
+            base_class_node.element(DataTypeListNode).append_child(make_data_type_node(sp))
             base_class_list_node.append_child(base_class_node)
 
         field_lists: nodes.field_list = paragraph.findall(nodes.field_list)

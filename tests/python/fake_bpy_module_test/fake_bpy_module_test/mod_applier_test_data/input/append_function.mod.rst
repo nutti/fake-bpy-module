@@ -1,6 +1,6 @@
 .. mod-type:: append
 
-.. module:: module.a
+.. module:: module_1
 
 .. function:: function_1(arg_2=10)
 

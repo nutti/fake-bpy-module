@@ -3,7 +3,6 @@ from typing import List
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from .docutils_based.transformer import transformer
 from .docutils_based import analyzer, configuration
 
 
@@ -29,26 +28,6 @@ class BaseAnalyzer:
     def _target(self) -> str:
         return self.target
 
-    def apply_transform(self, doc_list: List[nodes.document]) -> List[nodes.document]:
-        t = transformer.Transformer([
-            "rst_specific_node_cleaner",
-            "base_class_fixture",
-            "module_level_attribute_fixture",
-            "bpy_app_handlers_data_type_adder",
-            "bpy_ops_override_parameters_adder",
-            "bpy_types_class_baseclass_rebaser",
-            "bpy_context_variable_converter",
-            "mod_applier",
-            "format_validator"
-        ], {
-            "mod_applier": {
-                "mod_files": self.mod_files
-            }
-        })
-        t.transform(doc_list)
-
-        return doc_list
-
     def _analyze_by_file(self, filename: str) -> nodes.document:
         with open(filename, "r", encoding="utf-8") as f:
             contents = f.read()
@@ -67,16 +46,10 @@ class BaseAnalyzer:
 
         return document
 
-    def analyze_internal(self, filenames: list) -> List[nodes.document]:
+    def analyze(self, filenames: list) -> List[nodes.document]:
         documents: List[nodes.document] = []
         for f in filenames:
             document = self._analyze_by_file(f)
             documents.append(document)
-
-        return documents
-
-    def analyze(self, filenames: list) -> List[nodes.document]:
-        documents = self.analyze_internal(filenames)
-        documents = self.apply_transform(documents)
 
         return documents

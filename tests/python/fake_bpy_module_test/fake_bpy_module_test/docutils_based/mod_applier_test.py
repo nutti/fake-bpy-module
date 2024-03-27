@@ -31,7 +31,7 @@ class ModApplierTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer(mod_files)
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
@@ -59,7 +59,7 @@ class ModApplierTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer(mod_files)
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
@@ -87,7 +87,7 @@ class ModApplierTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer(mod_files)
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
@@ -115,7 +115,7 @@ class ModApplierTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer(mod_files)
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
@@ -143,7 +143,7 @@ class ModApplierTest(common.FakeBpyModuleTestBase):
         analyzer = BaseAnalyzer(mod_files)
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
-        documents = analyzer.analyze_internal(rst_files)
+        documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)

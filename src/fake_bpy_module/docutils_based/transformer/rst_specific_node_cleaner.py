@@ -473,6 +473,10 @@ class RstSpecificNodeCleaner(TransformerBase):
                 self._replace(node, code_doc_node)
                 append_child(code_doc_node, node)
 
+    @classmethod
+    def name(cls) -> str:
+        return "rst_specific_node_cleaner"
+
     def apply(self, **kwargs):
         for document in self.documents:
             self._apply(document)

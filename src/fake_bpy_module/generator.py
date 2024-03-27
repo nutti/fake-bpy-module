@@ -3,7 +3,6 @@ import re
 import pathlib
 import abc
 import io
-import typing
 from typing import List, Dict
 from collections import OrderedDict
 import subprocess
@@ -33,15 +32,16 @@ from .docutils_based.analyzer.nodes import (
 from .docutils_based.analyzer.roles import (
     ClassRef,
 )
+from .docutils_based.transformer import transformer
+from .docutils_based.transformer.cannonical_data_type_rewriter import (
+    ModuleStructure,
+    get_base_name,
+    get_module_name,
+)
 from .docutils_based.common import get_first_child, find_children
 
 from .analyzer import (
     BaseAnalyzer,
-)
-from .common import (
-    ModuleStructure,
-    DataTypeRefiner,
-    EntryPoint,
 )
 from .utils import (
     remove_unencodable,
@@ -739,6 +739,16 @@ class PackageGenerationRule:
         return self._generator
 
 
+class EntryPoint:
+    def __init__(self, module: str, name: str, type_: str):
+        self.module: str = module
+        self.name: str = name
+        self.type: str = type_
+
+    def fullname(self) -> str:
+        return f"{self.module}.{self.name}"
+
+
 class PackageAnalyzer:
     def __init__(
             self, config: 'PackageGeneratorConfig',
@@ -751,17 +761,32 @@ class PackageAnalyzer:
 
         self._analyze_result_cache: List[nodes.document] = []
 
-    # build package structure
-    def _build_package_structure(self) -> 'ModuleStructure':
-        documents = self._analyze()
-        module_list = self._collect_module_list(documents)
-        return self._build_module_structure(module_list)
-
     def _analyze(self) -> List[nodes.document]:
         if len(self._analyze_result_cache) == 0:
             for rule in self._rules:
                 self._analyze_result_cache.extend(self._analyze_by_rule(rule))
         return self._analyze_result_cache
+
+    def _apply_pre_transform(self, documents: List[nodes.document],
+                             mod_files: List[str]) -> List[nodes.document]:
+        t = transformer.Transformer([
+            "base_class_fixture",
+            "rst_specific_node_cleaner",
+            "module_level_attribute_fixture",
+            "bpy_app_handlers_data_type_adder",
+            "bpy_ops_override_parameters_adder",
+            "bpy_types_class_base_class_rebaser",
+            "bpy_context_variable_converter",
+            "mod_applier",
+            "format_validator"
+        ], {
+            "mod_applier": {
+                "mod_files": mod_files
+            }
+        })
+        documents = t.transform(documents)
+
+        return documents
 
     def _analyze_by_rule(
             self, rule: 'PackageGenerationRule') -> List[nodes.document]:
@@ -771,11 +796,12 @@ class PackageAnalyzer:
         rule.analyzer().set_target(self._config.target)
         rule.analyzer().set_target_version(self._config.target_version)
         documents = rule.analyzer().analyze(target_files)
+        documents = self._apply_pre_transform(documents, rule.analyzer().mod_files)
 
         return documents
 
     # build module structure
-    def _build_module_structure(self, modules: List[str]) -> 'ModuleStructure':
+    def _build_module_structure(self, documents: List[nodes.document]) -> 'ModuleStructure':
         def build(mod_name: str, structure_: 'ModuleStructure'):
             sp = mod_name.split(".")
             for i in structure_.children():
@@ -790,33 +816,23 @@ class PackageAnalyzer:
                 s = ".".join(sp[1:])
                 build(s, item)
 
+        # Collect modules.
+        modules = []
+        for document in documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name_node = module_node.element(NameNode)
+            modules.append(module_name_node.astext())
+
+        # Build module structure.
         structure = ModuleStructure()
         for m in modules:
             build(m, structure)
 
         return structure
 
-    # collect module list
-    def _collect_module_list(self, documents: List[nodes.document]) -> List[str]:
-        module_list = []
-        for document in documents:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name_node = module_node.element(NameNode)
-            module_list.append(module_name_node.astext())
-
-        return module_list
-
-    def _build_entry_points(self) -> List['EntryPoint']:
-        # at first analyze without DataTypeRefiner
-        documents = self._analyze()
-        module_structure = self._build_module_structure(
-            self._collect_module_list(documents))
-        generation_info = self._build_generation_info_internal(
-            documents, module_structure)
-
-        # build entry points
+    def _build_entry_points(self, generation_info: GenerationInfoByRule) -> List['EntryPoint']:
         entry_points: List['EntryPoint'] = []
         for target in generation_info.targets():
             info = generation_info.get_target(target)
@@ -841,7 +857,7 @@ class PackageAnalyzer:
 
         return entry_points
 
-    def _build_generation_info_internal(
+    def _build_generation_info(
             self, documents: List[nodes.document],
             module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
         def find_target_file(
@@ -900,10 +916,10 @@ class PackageAnalyzer:
 
         return generator_info
 
-    def _get_import_module_path(self, refiner: 'DataTypeRefiner',
+    def _get_import_module_path(self, module_structure: 'ModuleStructure',
                                 data_type_1: str, data_type_2: str):
-        mod_names_full_1 = refiner.get_module_name(data_type_1)
-        mod_names_full_2 = refiner.get_module_name(data_type_2)
+        mod_names_full_1 = get_module_name(data_type_1, module_structure)
+        mod_names_full_2 = get_module_name(data_type_2, module_structure)
         if mod_names_full_1 is None or mod_names_full_2 is None:
             return None
 
@@ -963,11 +979,11 @@ class PackageAnalyzer:
         return module_path
 
     def _add_dependency(self, dependencies: List['Dependency'],
-                        refiner: 'DataTypeRefiner',
+                        module_structure: 'ModuleStructure',
                         data_type_1: str, data_type_2: str):
 
-        mod = self._get_import_module_path(refiner, data_type_1, data_type_2)
-        base = refiner.get_base_name(data_type_1)
+        mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
+        base = get_base_name(data_type_1)
         if mod is None:
             return
 
@@ -987,10 +1003,7 @@ class PackageAnalyzer:
 
     def _build_dependencies(
             self, package_structure: 'ModuleStructure',
-            entry_points: List['EntryPoint'],
             info: 'GenerationInfoByTarget') -> List['Dependency']:
-        refiner = DataTypeRefiner(package_structure, entry_points)
-
         dependencies = []
         for document in info.data:
             module_node = get_first_child(document, ModuleNode)
@@ -1004,7 +1017,7 @@ class PackageAnalyzer:
                 class_refs = class_node.traverse(ClassRef)
                 for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, class_ref.to_string(),
+                        dependencies, package_structure, class_ref.to_string(),
                         f"{module_name}.{class_name}")
 
             func_nodes = find_children(document, FunctionNode)
@@ -1013,7 +1026,7 @@ class PackageAnalyzer:
                 class_refs = func_node.traverse(ClassRef)
                 for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, class_ref.to_string(),
+                        dependencies, package_structure, class_ref.to_string(),
                         f"{module_name}.{func_name}")
 
             data_nodes = find_children(document, DataNode)
@@ -1022,166 +1035,28 @@ class PackageAnalyzer:
                 class_refs = data_node.traverse(ClassRef)
                 for class_ref in class_refs:
                     self._add_dependency(
-                        dependencies, refiner, class_ref.to_string(),
+                        dependencies, package_structure, class_ref.to_string(),
                         f"{module_name}.{data_name}")
 
         return dependencies
 
-    def _refine_data_type(
-            self, refiner: 'DataTypeRefiner', documents: List[nodes.document]):
+    def _apply_post_transform(
+            self, documents: List[nodes.document], **kwargs) -> List[nodes.document]:
+        t = transformer.Transformer([
+            "data_type_refiner",
+            "cannonical_data_type_rewriter",
+        ], {
+            "data_type_refiner": {
+                "package_structure": kwargs["package_structure"],
+                "entry_points": kwargs["entry_points"],
+            },
+            "cannonical_data_type_rewriter": {
+                "package_structure": kwargs["package_structure"]
+            }
+        })
+        documents = t.transform(documents)
 
-        def refine(dtype_list_node: DataTypeListNode, module_name: str,
-                   variable_kind: str, parameter_str: str = None,
-                   additional_info: Dict[str, typing.Any] = None):
-            dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-            new_dtype_nodes = []
-            for dtype_node in dtype_nodes:
-                mod_options = []
-                skip_refine = False
-                if "mod-option" in dtype_node.attributes:
-                    mod_options = [
-                        sp.strip()
-                        for sp in dtype_node.attributes["mod-option"].split(",")
-                    ]
-                    skip_refine = "skip-refine" in mod_options
-                if skip_refine:
-                    continue
-                new_dtype_nodes.extend(refiner.get_refined_data_type(
-                    dtype_node.astext(), module_name, variable_kind,
-                    parameter_str=parameter_str, additional_info=additional_info))
-                dtype_list_node.remove(dtype_node)
-            for node in new_dtype_nodes:
-                dtype_list_node.append_child(node)
-
-        for document in documents:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name = module_node.element(NameNode).astext()
-
-            class_nodes = find_children(document, ClassNode)
-            for class_node in class_nodes:
-                class_name = class_node.element(NameNode).astext()
-
-                func_list_node = class_node.element(FunctionListNode)
-                func_nodes = find_children(func_list_node, FunctionNode)
-                for func_node in func_nodes:
-                    arg_list_node = func_node.element(ArgumentListNode)
-                    arg_nodes = find_children(arg_list_node, ArgumentNode)
-                    for arg_node in arg_nodes:
-                        arg_name = arg_node.element(NameNode).astext()
-                        dtype_list_node = arg_node.element(DataTypeListNode)
-                        refine(dtype_list_node, module_name, 'FUNC_ARG',
-                               parameter_str=arg_name,
-                               additional_info={"self_class": f"{module_name}.{class_name}"})
-
-                    return_node = func_node.element(FunctionReturnNode)
-                    dtype_list_node = return_node.element(DataTypeListNode)
-                    refine(dtype_list_node, module_name, 'FUNC_RET',
-                           additional_info={"self_class": f"{module_name}.{class_name}"})
-
-                attr_list_node = class_node.element(AttributeListNode)
-                attr_nodes = find_children(attr_list_node, AttributeNode)
-                for attr_node in attr_nodes:
-                    dtype_list_node = attr_node.element(DataTypeListNode)
-                    refine(dtype_list_node, module_name, 'CONST')
-
-                base_class_list_node = class_node.element(BaseClassListNode)
-                base_class_nodes = find_children(base_class_list_node, BaseClassNode)
-                for base_class_node in base_class_nodes:
-                    dtype_list_node = base_class_node.element(DataTypeListNode)
-                    refine(dtype_list_node, module_name, 'CLS_BASE')
-
-            func_nodes = find_children(document, FunctionNode)
-            for func_node in func_nodes:
-                arg_list_node = func_node.element(ArgumentListNode)
-                arg_nodes = find_children(arg_list_node, ArgumentNode)
-                for arg_node in arg_nodes:
-                    arg_name = arg_node.element(NameNode).astext()
-                    dtype_list_node = arg_node.element(DataTypeListNode)
-                    refine(dtype_list_node, module_name, 'FUNC_ARG',
-                           parameter_str=arg_name)
-
-                return_node = func_node.element(FunctionReturnNode)
-                dtype_list_node = return_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'FUNC_RET')
-
-            data_nodes = find_children(document, DataNode)
-            for data_node in data_nodes:
-                dtype_list_node = data_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'CONST')
-
-    def _rewrite_data_type(
-            self, refiner: 'DataTypeRefiner',
-            gen_info: 'GenerationInfoByTarget') -> 'GenerationInfoByTarget':
-        processed_info = GenerationInfoByTarget()
-        processed_info.name = gen_info.name
-        processed_info.external_modules = gen_info.external_modules
-        processed_info.dependencies = gen_info.dependencies
-        processed_info.child_modules = gen_info.child_modules
-
-        def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
-            class_name = class_ref.to_string()
-            new_class_name = refiner.get_generation_data_type(
-                class_name, module_name)
-            new_class_ref = ClassRef(text=new_class_name)
-            return new_class_ref
-
-        def replace(from_node: nodes.Node, to_node: nodes.Node):
-            parent = from_node.parent
-            index = from_node.parent.index(from_node)
-            parent.remove(from_node)
-            parent.insert(index, to_node)
-
-        for document in gen_info.data:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name = module_node.element(NameNode).astext()
-
-            class_nodes = find_children(document, ClassNode)
-            for class_node in class_nodes:
-                class_refs = class_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    new_class_ref = rewrite(class_ref, module_name)
-                    replace(class_ref, new_class_ref)
-
-            func_nodes = find_children(document, FunctionNode)
-            for func_node in func_nodes:
-                class_refs = func_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    new_class_ref = rewrite(class_ref, module_name)
-                    replace(class_ref, new_class_ref)
-
-            data_nodes = find_children(document, DataNode)
-            for data_node in data_nodes:
-                class_refs = data_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    new_class_ref = rewrite(class_ref, module_name)
-                    replace(class_ref, new_class_ref)
-
-            processed_info.data.append(document)
-
-        return processed_info
-
-    # map between result of analyze and module structure
-    def _build_generation_info(
-            self, package_structure: 'ModuleStructure',
-            entry_points: List['EntryPoint']) -> 'GenerationInfoByRule':
-        refiner = DataTypeRefiner(package_structure, entry_points)
-        documents = self._analyze()
-        self._refine_data_type(refiner, documents)
-        module_structure = self._build_module_structure(
-            self._collect_module_list(documents))
-        generation_info = self._build_generation_info_internal(
-            documents, module_structure)
-
-        for target in generation_info.targets():
-            info = generation_info.get_target(target)
-            info = self._rewrite_data_type(refiner, info)
-            generation_info.update_target(target, info)
-
-        return generation_info
+        return documents
 
     def package_structure(self) -> 'ModuleStructure':
         return self._package_structure
@@ -1193,15 +1068,20 @@ class PackageAnalyzer:
         return self._generation_info
 
     def analyze(self):
-        self._package_structure = self._build_package_structure()
-        self._entry_points = self._build_entry_points()
-
+        documents = self._analyze()
+        self._package_structure = self._build_module_structure(documents)
         self._generation_info = self._build_generation_info(
-            self._package_structure, self._entry_points)
+            documents, self._package_structure)
+        self._entry_points = self._build_entry_points(self._generation_info)
+
         for target in self._generation_info.targets():
             info = self._generation_info.get_target(target)
+            info.data = self._apply_post_transform(
+                info.data, package_structure=self._package_structure,
+                entry_points=self._entry_points)
+            self._generation_info.update_target(target, info)
             info.dependencies = self._build_dependencies(
-                self._package_structure, self._entry_points, info)
+                self._package_structure, info)
 
 
 class PackageGenerator:

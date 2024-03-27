@@ -10,6 +10,7 @@ from ..analyzer.nodes import (
     ClassNode,
     AttributeListNode,
     AttributeNode,
+    make_data_type_node,
 )
 
 from ..common import find_children, get_first_child
@@ -33,15 +34,18 @@ class BpyTypesClassBaseClassRebaser(TransformerBase):
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                 for dtype_node in dtype_nodes:
-                    text_node = get_first_child(dtype_node, nodes.Text)
-                    dtype_str = text_node.astext()
+                    dtype_str = dtype_node.astext()
                     if m := re.match(
                             r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
                             r"([a-zA-Z0-9]+)`, \(readonly\)$", dtype_str):
-                        dtype_node.remove(text_node)
-                        dtype_node.insert(0, nodes.Text(
-                            f"`bpy_prop_collection` of `{m.group(2)}`, "
-                            "(readonly)"))
+                        index = dtype_list_node.index(dtype_node)
+                        dtype_list_node.remove(dtype_node)
+                        dtype_list_node.insert(index, make_data_type_node(
+                            f"`bpy_prop_collection` of `{m.group(2)}`, (readonly)"))
+
+    @classmethod
+    def name(cls) -> str:
+        return "bpy_types_class_base_class_rebaser"
 
     def apply(self, **kwargs):
         for document in self.documents:

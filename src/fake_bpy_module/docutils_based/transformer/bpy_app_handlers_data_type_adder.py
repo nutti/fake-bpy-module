@@ -3,10 +3,10 @@ from docutils import nodes
 from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     DataTypeListNode,
-    DataTypeNode,
     ModuleNode,
     DataNode,
     NameNode,
+    make_data_type_node,
 )
 from ..common import get_first_child
 
@@ -24,8 +24,12 @@ class BpyAppHandlersDataTypeAdder(TransformerBase):
                     if name_node.astext() == "persistent":
                         continue
                     data_type_list_node = data_node.element(DataTypeListNode)
-                    data_type_list_node.insert(0, DataTypeNode(
-                        text="list of callable[`bpy.types.Scene`]"))
+                    data_type_list_node.insert(
+                        0, make_data_type_node("list of callable[`bpy.types.Scene`]"))
+
+    @classmethod
+    def name(cls) -> str:
+        return "bpy_app_handlers_data_type_adder"
 
     def apply(self, **kwargs):
         for document in self.documents:

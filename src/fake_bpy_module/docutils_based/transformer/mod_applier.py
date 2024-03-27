@@ -98,6 +98,10 @@ class ModApplier(TransformerBase):
         self.mod_files = kwargs["mod_files"]
         self.mod_documents = []
 
+    @classmethod
+    def name(cls) -> str:
+        return "mod_applier"
+
     def apply(self, **kwargs):
         self.mod_documents = []
 

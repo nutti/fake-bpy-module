@@ -1,4 +1,4 @@
-.. module:: module.a
+.. module:: module_1
 
 .. attribute:: data_1
 

@@ -10,4 +10,7 @@
             data_1 description
         <data-type-list>
             <data-type>
-                list of callable[`bpy.types.Scene`]
+                list of callable[
+                <class-ref>
+                    bpy.types.Scene
+                ]

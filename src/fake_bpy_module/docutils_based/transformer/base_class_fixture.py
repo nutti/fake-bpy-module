@@ -36,6 +36,10 @@ class BaseClassFixture(TransformerBase):
                 para.parent.remove(para)
                 break
 
+    @classmethod
+    def name(cls) -> str:
+        return "base_class_fixture"
+
     def apply(self, **kwargs):
         for document in self.documents:
             self._apply(document)

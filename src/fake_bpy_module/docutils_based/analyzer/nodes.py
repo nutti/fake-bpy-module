@@ -2,6 +2,7 @@ from typing import TypeVar, Type
 from docutils import nodes
 
 from .roles import ClassRef
+from ..common import append_child
 
 T = TypeVar("T", bound=nodes.Node)
 
@@ -264,3 +265,31 @@ class ModTypeNode(TextNode, nodes.Part):
 class CodeDocumentNode(TextNode, nodes.Part):
     tagname = "code-document"
     child_text_separator = ""
+
+
+def make_data_type_node(dtype_str: str) -> DataTypeNode:
+    in_quote = False
+    current_text = ""
+    result = []
+    for c in dtype_str:
+        if c == "`":
+            if in_quote:
+                if current_text != "":
+                    result.append(ClassRef(text=current_text))
+                current_text = ""
+                in_quote = False
+            else:
+                if current_text != "":
+                    result.append(nodes.Text(current_text))
+                current_text = ""
+                in_quote = True
+        else:
+            current_text += c
+    if current_text != "":
+        result.append(nodes.Text(current_text))
+
+    dtype_node = DataTypeNode()
+    for r in result:
+        append_child(dtype_node, r)
+
+    return dtype_node

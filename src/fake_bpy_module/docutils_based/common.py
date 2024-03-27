@@ -2,6 +2,7 @@ import re
 from typing import List, TypeVar, Type
 from docutils import nodes
 
+
 _ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]+?)\[,(.*)\]$")
 _ARG_LIST_2_REGEX = re.compile(r"^\[([a-zA-Z0-9_]+)\]$")
 
