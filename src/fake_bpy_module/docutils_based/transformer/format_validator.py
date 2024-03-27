@@ -22,6 +22,10 @@ from ..analyzer.nodes import (
     DefaultValueNode,
     CodeDocumentNode,
 )
+from ..analyzer.roles import (
+    ClassRef,
+    RefRef,
+)
 
 
 class FormatValidator(TransformerBase):
@@ -48,12 +52,22 @@ class FormatValidator(TransformerBase):
             DataTypeListNode: self._check_data_type_list_node,
             DataTypeNode: self._check_data_type_node,
             DefaultValueNode: self._check_default_value_node,
+            ClassRef: self._check_class_ref_node,
+            RefRef: self._check_ref_ref_node,
             nodes.Text: self._check_text_node,
         }
         type_to_check_func[expect_type](node)
 
     def _check_text_node(self, text_node: nodes.Text):
         pass
+
+    def _check_class_ref_node(self, class_ref_node: ClassRef):
+        for child in class_ref_node.children:
+            self._check_node(child, nodes.Text)
+
+    def _check_ref_ref_node(self, ref_ref_node: RefRef):
+        for child in ref_ref_node.children:
+            self._check_node(child, nodes.Text)
 
     def _check_name_node(self, name_node: NameNode):
         for child in name_node.children:
@@ -65,7 +79,18 @@ class FormatValidator(TransformerBase):
 
     def _check_data_type_node(self, data_type_node: DataTypeNode):
         for child in data_type_node.children:
-            self._check_node(child, nodes.Text)
+            assert isinstance(child, (nodes.Text, ClassRef, RefRef,
+                                      nodes.literal, nodes.emphasis,
+                                      nodes.title_reference)), f"{child.pformat()}"
+
+            if isinstance(child, (nodes.Text, nodes.literal, nodes.emphasis,
+                                  nodes.title_reference)):
+                for c in child.children:
+                    self._check_node(c, nodes.Text)
+            elif isinstance(child, ClassRef):
+                self._check_node(child, ClassRef)
+            elif isinstance(child, RefRef):
+                self._check_node(child, RefRef)
 
     def _check_data_type_list_node(self, data_type_list_node: DataTypeListNode):
         for child in data_type_list_node.children:
@@ -189,6 +214,10 @@ class FormatValidator(TransformerBase):
 
     def _apply(self, document: nodes.document):
         self._check_document(document)
+
+    @classmethod
+    def name(cls) -> str:
+        return "format_validator"
 
     def apply(self, **kwargs):
         for document in self.documents:

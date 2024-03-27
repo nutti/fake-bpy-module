@@ -7,15 +7,19 @@ from ..analyzer.nodes import (
     ClassNode,
     DataNode,
     DataTypeListNode,
-    DataTypeNode,
     AttributeListNode,
     AttributeNode,
+    make_data_type_node,
 )
 from ..common import append_child, get_first_child, find_children
-from ...common import output_log, LOG_LEVEL_WARN
+from ...utils import output_log, LOG_LEVEL_WARN
 
 
 class BpyContextVariableConverter(TransformerBase):
+    @classmethod
+    def name(cls) -> str:
+        return "bpy_context_variable_converter"
+
     def apply(self, **kwargs):
         bpy_module_document: nodes.document = None
         bpy_context_module_document: nodes.document = None
@@ -70,5 +74,5 @@ class BpyContextVariableConverter(TransformerBase):
         # Add the context variable to the bpy module.
         data_node = DataNode.create_template()
         data_node.element(NameNode).add_text("context")
-        data_node.element(DataTypeListNode).append_child(DataTypeNode(text="`bpy.types.Context`"))
+        data_node.element(DataTypeListNode).append_child(make_data_type_node("`bpy.types.Context`"))
         append_child(bpy_module_document, data_node)

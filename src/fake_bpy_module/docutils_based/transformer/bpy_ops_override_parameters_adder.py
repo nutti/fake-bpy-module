@@ -3,13 +3,13 @@ from docutils import nodes
 from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     DataTypeListNode,
-    DataTypeNode,
     ModuleNode,
     FunctionNode,
     NameNode,
     ArgumentNode,
     ArgumentListNode,
     DefaultValueNode,
+    make_data_type_node,
 )
 
 from ..common import find_children, get_first_child
@@ -34,22 +34,26 @@ class BpyOpsOverrideParameterAdder(TransformerBase):
                     arg_node.element(NameNode).add_text("override_context")
                     arg_node.element(DefaultValueNode).add_text("None")
                     arg_node.element(DataTypeListNode).append_child(
-                        DataTypeNode(text="dict, `bpy.types.Context`"))
+                        make_data_type_node("dict, `bpy.types.Context`"))
                     arg_list_node.insert(0, arg_node)
 
                     arg_node = ArgumentNode.create_template(argument_type="arg")
                     arg_node.element(NameNode).add_text("execution_context")
                     arg_node.element(DefaultValueNode).add_text("None")
                     arg_node.element(DataTypeListNode).append_child(
-                        DataTypeNode(text="str, int"))
+                        make_data_type_node("str, int"))
                     arg_list_node.insert(1, arg_node)
 
                     arg_node = ArgumentNode.create_template(argument_type="arg")
                     arg_node.element(NameNode).add_text("undo")
                     arg_node.element(DefaultValueNode).add_text("None")
                     arg_node.element(DataTypeListNode).append_child(
-                        DataTypeNode(text="bool"))
+                        make_data_type_node("bool"))
                     arg_list_node.insert(2, arg_node)
+
+    @classmethod
+    def name(cls) -> str:
+        return "bpy_ops_override_parameters_adder"
 
     def apply(self, **kwargs):
         for document in self.documents:

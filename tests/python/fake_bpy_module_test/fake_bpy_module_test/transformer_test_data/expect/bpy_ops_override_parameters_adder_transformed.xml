@@ -17,7 +17,9 @@
                     None
                 <data-type-list>
                     <data-type>
-                        dict, `bpy.types.Context`
+                        dict, 
+                        <class-ref>
+                            bpy.types.Context
             <argument argument_type="arg">
                 <name>
                     execution_context
@@ -62,7 +64,9 @@
                     None
                 <data-type-list>
                     <data-type>
-                        dict, `bpy.types.Context`
+                        dict, 
+                        <class-ref>
+                            bpy.types.Context
             <argument argument_type="arg">
                 <name>
                     execution_context

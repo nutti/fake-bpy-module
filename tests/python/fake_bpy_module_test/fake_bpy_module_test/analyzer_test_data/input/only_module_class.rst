@@ -1,1 +1,1 @@
-.. module:: module.a
+.. module:: module_1

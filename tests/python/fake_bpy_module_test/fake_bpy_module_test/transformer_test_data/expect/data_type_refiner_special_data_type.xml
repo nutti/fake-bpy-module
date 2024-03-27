@@ -1,0 +1,36 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            data_parentheses_pair
+        <description>
+        <data-type-list>
+            <data-type>
+                (
+                <class-ref>
+                    ClassA
+                , 
+                <class-ref>
+                    module_2.ClassB
+                ) pair
+    <data>
+        <name>
+            data_comma
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    ClassA
+                , string
+    <data>
+        <name>
+            data_or
+        <description>
+        <data-type-list>
+            <data-type>
+                str or 
+                <class-ref>
+                    ClassA

@@ -1,6 +1,6 @@
 .. mod-type:: new
 
-.. module:: module.a
+.. module:: module_1
 
 .. data:: DATA_2
 

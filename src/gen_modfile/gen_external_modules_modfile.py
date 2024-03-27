@@ -315,7 +315,7 @@ def get_alias_to_bpy_types(results):
                     "type": "constant",
                     "name": c["name"],
                     "module": "bpy.types",
-                    "data_type": "`{}.{}`".format(c["module"], c["name"]),
+                    "data_type": ":class:`{}.{}`".format(c["module"], c["name"]),
                 }
                 alias["constants"].append(constant_def)
 

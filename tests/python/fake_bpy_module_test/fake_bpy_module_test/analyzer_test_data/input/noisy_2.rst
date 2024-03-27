@@ -1,7 +1,7 @@
 Noise(Noise)
 =================
 
-.. currentmodule:: module.a
+.. currentmodule:: module_1
 
 base class --- BaseClass1, BaseClass2
 

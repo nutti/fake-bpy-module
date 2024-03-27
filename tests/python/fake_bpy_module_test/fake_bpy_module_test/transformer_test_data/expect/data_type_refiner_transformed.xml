@@ -1,0 +1,92 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            refined_module_d.RefinedClassG
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            refined_module_a.RefinedClassA
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                    method_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                <class-ref>
+                                    refined_module_a.RefinedClassB
+                <return>
+                    <description>
+                        method_1 return description
+                    <data-type-list>
+                        <data-type>
+                            <class-ref>
+                                refined_module_a.RefinedClassA
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            function_1 description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_1 arg_1 description
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            refined_module_b.RefinedClassC
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+                <description>
+                    function_1 arg_2 description
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            refined_module_b.RefinedClassD
+        <return>
+            <description>
+                function_1 return description
+            <data-type-list>
+                <data-type>
+                    <class-ref>
+                        refined_module_a.RefinedClassE
+    <data>
+        <name>
+            data_1
+        <description>
+            data_1 description
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    refined_module_c.RefinedClassF

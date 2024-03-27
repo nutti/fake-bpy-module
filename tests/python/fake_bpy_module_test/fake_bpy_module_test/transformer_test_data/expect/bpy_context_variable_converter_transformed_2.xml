@@ -17,4 +17,5 @@
         <description>
         <data-type-list>
             <data-type>
-                `bpy.types.Context`
+                <class-ref>
+                    bpy.types.Context

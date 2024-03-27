@@ -28,6 +28,10 @@ class ModuleLevelAttributeFixture(TransformerBase):
         for node in nodes_to_add:
             append_child(document, node)
 
+    @classmethod
+    def name(cls) -> str:
+        return "module_level_attribute_fixture"
+
     def apply(self, **kwargs):
         for document in self.documents:
             self._apply(document)

@@ -1,5 +1,6 @@
 .. module:: bpy.types.ClassA
 
+
 .. class:: ClassA
 
    ClassA description
