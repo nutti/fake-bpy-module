@@ -267,6 +267,31 @@ class CodeDocumentNode(TextNode, nodes.Part):
     child_text_separator = ""
 
 
+class TargetFileNode(TextNode, nodes.Part):
+    tagname = "target-file"
+    child_text_separator = ""
+
+
+class ChildModuleListNode(ListNode):
+    tagname = "child-module-list"
+    child_text_separator = ""
+
+
+class ChildModuleNode(TextNode, nodes.Part):
+    tagname = "child-module"
+    child_text_separator = ""
+
+
+class DependencyListNode(ListNode):
+    tagname = "dependency-list"
+    child_text_separator = ""
+
+
+class DependencyNode(TextNode, nodes.Part):
+    tagname = "dependency"
+    child_text_separator = ""
+
+
 def make_data_type_node(dtype_str: str) -> DataTypeNode:
     in_quote = False
     current_text = ""

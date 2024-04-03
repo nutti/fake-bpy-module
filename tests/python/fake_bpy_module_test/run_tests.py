@@ -38,7 +38,9 @@ def main():
         fake_bpy_module_test.docutils_based.transformer_test.TransformerTest,
         fake_bpy_module_test.docutils_based.cannonical_data_type_rewriter_test.CannonicalDataTypeRewriterTest,  # pylint: disable=C0301
         fake_bpy_module_test.docutils_based.data_type_refiner_test.DataTypeRefinerTest,
+        fake_bpy_module_test.docutils_based.dependency_builder_test.DependencyBuilderTest,
         fake_bpy_module_test.docutils_based.mod_applier_test.ModApplierTest,
+        fake_bpy_module_test.docutils_based.target_file_combiner_test.TargetFileCombinerTest,
     ]
 
     suite = unittest.TestSuite()

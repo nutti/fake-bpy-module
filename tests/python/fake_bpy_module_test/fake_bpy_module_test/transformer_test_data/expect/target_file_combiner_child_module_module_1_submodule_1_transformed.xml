@@ -1,0 +1,16 @@
+<document source="<string>">
+    <target-file>
+        module_1/submodule_1/__init__
+    <child-module-list>
+    <module>
+        <name>
+            module_1.submodule_1
+        <description>
+    <data>
+        <name>
+            data_2
+        <description>
+            data_2 description
+        <data-type-list>
+            <data-type>
+                data_2 type
