@@ -3,7 +3,8 @@ import os
 # pylint: disable=E0401
 from fake_bpy_module.analyzer import BaseAnalyzer
 from fake_bpy_module.docutils_based.transformer.transformer import Transformer
-from fake_bpy_module.generator import ModuleStructure, EntryPoint
+from fake_bpy_module.docutils_based.transformer.common import ModuleStructure
+from fake_bpy_module.docutils_based.transformer.data_type_refiner import EntryPoint
 from .. import common
 
 

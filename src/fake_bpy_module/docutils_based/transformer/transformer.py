@@ -9,10 +9,12 @@ from .bpy_ops_override_parameters_adder import BpyOpsOverrideParameterAdder
 from .bpy_types_class_base_class_rebaser import BpyTypesClassBaseClassRebaser
 from .cannonical_data_type_rewriter import CannonicalDataTypeRewriter
 from .data_type_refiner import DataTypeRefiner
+from .dependency_builder import DependencyBuilder
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
+from .target_file_combiner import TargetFileCombiner
 
 # TODO: set optional flag from parameter description
 # TODO: https://github.com/nutti/fake-bpy-module/issues/139
@@ -60,12 +62,18 @@ class Transformer:
             DataTypeRefiner.name(): {
                 "class": DataTypeRefiner,
             },
+            DependencyBuilder.name(): {
+                "class": DependencyBuilder,
+            },
             CannonicalDataTypeRewriter.name(): {
                 "class": CannonicalDataTypeRewriter,
             },
+            TargetFileCombiner.name(): {
+                "class": TargetFileCombiner,
+            },
             FormatValidator.name(): {
                 "class": FormatValidator,
-            }
+            },
         }
 
         self.transformers = []

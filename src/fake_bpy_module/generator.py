@@ -1,16 +1,13 @@
-import json
-import re
 import pathlib
 import abc
 import io
-from typing import List, Dict
+from typing import List
 from collections import OrderedDict
 import subprocess
 from yapf.yapflib.yapf_api import FormatCode
 from docutils import nodes
 
 from .docutils_based.analyzer.nodes import (
-    ModuleNode,
     NameNode,
     ClassNode,
     FunctionListNode,
@@ -28,17 +25,14 @@ from .docutils_based.analyzer.nodes import (
     NodeBase,
     DefaultValueNode,
     DescriptionNode,
-)
-from .docutils_based.analyzer.roles import (
-    ClassRef,
+    TargetFileNode,
+    ChildModuleListNode,
+    ChildModuleNode,
+    DependencyListNode,
+    DependencyNode,
 )
 from .docutils_based.transformer import transformer
-from .docutils_based.transformer.cannonical_data_type_rewriter import (
-    ModuleStructure,
-    get_base_name,
-    get_module_name,
-)
-from .docutils_based.common import get_first_child, find_children
+from .docutils_based.common import find_children, get_first_child
 
 from .analyzer import (
     BaseAnalyzer,
@@ -146,22 +140,21 @@ class BaseGenerator(metaclass=abc.ABCMeta):
         return mod_name[0] == "."
 
     def _sorted_generation_info(
-            self, data: 'GenerationInfoByTarget') -> List[NodeBase]:
+            self, document: nodes.document) -> List[NodeBase]:
         all_class_nodes: List[ClassNode] = []
         all_function_nodes: List[FunctionNode] = []
         all_data_nodes: List[DataNode] = []
         all_high_priority_class_nodes: List[ClassNode] = []
-        for document in data.data:
-            class_nodes = find_children(document, ClassNode)
-            for class_node in class_nodes:
-                class_name = class_node.element(NameNode).astext()
-                if class_name in ("bpy_prop_collection", "bpy_prop_array",
-                                  "bpy_struct"):
-                    all_high_priority_class_nodes.append(class_node)
-                else:
-                    all_class_nodes.append(class_node)
-            all_function_nodes.extend(find_children(document, FunctionNode))
-            all_data_nodes.extend(find_children(document, DataNode))
+
+        class_nodes = find_children(document, ClassNode)
+        for class_node in class_nodes:
+            class_name = class_node.element(NameNode).astext()
+            if class_name in ("bpy_prop_collection", "bpy_prop_array", "bpy_struct"):
+                all_high_priority_class_nodes.append(class_node)
+            else:
+                all_class_nodes.append(class_node)
+        all_function_nodes.extend(find_children(document, FunctionNode))
+        all_data_nodes.extend(find_children(document, DataNode))
 
         all_class_nodes = all_high_priority_class_nodes \
             + sorted(all_class_nodes, key=lambda n: n.element(NameNode).astext())
@@ -206,30 +199,15 @@ class BaseGenerator(metaclass=abc.ABCMeta):
 
         return sorted_nodes
 
-    def print_header(self, file):
-        pass
-
-    def pre_process(self, _: str, gen_info: 'GenerationInfoByTarget'):
-        processed = GenerationInfoByTarget()
-        processed.name = gen_info.name
-        processed.child_modules = gen_info.child_modules
-        processed.dependencies = gen_info.dependencies
-        processed.external_modules = gen_info.external_modules
-
-        for d in gen_info.data:
-            processed.data.append(d)
-
-        return processed
-
-    def dump_json(self, filename: str, data: 'GenerationInfoByTarget'):
-        json_data = [info.to_dict() for info in data.data]
-        with open(filename, "w", newline="\n", encoding="utf-8") as f:
-            json.dump(json_data, f, indent=4)
+    # def dump_json(self, filename: str, document: nodes.document):
+    #     json_data = [info.to_dict() for info in data.data]
+    #     with open(filename, "w", newline="\n", encoding="utf-8") as f:
+    #         json.dump(json_data, f, indent=4)
 
     @abc.abstractmethod
     def generate(self,
                  filename: str,
-                 data: 'GenerationInfoByTarget',
+                 document: nodes.document,
                  style_config: str = 'ruff'):
         raise NotImplementedError()
 
@@ -551,48 +529,40 @@ class PyCodeGeneratorBase(BaseGenerator):
 
     def generate(self,
                  filename: str,
-                 data: 'GenerationInfoByTarget',
+                 document: nodes.document,
                  style_config: str = 'ruff'):
         # At first, sort data to avoid generating large diff.
         # Note: Base class must be located above derived class
-        sorted_data = self._sorted_generation_info(data)
+        sorted_data = self._sorted_generation_info(document)
 
         with open(f"{filename}.{self.file_format}", "w",
                   encoding="utf-8", newline="\n") as file:
-            self.print_header(file)
-
             wt = self._writer
             wt.reset()
 
             # import external depended modules
-            for ext in sorted(data.external_modules):
-                wt.addln(f"import {ext}")
+            wt.addln("import typing")
 
             # import depended modules
-            for dep in sorted(data.dependencies,
-                              key=lambda x: (self._is_relative_import(x.mod_name), x.mod_name)):
-                mod_name = dep.mod_name
-                if self._is_relative_import(mod_name):
-                    wt.add(f"from {mod_name} import (")
-                    for i, type_ in enumerate(sorted(dep.type_lists)):
-                        wt.add(type_)
-                        if i == len(dep.type_lists) - 1:
-                            wt.addln(")")
-                        else:
-                            wt.add(", ")
-                else:
-                    wt.addln(f"import {dep.mod_name}")
+            dep_list_node = get_first_child(document, DependencyListNode)
+            dep_nodes = find_children(dep_list_node, DependencyNode)
+            dependencies = [node.astext() for node in dep_nodes]
+            for dep in sorted(dependencies):
+                wt.addln(f"import {dep}")
 
-            if len(data.dependencies) > 0:
+            if len(dependencies) > 0:
                 wt.new_line()
 
             # import child module to search child modules
-            for mod in sorted(data.child_modules):
-                wt.addln(f"from . import {mod}")
-            if len(data.child_modules) > 0:
+            child_list_node = get_first_child(document, ChildModuleListNode)
+            child_nodes = find_children(child_list_node, ChildModuleNode)
+            children = [node.astext() for node in child_nodes]
+            for child in sorted(children):
+                wt.addln(f"from . import {child}")
+            if len(children) > 0:
                 wt.new_line()
 
-            if (len(data.dependencies) > 0) or (len(data.child_modules) > 0):
+            if (len(dependencies) > 0) or (len(children) > 0):
                 wt.new_line()
 
             # for generic type
@@ -639,73 +609,6 @@ class PyInterfaceGenerator(PyCodeGeneratorBase):
         self.file_format = "pyi"
 
 
-class Dependency:
-    def __init__(self):
-        self._mod_name: str = None
-        self._type_lists: List[str] = []
-
-    @property
-    def mod_name(self) -> str:
-        if self._mod_name is None:
-            raise RuntimeError("Must specify module name")
-        return self._mod_name
-
-    @mod_name.setter
-    def mod_name(self, value: str):
-        self._mod_name = value
-
-    @property
-    def type_lists(self) -> List[str]:
-        if not self._type_lists:
-            raise RuntimeError(
-                "At least 1 element must be added to type lists")
-        return self._type_lists
-
-    def add_type(self, type_: str):
-        self._type_lists.append(type_)
-
-
-class GenerationInfoByTarget:
-    def __init__(self):
-        self.name: str = None       # Module name
-        self.data: List[nodes.document] = []
-        self.child_modules: List[str] = []
-        self.dependencies: List['Dependency'] = []
-        self.external_modules: List[str] = ["typing"]
-
-
-class GenerationInfoByRule:
-    def __init__(self):
-        # Key: Output file name
-        self._info: Dict[str, 'GenerationInfoByTarget'] = {}
-
-    def get_target(self, target: str) -> 'GenerationInfoByTarget':
-        if target not in self._info:
-            raise RuntimeError("Could not find target in GenerationInfoByRule "
-                               f"(target: {target})")
-        return self._info[target]
-
-    def create_target(self, target: str) -> 'GenerationInfoByTarget':
-        self._info[target] = GenerationInfoByTarget()
-        return self._info[target]
-
-    def get_or_create_target(self, target: str):
-        info = None
-        try:
-            info = self.get_target(target)
-        except RuntimeError:
-            pass
-        if info is None:
-            info = self.create_target(target)
-        return info
-
-    def targets(self):
-        return self._info.keys()
-
-    def update_target(self, target: str, info: 'GenerationInfoByTarget'):
-        self._info[target] = info
-
-
 class PackageGeneratorConfig:
     def __init__(self):
         self.output_dir: str = "./out"
@@ -739,33 +642,19 @@ class PackageGenerationRule:
         return self._generator
 
 
-class EntryPoint:
-    def __init__(self, module: str, name: str, type_: str):
-        self.module: str = module
-        self.name: str = name
-        self.type: str = type_
-
-    def fullname(self) -> str:
-        return f"{self.module}.{self.name}"
-
-
 class PackageAnalyzer:
     def __init__(
             self, config: 'PackageGeneratorConfig',
             rules: List['PackageGenerationRule']):
         self._config: 'PackageGeneratorConfig' = config
         self._rules: List['PackageGenerationRule'] = rules
-        self._package_structure: 'ModuleStructure' = None
-        self._generation_info: 'GenerationInfoByRule' = None
-        self._entry_points: List['EntryPoint'] = []
-
-        self._analyze_result_cache: List[nodes.document] = []
 
     def _analyze(self) -> List[nodes.document]:
-        if len(self._analyze_result_cache) == 0:
-            for rule in self._rules:
-                self._analyze_result_cache.extend(self._analyze_by_rule(rule))
-        return self._analyze_result_cache
+        result: List[nodes.document] = []
+        for rule in self._rules:
+            result.extend(self._analyze_by_rule(rule))
+
+        return result
 
     def _apply_pre_transform(self, documents: List[nodes.document],
                              mod_files: List[str]) -> List[nodes.document]:
@@ -800,288 +689,23 @@ class PackageAnalyzer:
 
         return documents
 
-    # build module structure
-    def _build_module_structure(self, documents: List[nodes.document]) -> 'ModuleStructure':
-        def build(mod_name: str, structure_: 'ModuleStructure'):
-            sp = mod_name.split(".")
-            for i in structure_.children():
-                if i.name == sp[0]:
-                    item = i
-                    break
-            else:
-                item = ModuleStructure()
-                item.name = sp[0]
-                structure_.add_child(item)
-            if len(sp) >= 2:
-                s = ".".join(sp[1:])
-                build(s, item)
-
-        # Collect modules.
-        modules = []
-        for document in documents:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name_node = module_node.element(NameNode)
-            modules.append(module_name_node.astext())
-
-        # Build module structure.
-        structure = ModuleStructure()
-        for m in modules:
-            build(m, structure)
-
-        return structure
-
-    def _build_entry_points(self, generation_info: GenerationInfoByRule) -> List['EntryPoint']:
-        entry_points: List['EntryPoint'] = []
-        for target in generation_info.targets():
-            info = generation_info.get_target(target)
-            for document in info.data:
-                class_nodes = find_children(document, ClassNode)
-                for class_node in class_nodes:
-                    class_name = class_node.element(NameNode).astext()
-                    entry = EntryPoint(info.name, class_name, "class")
-                    entry_points.append(entry)
-
-                func_nodes = find_children(document, FunctionNode)
-                for func_node in func_nodes:
-                    func_name = func_node.element(NameNode).astext()
-                    entry = EntryPoint(info.name, func_name, "function")
-                    entry_points.append(entry)
-
-                data_nodes = find_children(document, DataNode)
-                for data_node in data_nodes:
-                    data_name = data_node.element(NameNode).astext()
-                    entry = EntryPoint(info.name, data_name, "constant")
-                    entry_points.append(entry)
-
-        return entry_points
-
-    def _build_generation_info(
-            self, documents: List[nodes.document],
-            module_structure: 'ModuleStructure') -> 'GenerationInfoByRule':
-        def find_target_file(
-                name: str, structure: 'ModuleStructure', target: str,
-                module_level: int) -> str:
-            for m in structure.children():
-                mod_name = name + m.name
-                if mod_name == target:
-                    return mod_name + "/__init__"
-
-                if len(m.children()) > 0:
-                    ret = find_target_file(
-                        mod_name + "/", m, target, module_level+1)
-                    if ret:
-                        return ret
-            return None
-
-        def build_child_modules(
-                gen_info: 'GenerationInfoByRule', name: str,
-                structure: 'ModuleStructure', module_level: int):
-            for m in structure.children():
-                mod_name = name + m.name
-                if len(m.children()) == 0:
-                    filename = \
-                        re.sub(r"\.", "/", mod_name) + "/__init__"
-                    info = gen_info.create_target(filename)
-                    info.data = []
-                    info.child_modules = []
-                    info.name = mod_name
-                else:
-                    filename = re.sub(r"\.", "/", mod_name) + "/__init__"
-                    info = gen_info.create_target(filename)
-                    info.data = []
-                    info.child_modules = [child.name for child in m.children()]
-                    info.name = mod_name
-                    build_child_modules(
-                        gen_info, mod_name + ".", m, module_level+1)
-
-        # build child modules
-        generator_info = GenerationInfoByRule()
-        build_child_modules(generator_info, "", module_structure, 0)
-
-        # build data
-        for document in documents:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name = module_node.element(NameNode).astext()
-            target = find_target_file("", module_structure,
-                                      re.sub(r"\.", "/", module_name), 0)
-            if target is None:
-                raise RuntimeError("Could not find target file to "
-                                   f"generate (target: {module_name})")
-            gen_info = generator_info.get_target(target)
-            gen_info.data.append(document)
-
-        return generator_info
-
-    def _get_import_module_path(self, module_structure: 'ModuleStructure',
-                                data_type_1: str, data_type_2: str):
-        mod_names_full_1 = get_module_name(data_type_1, module_structure)
-        mod_names_full_2 = get_module_name(data_type_2, module_structure)
-        if mod_names_full_1 is None or mod_names_full_2 is None:
-            return None
-
-        mod_names_1 = mod_names_full_1.split(".")
-        mod_names_2 = mod_names_full_2.split(".")
-
-        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2)):
-            if m1 != m2:
-                match_level = i
-                break
-        else:
-            if len(mod_names_1) >= len(mod_names_2):
-                match_level = len(mod_names_2)
-            else:
-                match_level = len(mod_names_1)
-
-        # [Case 1] No match => Need to import top level module
-        #   data_type_1: bpy.types.Mesh
-        #   data_type_2: bgl.glCallLists()
-        #       => bpy.types
-        if match_level == 0:
-            module_path = ".".join(mod_names_1)
-        else:
-            rest_level_1 = len(mod_names_1) - match_level
-            rest_level_2 = len(mod_names_2) - match_level
-
-            # [Case 2] Match exactly => No need to import any modules
-            #   data_type_1: bgl.Buffer
-            #   data_type_2: bgl.glCallLists()
-            #       => None
-            if rest_level_1 == 0 and rest_level_2 == 0:
-                module_path = None
-            # [Case 3] Match partially (Same level)
-            #               => Need to import top level
-            #   data_type_1: bpy.types.Mesh
-            #   data_type_2: bpy.ops.automerge()
-            #       => bpy.types
-            elif rest_level_1 >= 1 and rest_level_2 >= 1:
-                module_path = ".".join(mod_names_1)
-            # [Case 4] Match partially (Upper level)
-            #               => Need to import top level
-            #   data_type_1: mathutils.Vector
-            #   data_type_2: mathutils.noise.cell
-            #       => mathutils
-            elif rest_level_1 == 0 and rest_level_2 >= 1:
-                module_path = ".".join(mod_names_1)
-            # [Case 5] Match partially (Lower level)
-            #               => Need to import top level
-            #   data_type_1: mathutils.noise.cell
-            #   data_type_2: mathutils.Vector
-            #       => mathutils.noise
-            elif rest_level_1 >= 1 and rest_level_2 == 0:
-                module_path = ".".join(mod_names_1)
-            else:
-                raise RuntimeError("Should not reach this condition.")
-
-        return module_path
-
-    def _add_dependency(self, dependencies: List['Dependency'],
-                        module_structure: 'ModuleStructure',
-                        data_type_1: str, data_type_2: str):
-
-        mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
-        base = get_base_name(data_type_1)
-        if mod is None:
-            return
-
-        target_dep = None
-        for dep in dependencies:
-            if dep.mod_name == mod:
-                target_dep = dep
-                break
-        if target_dep is None:
-            target_dep = Dependency()
-            target_dep.mod_name = mod
-            target_dep.add_type(base)
-            dependencies.append(target_dep)
-        else:
-            if base not in target_dep.type_lists:
-                target_dep.add_type(base)
-
-    def _build_dependencies(
-            self, package_structure: 'ModuleStructure',
-            info: 'GenerationInfoByTarget') -> List['Dependency']:
-        dependencies = []
-        for document in info.data:
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is None:
-                continue
-            module_name = module_node.element(NameNode).astext()
-
-            class_nodes = find_children(document, ClassNode)
-            for class_node in class_nodes:
-                class_name = class_node.element(NameNode).astext()
-                class_refs = class_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    self._add_dependency(
-                        dependencies, package_structure, class_ref.to_string(),
-                        f"{module_name}.{class_name}")
-
-            func_nodes = find_children(document, FunctionNode)
-            for func_node in func_nodes:
-                func_name = func_node.element(NameNode).astext()
-                class_refs = func_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    self._add_dependency(
-                        dependencies, package_structure, class_ref.to_string(),
-                        f"{module_name}.{func_name}")
-
-            data_nodes = find_children(document, DataNode)
-            for data_node in data_nodes:
-                data_name = data_node.element(NameNode).astext()
-                class_refs = data_node.traverse(ClassRef)
-                for class_ref in class_refs:
-                    self._add_dependency(
-                        dependencies, package_structure, class_ref.to_string(),
-                        f"{module_name}.{data_name}")
-
-        return dependencies
-
     def _apply_post_transform(
-            self, documents: List[nodes.document], **kwargs) -> List[nodes.document]:
+            self, documents: List[nodes.document]) -> List[nodes.document]:
         t = transformer.Transformer([
+            "target_file_combiner",
             "data_type_refiner",
             "cannonical_data_type_rewriter",
-        ], {
-            "data_type_refiner": {
-                "package_structure": kwargs["package_structure"],
-                "entry_points": kwargs["entry_points"],
-            },
-            "cannonical_data_type_rewriter": {
-                "package_structure": kwargs["package_structure"]
-            }
-        })
+            "dependency_builder",
+        ])
         documents = t.transform(documents)
 
         return documents
 
-    def package_structure(self) -> 'ModuleStructure':
-        return self._package_structure
-
-    def entry_points(self) -> List['EntryPoint']:
-        return self._entry_points
-
-    def generation_info(self) -> 'GenerationInfoByRule':
-        return self._generation_info
-
     def analyze(self):
         documents = self._analyze()
-        self._package_structure = self._build_module_structure(documents)
-        self._generation_info = self._build_generation_info(
-            documents, self._package_structure)
-        self._entry_points = self._build_entry_points(self._generation_info)
+        self._apply_post_transform(documents)
 
-        for target in self._generation_info.targets():
-            info = self._generation_info.get_target(target)
-            info.data = self._apply_post_transform(
-                info.data, package_structure=self._package_structure,
-                entry_points=self._entry_points)
-            self._generation_info.update_target(target, info)
-            info.dependencies = self._build_dependencies(
-                self._package_structure, info)
+        return documents
 
 
 class PackageGenerator:
@@ -1090,53 +714,32 @@ class PackageGenerator:
         self._rules: List['PackageGenerationRule'] = []
 
     # create module directories/files
-    def _create_empty_modules(self, package_structure: 'ModuleStructure'):
-        def make_module_dirs(base_path: str, structure: 'ModuleStructure'):
-            def make_dir(path, structure_: 'ModuleStructure',
-                         module_level: int):
-                for item in structure_.children():
-                    if len(item.children()) == 0:
-                        dir_path = path + "/" + item.name
-                        pathlib.Path(dir_path).mkdir(
-                            parents=True, exist_ok=True)
-                        if module_level == 0:
-                            self._create_py_typed_file(dir_path)
-                    elif len(item.children()) >= 1:
-                        dir_path = path + "/" + item.name
-                        pathlib.Path(dir_path).mkdir(
-                            parents=True, exist_ok=True)
-                        if module_level == 0:
-                            self._create_py_typed_file(dir_path)
-                        if dir_path == base_path:
-                            continue
-                        make_dir(dir_path, item, module_level+1)
-
-            make_dir(base_path, structure, 0)
-
-        make_module_dirs(self._config.output_dir, package_structure)
+    def _create_empty_modules(self, documents: List[nodes.document]):
+        for doc in documents:
+            target_filename = get_first_child(doc, TargetFileNode).astext()
+            dir_path = self._config.output_dir + "/" + target_filename[:target_filename.rfind("/")]
+            pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+            self._create_py_typed_file(dir_path)
 
     def _generate_by_rule(self,
                           rule: 'PackageGenerationRule',
-                          _: 'ModuleStructure',
-                          gen_info: 'GenerationInfoByRule'):
-        for target in gen_info.targets():
-            info = gen_info.get_target(target)
-            # pre process
-            info = rule.generator().pre_process(target, info)
+                          documents: List[nodes.document]):
+        for doc in documents:
+            target_filename = get_first_child(doc, TargetFileNode).astext()
+
             # dump if necessary
-            if self._config.dump:
-                rule.generator().dump_json(
-                    f"{self._config.output_dir}/{target}-dump.json", info)
+            # if self._config.dump:
+            #     rule.generator().dump_json(
+            #         f"{self._config.output_dir}/{target_filename}-dump.json", info)
             # generate python code
             rule.generator().generate(
-                f"{self._config.output_dir}/{target}", info,
+                f"{self._config.output_dir}/{target_filename}", doc,
                 self._config.style_format)
 
     def _generate(
             self, rule: 'PackageGenerationRule',
-            package_strcuture: 'ModuleStructure',
-            generation_info: 'GenerationInfoByRule'):
-        self._generate_by_rule(rule, package_strcuture, generation_info)
+            documents: List[nodes.document]):
+        self._generate_by_rule(rule, documents)
 
     def _create_py_typed_file(self, directory: str):
         filename = f"{directory}/py.typed"
@@ -1148,8 +751,7 @@ class PackageGenerator:
 
     def generate(self):
         analyzer = PackageAnalyzer(self._config, self._rules)
-        analyzer.analyze()
+        documents = analyzer.analyze()
 
-        self._create_empty_modules(analyzer.package_structure())
-        self._generate(self._rules[0],
-                       analyzer.package_structure(), analyzer.generation_info())
+        self._create_empty_modules(documents)
+        self._generate(self._rules[0], documents)

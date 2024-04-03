@@ -13,80 +13,17 @@ from ..analyzer.roles import (
     ClassRef,
 )
 from ..common import get_first_child, find_children
-
-
-class ModuleStructure:
-    def __init__(self):
-        self._name: str = None
-        self._children: List['ModuleStructure'] = []
-
-    @property
-    def name(self) -> str:
-        # this is a root of structure. name of root is None
-        if self._name is None:
-            raise RuntimeError("name must not call when self._name is None")
-        return self._name
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value
-
-    def add_child(self, child: 'ModuleStructure'):
-        self._children.append(child)
-
-    def children(self) -> List['ModuleStructure']:
-        return self._children
-
-    def to_dict(self) -> dict:
-        def to_dict_internal(c: List[dict], psc: List['ModuleStructure']):
-            for p in psc:
-                nd = {"name": p.name, "children": []}
-                to_dict_internal(nd["children"], p.children())
-                c.append(nd)
-
-        result = {"name": self._name, "children": []}
-        to_dict_internal(result["children"], self._children)
-
-        return result
-
-
-def get_base_name(data_type: str) -> str:
-    if data_type is None:
-        return None
-
-    sp = data_type.split(".")
-    return sp[-1]
-
-
-def get_module_name(data_type: str, module_structure: 'ModuleStructure') -> str:
-    if data_type is None:
-        return None
-
-    module_names = data_type.split(".")[:-1]
-
-    def search(
-            mod_names, structure: 'ModuleStructure', dtype: str,
-            is_first_level: bool = False):
-        if len(mod_names) == 0:
-            return dtype
-        for s in structure.children():
-            if s.name != mod_names[0]:
-                continue
-            if is_first_level:
-                return search(mod_names[1:], s, s.name)
-            return search(mod_names[1:], s, dtype + "." + s.name)
-        return ""
-
-    relative_type = search(module_names, module_structure, "", True)
-
-    return relative_type if relative_type != "" else None
+from .common import get_base_name, get_module_name, build_module_structure
 
 
 class CannonicalDataTypeRewriter(TransformerBase):
 
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
-        self._package_structure = kwargs["package_structure"]
+
+        self._package_structure = None
+        if "package_structure" in kwargs:
+            self._package_structure = kwargs["package_structure"]
 
     def _ensure_correct_data_type(self, data_type: str) -> str:
         mod_name = get_module_name(data_type, self._package_structure)
@@ -208,5 +145,8 @@ class CannonicalDataTypeRewriter(TransformerBase):
         return "cannonical_data_type_rewriter"
 
     def apply(self, **kwargs):
+        if self._package_structure is None:
+            self._package_structure = build_module_structure(self.documents)
+
         for document in self.documents:
             self._rewrite(document)

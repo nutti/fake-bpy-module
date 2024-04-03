@@ -7,9 +7,9 @@ from fake_bpy_module.docutils_based.transformer.common import ModuleStructure
 from .. import common
 
 
-class CannonicalDataTypeRewriterTest(common.FakeBpyModuleTestBase):
+class DependencyBuilderTest(common.FakeBpyModuleTestBase):
 
-    name = "CannonicalDataTypeRewriter"
+    name = "DependencyBuilder"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/../transformer_test_data")
@@ -20,9 +20,15 @@ class CannonicalDataTypeRewriterTest(common.FakeBpyModuleTestBase):
         self.assertEqual(actual, expect)
 
     def test_basic(self):
-        rst_files = ["cannonical_data_type_rewriter.rst"]
-        expect_files = ["cannonical_data_type_rewriter.xml"]
-        expect_transformed_files = ["cannonical_data_type_rewriter_transformed.xml"]
+        rst_files = [
+            "dependency_builder.rst",
+        ]
+        expect_files = [
+            "dependency_builder.xml",
+        ]
+        expect_transformed_files = [
+            "dependency_builder_transformed.xml",
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
@@ -52,16 +58,18 @@ class CannonicalDataTypeRewriterTest(common.FakeBpyModuleTestBase):
         module_b_structure.add_child(module_structure)
 
         self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        for i, document in enumerate(documents):
+            self.compare_with_file_contents(document.pformat(),
+                                            expect_files[i])
 
-        transformer = Transformer(["cannonical_data_type_rewriter"], {
-            "cannonical_data_type_rewriter": {
+        transformer = Transformer(["dependency_builder"], {
+            "dependency_builder": {
                 "package_structure": package_structure,
             }
         })
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), 1)
-        self.compare_with_file_contents(transformed[0].pformat(),
-                                        expect_transformed_files[0])
+        for i, document in enumerate(transformed):
+            self.compare_with_file_contents(document.pformat(),
+                                            expect_transformed_files[i])

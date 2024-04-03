@@ -86,17 +86,55 @@ class DataTypeMetadata:
                f"Default Value: {self.default_value}"
 
 
+class EntryPoint:
+    def __init__(self, module: str, name: str, type_: str):
+        self.module: str = module
+        self.name: str = name
+        self.type: str = type_
+
+    def fullname(self) -> str:
+        return f"{self.module}.{self.name}"
+
+
 class DataTypeRefiner(TransformerBase):
 
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
-        self._entry_points = kwargs["entry_points"]
+        self._entry_points = None
+        if "entry_points" in kwargs:
+            self._entry_points = kwargs["entry_points"]
 
         self._entry_points_cache: Dict[str, Set] = {}
-        self._entry_points_cache["uniq_full_names"] = {
-            e.fullname() for e in self._entry_points}
-        self._entry_points_cache["uniq_module_names"] = {
-            e.module for e in self._entry_points}
+
+    def _build_entry_points(self, documents: List[nodes.document]) -> List['EntryPoint']:
+        entry_points: List['EntryPoint'] = []
+
+        for document in documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+
+            module_name = module_node.element(NameNode).astext()
+
+            class_nodes = find_children(document, ClassNode)
+            for class_node in class_nodes:
+                class_name = class_node.element(NameNode).astext()
+                entry = EntryPoint(module_name, class_name, "class")
+                entry_points.append(entry)
+
+            func_nodes = find_children(document, FunctionNode)
+            for func_node in func_nodes:
+                func_name = func_node.element(NameNode).astext()
+                entry = EntryPoint(module_name, func_name, "function")
+                entry_points.append(entry)
+
+            data_nodes = find_children(document, DataNode)
+            for data_node in data_nodes:
+                data_name = data_node.element(NameNode).astext()
+                entry = EntryPoint(module_name, data_name, "constant")
+                entry_points.append(entry)
+
+        return entry_points
 
     def _parse_custom_data_type(
             self, string_to_parse: str, uniq_full_names: Set[str],
@@ -694,5 +732,13 @@ class DataTypeRefiner(TransformerBase):
         return "data_type_refiner"
 
     def apply(self, **kwargs):
+        if self._entry_points is None:
+            self._entry_points = self._build_entry_points(self.documents)
+
+        self._entry_points_cache["uniq_full_names"] = {
+            e.fullname() for e in self._entry_points}
+        self._entry_points_cache["uniq_module_names"] = {
+            e.module for e in self._entry_points}
+
         for document in self.documents:
             self._refine(document)
