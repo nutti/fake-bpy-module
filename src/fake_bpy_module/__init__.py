@@ -1,8 +1,7 @@
-
-from .analyzer import (
+from .analyzer.analyzer import (
     BaseAnalyzer,
 )
-from .generator import (
+from .generator.generator import (
     BaseGenerator,
     PyCodeGenerator,
     PyInterfaceGenerator,

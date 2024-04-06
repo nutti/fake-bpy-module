@@ -34,13 +34,21 @@ def main():
         fake_bpy_module_test.dag_test.DAGTest,
         fake_bpy_module_test.utils_test.UtilsTest,
 
-        fake_bpy_module_test.docutils_based.analyzer_test.BaseAnalyzerTest,
-        fake_bpy_module_test.docutils_based.transformer_test.TransformerTest,
-        fake_bpy_module_test.docutils_based.cannonical_data_type_rewriter_test.CannonicalDataTypeRewriterTest,  # pylint: disable=C0301
-        fake_bpy_module_test.docutils_based.data_type_refiner_test.DataTypeRefinerTest,
-        fake_bpy_module_test.docutils_based.dependency_builder_test.DependencyBuilderTest,
-        fake_bpy_module_test.docutils_based.mod_applier_test.ModApplierTest,
-        fake_bpy_module_test.docutils_based.target_file_combiner_test.TargetFileCombinerTest,
+        fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,
+
+        fake_bpy_module_test.transformer_test.BaseClassFixtureTest,
+        fake_bpy_module_test.transformer_test.BpyAppHandlersDataTypeAdderTest,
+        fake_bpy_module_test.transformer_test.BpyContextVariableConverterTest,
+        fake_bpy_module_test.transformer_test.BpyOpsOverrideParametersAdderTest,
+        fake_bpy_module_test.transformer_test.BpyTypesClassBaseClassRebaserTest,
+        fake_bpy_module_test.transformer_test.CannonicalDataTypeRewriterTest,
+        fake_bpy_module_test.transformer_test.DataTypeRefinerTest,
+        fake_bpy_module_test.transformer_test.DependencyBuilderTest,
+        fake_bpy_module_test.transformer_test.ModApplierTest,
+        fake_bpy_module_test.transformer_test.ModuleLevelAttributeFixtureTest,
+        fake_bpy_module_test.transformer_test.RstSpecificNodeCleanerTest,
+        fake_bpy_module_test.transformer_test.TargetFileCombinerTest,
+        fake_bpy_module_test.transformer_test.FormatValidatorTest,
     ]
 
     suite = unittest.TestSuite()
