@@ -1,6 +1,7 @@
 import pathlib
 import abc
 import io
+import graphlib
 from typing import List
 from collections import OrderedDict
 import subprocess
@@ -39,10 +40,6 @@ from ..analyzer.analyzer import (
 )
 from ..utils import (
     remove_unencodable,
-)
-from ..dag import (
-    DAG,
-    topological_sort
 )
 
 INDENT = "    "
@@ -160,29 +157,31 @@ class BaseGenerator(metaclass=abc.ABCMeta):
             + sorted(all_class_nodes, key=lambda n: n.element(NameNode).astext())
 
         # Sort class data (with class inheritance dependencies)
-        graph = DAG()
-        class_name_to_nodes = OrderedDict()
+        class_name_to_node = OrderedDict()
         for class_node in all_class_nodes:
             class_name = class_node.element(NameNode).astext()
-            class_name_to_nodes[class_name] = graph.make_node(class_node)
-        for class_node in all_class_nodes:
-            class_name = class_node.element(NameNode).astext()
-            src_node = class_name_to_nodes[class_name]
+            class_name_to_node[class_name] = class_node
 
+        graph = {}
+        for class_node in all_class_nodes:
+            src_name = class_node.element(NameNode).astext()
             base_class_list_node = class_node.element(BaseClassListNode)
             base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+
+            dst_names = []
             for base_class_node in base_class_nodes:
                 dtype_list_node = base_class_node.element(DataTypeListNode)
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                 dtypes = [dt.astext().replace("`", "") for dt in dtype_nodes]
 
                 for dtype in dtypes:
-                    dst_node = class_name_to_nodes.get(dtype)
-                    if dst_node:
-                        graph.make_edge(src_node, dst_node)
+                    if dtype in class_name_to_node:
+                        dst_names.append(dtype)
+            graph[src_name] = dst_names
 
-        sorted_nodes = topological_sort(graph)
-        sorted_class_nodes = [node.data() for node in sorted_nodes]
+        sorter = graphlib.TopologicalSorter(graph)
+        sorted_class_names = list(sorter.static_order())
+        sorted_class_nodes = [class_name_to_node[name] for name in sorted_class_names]
 
         # Sort function data
         sorted_function_nodes = sorted(

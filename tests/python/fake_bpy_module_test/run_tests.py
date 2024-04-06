@@ -31,7 +31,6 @@ def main():
     import fake_bpy_module_test     # pylint: disable=C0415
 
     test_cases = [
-        fake_bpy_module_test.dag_test.DAGTest,
         fake_bpy_module_test.utils_test.UtilsTest,
 
         fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,
