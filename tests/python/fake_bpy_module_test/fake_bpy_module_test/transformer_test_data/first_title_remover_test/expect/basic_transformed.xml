@@ -1,0 +1,13 @@
+<document ids="first-title" names="first\ title" source="<string>" title="First Title">
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                DATA_1 type

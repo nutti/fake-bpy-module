@@ -13,7 +13,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
     name = "BaseAnalyzerTest"
     module_name = __module__
     data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/analyzer_test_data")
+        f"{os.path.dirname(__file__)}/analyzer_test_data/base_analyzer_test")
 
     def compare_with_file_contents(self, actual: str, expect_file: str):
         with open(expect_file, "r", encoding="utf-8") as f:
@@ -31,9 +31,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_only_base_class(self):
         rst_files = ["only_base_class.rst"]
@@ -46,9 +46,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_only_module_name(self):
         rst_files = ["only_module_class.rst"]
@@ -61,9 +61,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_single_constant(self):
         rst_files = ["single_constant.rst"]
@@ -76,9 +76,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_multiple_constants(self):
         rst_files = ["multiple_constants.rst"]
@@ -91,9 +91,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_single_function(self):
         rst_files = ["single_function.rst"]
@@ -106,9 +106,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_multiple_functions(self):
         rst_files = ["multiple_functions.rst"]
@@ -121,9 +121,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_single_class(self):
         rst_files = ["single_class.rst"]
@@ -136,9 +136,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_multiple_classes(self):
         rst_files = ["multiple_classes.rst"]
@@ -151,9 +151,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_noisy_1(self):
         rst_files = ["noisy_1.rst"]
@@ -166,9 +166,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_noisy_2(self):
         rst_files = ["noisy_2.rst"]
@@ -181,9 +181,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_invalid_rst_format_1(self):
         rst_files = ["invalid_rst_format_1.rst"]
@@ -231,9 +231,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("2.90")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_bge_support(self):
         rst_files = ["bge_support.rst"]
@@ -246,9 +246,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("0.2.5")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     # TODO: move to transform_test.py
     # pylint: disable=W0101
@@ -265,9 +265,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
         return
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_invalid_function(self):
         rst_files = ["invalid_function.rst"]
@@ -280,9 +280,9 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("0.2.5")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
     def test_invalid_function_arg_order(self):
         rst_files = ["invalid_function_arg_order.rst"]
@@ -295,6 +295,6 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         analyzer.set_target_version("0.2.5")
         documents = analyzer.analyze(rst_files)
 
-        self.assertEqual(len(documents), 1)
-        self.compare_with_file_contents(documents[0].pformat(),
-                                        expect_files[0])
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)

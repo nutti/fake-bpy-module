@@ -1,0 +1,20 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                DATA_1 type
+    <paragraph>
+        Inherited Functions
+    <paragraph>
+        <bullet_list bullet="*">
+            <list_item>
+                <paragraph>
+                    To be removed

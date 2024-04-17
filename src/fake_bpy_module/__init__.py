@@ -1,10 +1,12 @@
 from .analyzer.analyzer import (
     BaseAnalyzer,
 )
+from .generator.writers import (
+    BaseWriter,
+    PyCodeWriter,
+    PyInterfaceWriter,
+)
 from .generator.generator import (
-    BaseGenerator,
-    PyCodeGenerator,
-    PyInterfaceGenerator,
     PackageGeneratorConfig,
     PackageGenerator,
     PackageGenerationRule,

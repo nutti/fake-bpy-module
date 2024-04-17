@@ -15,11 +15,11 @@ MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 def create_generator(
         name: str, target_files: List[str], mod_files: List[str],
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
-    generator: 'fbm.BaseGenerator' = None
+    generator: fbm.BaseWriter = None
     if config.output_format == ".py":
-        generator = fbm.PyCodeGenerator()
+        generator = fbm.PyCodeWriter()
     elif config.output_format == "pyi":
-        generator = fbm.PyInterfaceGenerator()
+        generator = fbm.PyInterfaceWriter()
 
     analyzer = fbm.BaseAnalyzer(mod_files)
 

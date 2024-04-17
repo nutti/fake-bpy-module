@@ -31,9 +31,14 @@ def main():
     import fake_bpy_module_test     # pylint: disable=C0415
 
     test_cases = [
-        fake_bpy_module_test.utils_test.UtilsTest,
-
         fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,
+
+        fake_bpy_module_test.generator_test.CodeWriterIndentTest,
+        fake_bpy_module_test.generator_test.CodeWriterTest,
+        fake_bpy_module_test.generator_test.SortedEntryPointNodesTest,
+        fake_bpy_module_test.generator_test.PyCodeWriterTest,
+        fake_bpy_module_test.generator_test.PyInterfaceWriterTest,
+        fake_bpy_module_test.generator_test.CodeDocumentNodeTranslatorTest,
 
         fake_bpy_module_test.transformer_test.BaseClassFixtureTest,
         fake_bpy_module_test.transformer_test.BpyAppHandlersDataTypeAdderTest,
@@ -41,13 +46,19 @@ def main():
         fake_bpy_module_test.transformer_test.BpyOpsOverrideParametersAdderTest,
         fake_bpy_module_test.transformer_test.BpyTypesClassBaseClassRebaserTest,
         fake_bpy_module_test.transformer_test.CannonicalDataTypeRewriterTest,
+        fake_bpy_module_test.transformer_test.CodeDocumentRefinerTest,
         fake_bpy_module_test.transformer_test.DataTypeRefinerTest,
         fake_bpy_module_test.transformer_test.DependencyBuilderTest,
         fake_bpy_module_test.transformer_test.ModApplierTest,
         fake_bpy_module_test.transformer_test.ModuleLevelAttributeFixtureTest,
         fake_bpy_module_test.transformer_test.RstSpecificNodeCleanerTest,
         fake_bpy_module_test.transformer_test.TargetFileCombinerTest,
+        fake_bpy_module_test.transformer_test.FirstTitleRemoverTest,
         fake_bpy_module_test.transformer_test.FormatValidatorTest,
+
+        fake_bpy_module_test.integration_test.IntegrationTest,
+
+        fake_bpy_module_test.utils_test.UtilsTest,
     ]
 
     suite = unittest.TestSuite()

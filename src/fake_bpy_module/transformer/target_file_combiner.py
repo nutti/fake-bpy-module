@@ -43,6 +43,12 @@ class GenerationInfo:
 
 class TargetFileCombiner(TransformerBase):
 
+    def __init__(self, documents: List[nodes.document], **kwargs):
+        super().__init__(documents, **kwargs)
+        self._package_structure: ModuleStructure = None
+        if "package_structure" in kwargs:
+            self._package_structure = kwargs["package_structure"]
+
     def _build_generation_info(
             self, documents: List[nodes.document],
             module_structure: ModuleStructure) -> GenerationInfoByModule:
@@ -139,7 +145,10 @@ class TargetFileCombiner(TransformerBase):
         return "target_file_combiner"
 
     def apply(self, **kwargs):
-        structure = build_module_structure(self.documents)
+        if self._package_structure is None:
+            structure = build_module_structure(self.documents)
+        else:
+            structure = self._package_structure
         new_documents = self._build_generation_info(self.documents, structure)
 
         self.documents.clear()

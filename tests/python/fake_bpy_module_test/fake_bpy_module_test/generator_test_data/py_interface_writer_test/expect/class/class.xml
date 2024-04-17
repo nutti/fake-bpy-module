@@ -1,0 +1,152 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        float
+            <attribute>
+                <name>
+                    data_1
+                <description>
+                    data_1 description
+                <data-type-list>
+                    <data-type>
+                        int
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                    method_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                float
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            method_1 arg_2 description
+                        <default-value>
+                            "test"
+                        <data-type-list>
+                            <data-type>
+                                str
+                <return>
+                    <description>
+                        method_1 return description
+                    <data-type-list>
+                        <data-type>
+                            str
+            <function function_type="classmethod">
+                <name>
+                    classmethod_1
+                <description>
+                    classmethod_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            classmethod_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                float
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            classmethod_1 arg_2 description
+                        <default-value>
+                            123
+                        <data-type-list>
+                            <data-type>
+                                int
+                <return>
+                    <description>
+                        classmethod_1 return description
+                    <data-type-list>
+                        <data-type>
+                            str
+            <function function_type="staticmethod">
+                <name>
+                    staticmethod_1
+                <description>
+                    staticmethod_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            staticmethod_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                float
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            staticmethod_1 arg_2 description
+                        <default-value>
+                            (0, 0)
+                        <data-type-list>
+                            <data-type>
+                                typing.Tuple
+                <return>
+                    <description>
+                        staticmethod_1 return description
+                    <data-type-list>
+                        <data-type>
+                            str
+            <function function_type="function">
+                <name>
+                    function_1
+                <description>
+                    function_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            function_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                float
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            function_1 arg_2 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                int
+                <return>
+                    <description>
+                        function_1 return description
+                    <data-type-list>
+                        <data-type>
+                            str

@@ -345,6 +345,8 @@ class DataTypeRefiner(TransformerBase):
         # Ex: int in [-inf, inf], default 0, (readonly)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_IN.match(dtype_str):
             return [make_data_type_node(m.group(1))]
+        if dtype_str in ("int", "float"):
+            return [make_data_type_node(dtype_str)]
         if dtype_str in ("unsigned int", "int (boolean)"):
             return [make_data_type_node("int")]
         if dtype_str == "int sequence":
