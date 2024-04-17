@@ -1,0 +1,136 @@
+<document ids="title" names="title" source="<string>" title="Title">
+    <code-document>
+        <title>
+            Title
+        <paragraph>
+            Paragraph: 
+            <emphasis>
+                Emphasis
+        <bullet_list bullet="*">
+            <list_item>
+                <paragraph>
+                    Bullet List Item 1
+                <bullet_list bullet="*">
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 1-1
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 1-2
+            <list_item>
+                <paragraph>
+                    Bullet List Item 2
+                <bullet_list bullet="*">
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 2-1
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 2-2
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 2-3
+            <list_item>
+                <paragraph>
+                    Bullet List Item 3
+                <bullet_list bullet="*">
+                    <list_item>
+                        <paragraph>
+                            Bullet List Item 3-1
+        <enumerated_list enumtype="arabic" prefix="" suffix=".">
+            <list_item>
+                <paragraph>
+                    Enumerated List Item 1
+                <enumerated_list enumtype="arabic" prefix="" suffix=".">
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 1-1
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 1-2
+            <list_item>
+                <paragraph>
+                    Enumerated List Item 2
+                <enumerated_list enumtype="arabic" prefix="" suffix=".">
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 2-1
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 2-2
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 2-3
+            <list_item>
+                <paragraph>
+                    Enumerated List Item 3
+                <enumerated_list enumtype="arabic" prefix="" suffix=".">
+                    <list_item>
+                        <paragraph>
+                            Enumerated List Item 3-1
+        <field_list>
+            <field>
+                <field_name>
+                    field-list-item-1
+                <field_body>
+                    <paragraph>
+                        Field List Item 1 Contents
+            <field>
+                <field_name>
+                    field-list-item-2
+                <field_body>
+                    <paragraph>
+                        Field List Item 2 Contents
+        <definition_list>
+            <definition_list_item>
+                <term>
+                    Definition List Item 1
+                <definition>
+                    <paragraph>
+                        Definition List Item 1 Contents
+            <definition_list_item>
+                <term>
+                    Definition List Item 2
+                <definition>
+                    <paragraph>
+                        Definition List Item 2 Contents
+        <literal_block xml:space="preserve">
+            Literal Block Contents
+        <paragraph>
+            Module: 
+            <module-ref>
+                module_ref
+            , Ref: 
+            <ref-ref>
+                ref_ref
+            , Class: 
+            <class-ref>
+                class_ref
+            
+            Function: 
+            <function-ref>
+                function_ref
+            , Data: 
+            <data-ref>
+                data_ref
+            , Const: 
+            <const-ref>
+                const_ref
+        <note>
+            <paragraph>
+                Note Contents
+        <warning>
+            <paragraph>
+                Warning Contents
+        <line_block>
+            <line>
+                Line Block Contents 1
+            <line>
+                Line Block Contents 2
+        <block_quote>
+            <paragraph>
+                Quote Block Contents 1
+                Quote Block Contents 2
+        <paragraph>
+            <target ids="target" names="target">
+                Target

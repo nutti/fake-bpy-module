@@ -1,0 +1,17 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    module_2.ClassA
+    <dependency-list>
+        <dependency>
+            module_2

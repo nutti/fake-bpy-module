@@ -239,6 +239,20 @@
                 int in [-inf, inf], default 0
     <data>
         <name>
+            data_int
+        <description>
+        <data-type-list>
+            <data-type>
+                int
+    <data>
+        <name>
+            data_float
+        <description>
+        <data-type-list>
+            <data-type>
+                float
+    <data>
+        <name>
             data_unsigned_int
         <description>
         <data-type-list>

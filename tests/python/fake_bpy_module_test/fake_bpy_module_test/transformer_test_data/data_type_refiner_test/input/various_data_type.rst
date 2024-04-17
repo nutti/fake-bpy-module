@@ -123,6 +123,14 @@
 
    :type: int in [-inf, inf], default 0
 
+.. data:: data_int
+
+   :type: int
+
+.. data:: data_float
+
+   :type: float
+
 .. data:: data_unsigned_int
 
    :type: unsigned int

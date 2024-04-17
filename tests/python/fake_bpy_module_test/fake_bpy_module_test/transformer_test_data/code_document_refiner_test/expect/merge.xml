@@ -1,0 +1,19 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <warning>
+        <paragraph>
+            Warning Contents
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                DATA_1 type
+    <note>
+        <paragraph>
+            Note Contents

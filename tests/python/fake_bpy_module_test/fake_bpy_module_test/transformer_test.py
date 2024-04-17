@@ -327,6 +327,95 @@ class CannonicalDataTypeRewriterTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
+class CodeDocumentRefinerTest(TransformerTestBase):
+
+    name = "CodeDocumentRefinerTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/transformer_test_data/code_document_refiner_test")
+
+    def test_merge(self):
+        rst_files = ["merge.rst"]
+        expect_files = ["merge.xml"]
+        expect_transformed_files = ["merge_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer([
+            "rst_specific_node_cleaner",
+            "code_document_refiner",
+        ])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_remove_trivial_nodes(self):
+        rst_files = ["remove_trivial_nodes.rst"]
+        expect_files = ["remove_trivial_nodes.xml"]
+        expect_transformed_files = ["remove_trivial_nodes_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer([
+            "rst_specific_node_cleaner",
+            "code_document_refiner",
+        ])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_remove_empty_nodes(self):
+        rst_files = ["remove_empty_nodes.rst"]
+        expect_files = ["remove_empty_nodes.xml"]
+        expect_transformed_files = ["remove_empty_nodes_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer([
+            "rst_specific_node_cleaner",
+            "code_document_refiner",
+        ])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+
 class DataTypeRefinerTest(TransformerTestBase):
 
     name = "DataTypeRefinerTest"
@@ -529,6 +618,66 @@ class DependencyBuilderTest(TransformerTestBase):
                 "package_structure": package_structure,
             }
         })
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+
+class FirstTitleRemoverTest(TransformerTestBase):
+
+    name = "FirstTitleRemoverTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/transformer_test_data/first_title_remover_test")
+
+    def test_basic(self):
+        rst_files = ["basic.rst"]
+        expect_files = ["basic.xml"]
+        expect_transformed_files = ["basic_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer([
+            "first_title_remover",
+        ])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_multiple_titles(self):
+        rst_files = ["multiple_titles.rst"]
+        expect_files = ["multiple_titles.xml"]
+        expect_transformed_files = ["multiple_titles_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer([
+            "first_title_remover",
+        ])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))

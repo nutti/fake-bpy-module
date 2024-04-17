@@ -1,0 +1,17 @@
+<document source="<string>">
+    <section ids="first-title" names="first\ title">
+        <module>
+            <name>
+                module_1
+            <description>
+        <data>
+            <name>
+                DATA_1
+            <description>
+                DATA_1 description
+            <data-type-list>
+                <data-type>
+                    DATA_1 type
+    <section ids="second-title" names="second\ title">
+        <title>
+            Second Title
