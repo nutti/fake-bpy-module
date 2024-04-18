@@ -27,7 +27,7 @@ from .nodes import (
 )
 
 from .. import configuration
-from ..utils import append_child
+from ..utils import append_child, split_string_by_comma
 
 
 def parse_field_body(fbody_node: nodes.field_body) -> DataTypeNode:
@@ -184,8 +184,6 @@ class FunctionDirective(rst.Directive):
     has_content = True
     final_argument_whitespace = True
 
-    _ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]+?)\[,(.*)\]$")
-    _ARG_LIST_2_REGEX = re.compile(r"^\[([a-zA-Z0-9_]+)\]$")
     _ARG_REPLACE_1_REGEX = re.compile(r"<class '([a-zA-Z]+?)'>")
     _ARG_REPLACE_2_REGEX = re.compile(r"<built-in function ([a-zA-Z]+?)>")
     _ARG_REPLACE_3_REGEX = re.compile(r"\\")
@@ -196,45 +194,6 @@ class FunctionDirective(rst.Directive):
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
     _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+(arg|rtype)\s*(\S*)")
 
-    def _parse_parameters(self, line: str) -> list:
-        level = 0
-        params = []
-        current = ""
-        line_to_parse = line
-
-        # Handle Case:
-        #   "arg1[, arg2]" -> "arg1, arg2"
-        m = self._ARG_LIST_1_REGEX.match(line_to_parse)
-        if m:
-            line_to_parse = f"{m.group(1)},{m.group(2)}"
-        # Handle Case:
-        #   "[arg1]"
-        m = self._ARG_LIST_2_REGEX.match(line_to_parse)
-        if m:
-            line_to_parse = f"{m.group(1)}"
-
-        for c in line_to_parse:
-            if c in ("(", "{", "["):
-                level += 1
-            elif c in (")", "}", "]"):
-                level -= 1
-                if level < 0:
-                    raise ValueError(f"Level must be >= 0 but {level} "
-                                     f"(Line: {line})")
-            if level == 0 and c == ",":
-                params.append(current.strip())
-                current = ""
-            else:
-                current += c
-
-        if level != 0:
-            raise ValueError(f"Level must be == 0 but {level} (Line: {line})")
-
-        if current != "":
-            params.append(current.strip())
-
-        return params
-
     def _parse_function_def(self, content) -> list:
         content = self._ARG_REPLACE_1_REGEX.sub("\\1", content)
         content = self._ARG_REPLACE_2_REGEX.sub("\\1", content)
@@ -243,7 +202,7 @@ class FunctionDirective(rst.Directive):
 
         m = self._ARG_LIST_FROM_FUNC_DEF_REGEX.search(content)
         name = m.group(1)
-        params = self._parse_parameters(m.group(2))
+        params = split_string_by_comma(m.group(2))
 
         # (test=DirectivesTest.test_invalid_function_arg_order)
         # Handle case:

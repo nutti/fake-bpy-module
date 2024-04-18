@@ -4,7 +4,7 @@ from typing import List, TypeVar, Type
 from docutils import nodes
 
 
-_ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]+?)\[,(.*)\]$")
+_ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]*?)\[,(.*)\]$")
 _ARG_LIST_2_REGEX = re.compile(r"^\[([a-zA-Z0-9_]+)\]$")
 
 T = TypeVar("T", bound=nodes.Node)
@@ -33,11 +33,6 @@ def output_log(level: int, message: str):
 
 
 def remove_unencodable(str_: str) -> str:
-    """
-    :type str_: str
-    :param str_: string to remove unencodable character
-    :return: string removed unencodable character
-    """
     s = str_.replace("\xb2", "")
     s = s.replace("\u2013", "")
     s = s.replace("\u2019", "")
@@ -67,7 +62,7 @@ def append_child(node: nodes.Node, item: nodes.Node) -> nodes.Node:
 # pylint: disable=R0912,R0915
 def split_string_by_comma(line: str) -> list:
     level = 0
-    params = []
+    splited = []
     current = ""
     line_to_parse = line
 
@@ -89,7 +84,7 @@ def split_string_by_comma(line: str) -> list:
                 raise ValueError(
                     f"Level must be >= 0 but {level} (Line: {line})")
         if level == 0 and c == ",":
-            params.append(current)
+            splited.append(current)
             current = ""
         else:
             current += c
@@ -99,6 +94,6 @@ def split_string_by_comma(line: str) -> list:
             f"Level must be == 0 but {level} (Line: {line})")
 
     if current != "":
-        params.append(current)
+        splited.append(current)
 
-    return params
+    return splited
