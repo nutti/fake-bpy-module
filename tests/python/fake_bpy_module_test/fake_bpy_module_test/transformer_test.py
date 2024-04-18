@@ -1,11 +1,17 @@
 import os
+from typing import List
 from docutils import nodes
 from docutils.core import publish_doctree
 
 # pylint: disable=E0401
 from fake_bpy_module.analyzer.analyzer import BaseAnalyzer
 from fake_bpy_module.transformer.transformer import Transformer
-from fake_bpy_module.transformer.utils import ModuleStructure
+from fake_bpy_module.transformer.utils import (
+    ModuleStructure,
+    build_module_structure,
+    get_base_name,
+    get_module_name,
+)
 from fake_bpy_module.transformer.data_type_refiner import EntryPoint
 from . import common
 
@@ -184,7 +190,7 @@ class FormatValidatorTest(TransformerTestBase):
     module_name = __module__
 
     def test_basic(self):
-        document: nodes.document = publish_doctree(""".. module:: module.a
+        document: nodes.document = publish_doctree(""".. module:: module_1
 
 .. warning::
 
@@ -922,3 +928,156 @@ class TargetFileCombinerTest(TransformerTestBase):
         self.assertEqual(len(transformed), len(expect_transformed_files))
         for trans, expect in zip(transformed, expect_transformed_files):
             self.compare_with_file_contents(trans.pformat(), expect)
+
+
+class ModuleStructureTest(common.FakeBpyModuleTestBase):
+
+    name = "ModuleStructureTest"
+    module_name = __module__
+
+    def test_root_only(self):
+        root = ModuleStructure()
+
+        with self.assertRaises(RuntimeError):
+            _ = root.name
+
+        expect_dict = {
+            "name": None,
+            "children": [],
+        }
+
+        self.assertDictEqual(root.to_dict(), expect_dict)
+
+    def test_one_child(self):
+        root = ModuleStructure()
+
+        module_1 = ModuleStructure()
+        module_1.name = "module_1"
+        root.add_child(module_1)
+
+        expect_dict = {
+            "name": None,
+            "module_1": [
+                {
+                    "name": "module_1",
+                    "module_1": [],
+                }
+            ]
+        }
+
+        self.assertEqual(module_1.name, "module_1")
+        self.assertEqual(root.children(), [module_1])
+        self.assertDictEqual(root.to_dict(), expect_dict)
+
+    def test_multiple_children(self):
+        root = ModuleStructure()
+
+        module_1 = ModuleStructure()
+        module_1.name = "module_1"
+        root.add_child(module_1)
+
+        module_2 = ModuleStructure()
+        module_2.name = "module_2"
+        root.add_child(module_2)
+
+        submodule_1 = ModuleStructure()
+        submodule_1.name = "submodule_1"
+        module_2.add_child(submodule_1)
+
+        expect_dict = {
+            "name": None,
+            "children": [
+                {
+                    "name": "module_1",
+                    "children": [],
+                },
+                {
+                    "name": "module_2",
+                    "children": [
+                        {
+                            "name": "submodule_1",
+                            "children": [],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        self.assertEqual(module_1.name, "module_1")
+        self.assertEqual(module_2.name, "module_2")
+        self.assertEqual(submodule_1.name, "submodule_1")
+        self.assertEqual(root.children(), [module_1, module_2])
+        self.assertEqual(module_1.children(), [])
+        self.assertEqual(module_2.children(), [submodule_1])
+        self.assertDictEqual(root.to_dict(), expect_dict)
+
+
+class UtilsTest(TransformerTestBase):
+
+    name = "UtilsTest"
+    module_name = __module__
+
+    def test_build_module_structure(self):
+        documents: List[nodes.document] = []
+        documents.append(publish_doctree(".. module:: module_1"))
+        documents.append(publish_doctree(".. module:: module_1.submodule_1"))
+        documents.append(publish_doctree(".. module:: module_1.submodule_2"))
+        documents.append(publish_doctree(".. module:: module_1.submodule_2.subsubmodule_1"))
+
+        expect_dict = {
+            "name": None,
+            "children": [
+                {
+                    "name": "module_1",
+                    "children": [
+                        {
+                            "name": "submodule_1",
+                            "children": [],
+                        },
+                        {
+                            "name": "submodule_2",
+                            "children": [
+                                {
+                                    "name": "subsubmodule_1",
+                                    "children": [],
+                                }
+                            ],
+                        }
+                    ]
+                }
+            ]
+        }
+
+        module_structure: ModuleStructure = build_module_structure(documents)
+        self.assertEqual(len(module_structure.children()), 1)
+        root = module_structure.children()[0]
+        self.assertEqual(root.name, "module_1")
+        self.assertEqual(len(root.children()), 2)
+        children = root.children()
+        self.assertEqual(children[0].name, "submodule_1")
+        self.assertEqual(children[1].name, "submodule_2")
+        self.assertEqual(len(children[0].children()), 0)
+        self.assertEqual(len(children[1].children()), 1)
+        grand_children = children[1].children()
+        self.assertEqual(grand_children[0].name, "subsubmodule_1")
+        self.assertDictEqual(module_structure.to_dict(), expect_dict)
+
+    def test_get_base_name(self):
+        self.assertEqual(get_base_name("module_1.function_1"), "function_1")
+        self.assertEqual(get_base_name("module_1.submodule_1.DATA_1"), "DATA_1")
+
+    def test_get_module_name(self):
+        package = ModuleStructure()
+        module = ModuleStructure()
+        module.name = "module_1"
+        submodule = ModuleStructure()
+        submodule.name = "submodule_1"
+        module.add_child(submodule)
+        package.add_child(module)
+
+        self.assertIsNone(get_module_name(None, package))
+        self.assertEqual(
+            get_module_name("module_1.submodule_1.ClassA", package),
+            "module_1.submodule_1")
+        self.assertIsNone(get_module_name("module_1.submodule_2.ClassA", package))
+        self.assertEqual(get_module_name("module_1.ClassB", package), "module_1")

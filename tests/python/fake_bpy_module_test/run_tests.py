@@ -55,6 +55,7 @@ def main():
         fake_bpy_module_test.transformer_test.TargetFileCombinerTest,
         fake_bpy_module_test.transformer_test.FirstTitleRemoverTest,
         fake_bpy_module_test.transformer_test.FormatValidatorTest,
+        fake_bpy_module_test.transformer_test.UtilsTest,
 
         fake_bpy_module_test.integration_test.IntegrationTest,
 
