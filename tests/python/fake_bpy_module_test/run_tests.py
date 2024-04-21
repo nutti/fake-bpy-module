@@ -48,6 +48,7 @@ def main():
         fake_bpy_module_test.transformer_test.CannonicalDataTypeRewriterTest,
         fake_bpy_module_test.transformer_test.CodeDocumentRefinerTest,
         fake_bpy_module_test.transformer_test.DataTypeRefinerTest,
+        fake_bpy_module_test.transformer_test.DefaultValueFillerTest,
         fake_bpy_module_test.transformer_test.DependencyBuilderTest,
         fake_bpy_module_test.transformer_test.ModApplierTest,
         fake_bpy_module_test.transformer_test.ModuleLevelAttributeFixtureTest,

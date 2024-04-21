@@ -1,0 +1,57 @@
+<document source="<string>">
+    <module>
+        <name>
+            bpy.type
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_optional
+                <description>
+                    function_1 arg_optional description
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        int
+            <argument argument_type="arg">
+                <name>
+                    arg_readonly
+                <description>
+                    function_1 arg_readonly description
+                <default-value>
+                <data-type-list>
+                    <data-type option="readonly">
+                        int
+            <argument argument_type="arg">
+                <name>
+                    arg_never_none
+                <description>
+                    function_1 arg_never_none description
+                <default-value>
+                <data-type-list>
+                    <data-type option="never none">
+                        int
+        <return>
+            <description>
+            <data-type-list>
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_2 arg_1 description
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional,readonly,never none">
+                        int
+        <return>
+            <description>
+            <data-type-list>

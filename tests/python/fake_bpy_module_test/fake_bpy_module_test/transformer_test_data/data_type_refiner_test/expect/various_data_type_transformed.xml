@@ -8,14 +8,14 @@
             data_space
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_list_of_callable
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[typing.Callable[[
                 <class-ref>
                     bpy.types.Scene
@@ -31,7 +31,7 @@
                     attr_self_type
                 <description>
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         <class-ref>
                             module_1.ClassA
         <function-list>
@@ -40,56 +40,56 @@
             data_type
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_object
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_function
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_function_prototype
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_any_type_1
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_any_type_2
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_any_type_3
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Any
     <data>
         <name>
             data_d_vector
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -97,7 +97,7 @@
             data_4x4_matrix
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix
     <data>
@@ -105,103 +105,103 @@
             data_enum_in_default
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 str
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_enum_in
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 str
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_set_in
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Set[str]
-            <data-type>
+            <data-type option="never none">
                 typing.Set[int]
     <data>
         <name>
             data_enum_in_rna
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 str
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_enumerated_constant
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Set[str]
-            <data-type>
+            <data-type option="never none">
                 typing.Set[int]
     <data>
         <name>
             data_boolean_default
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 bool
     <data>
         <name>
             data_boolean_array_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[bool]
     <data>
         <name>
             data_boolean
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 bool
     <data>
         <name>
             data_bool
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 bool
     <data>
         <name>
             data_bytes
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 bytes
     <data>
         <name>
             data_byte_sequence
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Sequence[bytes]
     <data>
         <name>
             data_callable
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Callable
     <data>
         <name>
             data_mathutils_values
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Sequence[float]
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -209,7 +209,7 @@
             data_number_array_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bpy.types.bpy_prop_array
                 [int]
@@ -224,7 +224,7 @@
                 <description>
                 <default-value>
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         typing.Iterable[float]
         <return>
             <description>
@@ -234,11 +234,11 @@
             data_mathutils_array_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[float]
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple[float, float, float]
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -246,9 +246,9 @@
             data_float_triplet
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Sequence[float]
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -256,62 +256,62 @@
             data_number_in
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_int
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_float
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 float
     <data>
         <name>
             data_unsigned_int
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_int_boolean
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 int
     <data>
         <name>
             data_int_sequence
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Sequence[int]
     <data>
         <name>
             data_float_multi_dimensional_array_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[typing.List[float]]
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple[typing.Tuple[float, float, float], typing.Tuple[float, float, float], typing.Tuple[float, float, float]]
     <data>
         <name>
             data_mathutils_matrix_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[typing.List[float]]
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple[typing.Tuple[float, float, float], typing.Tuple[float, float, float], typing.Tuple[float, float, float]]
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix
     <data>
@@ -319,42 +319,42 @@
             data_double
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 float
     <data>
         <name>
             data_double_float
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 float
     <data>
         <name>
             data_string
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 str
     <data>
         <name>
             data_tuple
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple
     <data>
         <name>
             data_sequence
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Sequence
     <data>
         <name>
             data_bgl_buffer
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bgl.Buffer
     <data>
@@ -362,7 +362,7 @@
             data_value_bpy_prop_collection_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     refined_module_a.RefinedClassA
     <data>
@@ -370,23 +370,23 @@
             data_set_of_strings
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Set[str]
     <data>
         <name>
             data_sequence_of_string_tuples_or_a_function
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Iterable[typing.Iterable[str]]
-            <data-type>
+            <data-type option="never none">
                 typing.Callable
     <data>
         <name>
             data_sequence_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Iterable[
                 <class-ref>
                     refined_module_a.RefinedClassA
@@ -396,7 +396,7 @@
             data_bpy_prop_collection_of
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bpy.types.bpy_prop_collection
                 [
@@ -408,7 +408,7 @@
             data_list_of_value_objects
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[
                 <class-ref>
                     refined_module_a.RefinedClassA
@@ -418,7 +418,7 @@
             data_list_of_value
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[
                 <class-ref>
                     refined_module_a.RefinedClassA
@@ -428,19 +428,19 @@
             data_list_of_number_or_string
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[float]
     <data>
         <name>
             data_list_of_parentheses_value
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
-            <data-type>
+            <data-type option="never none">
                 typing.List[
                 <class-ref>
                     module_1.ClassA
@@ -450,12 +450,12 @@
             data_bmelemseq_of_value
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bmesh.types.BMElemSeq
     <data>
@@ -463,7 +463,7 @@
             data_tuple_of_value
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple[
                 <class-ref>
                     refined_module_a.RefinedClassA
@@ -473,49 +473,49 @@
             data_dict_with_string_keys
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Dict
     <data>
         <name>
             data_iterable_object
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.List
     <data>
         <name>
             data_list
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 list
     <data>
         <name>
             data_dict
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 dict
     <data>
         <name>
             data_set
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 set
     <data>
         <name>
             data_tuple
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 tuple
     <data>
         <name>
             data_bpy_types_struct_subclass
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bpy.types.Struct
     <data>
@@ -523,7 +523,7 @@
             data_bpy_struct
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bpy.types.bpy_struct
     <data>
@@ -531,7 +531,7 @@
             data_ot
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     bpy.ops.test.op
     <data>
@@ -539,7 +539,7 @@
             data_dot
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     module_1.ClassA
     <data>
@@ -547,7 +547,7 @@
             data_dot_comma
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     module_1.ClassA
     <data>
@@ -555,6 +555,6 @@
             data_name
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     module_1.ClassA

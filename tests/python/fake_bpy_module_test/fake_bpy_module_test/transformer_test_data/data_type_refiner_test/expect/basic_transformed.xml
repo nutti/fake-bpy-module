@@ -11,7 +11,7 @@
         <base-class-list>
             <base-class>
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         <class-ref>
                             refined_module_d.RefinedClassG
         <attribute-list>
@@ -21,7 +21,7 @@
                 <description>
                     attr_1 description
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         <class-ref>
                             refined_module_a.RefinedClassA
         <function-list>
@@ -38,14 +38,14 @@
                             method_1 arg_1 description
                         <default-value>
                         <data-type-list>
-                            <data-type>
+                            <data-type option="never none">
                                 <class-ref>
                                     refined_module_a.RefinedClassB
                 <return>
                     <description>
                         method_1 return description
                     <data-type-list>
-                        <data-type>
+                        <data-type option="never none">
                             <class-ref>
                                 refined_module_a.RefinedClassA
     <function function_type="function">
@@ -61,7 +61,7 @@
                     function_1 arg_1 description
                 <default-value>
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         <class-ref>
                             refined_module_b.RefinedClassC
             <argument argument_type="arg">
@@ -71,14 +71,14 @@
                     function_1 arg_2 description
                 <default-value>
                 <data-type-list>
-                    <data-type>
+                    <data-type option="never none">
                         <class-ref>
                             refined_module_b.RefinedClassD
         <return>
             <description>
                 function_1 return description
             <data-type-list>
-                <data-type>
+                <data-type option="never none">
                     <class-ref>
                         refined_module_a.RefinedClassE
     <data>
@@ -87,6 +87,6 @@
         <description>
             data_1 description
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     refined_module_c.RefinedClassF
