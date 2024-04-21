@@ -1,28 +1,52 @@
+from threading import Lock
+
 
 class Configuration:
     target: str = ""
     target_version: str = ""
 
+    # pylint: disable=W0201
+    __inst = None
+    __lock = Lock()
 
-# TODO: Use singleton pattern.
-_config: Configuration = Configuration()    # pylint: disable=C0103,W0602
+    def __init__(self):
+        raise NotImplementedError("Not allowed to call constructor")
+
+    @classmethod
+    def __internal_new(cls):
+        inst = super().__new__(cls)
+
+        return inst
+
+    @classmethod
+    def get_instance(cls):
+        if not cls.__inst:
+            with cls.__lock:
+                if not cls.__inst:
+                    cls.__inst = cls.__internal_new()
+
+        return cls.__inst
 
 
 def set_target(target: str):
-    global _config  # pylint: disable=C0103,W0602
+    inst = Configuration.get_instance()
 
-    _config.target = target
+    inst.target = target
 
 
 def set_target_version(version: str):
-    global _config  # pylint: disable=C0103,W0602
+    inst = Configuration.get_instance()
 
-    _config.target_version = version
+    inst.target_version = version
 
 
 def get_target() -> str:
-    return _config.target
+    inst = Configuration.get_instance()
+
+    return inst.target
 
 
 def get_target_version() -> str:
-    return _config.target_version
+    inst = Configuration.get_instance()
+
+    return inst.target_version
