@@ -40,8 +40,10 @@ class BpyTypesClassBaseClassRebaser(TransformerBase):
                             r"([a-zA-Z0-9]+)`, \(readonly\)$", dtype_str):
                         index = dtype_list_node.index(dtype_node)
                         dtype_list_node.remove(dtype_node)
-                        dtype_list_node.insert(index, make_data_type_node(
-                            f"`bpy_prop_collection` of `{m.group(2)}`, (readonly)"))
+                        new_dtype_node = make_data_type_node(
+                            f"`bpy_prop_collection` of `{m.group(2)}`, (readonly)")
+                        new_dtype_node.attributes = dtype_node.attributes
+                        dtype_list_node.insert(index, new_dtype_node)
 
     @classmethod
     def name(cls) -> str:

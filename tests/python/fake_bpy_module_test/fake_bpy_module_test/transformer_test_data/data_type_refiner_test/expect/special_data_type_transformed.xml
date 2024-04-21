@@ -8,7 +8,7 @@
             data_parentheses_pair
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 typing.Tuple[
                 <class-ref>
                     module_1.ClassA
@@ -21,18 +21,18 @@
             data_comma
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     module_1.ClassA
-            <data-type>
+            <data-type option="never none">
                 str
     <data>
         <name>
             data_or
         <description>
         <data-type-list>
-            <data-type>
+            <data-type option="never none">
                 str
-            <data-type>
+            <data-type option="never none">
                 <class-ref>
                     module_1.ClassA

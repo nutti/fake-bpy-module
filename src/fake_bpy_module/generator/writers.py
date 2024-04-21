@@ -151,13 +151,20 @@ class PyCodeWriterBase(BaseWriter):
             if not dtype_list_node.empty():
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                 if len(dtype_nodes) >= 2:
-                    dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+                    dtype_str = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
                 else:
-                    dtype = dtype_nodes[0].to_string()
+                    dtype_str = dtype_nodes[0].to_string()
+                for dtype_node in dtype_nodes:
+                    if "option" not in dtype_node.attributes:
+                        continue
+                    if "never none" not in dtype_node.attributes["option"]:
+                        dtype_str = f"typing.Optional[{dtype_str}]"
+                        break
+
                 if not default_value_node.empty():
-                    wt.add(f"{arg_name}: {dtype}={default_value_node.astext()}")
+                    wt.add(f"{arg_name}: {dtype_str}={default_value_node.astext()}")
                 else:
-                    wt.add(f"{arg_name}: {dtype}")
+                    wt.add(f"{arg_name}: {dtype_str}")
             else:
                 if not default_value_node.empty():
                     wt.add(f"{arg_name}={default_value_node.astext()}")
@@ -205,10 +212,17 @@ class PyCodeWriterBase(BaseWriter):
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                         if len(dtype_nodes) >= 2:
                             dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
-                            dtype = f"typing.Union[{dtype_str}]"
+                            dtype_str = f"typing.Union[{dtype_str}]"
                         else:
-                            dtype = dtype_nodes[0].to_string()
-                        wt.addln(f":type {name_node.astext()}: {dtype}")
+                            dtype_str = dtype_nodes[0].to_string()
+                        for dtype_node in dtype_nodes:
+                            if "option" not in dtype_node.attributes:
+                                continue
+                            if "never none" not in dtype_node.attributes["option"]:
+                                dtype_str = f"typing.Optional[{dtype_str}]"
+                                break
+
+                        wt.addln(f":type {name_node.astext()}: {dtype_str}")
                 if not return_node.empty():
                     desc_node = return_node.element(DescriptionNode)
                     dtype_list_node = return_node.element(DataTypeListNode)
@@ -264,31 +278,29 @@ class PyCodeWriterBase(BaseWriter):
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 desc_node = attr_node.element(DescriptionNode)
 
+                dtype_str = None
                 if not dtype_list_node.empty():
                     dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                     if len(dtype_nodes) >= 2:
-                        dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
+                        dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
+                        dtype_str = f"typing.Union[{dtype_str}]"
                     else:
-                        dtype = dtype_nodes[0].to_string()
-                    wt.addln(f"{name_node.astext()}: {dtype}"
+                        dtype_str = dtype_nodes[0].to_string()
+
+                if dtype_str is not None:
+                    wt.addln(f"{name_node.astext()}: {dtype_str}"
                              f"{self.ellipsis_strings['attribute']}")
                 else:
                     wt.addln(f"{name_node.astext()}: typing.Any"
                              f"{self.ellipsis_strings['attribute']}")
 
-                if not desc_node.empty() or not dtype_list_node.empty():
+                if (not desc_node.empty()) or (dtype_str is not None):
                     wt.add("''' ")
                     if not desc_node.empty():
                         wt.add(f"{desc_node.astext()}")
-                    if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                        if len(dtype_nodes) >= 2:
-                            dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
-                            dtype = f"typing.Union[{dtype_str}]"
-                        else:
-                            dtype = dtype_nodes[0].to_string()
+                    if dtype_str is not None:
                         wt.new_line(2)
-                        wt.addln(f":type: {dtype}")
+                        wt.addln(f":type: {dtype_str}")
                     wt.addln("'''")
                     wt.new_line(1)
             if len(attr_nodes) > 0:
@@ -331,15 +343,21 @@ class PyCodeWriterBase(BaseWriter):
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                         if len(dtype_nodes) >= 2:
                             dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
-                            dtype = f"typing.Union[{dtype_str}]"
+                            dtype_str = f"typing.Union[{dtype_str}]"
                         else:
-                            dtype = dtype_nodes[0].to_string()
+                            dtype_str = dtype_nodes[0].to_string()
+                        for dtype_node in dtype_nodes:
+                            if "option" not in dtype_node.attributes:
+                                continue
+                            if "never none" not in dtype_node.attributes["option"]:
+                                dtype_str = f"typing.Optional[{dtype_str}]"
+                                break
 
                         if not default_value_node.empty():
-                            wt.add(f"{name_node.astext()}: {dtype}="
+                            wt.add(f"{name_node.astext()}: {dtype_str}="
                                    f"{default_value_node.astext()}")
                         else:
-                            wt.add(f"{name_node.astext()}: {dtype}")
+                            wt.add(f"{name_node.astext()}: {dtype_str}")
                     else:
                         if not default_value_node.empty():
                             wt.add(f"{name_node.astext()}="
@@ -387,10 +405,16 @@ class PyCodeWriterBase(BaseWriter):
                                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                                 if len(dtype_nodes) >= 2:
                                     dtype_str = ", ".join([n.to_string() for n in dtype_nodes])
-                                    dtype = f"typing.Union[{dtype_str}]"
+                                    dtype_str = f"typing.Union[{dtype_str}]"
                                 else:
-                                    dtype = dtype_nodes[0].to_string()
-                                wt.addln(f":type {name_node.astext()}: {dtype}")
+                                    dtype_str = dtype_nodes[0].to_string()
+                                for dtype_node in dtype_nodes:
+                                    if "option" not in dtype_node.attributes:
+                                        continue
+                                    if "never none" not in dtype_node.attributes["option"]:
+                                        dtype_str = f"typing.Optional[{dtype_str}]"
+                                        break
+                                wt.addln(f":type {name_node.astext()}: {dtype_str}")
 
                         if not return_node.empty():
                             desc_node = return_node.element(DescriptionNode)

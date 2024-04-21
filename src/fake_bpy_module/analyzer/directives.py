@@ -27,10 +27,13 @@ from .nodes import (
 )
 
 from .. import configuration
-from ..utils import append_child, split_string_by_comma
+from ..utils import (
+    append_child,
+    split_string_by_comma,
+)
 
 
-def parse_field_body(fbody_node: nodes.field_body) -> DataTypeNode:
+def parse_data_type(fbody_node: nodes.field_body) -> DataTypeNode:
     if len(fbody_node.children) == 0:
         return DataTypeNode(text=fbody_node.astext())
 
@@ -169,7 +172,7 @@ class DataDirective(rst.Directive):
             for field in field_list:
                 fname_node, fbody_node = field.children
                 if fname_node.astext() == "type":
-                    dtype = parse_field_body(fbody_node)
+                    dtype = parse_data_type(fbody_node)
                     dtype_list_node.append_child(dtype)
 
         return [node]
@@ -192,7 +195,7 @@ class FunctionDirective(rst.Directive):
     _DEPRECATED_REGEX = re.compile(r"\s*\(Deprecated\)$")
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
-    _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+(arg|rtype)\s*(\S*)")
+    _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s+(arg|rtype)\s*(\S*)")
 
     def _parse_function_def(self, content) -> list:
         content = self._ARG_REPLACE_1_REGEX.sub("\\1", content)
@@ -260,7 +263,7 @@ class FunctionDirective(rst.Directive):
             raise NotImplementedError(
                 f"{type(expr.op)} is not supported as an UnaryOp")
         if isinstance(expr, ast.BinOp):
-            return "None"   # TODO
+            return "None"   # TODO: Should return result
         if isinstance(expr, ast.Subscript):
             value = self._parse_default_value(expr.value)
             slice_ = self._parse_default_value(expr.slice)
@@ -372,18 +375,18 @@ class FunctionDirective(rst.Directive):
                             if m.group(1) in ("arg", "param"):
                                 arg_node.element(DescriptionNode).add_text(fbody_node.astext())
                             elif m.group(1) == "type":
-                                dtype = parse_field_body(fbody_node)
+                                dtype = parse_data_type(fbody_node)
                                 arg_node.element(DataTypeListNode).append_child(dtype)
                     elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
                         func_ret_node = func_node.element(FunctionReturnNode)
                         if m.group(1) == "return":
                             func_ret_node.element(DescriptionNode).add_text(fbody_node.astext())
                         elif m.group(1) == "rtype":
-                            dtype = parse_field_body(fbody_node)
+                            dtype = parse_data_type(fbody_node)
                             func_ret_node.element(DataTypeListNode).append_child(dtype)
-                    elif m := self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
-                        if m.group(1) == "arg":
-                            arg_name = m.group(2)
+                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                        if m.group(2) == "arg":
+                            arg_name = m.group(3)
                             arg_node: ArgumentNode = None
                             for child in arg_list_node.children:
                                 n = next(child.findall(NameNode))
@@ -392,11 +395,11 @@ class FunctionDirective(rst.Directive):
                                     break
                             if arg_node:
                                 for dtype_node in arg_node.findall(DataTypeNode):
-                                    dtype_node.attributes["mod-option"] = fbody_node.astext()
-                        elif m.group(1) == "rtype":
+                                    dtype_node.attributes[m.group(1)] = fbody_node.astext()
+                        elif m.group(2) == "rtype":
                             func_ret_node = func_node.element(FunctionReturnNode)
                             for dtype_node in func_ret_node.findall(DataTypeNode):
-                                dtype_node.attributes["mod-option"] = fbody_node.astext()
+                                dtype_node.attributes[m.group(1)] = fbody_node.astext()
 
         return func_nodes
 

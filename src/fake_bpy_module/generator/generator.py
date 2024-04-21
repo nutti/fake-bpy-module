@@ -101,6 +101,7 @@ class PackageAnalyzer:
         t = transformer.Transformer([
             "target_file_combiner",
             "data_type_refiner",
+            "default_value_filler",
             "cannonical_data_type_rewriter",
             "dependency_builder",
             "code_document_refiner",

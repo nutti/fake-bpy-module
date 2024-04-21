@@ -1,0 +1,165 @@
+<document source="<string>">
+    <module>
+        <name>
+            module_1
+        <description>
+    <function function_type="function">
+        <name>
+            builtin
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_bool
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        bool
+            <argument argument_type="arg">
+                <name>
+                    arg_str
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        str
+            <argument argument_type="arg">
+                <name>
+                    arg_bytes
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        bytes
+            <argument argument_type="arg">
+                <name>
+                    arg_float
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        float
+            <argument argument_type="arg">
+                <name>
+                    arg_int
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        int
+            <argument argument_type="arg">
+                <name>
+                    arg_list
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.List
+            <argument argument_type="arg">
+                <name>
+                    arg_dict
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Dict
+            <argument argument_type="arg">
+                <name>
+                    arg_set
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Set
+            <argument argument_type="arg">
+                <name>
+                    arg_tuple
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Tuple
+        <return>
+            <description>
+            <data-type-list>
+    <function function_type="function">
+        <name>
+            modifier
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_list
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.List[int]
+            <argument argument_type="arg">
+                <name>
+                    arg_dict
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Dict[str, int]
+            <argument argument_type="arg">
+                <name>
+                    arg_set
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Set[int]
+            <argument argument_type="arg">
+                <name>
+                    arg_tuple
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Tuple[int, float, int]
+            <argument argument_type="arg">
+                <name>
+                    arg_generic
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        Generic[Type]
+            <argument argument_type="arg">
+                <name>
+                    arg_iterator
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Iterator
+            <argument argument_type="arg">
+                <name>
+                    arg_callable
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Callable
+            <argument argument_type="arg">
+                <name>
+                    arg_any
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Any
+            <argument argument_type="arg">
+                <name>
+                    arg_sequence
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="optional">
+                        typing.Sequence[int]
+        <return>
+            <description>
+            <data-type-list>

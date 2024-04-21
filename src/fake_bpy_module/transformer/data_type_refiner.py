@@ -45,7 +45,7 @@ REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of 
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`,$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of `([a-zA-Z0-9_.]+)`$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`,")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) of (float|int|str)")  # noqa # pylint: disable=C0301
@@ -59,26 +59,8 @@ REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 # pylint: enable=line-too-long
 
-
-class DataTypeMetadata:
-    def __init__(self):
-        self.variable_kind = None
-        self.readonly: bool = False
-        self.never_none: bool = False       # Add typing.Optional if false
-        self.optional: bool = False         # Default value is needed if true
-        self.default_value = None
-
-    def __str__(self):
-        flags = []
-        if self.readonly:
-            flags.append('READONLY')
-        if self.never_none:
-            flags.append('NEVER_NONE')
-        if self.optional:
-            flags.append('OPTIONAL')
-
-        return f"Kind: {self.variable_kind}, Flags: {flags}, " \
-               f"Default Value: {self.default_value}"
+_REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
+_REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 
 
 class EntryPoint:
@@ -147,66 +129,6 @@ class DataTypeRefiner(TransformerBase):
                 return dtype_str
 
         return None
-
-    def _build_metadata(
-            self, dtype_str: str, module_name: str, parameter_str: str,
-            variable_kind: str) -> Tuple[DataTypeMetadata, str]:
-        metadata = DataTypeMetadata()
-
-        metadata.variable_kind = variable_kind
-
-        # Get default value from parameter string.
-        if parameter_str is not None:
-            m = re.match(r"^([a-zA-Z0-9_]+?)=(.*)", parameter_str)
-            if m:
-                metadata.default_value = m.group(2)
-
-        if module_name.startswith("bpy."):
-            m = re.search(r"\(([a-zA-Z, ]+?)\)$", dtype_str)
-            if not m:
-                return metadata, dtype_str
-
-            # Get parameter option.
-            data = [e.strip().lower() for e in m.group(1).split(",")]
-            has_unknown_metadata = False
-            for d in data:
-                if d == "optional":
-                    metadata.optional = True
-                elif d == "readonly":
-                    metadata.readonly = True
-                elif d == "never none":
-                    metadata.never_none = True
-                else:
-                    has_unknown_metadata = True
-                    output_log(
-                        LOG_LEVEL_WARN,
-                        f"Unknown metadata '{d}' is found from {dtype_str}")
-
-            # If there is unknown parameter options, we don't strip them from
-            # original string.
-            if has_unknown_metadata:
-                return metadata, dtype_str
-
-            # Strip the unused string to speed up the later parsing process.
-            stripped = re.sub(r"\(([a-zA-Z, ]+?)\)$", "", dtype_str)
-            output_log(LOG_LEVEL_DEBUG,
-                       f"Data type is stripped: {dtype_str} -> {stripped}")
-
-            return metadata, stripped
-
-        # From this, we assumed non-bpy module.
-
-        metadata.never_none = True
-        m = re.search(r"or None$", dtype_str)
-        if not m:
-            return metadata, dtype_str
-
-        metadata.never_none = False
-        stripped = re.sub(r"or None$", "", dtype_str)
-        output_log(LOG_LEVEL_DEBUG,
-                   f"'or None' is stripped: {dtype_str} -> {stripped}")
-
-        return metadata, stripped
 
     # pylint: disable=R0913
     def _get_refined_data_type_fast(
@@ -521,46 +443,37 @@ class DataTypeRefiner(TransformerBase):
 
         return None
 
-    # def _tweak_metadata(self, data_type: 'DataType', variable_kind: str):
-    #     metadata = data_type.get_metadata()
+    def _get_data_type_options(self, dtype_str: str, module_name: str) -> Tuple[List[str], str]:
+        if module_name.startswith("bpy."):
+            if m := _REGEX_DATA_TYPE_OPTION_STR.search(dtype_str):
+                option_str = m.group(1)
+                options = [sp.strip().lower() for sp in option_str.split(",")]
+                has_unknown_option = False
+                for opt in options:
+                    if opt not in ("optional", "readonly", "never none"):
+                        has_unknown_option = True
+                        output_log(LOG_LEVEL_WARN,
+                                   f"Unknown option '{opt}' is found from {dtype_str}")
 
-    #     # Set default value if a parameter is variable.
-    #     if variable_kind == 'FUNC_ARG':
-    #         if metadata.optional and (metadata.default_value is None):
-    #             if data_type.type() in ('BUILTIN', 'CUSTOM') and \
-    #                data_type.has_modifier():
-    #                 if data_type.modifier().type() == 'MODIFIER':
-    #                     DEFAULT_VALUE_MAP = {
-    #                         "list": "[]",
-    #                         "dict": "{}",
-    #                         "set": "()",
-    #                         "tuple": "()",
-    #                         "listlist": "[]",
-    #                         "Generic": "None",
-    #                         "typing.Iterator": "[]",
-    #                         "typing.Callable": "None",
-    #                         "typing.Any": "None",
-    #                         "typing.Sequence": "[]",
-    #                     }
-    #                     metadata.default_value = DEFAULT_VALUE_MAP[
-    #                         data_type.modifier().modifier_data_type()]
-    #                 elif data_type.modifier().type() == 'CUSTOM_MODIFIER':
-    #                     metadata.default_value = "[]"
-    #             else:
-    #                 if data_type.type() == 'BUILTIN':
-    #                     DEFAULT_VALUE_MAP = {
-    #                         "bool": "False",
-    #                         "str": "\"\"",
-    #                         "bytes": "0",
-    #                         "float": "0.0",
-    #                         "int": "0"
-    #                     }
-    #                     metadata.default_value = DEFAULT_VALUE_MAP[
-    #                         data_type.data_type()]
-    #                 elif data_type.type() == 'CUSTOM':
-    #                     metadata.default_value = "None"
-    #                 elif data_type.type() == 'MIXIN':
-    #                     metadata.default_value = "None"
+                # If there is unknown parameter options, we don't strip them from
+                # original string.
+                if has_unknown_option:
+                    return [], dtype_str
+
+                # Strip the unused string to speed up the later parsing process.
+                stripped = _REGEX_DATA_TYPE_OPTION_STR.sub("", dtype_str)
+                output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+
+                return options, stripped
+            return [], dtype_str
+        # From this, we assumed non-bpy module.
+        if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
+            stripped = _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.sub("", dtype_str)
+            output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+
+            return [""], stripped
+
+        return ["never none"], dtype_str
 
     def _get_refined_data_type(
             self, dtype_str: str, module_name: str,
@@ -570,11 +483,17 @@ class DataTypeRefiner(TransformerBase):
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
+        options, dtype_str_changed = self._get_data_type_options(dtype_str, module_name)
+
         result = self._get_refined_data_type_internal(
-            dtype_str, module_name, variable_kind, parameter_str,
+            dtype_str_changed, module_name, variable_kind, parameter_str,
             additional_info)
 
-        # self._tweak_metadata(result, variable_kind)
+        # Add options.
+        for r in result:
+            if "option" in r.attributes:
+                options.extend(r.attributes["option"].split(","))
+            r.attributes["option"] = ",".join(options)
 
         output_log(
             LOG_LEVEL_DEBUG,
@@ -585,17 +504,13 @@ class DataTypeRefiner(TransformerBase):
 
     def _get_refined_data_type_internal(
             self, dtype_str: str, module_name: str,
-            variable_kind: str, parameter_str: str,
+            variable_kind: str, _: str,
             additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
-        dtype_str.strip()
-        _, dtype_str = self._build_metadata(
-            dtype_str, module_name, parameter_str, variable_kind)
+        dtype_str = dtype_str.strip()
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
-
-        # TODO: is_optional = data_type.is_optional()
 
         # Ex. (Quaternion, float) pair
         if m := REGEX_MATCH_DATA_TYPE_PAIR.match(dtype_str):
@@ -610,15 +525,11 @@ class DataTypeRefiner(TransformerBase):
             if len(dtypes) >= 1:
                 return [make_data_type_node(
                     f"typing.Tuple[{', '.join([d.astext() for d in dtypes])}]")]
-                # dd.set_metadata(metadata)
-                # return dd
 
         result = self._get_refined_data_type_fast(
             dtype_str, uniq_full_names, uniq_module_names, module_name,
             variable_kind, additional_info)
         if result is not None:
-            # result.set_is_optional(is_optional)
-            # result.set_metadata(metadata)
             return result
 
         if ("," in dtype_str) or (" or " in dtype_str):
@@ -637,8 +548,6 @@ class DataTypeRefiner(TransformerBase):
                     variable_kind, additional_info)
                 if result is not None:
                     dtypes.extend(result)
-            # dtypes[0].set_is_optional(is_optional)
-            # dtypes[0].set_metadata(metadata)
             return dtypes
         return []
 
@@ -652,7 +561,7 @@ class DataTypeRefiner(TransformerBase):
                 mod_options = []
                 skip_refine = False
                 if "mod-option" in dtype_node.attributes:
-                    mod_options = [
+                    mod_options: List[str] = [
                         sp.strip()
                         for sp in dtype_node.attributes["mod-option"].split(",")
                     ]
