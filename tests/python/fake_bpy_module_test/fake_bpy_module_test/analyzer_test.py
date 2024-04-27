@@ -205,21 +205,6 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         with self.assertRaises(docutils.utils.SystemMessage):
             _ = analyzer.analyze(rst_files)
 
-    # TODO: move to transform_test.py
-    # pylint: disable=W0101
-    def test_no_module(self):
-
-        return
-
-        rst_files = ["no_module.rst"]
-        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
-
-        analyzer = BaseAnalyzer([])
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
-        with self.assertRaises(docutils.utils.SystemMessage):
-            _ = analyzer.analyze(rst_files)
-
     def test_bpy_290_tweak(self):
         rst_files = ["bpy_290_tweak.rst"]
         expect_files = ["bpy_290_tweak.xml"]
@@ -250,25 +235,6 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         for doc, expect in zip(documents, expect_files):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-    # TODO: move to transform_test.py
-    # pylint: disable=W0101
-    def test_bge_support_no_module(self):
-        rst_files = ["bge.types.NoModule.rst"]
-        expect_files = ["bge.types.NoModule.xml"]
-        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
-        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-
-        analyzer = BaseAnalyzer([])
-        analyzer.set_target("upbge")
-        analyzer.set_target_version("0.2.5")
-        documents = analyzer.analyze(rst_files)
-
-        return
-
-        self.assertEqual(len(documents), len(rst_files))
-        for doc, expect in zip(documents, expect_files):
-            self.compare_with_file_contents(doc.pformat(), expect)
-
     def test_invalid_function(self):
         rst_files = ["invalid_function.rst"]
         expect_files = ["invalid_function.xml"]
@@ -276,8 +242,8 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer([])
-        analyzer.set_target("upbge")
-        analyzer.set_target_version("0.2.5")
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(rst_files))
@@ -291,8 +257,38 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer([])
-        analyzer.set_target("upbge")
-        analyzer.set_target_version("0.2.5")
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+    def test_deprecated(self):
+        rst_files = ["deprecated.rst"]
+        expect_files = ["deprecated.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+    def test_class_name_with_arguments(self):
+        rst_files = ["class_name_with_arguments.rst"]
+        expect_files = ["class_name_with_arguments.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(rst_files))

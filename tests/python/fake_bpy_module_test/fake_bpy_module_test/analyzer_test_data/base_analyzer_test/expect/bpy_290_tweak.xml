@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        bpy_290_tweak.rst
     <module>
         <name>
             bpy.types

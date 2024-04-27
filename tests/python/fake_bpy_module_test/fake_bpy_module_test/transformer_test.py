@@ -88,6 +88,62 @@ class ModuleLevelAttributeFixtureTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
+class ModuleNameFixtureTest(TransformerTestBase):
+
+    name = "ModuleNameFixtureTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/transformer_test_data/module_name_fixture_test")
+
+    def test_no_module(self):
+        rst_files = ["no_module.rst"]
+        expect_files = ["no_module.xml"]
+        expect_transformed_files = []
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["module_name_fixture"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_bge_no_module(self):
+        rst_files = ["bge.types.NoModule.rst"]
+        expect_files = ["bge.types.NoModule.xml"]
+        expect_transformed_files = ["bge.types.NoModule_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("upbge")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["module_name_fixture"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+
 class BpyAppHandlersDataTypeAdderTest(TransformerTestBase):
 
     name = "BpyAppHandlersDataTypeAdderTest"
@@ -579,6 +635,30 @@ class DataTypeRefinerTest(TransformerTestBase):
         rst_files = ["option_bpy.rst", "option_non_bpy.rst"]
         expect_files = ["option_bpy.xml", "option_non_bpy.xml"]
         expect_transformed_files = ["option_bpy_transformed.xml", "option_non_bpy_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer([])
+        analyzer.set_target("blender")
+        analyzer.set_target_version("2.80")
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["data_type_refiner"], {})
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_description_dependency(self):
+        rst_files = ["description_dependency.rst"]
+        expect_files = ["description_dependency.xml"]
+        expect_transformed_files = ["description_dependency_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]

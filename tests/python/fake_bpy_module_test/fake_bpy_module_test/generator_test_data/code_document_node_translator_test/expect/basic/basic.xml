@@ -1,4 +1,6 @@
 <document ids="title" names="title" source="<string>" title="Title">
+    <source-filename>
+        basic.rst
     <title>
         Title
     <paragraph>

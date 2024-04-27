@@ -1,4 +1,6 @@
 <document ids="first-title" names="first\ title" source="<string>" title="First Title">
+    <source-filename>
+        basic.rst
     <title>
         First Title
     <module>

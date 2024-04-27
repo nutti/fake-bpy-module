@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        high_priority_class.rst
     <module>
         <name>
             module_1

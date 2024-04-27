@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        multiple_titles.rst
     <section ids="first-title" names="first\ title">
         <module>
             <name>

@@ -1,3 +1,5 @@
 <document source="<string>">
+    <source-filename>
+        only_base_class.rst
     <paragraph>
         base class --- BaseClassA

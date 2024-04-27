@@ -1,3 +1,4 @@
+import os
 import re
 from typing import List
 from docutils import nodes
@@ -7,6 +8,7 @@ from .. import configuration
 from . import directives
 from . import readers
 from . import roles
+from .nodes import SourceFilenameNode
 
 
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
@@ -46,6 +48,8 @@ class BaseAnalyzer:
         document: nodes.document = publish_doctree(
             contents, settings_overrides=settings_overrides,
             reader=readers.BpyRstDocsReader())
+
+        document.insert(0, SourceFilenameNode(text=os.path.basename(filename)))
 
         return document
 

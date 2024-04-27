@@ -2,6 +2,8 @@
     <target-file>
         module_2/__init__
     <child-module-list>
+    <source-filename>
+        combine_module_2.rst
     <module>
         <name>
             module_2

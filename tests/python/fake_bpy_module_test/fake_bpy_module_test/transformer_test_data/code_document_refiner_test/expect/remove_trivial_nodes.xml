@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        remove_trivial_nodes.rst
     <module>
         <name>
             module_1

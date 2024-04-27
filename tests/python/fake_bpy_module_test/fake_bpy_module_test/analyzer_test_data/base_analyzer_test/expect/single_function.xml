@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        single_function.rst
     <module>
         <name>
             module_1

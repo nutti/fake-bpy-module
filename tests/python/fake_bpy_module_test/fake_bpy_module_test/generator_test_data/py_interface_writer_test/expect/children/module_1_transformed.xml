@@ -4,6 +4,8 @@
     <child-module-list>
         <child-module>
             submodule_1
+    <source-filename>
+        children.rst
     <module>
         <name>
             module_1

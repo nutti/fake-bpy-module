@@ -52,6 +52,7 @@ def main():
         fake_bpy_module_test.transformer_test.DependencyBuilderTest,
         fake_bpy_module_test.transformer_test.ModApplierTest,
         fake_bpy_module_test.transformer_test.ModuleLevelAttributeFixtureTest,
+        fake_bpy_module_test.transformer_test.ModuleNameFixtureTest,
         fake_bpy_module_test.transformer_test.RstSpecificNodeCleanerTest,
         fake_bpy_module_test.transformer_test.TargetFileCombinerTest,
         fake_bpy_module_test.transformer_test.FirstTitleRemoverTest,
