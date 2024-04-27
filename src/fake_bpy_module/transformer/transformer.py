@@ -15,12 +15,10 @@ from .dependency_builder import DependencyBuilder
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
+from .module_name_fixture import ModuleNameFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
 from .target_file_combiner import TargetFileCombiner
 from .first_title_remover import FirstTitleRemover
-
-# TODO: https://github.com/nutti/fake-bpy-module/issues/139
-# TODO: test_bge_support_no_module
 
 
 class Transformer:
@@ -60,6 +58,9 @@ class Transformer:
             },
             ModApplier.name(): {
                 "class": ModApplier,
+            },
+            ModuleNameFixture.name(): {
+                "class": ModuleNameFixture,
             },
             DataTypeRefiner.name(): {
                 "class": DataTypeRefiner,

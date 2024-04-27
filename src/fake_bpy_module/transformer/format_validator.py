@@ -8,6 +8,7 @@ from ..analyzer.nodes import (
     FunctionNode,
     DataNode,
     NameNode,
+    SourceFilenameNode,
     DescriptionNode,
     AttributeListNode,
     AttributeNode,
@@ -196,6 +197,10 @@ class FormatValidator(TransformerBase):
                 DefaultValueNode
             )), f"{code_document_node.pformat()}"
 
+    def _check_filename_node(self, source_filename_node: SourceFilenameNode):
+        for child in source_filename_node.children:
+            self._check_node(child, nodes.Text)
+
     def _check_document(self, document: nodes.document):
         for child in document.children:
             if isinstance(child, ModuleNode):
@@ -208,6 +213,8 @@ class FormatValidator(TransformerBase):
                 self._check_data_node(child)
             elif isinstance(child, CodeDocumentNode):
                 self._check_code_document_node(child)
+            elif isinstance(child, SourceFilenameNode):
+                self._check_filename_node(child)
             else:
                 raise ValueError(f"{type(child)} must not be a child of "
                                  f"{type(document)}.\n{document.pformat()}")

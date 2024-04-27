@@ -111,6 +111,7 @@ class BaseWriter(metaclass=abc.ABCMeta):
     def _write_constant_code(self, data_node: DataNode):
         raise NotImplementedError()
 
+    # TODO: support json output
     # def dump_json(self, filename: str, document: nodes.document):
     #     json_data = [info.to_dict() for info in data.data]
     #     with open(filename, "w", newline="\n", encoding="utf-8") as f:
@@ -188,6 +189,8 @@ class PyCodeWriterBase(BaseWriter):
                 wt.addln("):")
 
         desc_node = func_node.element(DescriptionNode)
+        if "deprecated" in func_node.attributes:
+            desc_node.insert(0, nodes.Text(func_node.attributes["deprecated"]))
 
         with CodeWriterIndent(1):
             # documentation
@@ -277,6 +280,8 @@ class PyCodeWriterBase(BaseWriter):
                 name_node = attr_node.element(NameNode)
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 desc_node = attr_node.element(DescriptionNode)
+                if "deprecated" in attr_node.attributes:
+                    desc_node.insert(0, nodes.Text(attr_node.attributes["deprecated"]))
 
                 dtype_str = None
                 if not dtype_list_node.empty():
@@ -445,6 +450,8 @@ class PyCodeWriterBase(BaseWriter):
         name_node = data_node.element(NameNode)
         dtype_list_node = data_node.element(DataTypeListNode)
         desc_node = data_node.element(DescriptionNode)
+        if "deprecated" in data_node.attributes:
+            desc_node.insert(0, nodes.Text(data_node.attributes["deprecated"]))
 
         if not dtype_list_node.empty():
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)

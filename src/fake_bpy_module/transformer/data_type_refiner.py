@@ -7,6 +7,7 @@ from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     ModuleNode,
     NameNode,
+    DescriptionNode,
     ClassNode,
     FunctionListNode,
     FunctionNode,
@@ -476,8 +477,7 @@ class DataTypeRefiner(TransformerBase):
         return ["never none"], dtype_str
 
     def _get_refined_data_type(
-            self, dtype_str: str, module_name: str,
-            variable_kind: str, parameter_str: str = None,
+            self, dtype_str: str, module_name: str, variable_kind: str,
             additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
         assert variable_kind in (
@@ -486,8 +486,7 @@ class DataTypeRefiner(TransformerBase):
         options, dtype_str_changed = self._get_data_type_options(dtype_str, module_name)
 
         result = self._get_refined_data_type_internal(
-            dtype_str_changed, module_name, variable_kind, parameter_str,
-            additional_info)
+            dtype_str_changed, module_name, variable_kind, additional_info)
 
         # Add options.
         for r in result:
@@ -503,8 +502,7 @@ class DataTypeRefiner(TransformerBase):
         return result
 
     def _get_refined_data_type_internal(
-            self, dtype_str: str, module_name: str,
-            variable_kind: str, _: str,
+            self, dtype_str: str, module_name: str, variable_kind: str,
             additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
         dtype_str = dtype_str.strip()
@@ -551,12 +549,32 @@ class DataTypeRefiner(TransformerBase):
             return dtypes
         return []
 
+    def _parse_from_description(
+            self, module_name: str, description_str: str = None,
+            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
+
+        uniq_full_names = self._entry_points_cache["uniq_full_names"]
+        uniq_module_names = self._entry_points_cache["uniq_module_names"]
+
+        if description_str == "An instance of this object.":
+            s = self._parse_custom_data_type(
+                additional_info["self_class"], uniq_full_names,
+                uniq_module_names, module_name)
+            return [make_data_type_node(f"`{s}`")]
+
+        return []
+
     def _refine(self, document: nodes.document):
         def refine(dtype_list_node: DataTypeListNode, module_name: str,
-                   variable_kind: str, parameter_str: str = None,
+                   variable_kind: str, description_str: str = None,
                    additional_info: Dict[str, typing.Any] = None):
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             new_dtype_nodes = []
+
+            new_dtype_nodes.extend(self._parse_from_description(
+                module_name, description_str=description_str,
+                additional_info=additional_info))
+
             for dtype_node in dtype_nodes:
                 mod_options = []
                 skip_refine = False
@@ -570,8 +588,9 @@ class DataTypeRefiner(TransformerBase):
                     continue
                 new_dtype_nodes.extend(self._get_refined_data_type(
                     dtype_node.astext(), module_name, variable_kind,
-                    parameter_str=parameter_str, additional_info=additional_info))
+                    additional_info=additional_info))
                 dtype_list_node.remove(dtype_node)
+
             for node in new_dtype_nodes:
                 dtype_list_node.append_child(node)
 
@@ -590,15 +609,15 @@ class DataTypeRefiner(TransformerBase):
                 arg_list_node = func_node.element(ArgumentListNode)
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
                 for arg_node in arg_nodes:
-                    arg_name = arg_node.element(NameNode).astext()
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     refine(dtype_list_node, module_name, 'FUNC_ARG',
-                           parameter_str=arg_name,
                            additional_info={"self_class": f"{module_name}.{class_name}"})
 
                 return_node = func_node.element(FunctionReturnNode)
+                description = return_node.element(DescriptionNode).astext()
                 dtype_list_node = return_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'FUNC_RET',
+                       description_str=description,
                        additional_info={"self_class": f"{module_name}.{class_name}"})
 
             attr_list_node = class_node.element(AttributeListNode)
@@ -622,7 +641,7 @@ class DataTypeRefiner(TransformerBase):
                 arg_name = arg_node.element(NameNode).astext()
                 dtype_list_node = arg_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'FUNC_ARG',
-                       parameter_str=arg_name)
+                       description_str=arg_name)
 
             return_node = func_node.element(FunctionReturnNode)
             dtype_list_node = return_node.element(DataTypeListNode)

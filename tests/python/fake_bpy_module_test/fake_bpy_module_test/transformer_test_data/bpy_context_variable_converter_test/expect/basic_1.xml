@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        basic_1.rst
     <module>
         <name>
             bpy.types

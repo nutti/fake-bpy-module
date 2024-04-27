@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        basic_2.rst
     <module>
         <name>
             bpy.context

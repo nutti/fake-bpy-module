@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        option_bpy.rst
     <module>
         <name>
             bpy.type

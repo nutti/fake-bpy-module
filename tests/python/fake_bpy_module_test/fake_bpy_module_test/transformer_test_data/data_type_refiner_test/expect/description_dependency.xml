@@ -1,0 +1,23 @@
+<document source="<string>">
+    <source-filename>
+        description_dependency.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                <argument-list>
+                <return>
+                    <description>
+                        An instance of this object.
+                    <data-type-list>

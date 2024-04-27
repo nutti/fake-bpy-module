@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        option_non_bpy.rst
     <module>
         <name>
             module_1

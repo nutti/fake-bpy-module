@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        base_class_dependency.rst
     <module>
         <name>
             module_1

@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        basic_3.rst
     <module>
         <name>
             bpy

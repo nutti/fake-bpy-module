@@ -65,6 +65,7 @@ class PackageAnalyzer:
     def _apply_pre_transform(self, documents: List[nodes.document],
                              mod_files: List[str]) -> List[nodes.document]:
         t = transformer.Transformer([
+            "module_name_fixture",
             "first_title_remover",
             "base_class_fixture",
             "rst_specific_node_cleaner",
@@ -132,9 +133,7 @@ class PackageGenerator:
 
     def _generate(self, rule: PackageGenerationRule, documents: List[nodes.document]):
         for doc in documents:
-            # TODO: Move to the generator
             target_filename = get_first_child(doc, TargetFileNode).astext()
-
             rule.generator().write(
                 f"{self._config.output_dir}/{target_filename}", doc,
                 self._config.style_format)

@@ -60,6 +60,11 @@ class NameNode(TextNode, nodes.Part):
     child_text_separator = ""
 
 
+class SourceFilenameNode(TextNode, nodes.Part):
+    tagname = "source-filename"
+    child_text_separator = ""
+
+
 class DataTypeListNode(ListNode):
     tagname = "data-type-list"
     child_text_separator = ""

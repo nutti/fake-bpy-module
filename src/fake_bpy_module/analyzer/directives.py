@@ -32,6 +32,142 @@ from ..utils import (
     split_string_by_comma,
 )
 
+_ARG_REPLACE_1_REGEX = re.compile(r"<class '([a-zA-Z]+?)'>")
+_ARG_REPLACE_2_REGEX = re.compile(r"<built-in function ([a-zA-Z]+?)>")
+_ARG_REPLACE_3_REGEX = re.compile(r"\\")
+_ARG_LIST_FROM_FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
+
+
+def parse_function_def(content) -> str:
+    content = _ARG_REPLACE_1_REGEX.sub("\\1", content)
+    content = _ARG_REPLACE_2_REGEX.sub("\\1", content)
+    content = _ARG_REPLACE_3_REGEX.sub("", content)
+    content.strip()
+
+    m = _ARG_LIST_FROM_FUNC_DEF_REGEX.search(content)
+    name = m.group(1)
+    params = split_string_by_comma(m.group(2))
+
+    # (test=DirectivesTest.test_invalid_function_arg_order)
+    # Handle case:
+    #   function_1(arg_1, arg_2, arg_3='NONE', arg_4=True, arg_5): pass
+    fixed_params = []
+    required_named_argument = False
+    for p in params:
+        sp = p.split("=")
+        assert len(sp) in (1, 2)
+        if len(sp) == 1:
+            if required_named_argument:
+                fixed_params.append(f"{p}=None")
+            else:
+                fixed_params.append(p)
+        elif len(sp) == 2:
+            required_named_argument = True
+            fixed_params.append(p)
+
+    content = f"def {name}({', '.join(fixed_params)}): pass"
+
+    return content
+
+
+# pylint: disable=R0911
+def parse_func_arg_default_value(expr: ast.expr):
+    if expr is None:
+        return None
+
+    if isinstance(expr, ast.Constant):
+        if isinstance(expr.value, str):
+            return f"\"{expr.value}\""
+        if expr.value is None:
+            return "None"
+        return expr.value
+    if isinstance(expr, ast.Name):
+        return "None"   # TODO: Should be "expr.id"
+    if isinstance(expr, ast.List):
+        return [parse_func_arg_default_value(e) for e in expr.elts]
+    if isinstance(expr, ast.Tuple):
+        return tuple((parse_func_arg_default_value(e) for e in expr.elts))
+    if isinstance(expr, ast.Set):
+        return {parse_func_arg_default_value(e) for e in expr.elts}
+    if isinstance(expr, ast.Dict):
+        return {
+            parse_func_arg_default_value(k): parse_func_arg_default_value(v)
+            for k, v in zip(expr.keys, expr.values)}
+    if isinstance(expr, ast.UnaryOp):
+        if isinstance(expr.op, ast.USub):
+            operand = parse_func_arg_default_value(expr.operand)
+            if isinstance(operand, (float, int)):
+                return -operand     # pylint: disable=E1130
+            if isinstance(operand, str):
+                return "None"
+            raise NotImplementedError(
+                f"{type(operand)} is not supported as an operand of USub")
+        raise NotImplementedError(
+            f"{type(expr.op)} is not supported as an UnaryOp")
+    if isinstance(expr, ast.BinOp):
+        return "None"   # TODO: Should return result
+    if isinstance(expr, ast.Subscript):
+        value = parse_func_arg_default_value(expr.value)
+        slice_ = parse_func_arg_default_value(expr.slice)
+        return f"{value}[{slice_}]"
+    if isinstance(expr, ast.Call):
+        func = parse_func_arg_default_value(expr.func)
+        args = ', '.join([str(parse_func_arg_default_value(arg))
+                          for arg in expr.args])
+        return f"{func}({args})"
+    if isinstance(expr, ast.Attribute):
+        return "None"   # TODO: Should be "expr.attr"
+    raise NotImplementedError(
+        f"{type(expr)} is not supported as a default value")
+
+
+def build_function_node_from_def(fdef: str) -> FunctionNode:
+    func_node = FunctionNode.create_template()
+
+    m: ast.Module = ast.parse(fdef)
+    func_def: ast.FunctionDef = m.body[0]
+
+    # Get function name.
+    func_node.element(NameNode).add_text(func_def.name)
+
+    # Get function signature.
+    arg_list_node = func_node.element(ArgumentListNode)
+    for i, arg in enumerate(func_def.args.args):
+        # Remove self argument which will be added later.
+        if i == 0 and arg.arg == "self":
+            continue
+        arg_node = ArgumentNode.create_template(argument_type="arg")
+        arg_node.element(NameNode).add_text(arg.arg)
+        default_start = \
+            len(func_def.args.args) - len(func_def.args.defaults)
+        if i >= default_start:
+            default = func_def.args.defaults[i - default_start]
+            default_value = parse_func_arg_default_value(default)
+            if default_value is not None:
+                arg_node.element(DefaultValueNode).add_text(default_value)
+        arg_list_node.append_child(arg_node)
+
+    if func_def.args.vararg:
+        arg_node = ArgumentNode.create_template(argument_type="vararg")
+        arg_node.element(NameNode).add_text(func_def.args.vararg.arg)
+        arg_list_node.append_child(arg_node)
+
+    for i, arg in enumerate(func_def.args.kwonlyargs):
+        arg_node = ArgumentNode.create_template(argument_type="kwonlyarg")
+        arg_node.element(NameNode).add_text(arg.arg)
+        default = func_def.args.kw_defaults[i]
+        default_value = parse_func_arg_default_value(default)
+        if default_value is not None:
+            arg_node.element(DefaultValueNode).add_text(default_value)
+        arg_list_node.append_child(arg_node)
+
+    if func_def.args.kwarg:
+        arg_node = ArgumentNode.create_template(argument_type="kwarg")
+        arg_node.element(NameNode).add_text(func_def.args.kwarg.arg)
+        arg_list_node.append_child(arg_node)
+
+    return func_node
+
 
 def parse_data_type(fbody_node: nodes.field_body) -> DataTypeNode:
     if len(fbody_node.children) == 0:
@@ -89,7 +225,8 @@ class ClassDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,]+\))*")
+    _CLASS_NAME_WITH_ARGS_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
+    _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)")
 
     def run(self):
         paragraph_node = nodes.paragraph()
@@ -97,11 +234,18 @@ class ClassDirective(rst.Directive):
             self.content, self.content_offset, paragraph_node)
 
         class_node = ClassNode.create_template()
+        class_name = self.arguments[0]
+
+        # Ex: GPUBatch(type, buf, elem=None): -> GPUBatch
+        # TODO: Need to parse class name with arguments to create __init__ method.
+        #       Like __init__(type, buf, elem=None).
+        #       We should consider Color(rgb) which will be added by mod file.
+        if m := self._CLASS_NAME_WITH_ARGS_REGEX.match(class_name):
+            class_name = m.group(1)
 
         # Get class name.
-        # TODO: Parse argument to create __init__ method
-        #       ex. class GPUBatch(type, buf, elem=None):
-        if m := self._CLASS_NAME_REGEX.match(self.arguments[0]):
+        # if m := self._CLASS_NAME_WITH_ARGS_REGEX_2.match(class_name):
+        if m := self._CLASS_NAME_REGEX.match(class_name):
             content = m.group(1)
             class_node.element(NameNode).add_text(content)
 
@@ -135,12 +279,8 @@ class ClassDirective(rst.Directive):
 
 class DataDirective(rst.Directive):
     required_arguments = 1
-    optional_arguments = 1
-    final_argument_whitespace = False
+    final_argument_whitespace = True
     has_content = True
-    option_spec = {
-        "noindex": rst.directives.unchanged
-    }
 
     node_class = DataNode
 
@@ -152,10 +292,15 @@ class DataDirective(rst.Directive):
 
         node = self.node_class.create_template()
 
-        # TODO: parse "(Deprecated)" from the optional argument.
+        # Parse "(Deprecated*" from the data name.
+        data_name = self.arguments[0]
+        index = data_name.rfind("(Deprecated")
+        if index != -1:
+            node.attributes["deprecated"] = data_name[index:]
+            data_name = data_name[0:index]
 
         # Get attribute name.
-        if m := self._DATA_NAME_REGEX.match(self.arguments[0]):
+        if m := self._DATA_NAME_REGEX.match(data_name):
             node.element(NameNode).add_text(m.group(1))
 
         # Get all descriptions.
@@ -187,113 +332,33 @@ class FunctionDirective(rst.Directive):
     has_content = True
     final_argument_whitespace = True
 
-    _ARG_REPLACE_1_REGEX = re.compile(r"<class '([a-zA-Z]+?)'>")
-    _ARG_REPLACE_2_REGEX = re.compile(r"<built-in function ([a-zA-Z]+?)>")
-    _ARG_REPLACE_3_REGEX = re.compile(r"\\")
-    _ARG_LIST_FROM_FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
     _FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
-    _DEPRECATED_REGEX = re.compile(r"\s*\(Deprecated\)$")
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s+(arg|rtype)\s*(\S*)")
-
-    def _parse_function_def(self, content) -> list:
-        content = self._ARG_REPLACE_1_REGEX.sub("\\1", content)
-        content = self._ARG_REPLACE_2_REGEX.sub("\\1", content)
-        content = self._ARG_REPLACE_3_REGEX.sub("", content)
-        content.strip()
-
-        m = self._ARG_LIST_FROM_FUNC_DEF_REGEX.search(content)
-        name = m.group(1)
-        params = split_string_by_comma(m.group(2))
-
-        # (test=DirectivesTest.test_invalid_function_arg_order)
-        # Handle case:
-        #   function_1(arg_1, arg_2, arg_3='NONE', arg_4=True, arg_5): pass
-        fixed_params = []
-        required_named_argument = False
-        for p in params:
-            sp = p.split("=")
-            assert len(sp) in (1, 2)
-            if len(sp) == 1:
-                if required_named_argument:
-                    fixed_params.append(f"{p}=None")
-                else:
-                    fixed_params.append(p)
-            elif len(sp) == 2:
-                required_named_argument = True
-                fixed_params.append(p)
-
-        content = f"def {name}({', '.join(fixed_params)}): pass"
-
-        return content
-
-    # pylint: disable=R0911
-    def _parse_default_value(self, expr: ast.expr):
-        if expr is None:
-            return None
-
-        if isinstance(expr, ast.Constant):
-            if isinstance(expr.value, str):
-                return f"\"{expr.value}\""
-            if expr.value is None:
-                return "None"
-            return expr.value
-        if isinstance(expr, ast.Name):
-            return "None"   # TODO: Should be "expr.id"
-        if isinstance(expr, ast.List):
-            return [self._parse_default_value(e) for e in expr.elts]
-        if isinstance(expr, ast.Tuple):
-            return tuple((self._parse_default_value(e) for e in expr.elts))
-        if isinstance(expr, ast.Set):
-            return {self._parse_default_value(e) for e in expr.elts}
-        if isinstance(expr, ast.Dict):
-            return {
-                self._parse_default_value(k): self._parse_default_value(v)
-                for k, v in zip(expr.keys, expr.values)}
-        if isinstance(expr, ast.UnaryOp):
-            if isinstance(expr.op, ast.USub):
-                operand = self._parse_default_value(expr.operand)
-                if isinstance(operand, (float, int)):
-                    return -operand     # pylint: disable=E1130
-                if isinstance(operand, str):
-                    return "None"
-                raise NotImplementedError(
-                    f"{type(operand)} is not supported as an operand of USub")
-            raise NotImplementedError(
-                f"{type(expr.op)} is not supported as an UnaryOp")
-        if isinstance(expr, ast.BinOp):
-            return "None"   # TODO: Should return result
-        if isinstance(expr, ast.Subscript):
-            value = self._parse_default_value(expr.value)
-            slice_ = self._parse_default_value(expr.slice)
-            return f"{value}[{slice_}]"
-        if isinstance(expr, ast.Call):
-            func = self._parse_default_value(expr.func)
-            args = ', '.join([str(self._parse_default_value(arg))
-                              for arg in expr.args])
-            return f"{func}({args})"
-        if isinstance(expr, ast.Attribute):
-            return "None"   # TODO: Should be "expr.attr"
-        raise NotImplementedError(
-            f"{type(expr)} is not supported as a default value")
 
     def run(self):
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
+        # Parse "(Deprecated*" from the data name.
+        func_name = self.arguments[0]
+        index = func_name.rfind("(Deprecated")
+        deprecated_str = None
+        if index != -1:
+            deprecated_str = func_name[index:]
+            func_name = func_name[0:index]
+
         func_defs = []
         fdef_str: str = ""
-        for fdef in self.arguments[0].split("\n"):
+        for fdef in func_name.split("\n"):
             if fdef[-1] == "\\":
                 fdef_str += fdef[:-1]
             else:
                 fdef_str += fdef
                 ma = self._FUNC_DEF_REGEX.search(fdef_str)
                 if ma:
-                    # TODO: Mark a deprecated flag.
-                    fdef_str = self._DEPRECATED_REGEX.sub("", fdef_str)
-                    func_defs.append(self._parse_function_def(fdef_str))
+                    func_defs.append(parse_function_def(fdef_str))
                 else:
                     # (test=DirectivesTest.test_invalid_function)
                     # Handle case:
@@ -305,13 +370,12 @@ class FunctionDirective(rst.Directive):
         func_nodes: list = []
         # pylint: disable=R1702
         for fdef in func_defs:
-            func_node = FunctionNode.create_template(function_type=self.name)
+            func_node = build_function_node_from_def(fdef)
 
-            m: ast.Module = ast.parse(fdef)
-            func_def: ast.FunctionDef = m.body[0]
-
-            # Get function name.
-            func_node.element(NameNode).add_text(func_def.name)
+            # Add attributes.
+            func_node.attributes["function_type"] = self.name
+            if deprecated_str is not None:
+                func_node.attributes["deprecated"] = deprecated_str
 
             # Get all descriptions.
             desc_str = ""
@@ -322,43 +386,8 @@ class FunctionDirective(rst.Directive):
 
             func_nodes.append(func_node)
 
-            # Get function signature.
-            arg_list_node = func_node.element(ArgumentListNode)
-            for i, arg in enumerate(func_def.args.args):
-                # Remove self argument which will be added later.
-                if i == 0 and arg.arg == "self":
-                    continue
-                arg_node = ArgumentNode.create_template(argument_type="arg")
-                arg_node.element(NameNode).add_text(arg.arg)
-                default_start = \
-                    len(func_def.args.args) - len(func_def.args.defaults)
-                if i >= default_start:
-                    default = func_def.args.defaults[i - default_start]
-                    default_value = self._parse_default_value(default)
-                    if default_value is not None:
-                        arg_node.element(DefaultValueNode).add_text(default_value)
-                arg_list_node.append_child(arg_node)
-
-            if func_def.args.vararg:
-                arg_node = ArgumentNode.create_template(argument_type="vararg")
-                arg_node.element(NameNode).add_text(func_def.args.vararg.arg)
-                arg_list_node.append_child(arg_node)
-
-            for i, arg in enumerate(func_def.args.kwonlyargs):
-                arg_node = ArgumentNode.create_template(argument_type="kwonlyarg")
-                arg_node.element(NameNode).add_text(arg.arg)
-                default = func_def.args.kw_defaults[i]
-                default_value = self._parse_default_value(default)
-                if default_value is not None:
-                    arg_node.element(DefaultValueNode).add_text(default_value)
-                arg_list_node.append_child(arg_node)
-
-            if func_def.args.kwarg:
-                arg_node = ArgumentNode.create_template(argument_type="kwarg")
-                arg_node.element(NameNode).add_text(func_def.args.kwarg.arg)
-                arg_list_node.append_child(arg_node)
-
             # Get signature details
+            arg_list_node = func_node.element(ArgumentListNode)
             field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
             for field_list in field_lists:
                 for field in field_list:

@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        child_module_module_1_submodule_1.rst
     <module>
         <name>
             module_1.submodule_1

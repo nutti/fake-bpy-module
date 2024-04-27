@@ -1,8 +1,10 @@
 <document source="<string>">
     <module>
         <name>
-            bpy.types.NoModule
+            bge.types.NoModule
         <description>
+    <source-filename>
+        bge.types.NoModule.rst
     <function function_type="function">
         <name>
             function_1
@@ -14,6 +16,7 @@
                     arg_1
                 <description>
                     function_1 arg_1 description
+                <default-value>
                 <data-type-list>
                     <data-type>
                         function_1 arg_1 type
@@ -22,14 +25,19 @@
                     arg_2
                 <description>
                     function_1 arg_2 description
+                <default-value>
                 <data-type-list>
                     <data-type>
                         function_1 arg_2 type
+        <return>
+            <description>
+            <data-type-list>
     <class>
         <name>
             ClassA
         <description>
             ClassA description
+        <base-class-list>
         <attribute-list>
             <attribute>
                 <name>
@@ -51,16 +59,17 @@
                             arg_1
                         <description>
                             method_1 arg_1 description
+                        <default-value>
                         <data-type-list>
                             <data-type>
                                 method_1 arg_1 type
                     <argument argument_type="arg">
                         <name>
                             arg_2
-                        <default-value>
-                            "test"
                         <description>
                             method_1 arg_2 description
+                        <default-value>
+                            "test"
                         <data-type-list>
                             <data-type>
                                 method_1 arg_2 type

@@ -1,4 +1,6 @@
 <document source="<string>">
+    <source-filename>
+        special_data_type.rst
     <module>
         <name>
             module_1

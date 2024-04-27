@@ -1,4 +1,6 @@
 <document ids="noise-noise" names="noise(noise)" source="<string>" title="Noise(Noise)">
+    <source-filename>
+        noisy_1.rst
     <title>
         Noise(Noise)
     <module>
