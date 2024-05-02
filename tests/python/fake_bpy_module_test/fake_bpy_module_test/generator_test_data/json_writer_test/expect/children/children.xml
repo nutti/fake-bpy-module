@@ -1,0 +1,16 @@
+<document source="<string>">
+    <source-filename>
+        children.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    submodule_1.ClassA

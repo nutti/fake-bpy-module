@@ -16,10 +16,12 @@ def create_generator(
         name: str, target_files: List[str], mod_files: List[str],
         config: 'fbm.PackageGeneratorConfig') -> 'fbm.PackageGenerationRule':
     generator: fbm.BaseWriter = None
-    if config.output_format == ".py":
+    if config.output_format == "py":
         generator = fbm.PyCodeWriter()
     elif config.output_format == "pyi":
         generator = fbm.PyInterfaceWriter()
+    elif config.output_format == "json":
+        generator = fbm.JsonWriter()
 
     analyzer = fbm.BaseAnalyzer(mod_files)
 
@@ -233,10 +235,6 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
         "-o", dest="output_dir", type=str, help="Output directory"
     )
     parser.add_argument(
-        "-d", dest="dump", action="store_true",
-        help="Dump intermediate structure to JSON files"
-    )
-    parser.add_argument(
         "-f", dest="style_format", type=str,
         help="Style format (none, yapf, ruff)"
     )
@@ -321,9 +319,6 @@ def parse_options(config: 'fbm.PackageGeneratorConfig'):
             "err": fbm.utils.LOG_LEVEL_ERR,
         }
         fbm.utils.LOG_LEVEL = ARG_TO_LOG_LEVEL[args.output_log_level]
-
-    if args.dump:
-        config.dump = True
 
 
 def main():

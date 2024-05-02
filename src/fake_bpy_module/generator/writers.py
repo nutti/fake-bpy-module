@@ -1,5 +1,7 @@
 import abc
+import copy
 import graphlib
+import json
 from typing import List
 from collections import OrderedDict
 from docutils import nodes
@@ -97,25 +99,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> List[NodeBase]:
 
 class BaseWriter(metaclass=abc.ABCMeta):
     def __init__(self):
-        self._writer: CodeWriter = CodeWriter()
-
-    @abc.abstractmethod
-    def _write_function_code(self, func_node: FunctionNode):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def _write_class_code(self, class_node: ClassNode):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def _write_constant_code(self, data_node: DataNode):
-        raise NotImplementedError()
-
-    # TODO: support json output
-    # def dump_json(self, filename: str, document: nodes.document):
-    #     json_data = [info.to_dict() for info in data.data]
-    #     with open(filename, "w", newline="\n", encoding="utf-8") as f:
-    #         json.dump(json_data, f, indent=4)
+        self.file_format = ""
 
     @abc.abstractmethod
     def write(self, filename: str, document: nodes.document, style_config: str = 'ruff'):
@@ -126,6 +110,7 @@ class PyCodeWriterBase(BaseWriter):
     def __init__(self):
         super().__init__()
 
+        self._writer: CodeWriter = CodeWriter()
         self.ellipsis_strings = {
             "constant": " = None",
             "function": "pass",
@@ -556,3 +541,180 @@ class PyInterfaceWriter(PyCodeWriterBase):
             "class": "..."
         }
         self.file_format = "pyi"
+
+
+class JsonWriter(BaseWriter):
+    def __init__(self):
+        super().__init__()
+
+        self.file_format = "json"
+
+    def _clean_node_attributes(self, attributes: dict) -> dict:
+        cleaned = copy.deepcopy(attributes)
+
+        keys_to_remove = ("ids", "classes", "names", "dupnames", "backrefs")
+        for key in keys_to_remove:
+            if key in cleaned:
+                del cleaned[key]
+
+        return cleaned
+
+    def _create_function_json_data(self, func_node: FunctionNode):
+        func_data = {
+            "type": "function",
+            "name": func_node.element(NameNode).astext(),
+            "description": func_node.element(DescriptionNode).astext(),
+            "arguments": [],
+            "return": {},
+            "options": self._clean_node_attributes(func_node.attributes),
+        }
+
+        arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
+        for arg_node in arg_nodes:
+            arg_data = {
+                "name": arg_node.element(NameNode).astext(),
+                "description": arg_node.element(DescriptionNode).astext(),
+                "data_types": [],
+                "default_value": arg_node.element(DefaultValueNode).astext()
+            }
+            dtype_nodes = find_children(arg_node.element(DataTypeListNode), DataTypeNode)
+            for dtype_node in dtype_nodes:
+                dtype_data = {
+                    "data_type": dtype_node.to_string(),
+                    "options": self._clean_node_attributes(dtype_node.attributes),
+                }
+                arg_data["data_types"].append(dtype_data)
+            func_data["arguments"].append(arg_data)
+
+        ret_node = func_node.element(FunctionReturnNode)
+        func_data["return"] = {
+            "description": ret_node.element(DescriptionNode).astext(),
+            "data_types": [],
+        }
+        dtype_nodes = find_children(ret_node.element(DataTypeListNode), DataTypeNode)
+        for dtype_node in dtype_nodes:
+            dtype_data = {
+                "data_type": dtype_node.to_string(),
+                "options": self._clean_node_attributes(dtype_node.attributes),
+            }
+            func_data["return"]["data_types"].append(dtype_data)
+
+        return func_data
+
+    def _create_constant_json_data(self, data_node: DataNode):
+        data_data = {
+            "type": "data",
+            "name": data_node.element(NameNode).astext(),
+            "description": data_node.element(DescriptionNode).astext(),
+            "data_types": [],
+            "options": self._clean_node_attributes(data_node.attributes),
+        }
+
+        dtype_nodes = find_children(data_node.element(DataTypeListNode), DataTypeNode)
+        for dtype_node in dtype_nodes:
+            dtype_data = {
+                "data_type": dtype_node.to_string(),
+                "options": self._clean_node_attributes(dtype_node.attributes),
+            }
+            data_data["data_types"].append(dtype_data)
+
+        return data_data
+
+    def _create_class_json_data(self, class_node: ClassNode):
+        class_data = {
+            "type": "class",
+            "name": class_node.element(NameNode).astext(),
+            "description": class_node.element(DescriptionNode).astext(),
+            "base_classes": [],
+            "attributes": [],
+            "methods": [],
+            "options": self._clean_node_attributes(class_node.attributes),
+        }
+
+        base_class_nodes = find_children(class_node.element(BaseClassListNode), BaseClassNode)
+        for base_class_node in base_class_nodes:
+            base_class_data = {
+                "data_types": [],
+            }
+            dtype_nodes = find_children(base_class_node.element(DataTypeListNode), DataTypeNode)
+            for dtype_node in dtype_nodes:
+                dtype_data = {
+                    "data_type": dtype_node.to_string(),
+                    "options": self._clean_node_attributes(dtype_node.attributes),
+                }
+                base_class_data["data_types"].append(dtype_data)
+            class_data["base_classes"].append(base_class_data)
+
+        attr_nodes = find_children(class_node.element(AttributeListNode), AttributeNode)
+        for attr_node in attr_nodes:
+            attr_data = self._create_constant_json_data(attr_node)
+            del attr_data["type"]
+            class_data["attributes"].append(attr_data)
+
+        method_nodes = find_children(class_node.element(FunctionListNode), FunctionNode)
+        for method_node in method_nodes:
+            method_data = self._create_function_json_data(method_node)
+            del method_data["type"]
+            class_data["methods"].append(method_data)
+
+        return class_data
+
+    def write(self, filename: str, document: nodes.document, style_config: str = 'none'):
+        sorted_data = sorted_entry_point_nodes(document)
+
+        json_data = []
+
+        code_doc_nodes = find_children(document, CodeDocumentNode)
+        doc_writer = CodeWriter()
+        visitor = CodeDocumentNodeTranslator(document, doc_writer)
+        for node in code_doc_nodes:
+            node.walkabout(visitor)
+        json_data.append({
+            "type": "code-document",
+            "contents": doc_writer.get_data_as_string(),
+        })
+
+        # import external depended modules
+        json_data.append({
+            "type": "external-depended-modules",
+            "contents": ["typing"],
+        })
+
+        # import depended modules
+        dep_list_node = get_first_child(document, DependencyListNode)
+        dependencies = []
+        if dep_list_node is not None:
+            dep_nodes = find_children(dep_list_node, DependencyNode)
+            dependencies = [node.astext() for node in dep_nodes]
+        json_data.append({
+            "type": "internal-depended-modules",
+            "contents": dependencies,
+        })
+
+        # import child module to search child modules
+        child_list_node = get_first_child(document, ChildModuleListNode)
+        children = []
+        if child_list_node is not None:
+            child_nodes = find_children(child_list_node, ChildModuleNode)
+            children = [node.astext() for node in child_nodes]
+        json_data.append({
+            "type": "child-modules",
+            "contents": children,
+        })
+
+        # for generic type
+        json_data.append({
+            "type": "code",
+            "contents": ['GenericType = typing.TypeVar("GenericType")']
+        })
+
+        for node in sorted_data:
+            if isinstance(node, ClassNode):
+                json_data.append(self._create_class_json_data(node))
+            elif isinstance(node, FunctionNode):
+                json_data.append(self._create_function_json_data(node))
+            elif isinstance(node, DataNode):
+                json_data.append(self._create_constant_json_data(node))
+
+        with open(f"{filename}.{self.file_format}", "w", newline="\n", encoding="utf-8") as f:
+            json.dump(json_data, f, indent=4)

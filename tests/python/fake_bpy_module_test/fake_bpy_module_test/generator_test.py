@@ -8,9 +8,10 @@ from fake_bpy_module.transformer.transformer import Transformer     # pylint: di
 from fake_bpy_module.transformer.utils import ModuleStructure       # pylint: disable=E0401
 from fake_bpy_module.generator.writers import (     # pylint: disable=E0401
     sorted_entry_point_nodes,
-    PyCodeWriterBase,
+    BaseWriter,
     PyCodeWriter,
     PyInterfaceWriter,
+    JsonWriter,
 )
 from fake_bpy_module.generator.code_writer import (     # pylint: disable=E0401
     CodeWriterIndent,
@@ -291,13 +292,13 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
             self.compare_with_file_contents(sorted_document.pformat(), expect)
 
 
-class PyCodeWriterTestBase(common.FakeBpyModuleTestBase):
+class WriterTestBase(common.FakeBpyModuleTestBase):
 
-    name = "PyCodeWriterTest"
+    name = "WriterTest"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/py_code_writer_test")
-    writer_class: type[PyCodeWriterBase] = PyCodeWriterBase
+    writer_class: type[BaseWriter] = BaseWriter
     file_extension: str = ""
     output_file: str = "py_code_writer_test_output"
 
@@ -589,26 +590,37 @@ class PyCodeWriterTestBase(common.FakeBpyModuleTestBase):
             self.assertEqual(expect_contents, actual_contents)
 
 
-class PyCodeWriterTest(PyCodeWriterTestBase):
+class PyCodeWriterTest(WriterTestBase):
 
     name = "PyCodeWriterTest"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/py_code_writer_test")
-    writer_class: type[PyCodeWriterBase] = PyCodeWriter
+    writer_class: type[BaseWriter] = PyCodeWriter
     file_extension: str = "py"
     output_file: str = "py_code_writer_test_output"
 
 
-class PyInterfaceWriterTest(PyCodeWriterTestBase):
+class PyInterfaceWriterTest(WriterTestBase):
 
     name = "PyInterfaceWriterTest"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/py_interface_writer_test")
-    writer_class: type[PyCodeWriterBase] = PyInterfaceWriter
+    writer_class: type[BaseWriter] = PyInterfaceWriter
     file_extension: str = "pyi"
     output_file: str = "py_interface_writer_test_output"
+
+
+class JsonWriterTest(WriterTestBase):
+
+    name = "JsonWriterTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/generator_test_data/json_writer_test")
+    writer_class: type[BaseWriter] = JsonWriter
+    file_extension: str = "json"
+    output_file: str = "json_writer_test_output"
 
 
 class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):

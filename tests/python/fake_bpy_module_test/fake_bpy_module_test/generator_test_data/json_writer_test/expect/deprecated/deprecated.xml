@@ -1,0 +1,26 @@
+<document source="<string>">
+    <source-filename>
+        deprecated.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <data deprecated="(Deprecated)">
+        <name>
+            DATA_1
+        <description>
+        <data-type-list>
+    <function deprecated="(Deprecated)" function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                <default-value>
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>

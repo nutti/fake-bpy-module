@@ -1,0 +1,219 @@
+[
+    {
+        "type": "code-document",
+        "contents": ""
+    },
+    {
+        "type": "external-depended-modules",
+        "contents": [
+            "typing"
+        ]
+    },
+    {
+        "type": "internal-depended-modules",
+        "contents": []
+    },
+    {
+        "type": "child-modules",
+        "contents": []
+    },
+    {
+        "type": "code",
+        "contents": [
+            "GenericType = typing.TypeVar(\"GenericType\")"
+        ]
+    },
+    {
+        "type": "class",
+        "name": "ClassA",
+        "description": "ClassA description",
+        "base_classes": [],
+        "attributes": [
+            {
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "data_types": [
+                    {
+                        "data_type": "float",
+                        "options": {}
+                    }
+                ],
+                "options": {}
+            },
+            {
+                "name": "data_1",
+                "description": "data_1 description",
+                "data_types": [
+                    {
+                        "data_type": "int",
+                        "options": {}
+                    }
+                ],
+                "options": {}
+            }
+        ],
+        "methods": [
+            {
+                "name": "method_1",
+                "description": "method_1 description",
+                "arguments": [
+                    {
+                        "name": "arg_1",
+                        "description": "method_1 arg_1 description",
+                        "data_types": [
+                            {
+                                "data_type": "float",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    },
+                    {
+                        "name": "arg_2",
+                        "description": "method_1 arg_2 description",
+                        "data_types": [
+                            {
+                                "data_type": "str",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": "\"test\""
+                    }
+                ],
+                "return": {
+                    "description": "method_1 return description",
+                    "data_types": [
+                        {
+                            "data_type": "str",
+                            "options": {}
+                        }
+                    ]
+                },
+                "options": {
+                    "function_type": "method"
+                }
+            },
+            {
+                "name": "classmethod_1",
+                "description": "classmethod_1 description",
+                "arguments": [
+                    {
+                        "name": "arg_1",
+                        "description": "classmethod_1 arg_1 description",
+                        "data_types": [
+                            {
+                                "data_type": "float",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    },
+                    {
+                        "name": "arg_2",
+                        "description": "classmethod_1 arg_2 description",
+                        "data_types": [
+                            {
+                                "data_type": "int",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": "123"
+                    }
+                ],
+                "return": {
+                    "description": "classmethod_1 return description",
+                    "data_types": [
+                        {
+                            "data_type": "str",
+                            "options": {}
+                        }
+                    ]
+                },
+                "options": {
+                    "function_type": "classmethod"
+                }
+            },
+            {
+                "name": "staticmethod_1",
+                "description": "staticmethod_1 description",
+                "arguments": [
+                    {
+                        "name": "arg_1",
+                        "description": "staticmethod_1 arg_1 description",
+                        "data_types": [
+                            {
+                                "data_type": "float",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    },
+                    {
+                        "name": "arg_2",
+                        "description": "staticmethod_1 arg_2 description",
+                        "data_types": [
+                            {
+                                "data_type": "typing.Tuple",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": "(0, 0)"
+                    }
+                ],
+                "return": {
+                    "description": "staticmethod_1 return description",
+                    "data_types": [
+                        {
+                            "data_type": "str",
+                            "options": {}
+                        }
+                    ]
+                },
+                "options": {
+                    "function_type": "staticmethod"
+                }
+            },
+            {
+                "name": "function_1",
+                "description": "function_1 description",
+                "arguments": [
+                    {
+                        "name": "arg_1",
+                        "description": "function_1 arg_1 description",
+                        "data_types": [
+                            {
+                                "data_type": "float",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    },
+                    {
+                        "name": "arg_2",
+                        "description": "function_1 arg_2 description",
+                        "data_types": [
+                            {
+                                "data_type": "int",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    }
+                ],
+                "return": {
+                    "description": "function_1 return description",
+                    "data_types": [
+                        {
+                            "data_type": "str",
+                            "options": {}
+                        }
+                    ]
+                },
+                "options": {
+                    "function_type": "function"
+                }
+            }
+        ],
+        "options": {}
+    }
+]

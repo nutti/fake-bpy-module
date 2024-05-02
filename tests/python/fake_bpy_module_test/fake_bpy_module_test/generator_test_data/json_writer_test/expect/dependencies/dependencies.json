@@ -1,0 +1,40 @@
+[
+    {
+        "type": "code-document",
+        "contents": ""
+    },
+    {
+        "type": "external-depended-modules",
+        "contents": [
+            "typing"
+        ]
+    },
+    {
+        "type": "internal-depended-modules",
+        "contents": [
+            "module_2"
+        ]
+    },
+    {
+        "type": "child-modules",
+        "contents": []
+    },
+    {
+        "type": "code",
+        "contents": [
+            "GenericType = typing.TypeVar(\"GenericType\")"
+        ]
+    },
+    {
+        "type": "data",
+        "name": "DATA_1",
+        "description": "DATA_1 description",
+        "data_types": [
+            {
+                "data_type": "module_2.ClassA",
+                "options": {}
+            }
+        ],
+        "options": {}
+    }
+]

@@ -20,7 +20,6 @@ class PackageGeneratorConfig:
         self.output_dir: str = "./out"
         self.os: str = "Linux"
         self.style_format: str = "ruff"
-        self.dump: bool = False
         self.target: str = "blender"
         self.target_version: str = None
         self.mod_version: str = None

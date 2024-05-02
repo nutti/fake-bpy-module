@@ -5,6 +5,7 @@ from .generator.writers import (
     BaseWriter,
     PyCodeWriter,
     PyInterfaceWriter,
+    JsonWriter,
 )
 from .generator.generator import (
     PackageGeneratorConfig,
