@@ -1,0 +1,78 @@
+[
+    {
+        "type": "code-document",
+        "contents": ""
+    },
+    {
+        "type": "external-depended-modules",
+        "contents": [
+            "typing"
+        ]
+    },
+    {
+        "type": "internal-depended-modules",
+        "contents": []
+    },
+    {
+        "type": "child-modules",
+        "contents": []
+    },
+    {
+        "type": "code",
+        "contents": [
+            "GenericType = typing.TypeVar(\"GenericType\")"
+        ]
+    },
+    {
+        "type": "function",
+        "name": "function_1",
+        "description": "function_1 description",
+        "arguments": [
+            {
+                "name": "arg_1",
+                "description": "function_1 arg_1 description",
+                "data_types": [
+                    {
+                        "data_type": "float",
+                        "options": {}
+                    }
+                ],
+                "default_value": ""
+            },
+            {
+                "name": "arg_2",
+                "description": "function_1 arg_2 description",
+                "data_types": [
+                    {
+                        "data_type": "str",
+                        "options": {}
+                    }
+                ],
+                "default_value": "\"test\""
+            },
+            {
+                "name": "arg_3",
+                "description": "function_1 arg_3 description",
+                "data_types": [
+                    {
+                        "data_type": "int",
+                        "options": {}
+                    }
+                ],
+                "default_value": "1234"
+            }
+        ],
+        "return": {
+            "description": "function_1 return description",
+            "data_types": [
+                {
+                    "data_type": "str",
+                    "options": {}
+                }
+            ]
+        },
+        "options": {
+            "function_type": "function"
+        }
+    }
+]

@@ -1,0 +1,56 @@
+[
+    {
+        "type": "code-document",
+        "contents": ""
+    },
+    {
+        "type": "external-depended-modules",
+        "contents": [
+            "typing"
+        ]
+    },
+    {
+        "type": "internal-depended-modules",
+        "contents": []
+    },
+    {
+        "type": "child-modules",
+        "contents": []
+    },
+    {
+        "type": "code",
+        "contents": [
+            "GenericType = typing.TypeVar(\"GenericType\")"
+        ]
+    },
+    {
+        "type": "function",
+        "name": "function_1",
+        "description": "",
+        "arguments": [
+            {
+                "name": "arg_1",
+                "description": "",
+                "data_types": [],
+                "default_value": ""
+            }
+        ],
+        "return": {
+            "description": "",
+            "data_types": []
+        },
+        "options": {
+            "function_type": "function",
+            "deprecated": "(Deprecated)"
+        }
+    },
+    {
+        "type": "data",
+        "name": "DATA_1",
+        "description": "",
+        "data_types": [],
+        "options": {
+            "deprecated": "(Deprecated)"
+        }
+    }
+]

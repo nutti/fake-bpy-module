@@ -38,6 +38,7 @@ def main():
         fake_bpy_module_test.generator_test.SortedEntryPointNodesTest,
         fake_bpy_module_test.generator_test.PyCodeWriterTest,
         fake_bpy_module_test.generator_test.PyInterfaceWriterTest,
+        fake_bpy_module_test.generator_test.JsonWriterTest,
         fake_bpy_module_test.generator_test.CodeDocumentNodeTranslatorTest,
 
         fake_bpy_module_test.transformer_test.BaseClassFixtureTest,
