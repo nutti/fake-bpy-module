@@ -215,7 +215,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         expect_sorted_files = [f"{self.data_dir}/expect/basic/{f}" for f in expect_sorted_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -244,7 +244,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
                                for f in expect_sorted_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -273,7 +273,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
                                for f in expect_sorted_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -329,7 +329,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -365,7 +365,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -400,7 +400,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -439,7 +439,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -506,7 +506,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -564,7 +564,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -660,7 +660,7 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
                                   for f in expect_generated_files]
 
         # Analyze
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)

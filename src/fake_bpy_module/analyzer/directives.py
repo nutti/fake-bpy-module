@@ -26,7 +26,7 @@ from .nodes import (
     make_data_type_node,
 )
 
-from .. import configuration
+from .. import config
 from ..utils import (
     append_child,
     split_string_by_comma,
@@ -54,6 +54,7 @@ def parse_function_def(content) -> str:
     fixed_params = []
     required_named_argument = False
     for p in params:
+        p = p.strip()
         sp = p.split("=")
         assert len(sp) in (1, 2)
         if len(sp) == 1:
@@ -64,6 +65,25 @@ def parse_function_def(content) -> str:
         elif len(sp) == 2:
             required_named_argument = True
             fixed_params.append(p)
+
+    # TODO: add test
+    # Handle case:
+    #   function_1(async=False): pass
+    invalid_param_names = ["async"]
+    fixed_params_tmp = fixed_params
+    fixed_params = []
+    for p in fixed_params_tmp:
+        sp = p.split("=")
+        if len(sp) == 1:
+            if p in invalid_param_names:
+                fixed_params.append(f"{p}_")
+            else:
+                fixed_params.append(p)
+        elif len(sp) == 2:
+            if sp[0] in invalid_param_names:
+                fixed_params.append(f"{sp[0]}_={sp[1]}")
+            else:
+                fixed_params.append(p)
 
     content = f"def {name}({', '.join(fixed_params)}): pass"
 
@@ -197,11 +217,11 @@ class ModuleDirective(rst.Directive):
 
         # Get module name.
         module_name = self.arguments[0]
-        if configuration.get_target() == "blender":
-            if configuration.get_target_version() == "2.90":
+        if config.get_target() == "blender":
+            if config.get_target_version() == "2.90":
                 if module_name.startswith("bpy.types."):
                     module_name = module_name[:module_name.rfind(".")]
-            elif configuration.get_target_version() in [
+            elif config.get_target_version() in [
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
                     "4.0",

@@ -21,6 +21,36 @@ from .target_file_combiner import TargetFileCombiner
 from .first_title_remover import FirstTitleRemover
 
 
+def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nodes.document]:
+    t = Transformer([
+        "module_name_fixture",
+        "first_title_remover",
+        "base_class_fixture",
+        "rst_specific_node_cleaner",
+        "module_level_attribute_fixture",
+        "bpy_app_handlers_data_type_adder",
+        "bpy_ops_override_parameters_adder",
+        "bpy_types_class_base_class_rebaser",
+        "bpy_context_variable_converter",
+        "mod_applier",
+        "format_validator",
+
+        "target_file_combiner",
+        "data_type_refiner",
+        "default_value_filler",
+        "cannonical_data_type_rewriter",
+        "dependency_builder",
+        "code_document_refiner",
+    ], {
+        "mod_applier": {
+            "mod_files": mod_files
+        }
+    })
+    documents = t.transform(documents)
+
+    return documents
+
+
 class Transformer:
     def __init__(self, transform_kinds: List[str], parameters: dict = None):
         self.transform_kinds: List[str] = transform_kinds

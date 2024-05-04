@@ -2,6 +2,7 @@
 set -eEuxo pipefail
 
 TMP_DIR_NAME=gen_module-tmp
+PROFILER_RESULT_FILENAME="profiler_result.prof"
 # shellcheck disable=SC2046,SC2155,SC2164
 {
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
@@ -30,6 +31,7 @@ fi
 
 format=${GEN_MODULE_CODE_FORMAT:-ruff}
 output_log_level=${GEN_MODULE_OUTPUT_LOG_LEVEL:-warn}
+enable_python_profiler=${ENABLE_PYTHON_PROFILER:-false}
 
 # find blender binary
 # shellcheck disable=SC2003,SC2308,SC2046
@@ -149,33 +151,47 @@ if [[ ! -d "${tmp_dir}/sphinx-in.orig" && "${mod_version}" != "not-specified" ]]
 
     # Fix invalid rst format.
     echo "Fix invalid rst format ..."
-    if [ "${git_ref}" = "v3.5.0" ]; then
-        # :file:`XXX` -> :file: `XXX`
-        echo "  Fix: ':file:\`' -> ':file: \`"
-        # shellcheck disable=SC2044
-        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-            search_str=":file:\`"
-            replace_str=":file: \`"
-            if grep -q "${search_str}" "${rst_file}"; then
-                echo "    ${rst_file}"
-                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
-            fi
-        done
-    elif [ "${git_ref}" = "v2.90.0" ]; then
-        #       .. note:: Takes ``O(len(nodetree.links))`` time.
-        #       (readonly)
-        # ->
-        #       .. note:: Takes ``O(len(nodetree.links))`` time.
-        #
-        #       (readonly)
-        echo "  Fix: Invalid (readonly) position"
-        # shellcheck disable=SC2044
-        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-            if ! perl -ne 'BEGIN{$/="";}{exit(1) if /(..note::.*?)\n(\s*\(readonly\))/;}' "${rst_file}"; then
-                echo "    ${rst_file}"
-                perl -i -pe 'BEGIN{$/="";}{s/(..note::.*?)\n(\s*\(readonly\))/$1\n\n$2/g;}' "${rst_file}"
-            fi
-        done
+    if [ "${target}" = "blender" ]; then
+        if [ "${git_ref}" = "v3.5.0" ]; then
+            # :file:`XXX` -> :file: `XXX`
+            echo "  Fix: ':file:\`' -> ':file: \`"
+            # shellcheck disable=SC2044
+            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+                search_str=":file:\`"
+                replace_str=":file: \`"
+                if grep -q "${search_str}" "${rst_file}"; then
+                    echo "    ${rst_file}"
+                    sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+                fi
+            done
+        elif [ "${git_ref}" = "v2.90.0" ]; then
+            #       .. note:: Takes ``O(len(nodetree.links))`` time.
+            #       (readonly)
+            # ->
+            #       .. note:: Takes ``O(len(nodetree.links))`` time.
+            #
+            #       (readonly)
+            echo "  Fix: Invalid (readonly) position"
+            # shellcheck disable=SC2044
+            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+                if ! perl -ne 'BEGIN{$/="";}{exit(1) if /(..note::.*?)\n(\s*\(readonly\))/;}' "${rst_file}"; then
+                    echo "    ${rst_file}"
+                    perl -i -pe 'BEGIN{$/="";}{s/(..note::.*?)\n(\s*\(readonly\))/$1\n\n$2/g;}' "${rst_file}"
+                fi
+            done
+        elif [ "${git_ref}" = "v2.78c" ] || [ "${git_ref}" = "v2.79b" ]; then
+            # .. code-block:: none -> .. code-block:: python
+            echo "  Fix: Invalid code-block argument"
+            # shellcheck disable=SC2044
+            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+                search_str=".. code-block:: none"
+                replace_str=".. code-block:: python"
+                if grep -q "${search_str}" "${rst_file}"; then
+                    echo "    ${rst_file}"
+                    sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+                fi
+            done
+        fi
     fi
 fi
 
@@ -208,11 +224,18 @@ if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${SCRIPT_DIR}/gen_
     ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -f rst
 fi
 
+python_args=""
+if "${enable_python_profiler}"; then
+    python_args="-m profile -s cumtime -o ${SCRIPT_DIR}/../${PROFILER_RESULT_FILENAME}"
+fi
+
 echo "Generating fake bpy modules ..."
 if [ "${mod_version}" = "not-specified" ]; then
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}"
+    # shellcheck disable=SC2086
+    ${python_bin} ${python_args} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}"
 else
-    ${python_bin} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}" -m "${mod_version}"
+    # shellcheck disable=SC2086
+    ${python_bin} ${python_args} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}" -m "${mod_version}"
 fi
 
 echo "Cleaning up ..."

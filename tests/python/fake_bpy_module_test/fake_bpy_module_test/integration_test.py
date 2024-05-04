@@ -1,18 +1,10 @@
 import shutil
 import os
 
-from fake_bpy_module.generator.generator import (     # pylint: disable=E0401
-    PackageGeneratorConfig,
-    PackageGenerator,
-    PackageGenerationRule,
-)
-from fake_bpy_module.analyzer.analyzer import (     # pylint: disable=E0401
-    BaseAnalyzer,
-)
-from fake_bpy_module.generator.writers import (     # pylint: disable=E0401
-    PyCodeWriter,
-    PyInterfaceWriter,
-)
+from fake_bpy_module.analyzer.analyzer import analyze   # pylint: disable=E0401
+from fake_bpy_module.transformer.transformer import transform   # pylint: disable=E0401
+from fake_bpy_module.generator.generator import generate    # pylint: disable=E0401
+from fake_bpy_module.config import PackageGenerationConfig  # pylint: disable=E0401
 from . import common
 
 
@@ -35,12 +27,11 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
         shutil.rmtree(self.output_dir)
 
-    def __create_package_generator_config(self) -> PackageGeneratorConfig:
-        config = PackageGeneratorConfig()
+    def __create_package_generator_config(self) -> PackageGenerationConfig:
+        config = PackageGenerationConfig()
         config.output_dir = self.output_dir
         config.os = "Linux"
         config.style_format = "ruff"
-        config.dump = True
         config.target = "blender"
         config.target_version = "2.80"
         config.mod_version = "2.80"
@@ -59,16 +50,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
         config = self.__create_package_generator_config()
 
-        ext_patterns = {
-            "py": PyCodeWriter,
-            "pyi": PyInterfaceWriter,
-        }
-        for ext, writer_cls in ext_patterns.items():
-            generator = PackageGenerator(config)
-            rule = PackageGenerationRule(
-                "rule", rst_files, BaseAnalyzer([]), writer_cls())
-            generator.add_rule(rule)
-            generator.generate()
+        ext_patterns = ["py", "pyi"]
+        for ext in ext_patterns:
+            config.output_format = ext
+            documents = analyze(rst_files, config)
+            documents = transform(documents, [])
+            generate(documents, config)
 
             expect_files_dir = f"{self.data_dir}/expect/single"
             actual_files_dir = self.output_dir
@@ -100,16 +87,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
         config = self.__create_package_generator_config()
 
-        ext_patterns = {
-            "py": PyCodeWriter,
-            "pyi": PyInterfaceWriter,
-        }
-        for ext, writer_cls in ext_patterns.items():
-            generator = PackageGenerator(config)
-            rule = PackageGenerationRule(
-                "rule", rst_files, BaseAnalyzer([]), writer_cls())
-            generator.add_rule(rule)
-            generator.generate()
+        ext_patterns = ["py", "pyi"]
+        for ext in ext_patterns:
+            config.output_format = ext
+            documents = analyze(rst_files, config)
+            documents = transform(documents, [])
+            generate(documents, config)
 
             expect_files_dir = f"{self.data_dir}/expect/multiple"
             actual_files_dir = self.output_dir
@@ -141,16 +124,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
         config = self.__create_package_generator_config()
 
-        ext_patterns = {
-            "py": PyCodeWriter,
-            "pyi": PyInterfaceWriter,
-        }
-        for ext, writer_cls in ext_patterns.items():
-            generator = PackageGenerator(config)
-            rule = PackageGenerationRule(
-                "rule", rst_files, BaseAnalyzer([]), writer_cls())
-            generator.add_rule(rule)
-            generator.generate()
+        ext_patterns = ["py", "pyi"]
+        for ext in ext_patterns:
+            config.output_format = ext
+            documents = analyze(rst_files, config)
+            documents = transform(documents, [])
+            generate(documents, config)
 
             expect_files_dir = f"{self.data_dir}/expect/exceptional"
             actual_files_dir = self.output_dir

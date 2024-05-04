@@ -9,6 +9,7 @@ on:   # yamllint disable-line rule:truthy
   push:
     branches:
       - master
+      - 'perf/**'
       - 'run-ci/**'
   pull_request:
 
@@ -97,14 +98,25 @@ jobs:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "debug"
+          ENABLE_PYTHON_PROFILER: false
         run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
 
       - name: Generate pip Packages
-        if: "!contains(github.ref, 'run-ci/')"
+        if: contains(github.ref, 'perf/')
         env:
           RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
+          ENABLE_PYTHON_PROFILER: true
+        run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
+
+      - name: Generate pip Packages
+        if: "!contains(github.ref, 'run-ci/') && !contains(github.ref, 'perf/')"
+        env:
+          RELEASE_VERSION: ${{ needs.set_versions.outputs.module_version }}
+          GEN_MODULE_CODE_FORMAT: "ruff"
+          GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
+          ENABLE_PYTHON_PROFILER: false
         run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
 
       - name: Archive pip packages
@@ -124,6 +136,17 @@ jobs:
 
       - name: Test generated pip module against Cycles addon
         run: bash tests/pylint_cycles.sh blender latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
+
+      - name: Collect profiler result
+        if: contains(github.ref, 'perf/')
+        run: cp profiler_result.prof /tmp/profiler_result.prof
+
+      - name: Store profiler result
+        if: contains(github.ref, 'perf/')
+        uses: actions/upload-artifact@v3
+        with:
+          name: profiler_result
+          path: /tmp/profiler_result.prof
 
       - name: Collect failure state
         if: failure()
