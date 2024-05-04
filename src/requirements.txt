@@ -1,5 +1,5 @@
 yapf==0.25.0
 ruff==0.1.9
-tqdm==4.46.0
+tqdm==4.66.3
 docutils==0.20.1
 Pygments==2.17.2
