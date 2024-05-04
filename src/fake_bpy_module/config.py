@@ -50,3 +50,14 @@ def get_target_version() -> str:
     inst = Configuration.get_instance()
 
     return inst.target_version
+
+
+class PackageGenerationConfig:
+    def __init__(self):
+        self.output_dir: str = "./out"
+        self.os: str = "Linux"
+        self.style_format: str = "ruff"
+        self.target: str = "blender"
+        self.target_version: str = None
+        self.mod_version: str = None
+        self.output_format: str = "pyi"

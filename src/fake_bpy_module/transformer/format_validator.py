@@ -24,6 +24,7 @@ from ..analyzer.nodes import (
     CodeDocumentNode,
 )
 from ..analyzer.roles import (
+    ModuleRef,
     ClassRef,
     RefRef,
 )
@@ -53,6 +54,7 @@ class FormatValidator(TransformerBase):
             DataTypeListNode: self._check_data_type_list_node,
             DataTypeNode: self._check_data_type_node,
             DefaultValueNode: self._check_default_value_node,
+            ModuleRef: self._check_module_ref_node,
             ClassRef: self._check_class_ref_node,
             RefRef: self._check_ref_ref_node,
             nodes.Text: self._check_text_node,
@@ -61,6 +63,10 @@ class FormatValidator(TransformerBase):
 
     def _check_text_node(self, text_node: nodes.Text):
         pass
+
+    def _check_module_ref_node(self, module_ref_node: ModuleRef):
+        for child in module_ref_node.children:
+            self._check_node(child, nodes.Text)
 
     def _check_class_ref_node(self, class_ref_node: ClassRef):
         for child in class_ref_node.children:
@@ -80,7 +86,7 @@ class FormatValidator(TransformerBase):
 
     def _check_data_type_node(self, data_type_node: DataTypeNode):
         for child in data_type_node.children:
-            assert isinstance(child, (nodes.Text, ClassRef, RefRef,
+            assert isinstance(child, (nodes.Text, ModuleRef, ClassRef, RefRef,
                                       nodes.literal, nodes.emphasis,
                                       nodes.title_reference)), f"{child.pformat()}"
 
@@ -88,6 +94,8 @@ class FormatValidator(TransformerBase):
                                   nodes.title_reference)):
                 for c in child.children:
                     self._check_node(c, nodes.Text)
+            elif isinstance(child, ModuleRef):
+                self._check_node(child, ModuleRef)
             elif isinstance(child, ClassRef):
                 self._check_node(child, ClassRef)
             elif isinstance(child, RefRef):

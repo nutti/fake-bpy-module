@@ -4,7 +4,7 @@ from typing import List, TypeVar, Type
 from docutils import nodes
 
 
-_ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]*?)\[,(.*)\]$")
+_ARG_LIST_1_REGEX = re.compile(r"^([a-zA-Z0-9_]+[^=]*?)\[,(.*?)\]")
 _ARG_LIST_2_REGEX = re.compile(r"^\[([a-zA-Z0-9_]+)\]$")
 
 T = TypeVar("T", bound=nodes.Node)
@@ -67,8 +67,7 @@ def split_string_by_comma(line: str) -> list:
     line_to_parse = line
 
     # Handle case "arg1[, arg2]" -> "arg1, arg2"
-    m = _ARG_LIST_1_REGEX.match(line_to_parse)
-    if m:
+    while m := _ARG_LIST_1_REGEX.match(line_to_parse):
         line_to_parse = f"{m.group(1)},{m.group(2)}"
     # Handle case "[arg1]"
     m = _ARG_LIST_2_REGEX.match(line_to_parse)

@@ -26,7 +26,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -41,7 +41,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -56,7 +56,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -71,7 +71,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -86,7 +86,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -101,7 +101,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -116,7 +116,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -131,7 +131,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -146,7 +146,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -161,7 +161,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -176,7 +176,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -189,7 +189,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = ["invalid_rst_format_1.rst"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         with self.assertRaises(docutils.utils.SystemMessage):
@@ -199,7 +199,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = ["invalid_rst_format_2.rst"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         with self.assertRaises(docutils.utils.SystemMessage):
@@ -211,7 +211,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.90")
         documents = analyzer.analyze(rst_files)
@@ -226,7 +226,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("upbge")
         analyzer.set_target_version("0.2.5")
         documents = analyzer.analyze(rst_files)
@@ -241,7 +241,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -256,7 +256,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -271,7 +271,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
@@ -286,7 +286,7 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
-        analyzer = BaseAnalyzer([])
+        analyzer = BaseAnalyzer()
         analyzer.set_target("blender")
         analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)

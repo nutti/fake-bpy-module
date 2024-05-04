@@ -8,7 +8,7 @@ from ..analyzer.nodes import (
     NameNode,
 )
 from ..utils import get_first_child
-from .. import configuration
+from .. import config
 
 
 class ModuleNameFixture(TransformerBase):
@@ -19,7 +19,7 @@ class ModuleNameFixture(TransformerBase):
             return False
 
         source_filename = get_first_child(document, SourceFilenameNode).astext()
-        if configuration.get_target() == "upbge":
+        if config.get_target() == "upbge":
             if source_filename.startswith("bge.types."):
                 module_node = ModuleNode.create_template()
                 module_node.element(NameNode).add_text(
