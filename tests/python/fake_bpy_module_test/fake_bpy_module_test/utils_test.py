@@ -118,37 +118,43 @@ class UtilsTest(common.FakeBpyModuleTestBase):
 
     def test_split_string_by_comma(self):
         sp = split_string_by_comma("a, b")
-        self.assertListEqual(sp, ["a", " b"])
+        self.assertListEqual(sp, ["a", "b"])
 
         sp = split_string_by_comma("a")
         self.assertListEqual(sp, ["a"])
 
         sp = split_string_by_comma("a ,b")
-        self.assertListEqual(sp, ["a ", "b"])
+        self.assertListEqual(sp, ["a", "b"])
 
         sp = split_string_by_comma("a[, b]")
-        self.assertListEqual(sp, ["a", " b"])
+        self.assertListEqual(sp, ["a", "b"])
 
         sp = split_string_by_comma("[a]")
         self.assertListEqual(sp, ["a"])
 
         sp = split_string_by_comma("a=10, b=3.0")
-        self.assertListEqual(sp, ["a=10", " b=3.0"])
+        self.assertListEqual(sp, ["a=10", "b=3.0"])
 
         sp = split_string_by_comma("a=[1, 3], b=1.3, c=2")
-        self.assertListEqual(sp, ["a=[1, 3]", " b=1.3", " c=2"])
+        self.assertListEqual(sp, ["a=[1, 3]", "b=1.3", "c=2"])
 
         sp = split_string_by_comma("a, b=(1, 3), c=2")
-        self.assertListEqual(sp, ["a", " b=(1, 3)", " c=2"])
+        self.assertListEqual(sp, ["a", "b=(1, 3)", "c=2"])
 
         sp = split_string_by_comma("a, b=[1, 3], c=2")
-        self.assertListEqual(sp, ["a", " b=[1, 3]", " c=2"])
+        self.assertListEqual(sp, ["a", "b=[1, 3]", "c=2"])
 
         sp = split_string_by_comma("a, b={1, 3}, c=2")
-        self.assertListEqual(sp, ["a", " b={1, 3}", " c=2"])
+        self.assertListEqual(sp, ["a", "b={1, 3}", "c=2"])
 
         sp = split_string_by_comma("a, b=(1, 3), c={2, 4}")
-        self.assertListEqual(sp, ["a", " b=(1, 3)", " c={2, 4}"])
+        self.assertListEqual(sp, ["a", "b=(1, 3)", "c={2, 4}"])
 
         sp = split_string_by_comma("a, b=((1, 3), (2, 4))")
-        self.assertListEqual(sp, ["a", " b=((1, 3), (2, 4))"])
+        self.assertListEqual(sp, ["a", "b=((1, 3), (2, 4))"])
+
+        sp = split_string_by_comma("a[, b=1.3][, c=2]")
+        self.assertListEqual(sp, ["a", "b=1.3", "c=2"])
+
+        sp = split_string_by_comma("a=[1, 4][, b=1.3][, c=2]")
+        self.assertListEqual(sp, ["a=[1, 4]", "b=1.3", "c=2"])

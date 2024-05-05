@@ -1,0 +1,36 @@
+<document source="<string>">
+    <source-filename>
+        function_with_reserved_argument_name.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    async_
+                <description>
+                <default-value>
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    async_
+                <description>
+                <default-value>
+                    123
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>
