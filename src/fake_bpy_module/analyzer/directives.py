@@ -66,7 +66,6 @@ def parse_function_def(content) -> str:
             required_named_argument = True
             fixed_params.append(p)
 
-    # TODO: add test
     # Handle case:
     #   function_1(async=False): pass
     invalid_param_names = ["async"]
