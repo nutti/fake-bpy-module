@@ -4,7 +4,7 @@ import os
 from fake_bpy_module.analyzer.analyzer import analyze   # pylint: disable=E0401
 from fake_bpy_module.transformer.transformer import transform   # pylint: disable=E0401
 from fake_bpy_module.generator.generator import generate    # pylint: disable=E0401
-from fake_bpy_module.config import PackageGenerationConfig  # pylint: disable=E0401
+from fake_bpy_module import config  # pylint: disable=E0401
 from . import common
 
 
@@ -22,21 +22,20 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
         self.output_file_path = f"{self.output_dir}/integration_test_output"
         os.makedirs(self.output_dir, exist_ok=False)
 
+        self.__setup_config()
+
     def tearDown(self):
         super().tearDown()
 
         shutil.rmtree(self.output_dir)
 
-    def __create_package_generator_config(self) -> PackageGenerationConfig:
-        config = PackageGenerationConfig()
-        config.output_dir = self.output_dir
-        config.os = "Linux"
-        config.style_format = "ruff"
-        config.target = "blender"
-        config.target_version = "2.80"
-        config.mod_version = "2.80"
-
-        return config
+    def __setup_config(self):
+        config.set_output_dir(self.output_dir)
+        config.set_os("Linux")
+        config.set_style_format("ruff")
+        config.set_target("blender")
+        config.set_target_version("2.80")
+        config.set_mod_version("2.80")
 
     def __is_py_typed_exist(self, filepath: str) -> bool:
         if not os.path.isfile(filepath):
@@ -48,14 +47,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             f"{self.data_dir}/input/single/module_abc.rst",
         ]
 
-        config = self.__create_package_generator_config()
-
         ext_patterns = ["py", "pyi"]
         for ext in ext_patterns:
-            config.output_format = ext
-            documents = analyze(rst_files, config)
+            config.set_output_format(ext)
+            documents = analyze(rst_files)
             documents = transform(documents, [])
-            generate(documents, config)
+            generate(documents)
 
             expect_files_dir = f"{self.data_dir}/expect/single"
             actual_files_dir = self.output_dir
@@ -85,14 +82,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             f"{self.data_dir}/input/multiple/module_2.rst",
         ]
 
-        config = self.__create_package_generator_config()
-
         ext_patterns = ["py", "pyi"]
         for ext in ext_patterns:
-            config.output_format = ext
-            documents = analyze(rst_files, config)
+            config.set_output_format(ext)
+            documents = analyze(rst_files)
             documents = transform(documents, [])
-            generate(documents, config)
+            generate(documents)
 
             expect_files_dir = f"{self.data_dir}/expect/multiple"
             actual_files_dir = self.output_dir
@@ -122,14 +117,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             f"{self.data_dir}/input/exceptional/module_exceptional.rst",
         ]
 
-        config = self.__create_package_generator_config()
-
         ext_patterns = ["py", "pyi"]
         for ext in ext_patterns:
-            config.output_format = ext
-            documents = analyze(rst_files, config)
+            config.set_output_format(ext)
+            documents = analyze(rst_files)
             documents = transform(documents, [])
-            generate(documents, config)
+            generate(documents)
 
             expect_files_dir = f"{self.data_dir}/expect/exceptional"
             actual_files_dir = self.output_dir

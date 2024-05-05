@@ -13,10 +13,20 @@ from fake_bpy_module.transformer.utils import (
     get_module_name,
 )
 from fake_bpy_module.transformer.data_type_refiner import EntryPoint
+from fake_bpy_module import config
 from . import common
 
 
 class TransformerTestBase(common.FakeBpyModuleTestBase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.__setup_config()
+
+    def __setup_config(self):
+        config.set_target("blender")
+        config.set_target_version("2.80")
 
     def compare_with_file_contents(self, actual: str, expect_file: str):
         with open(expect_file, "r", encoding="utf-8") as f:
@@ -40,8 +50,6 @@ class BaseClassFixtureTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -72,8 +80,6 @@ class ModuleLevelAttributeFixtureTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -104,8 +110,6 @@ class ModuleNameFixtureTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -128,8 +132,8 @@ class ModuleNameFixtureTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("upbge")
-        analyzer.set_target_version("2.80")
+        config.set_target("upbge")
+        config.set_target_version("0.2.5")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -160,8 +164,6 @@ class BpyAppHandlersDataTypeAdderTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -192,8 +194,6 @@ class BpyOpsOverrideParametersAdderTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -224,8 +224,6 @@ class RstSpecificNodeCleanerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -285,8 +283,6 @@ class BpyContextVariableConverterTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -318,8 +314,6 @@ class BpyTypesClassBaseClassRebaserTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -350,8 +344,6 @@ class CannonicalDataTypeRewriterTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         package_structure = ModuleStructure()
@@ -405,8 +397,6 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -432,8 +422,6 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -459,8 +447,6 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -499,8 +485,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         package_structure = ModuleStructure()
@@ -558,8 +542,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         entry_points = []
@@ -606,8 +588,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         entry_points = []
@@ -640,8 +620,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -664,8 +642,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -701,8 +677,6 @@ class DefaultValueFillerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -733,8 +707,6 @@ class DependencyBuilderTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         package_structure = ModuleStructure()
@@ -788,8 +760,6 @@ class FirstTitleRemoverTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -814,8 +784,6 @@ class FirstTitleRemoverTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -850,8 +818,6 @@ class ModApplierTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
@@ -878,8 +844,6 @@ class ModApplierTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
@@ -906,8 +870,6 @@ class ModApplierTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
@@ -934,8 +896,6 @@ class ModApplierTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
@@ -962,8 +922,6 @@ class ModApplierTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
@@ -1022,8 +980,6 @@ class TargetFileCombinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
@@ -1055,8 +1011,6 @@ class TargetFileCombinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
