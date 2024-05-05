@@ -108,6 +108,15 @@ class ModApplier(TransformerBase):
         if self.mod_files is None:
             return
 
+        # Store documents for performance improvement.
+        module_name_to_document = {}
+        for document in self.documents:
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is None:
+                continue
+            module_name_node = module_node.element(NameNode)
+            module_name_to_document[module_name_node.astext()] = document
+
         for file in self.mod_files:
             with open(file, "r", encoding="utf-8") as f:
                 contents = f.read()
@@ -125,34 +134,36 @@ class ModApplier(TransformerBase):
 
             mod_type_node = get_first_child(mod_document, ModTypeNode)
             if mod_type_node.astext() == "new":
-                for document in self.documents:
-                    module_node = get_first_child(document, ModuleNode)
-                    if module_node is None:
-                        continue
-                    module_name_node = module_node.element(NameNode)
-                    mod_module_node = get_first_child(mod_document, ModuleNode)
-                    mod_module_name_node = mod_module_node.element(NameNode)
-                    if module_name_node.astext() == mod_module_name_node.astext():
-                        mod_data_nodes = find_children(mod_document, DataNode)
-                        for mod_data_node in mod_data_nodes:
-                            append_child(document, mod_data_node.deepcopy())
-                        mod_func_nodes = find_children(mod_document, FunctionNode)
-                        for mod_func_node in mod_func_nodes:
-                            append_child(document, mod_func_node.deepcopy())
-                        mod_class_nodes = find_children(mod_document, ClassNode)
-                        for mod_class_node in mod_class_nodes:
-                            append_child(document, mod_class_node.deepcopy())
-                        break
+                mod_module_node = get_first_child(mod_document, ModuleNode)
+                mod_module_name_node = mod_module_node.element(NameNode)
+
+                mod_module_name = mod_module_name_node.astext()
+                if mod_module_name in module_name_to_document:
+                    document = module_name_to_document[mod_module_name]
+                    mod_data_nodes = find_children(mod_document, DataNode)
+                    for mod_data_node in mod_data_nodes:
+                        append_child(document, mod_data_node.deepcopy())
+                    mod_func_nodes = find_children(mod_document, FunctionNode)
+                    for mod_func_node in mod_func_nodes:
+                        append_child(document, mod_func_node.deepcopy())
+                    mod_class_nodes = find_children(mod_document, ClassNode)
+                    for mod_class_node in mod_class_nodes:
+                        append_child(document, mod_class_node.deepcopy())
                 else:   # If the module is not found, add whole document.
                     mod_type_nodes = mod_document.findall(ModTypeNode)
                     for mod_type_node in mod_type_nodes:
                         mod_document.remove(mod_type_node)
                     self.documents.append(mod_document)
+                    assert mod_module_name not in mod_module_name_node
+                    module_name_to_document[mod_module_name] = mod_document
             elif mod_type_node.astext() == "append":
-                for document in self.documents:
-                    module_node = get_first_child(document, ModuleNode)
-                    if module_node is None:
-                        continue
+                mod_module_node = get_first_child(mod_document, ModuleNode)
+                mod_module_name_node = mod_module_node.element(NameNode)
+
+                mod_module_name = mod_module_name_node.astext()
+                if mod_module_name in module_name_to_document:
+                    document = module_name_to_document[mod_module_name]
+
                     # For functions, support only appending arguments and return.
                     func_nodes = find_children(document, FunctionNode)
                     mod_func_nodes = find_children(mod_document, FunctionNode)
