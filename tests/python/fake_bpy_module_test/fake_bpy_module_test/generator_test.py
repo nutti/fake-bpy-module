@@ -17,6 +17,7 @@ from fake_bpy_module.generator.code_writer import (     # pylint: disable=E0401
     CodeWriterIndent,
     CodeWriter,
 )
+from fake_bpy_module import config  # pylint: disable=E0401
 from fake_bpy_module.utils import append_child      # pylint: disable=E0401
 from . import common
 
@@ -201,6 +202,15 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/sorted_entry_point_nodes_test")
 
+    def setUp(self):
+        super().setUp()
+
+        self.__setup_config()
+
+    def __setup_config(self):
+        config.set_target("blender")
+        config.set_target_version("2.80")
+
     def compare_with_file_contents(self, actual: str, expect_file: str):
         with open(expect_file, "r", encoding="utf-8") as f:
             expect = f.read()
@@ -216,8 +226,6 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -245,8 +253,6 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -274,8 +280,6 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -330,8 +334,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -366,8 +368,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -401,8 +401,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -440,8 +438,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -507,8 +503,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -565,8 +559,6 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
@@ -661,8 +653,6 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
 
         # Analyze
         analyzer = BaseAnalyzer()
-        analyzer.set_target("blender")
-        analyzer.set_target_version("2.80")
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
