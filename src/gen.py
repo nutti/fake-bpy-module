@@ -150,7 +150,7 @@ def collect_files() -> Tuple[str, str]:
 def main():
     parse_options()
     rst_files, mod_files = collect_files()
-    generate(rst_files, mod_files, )
+    generate(rst_files, mod_files)
 
 
 if __name__ == "__main__":
