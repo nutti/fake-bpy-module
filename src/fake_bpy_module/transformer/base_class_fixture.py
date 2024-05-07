@@ -8,12 +8,30 @@ from ..analyzer.nodes import (
     BaseClassNode,
     DataTypeListNode,
     DataTypeNode,
+    NameNode,
 )
 from ..utils import find_children, split_string_by_comma
 
 
 class BaseClassFixture(TransformerBase):
     _BASE_CLASS_REGEX = re.compile(r"^base (class|classes) --- (.*)")
+
+    # Remove same base class with parent class.
+    def _remove_self_parent_class(self, document: nodes.document):
+        class_nodes = find_children(document, ClassNode)
+        for class_node in class_nodes:
+            class_name = class_node.element(NameNode).astext()
+
+            base_class_list_node = class_node.element(BaseClassListNode)
+            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            for base_class_node in base_class_nodes:
+                dtype_list_node = base_class_node.element(DataTypeListNode)
+                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                for dtype_node in dtype_nodes:
+                    if class_name == dtype_node.to_string():
+                        dtype_list_node.remove(dtype_node)
+                if dtype_list_node.empty():
+                    base_class_list_node.remove(base_class_node)
 
     def _apply(self, document: nodes.document):
         paragraphs = document.findall(nodes.paragraph)
@@ -43,3 +61,4 @@ class BaseClassFixture(TransformerBase):
     def apply(self, **kwargs):
         for document in self.documents:
             self._apply(document)
+            self._remove_self_parent_class(document)

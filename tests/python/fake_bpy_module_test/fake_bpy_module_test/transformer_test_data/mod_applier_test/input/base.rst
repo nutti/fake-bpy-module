@@ -18,6 +18,14 @@
    :rtype: function_1 return type
 
 
+.. function:: function_2(arg_1)
+
+   function_2 description
+
+   :arg arg_1: function_2 arg_1 description
+   :type arg_1: function_2 arg_1 type
+
+
 .. class:: ClassA
 
    ClassA description
@@ -37,3 +45,7 @@
       :return: method_1 return description
       :rtype: method_1 return type
 
+   .. method:: method_2(arg_1)
+
+      :arg arg_1: method_2 arg_1 description
+      :type arg_1: method_2 arg_1 type

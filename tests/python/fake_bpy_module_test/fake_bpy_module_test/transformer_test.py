@@ -953,6 +953,47 @@ class ModApplierTest(TransformerTestBase):
             self.compare_with_file_contents(mod_doc.pformat(), expect_file)
 
 
+class SameModuleMergerTest(TransformerTestBase):
+
+    name = "SameModuleMergerTest"
+    module_name = __module__
+    data_dir = os.path.abspath(
+        f"{os.path.dirname(__file__)}/transformer_test_data/same_module_merger_test")
+
+    def test_basic(self):
+        rst_files = [
+            "basic_module_1_a.rst",
+            "basic_module_1_b.rst",
+            "basic_module_2.rst",
+        ]
+        expect_files = [
+            "basic_module_1_a.xml",
+            "basic_module_1_b.xml",
+            "basic_module_2.xml",
+        ]
+        expect_transformed_files = [
+            "basic_module_1_transformed.xml",
+            "basic_module_2_transformed.xml",
+        ]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["same_module_merger"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+
 class TargetFileCombinerTest(TransformerTestBase):
 
     name = "TargetFileCombinerTest"

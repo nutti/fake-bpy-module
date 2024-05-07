@@ -34,6 +34,24 @@
             <data-type-list>
                 <data-type>
                     function_1 return type
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+            function_2 description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_2 arg_1 description
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        function_2 arg_1 type
+        <return>
+            <description>
+            <data-type-list>
     <class>
         <name>
             ClassA
@@ -71,6 +89,23 @@
                     <data-type-list>
                         <data-type>
                             method_1 return type
+            <function function_type="method">
+                <name>
+                    method_2
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_2 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                method_2 arg_1 type
+                <return>
+                    <description>
+                    <data-type-list>
     <data>
         <name>
             DATA_2

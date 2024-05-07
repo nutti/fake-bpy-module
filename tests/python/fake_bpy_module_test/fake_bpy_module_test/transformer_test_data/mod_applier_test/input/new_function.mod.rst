@@ -2,13 +2,13 @@
 
 .. module:: module_1
 
-.. function:: function_2(arg_1, arg_2='TEST')
+.. function:: function_3(arg_1, arg_2='TEST')
 
-   function_2 description
+   function_3 description
 
-   :arg arg_1: function_2 arg_1 description
-   :type arg_1: function_2 arg_1 type
-   :arg arg_2: function_2 arg_2 description
-   :type arg_2: function_2 arg_2 type
-   :return: function_2 return description
-   :rtype: function_2 return type
+   :arg arg_1: function_3 arg_1 description
+   :type arg_1: function_3 arg_1 type
+   :arg arg_2: function_3 arg_2 description
+   :type arg_2: function_3 arg_2 type
+   :return: function_3 return description
+   :rtype: function_3 return type

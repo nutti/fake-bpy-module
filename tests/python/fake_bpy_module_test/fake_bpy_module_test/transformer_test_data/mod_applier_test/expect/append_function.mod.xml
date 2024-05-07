@@ -23,3 +23,14 @@
         <return>
             <description>
             <data-type-list>
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+        <return>
+            <description>
+                function_2 return description
+            <data-type-list>
+                <data-type>
+                    function_2 return type

@@ -150,5 +150,5 @@
                     <description>
                         function_1 return description
                     <data-type-list>
-                        <data-type>
+                        <data-type option="accept none">
                             str
