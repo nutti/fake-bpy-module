@@ -46,3 +46,14 @@
             <data-type-list>
                 <data-type>
                     str
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+        <return>
+            <description>
+                function_2 return description
+            <data-type-list>
+                <data-type option="accept none">
+                    str

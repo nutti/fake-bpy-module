@@ -58,6 +58,12 @@
       :rtype: int
       :mod-option rtype: skip-refine
 
+   .. method:: get()
+
+      :rtype: GenericType
+      :mod-option rtype: skip-refine
+      :option rtype: accept none
+
 .. class:: bpy_struct
 
    .. base-class:: typing.Generic[GenericType]

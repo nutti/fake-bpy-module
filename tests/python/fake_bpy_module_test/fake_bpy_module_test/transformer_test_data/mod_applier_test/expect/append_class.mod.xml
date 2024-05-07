@@ -28,20 +28,31 @@
                 <name>
                     method_2
                 <description>
-                    method_2 description
                 <argument-list>
-                    <argument argument_type="arg">
-                        <name>
-                            arg_1
-                        <description>
-                            method_2 arg_1 description
-                        <default-value>
-                        <data-type-list>
-                            <data-type>
-                                method_2 arg_1 type
                 <return>
                     <description>
                         method_2 return description
                     <data-type-list>
                         <data-type>
                             method_2 return type
+            <function function_type="method">
+                <name>
+                    method_3
+                <description>
+                    method_3 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_3 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                method_3 arg_1 type
+                <return>
+                    <description>
+                        method_3 return description
+                    <data-type-list>
+                        <data-type>
+                            method_3 return type

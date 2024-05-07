@@ -74,5 +74,25 @@
         "options": {
             "function_type": "function"
         }
+    },
+    {
+        "type": "function",
+        "name": "function_2",
+        "description": "",
+        "arguments": [],
+        "return": {
+            "description": "function_2 return description",
+            "data_types": [
+                {
+                    "data_type": "str",
+                    "options": {
+                        "option": "accept none"
+                    }
+                }
+            ]
+        },
+        "options": {
+            "function_type": "function"
+        }
     }
 ]

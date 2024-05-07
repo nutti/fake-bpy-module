@@ -14,11 +14,16 @@
 
       :type: attr_2 type
 
-   .. method:: method_2(arg_1)
+   .. method:: method_2()
 
-      method_2 description
-
-      :arg arg_1: method_2 arg_1 description
-      :type arg_1: method_2 arg_1 type
       :return: method_2 return description
       :rtype: method_2 return type
+
+   .. method:: method_3(arg_1)
+
+      method_3 description
+
+      :arg arg_1: method_3 arg_1 description
+      :type arg_1: method_3 arg_1 type
+      :return: method_3 return description
+      :rtype: method_3 return type

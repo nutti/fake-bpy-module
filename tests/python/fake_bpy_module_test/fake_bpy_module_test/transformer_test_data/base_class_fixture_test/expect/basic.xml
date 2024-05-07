@@ -15,3 +15,11 @@
         <base-class-list>
         <attribute-list>
         <function-list>
+    <class>
+        <name>
+            BaseClass1
+        <description>
+            BaseClass1 description
+        <base-class-list>
+        <attribute-list>
+        <function-list>

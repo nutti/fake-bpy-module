@@ -13,3 +13,9 @@
    :type arg_3: int
    :return: function_1 return description
    :rtype: str
+
+.. function:: function_2()
+
+   :return: function_2 return description
+   :rtype: str
+   :option rtype: accept none

@@ -17,6 +17,7 @@ from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
 from .module_name_fixture import ModuleNameFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
+from .same_module_merger import SameModuleMerger
 from .target_file_combiner import TargetFileCombiner
 from .first_title_remover import FirstTitleRemover
 
@@ -26,6 +27,9 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
         "module_name_fixture",
         "first_title_remover",
         "base_class_fixture",
+
+        # Must after base_class_fixture
+        "same_module_merger",
         "rst_specific_node_cleaner",
         "module_level_attribute_fixture",
         "bpy_app_handlers_data_type_adder",
@@ -35,8 +39,11 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
         "mod_applier",
         "format_validator",
 
+        # Must after mod_applier
         "target_file_combiner",
         "data_type_refiner",
+
+        # Must after data_type_refiner
         "default_value_filler",
         "cannonical_data_type_rewriter",
         "dependency_builder",
@@ -106,6 +113,9 @@ class Transformer:
             },
             CodeDocumentRefiner.name(): {
                 "class": CodeDocumentRefiner,
+            },
+            SameModuleMerger.name(): {
+                "class": SameModuleMerger,
             },
             TargetFileCombiner.name(): {
                 "class": TargetFileCombiner,

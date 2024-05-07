@@ -56,7 +56,7 @@ class ClassA:
         """
         pass
 
-    def function_1(self, arg_1: float, arg_2: int) -> str:
+    def function_1(self, arg_1: float, arg_2: int) -> typing.Optional[str]:
         """function_1 description
 
         :param arg_1: function_1 arg_1 description
@@ -64,6 +64,6 @@ class ClassA:
         :param arg_2: function_1 arg_2 description
         :type arg_2: int
         :return: function_1 return description
-        :rtype: str
+        :rtype: typing.Optional[str]
         """
         pass

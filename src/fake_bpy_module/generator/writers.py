@@ -169,6 +169,12 @@ class PyCodeWriterBase(BaseWriter):
                     dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
                 else:
                     dtype = dtype_nodes[0].to_string()
+                for dtype_node in dtype_nodes:
+                    if "option" not in dtype_node.attributes:
+                        continue
+                    if "accept none" in dtype_node.attributes["option"]:
+                        dtype = f"typing.Optional[{dtype}]"
+                        break
                 wt.addln(f") -> {dtype}:")
             else:
                 wt.addln("):")
@@ -209,7 +215,6 @@ class PyCodeWriterBase(BaseWriter):
                             if "never none" not in dtype_node.attributes["option"]:
                                 dtype_str = f"typing.Optional[{dtype_str}]"
                                 break
-
                         wt.addln(f":type {name_node.astext()}: {dtype_str}")
                 if not return_node.empty():
                     desc_node = return_node.element(DescriptionNode)
@@ -223,6 +228,12 @@ class PyCodeWriterBase(BaseWriter):
                             dtype = f"typing.Union[{dtype_str}]"
                         else:
                             dtype = dtype_nodes[0].to_string()
+                        for dtype_node in dtype_nodes:
+                            if "option" not in dtype_node.attributes:
+                                continue
+                            if "accept none" in dtype_node.attributes["option"]:
+                                dtype = f"typing.Optional[{dtype}]"
+                                break
                         wt.addln(f":rtype: {dtype}")
                 wt.addln("'''")
                 wt.new_line(1)
@@ -370,6 +381,12 @@ class PyCodeWriterBase(BaseWriter):
                             dtype = f"typing.Union[{dtype_str}]"
                         else:
                             dtype = dtype_nodes[0].to_string()
+                        for dtype_node in dtype_nodes:
+                            if "option" not in dtype_node.attributes:
+                                continue
+                            if "accept none" in dtype_node.attributes["option"]:
+                                dtype = f"typing.Optional[{dtype}]"
+                                break
                         wt.addln(f") -> {dtype}:")
                     else:
                         wt.addln("):")
@@ -419,6 +436,12 @@ class PyCodeWriterBase(BaseWriter):
                                     dtype = f"typing.Union[{dtype_str}]"
                                 else:
                                     dtype = dtype_nodes[0].to_string()
+                                for dtype_node in dtype_nodes:
+                                    if "option" not in dtype_node.attributes:
+                                        continue
+                                    if "accept none" in dtype_node.attributes["option"]:
+                                        dtype = f"typing.Optional[{dtype}]"
+                                        break
                                 wt.addln(f":rtype: {dtype}")
                         wt.addln("'''")
 

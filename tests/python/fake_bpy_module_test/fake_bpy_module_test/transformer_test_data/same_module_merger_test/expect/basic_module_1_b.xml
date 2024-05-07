@@ -1,0 +1,15 @@
+<document source="<string>">
+    <source-filename>
+        basic_module_1_b.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            data_2
+        <description>
+            data_2 description
+        <data-type-list>
+            <data-type>
+                data_2 type

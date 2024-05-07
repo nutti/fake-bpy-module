@@ -21,7 +21,7 @@ class UniqueElementNode(NodeBase):
         self.elements = {}
 
     def append_child(self, item: nodes.Node):
-        self.insert(len(self.children), item)
+        super().insert(len(self.children), item)
         self.elements[type(item)] = item
 
     def element(self, element_type: Type[T]) -> T:
@@ -33,6 +33,21 @@ class UniqueElementNode(NodeBase):
         for child in new_obj.children:
             new_obj.elements[type(child)] = child
         return new_obj
+
+    def remove(self, item):
+        raise ValueError("Don't call remove directly, and use replace instead.")
+
+    def insert(self, index, item):
+        raise ValueError("Don't call insert directly, and use replace instead.")
+
+    def replace_node(self, item: nodes.Node):
+        node_type = type(item)
+        old = self.elements[node_type]
+
+        index = self.index(old)
+        super().remove(old)
+        super().insert(index, item)
+        self.elements[node_type] = item
 
 
 class ListNode(NodeBase, nodes.Sequential):

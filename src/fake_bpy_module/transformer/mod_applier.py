@@ -38,22 +38,26 @@ class ModApplier(TransformerBase):
             for func_node in func_nodes:
                 func_name_node = func_node.element(NameNode)
                 if func_name_node.astext() == mod_func_name_node.astext():
+
                     arg_list_node = func_node.element(ArgumentListNode)
                     for mod_arg_node in mod_arg_nodes:
                         arg_list_node.append_child(mod_arg_node)
 
                     return_node = func_node.element(FunctionReturnNode)
                     if not mod_return_node.empty() and return_node.empty():
-                        index = func_node.index(return_node)
-                        func_node.insert(index, mod_return_node.deepcopy())
+                        func_node.replace_node(mod_return_node)
                     break
 
+    # pylint: disable=R0914
     def _mod_append_class(self, class_nodes: List[ClassNode], mod_class_nodes: List[ClassNode]):
         for mod_class_node in mod_class_nodes:
             mod_class_name_node = mod_class_node.element(NameNode)
+            mod_class_name = mod_class_name_node.astext()
+
             for class_node in class_nodes:
                 class_name_node = class_node.element(NameNode)
-                if class_name_node.astext() != mod_class_name_node.astext():
+                class_name = class_name_node.astext()
+                if class_name != mod_class_name:
                     continue
 
                 func_list_node = class_node.element(FunctionListNode)
@@ -71,10 +75,14 @@ class ModApplier(TransformerBase):
                         func_name_node = func_node.element(NameNode)
                         if func_name_node.astext() != mod_func_name_node.astext():
                             continue
+
                         arg_list_node = func_node.element(ArgumentListNode)
                         for mod_arg_node in mod_arg_nodes:
                             arg_list_node.append_child(mod_arg_node)
-                        func_node.append_child(mod_return_node[0])
+
+                        return_node = func_node.element(FunctionReturnNode)
+                        if not mod_return_node.empty() and return_node.empty():
+                            func_node.replace_node(mod_return_node)
                         break
                     else:
                         func_list_node.append_child(mod_func_node)
@@ -174,5 +182,7 @@ class ModApplier(TransformerBase):
                     class_nodes = find_children(document, ClassNode)
                     mod_class_nodes = find_children(mod_document, ClassNode)
                     self._mod_append_class(class_nodes, mod_class_nodes)
+                else:
+                    raise ValueError(f"Modules to be appended are not found {mod_module_name}")
             else:
                 raise NotImplementedError(f"ModTypeNode does not support {mod_type_node.astext()}")
