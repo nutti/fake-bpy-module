@@ -66,9 +66,19 @@
       :type other: int, float
       :rtype: :class:`Color`
 
+   .. method:: __getitem__(key)
+
+      :type key: int
+      :rtype: float
+
 .. class:: Euler
 
    .. method:: __init__(angles=(0.0, 0.0, 0.0), order='XYZ')
+
+   .. method:: __getitem__(key)
+
+      :type key: int
+      :rtype: float
 
 .. class:: Matrix
 
