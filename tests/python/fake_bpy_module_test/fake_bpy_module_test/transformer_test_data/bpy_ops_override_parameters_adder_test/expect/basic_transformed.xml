@@ -19,9 +19,10 @@
                     None
                 <data-type-list>
                     <data-type>
-                        dict, 
                         <class-ref>
                             bpy.types.Context
+                    <data-type mod-option="skip-refine">
+                        typing.Dict[str, typing.Any]
             <argument argument_type="arg">
                 <name>
                     execution_context
@@ -66,9 +67,10 @@
                     None
                 <data-type-list>
                     <data-type>
-                        dict, 
                         <class-ref>
                             bpy.types.Context
+                    <data-type mod-option="skip-refine">
+                        typing.Dict[str, typing.Any]
             <argument argument_type="arg">
                 <name>
                     execution_context

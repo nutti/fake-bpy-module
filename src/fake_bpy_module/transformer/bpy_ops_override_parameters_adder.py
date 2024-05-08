@@ -3,6 +3,7 @@ from docutils import nodes
 from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     DataTypeListNode,
+    DataTypeNode,
     ModuleNode,
     FunctionNode,
     NameNode,
@@ -12,7 +13,7 @@ from ..analyzer.nodes import (
     make_data_type_node,
 )
 
-from ..utils import find_children, get_first_child
+from ..utils import find_children, get_first_child, append_child
 
 
 class BpyOpsOverrideParameterAdder(TransformerBase):
@@ -34,7 +35,11 @@ class BpyOpsOverrideParameterAdder(TransformerBase):
                     arg_node.element(NameNode).add_text("override_context")
                     arg_node.element(DefaultValueNode).add_text("None")
                     arg_node.element(DataTypeListNode).append_child(
-                        make_data_type_node("dict, `bpy.types.Context`"))
+                        make_data_type_node("`bpy.types.Context`"))
+                    dtype_node = DataTypeNode()
+                    append_child(dtype_node, nodes.Text("typing.Dict[str, typing.Any]"))
+                    dtype_node.attributes["mod-option"] = "skip-refine"
+                    arg_node.element(DataTypeListNode).append_child(dtype_node)
                     arg_list_node.insert(0, arg_node)
 
                     arg_node = ArgumentNode.create_template(argument_type="arg")
