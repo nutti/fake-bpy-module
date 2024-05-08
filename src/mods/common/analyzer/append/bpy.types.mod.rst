@@ -24,7 +24,7 @@
 
    .. method:: __getitem__(key)
 
-      :type key: typing.Union[int, str]
+      :type key: typing.Union[int, str, slice]
       :mod-option arg key: skip-refine
       :rtype: GenericType
       :mod-option rtype: skip-refine
