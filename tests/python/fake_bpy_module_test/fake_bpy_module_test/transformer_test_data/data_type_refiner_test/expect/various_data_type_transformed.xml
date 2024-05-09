@@ -476,7 +476,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Dict
+                typing.Dict[str, typing.Any]
     <data>
         <name>
             data_iterable_object

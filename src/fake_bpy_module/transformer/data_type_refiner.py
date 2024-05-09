@@ -396,7 +396,7 @@ class DataTypeRefiner(TransformerBase):
                 return [make_data_type_node(f"typing.Tuple[`{s}`]")]
 
         if dtype_str == "dict with string keys":
-            return [make_data_type_node("typing.Dict")]
+            return [make_data_type_node("typing.Dict[str, typing.Any]")]
         if dtype_str == "iterable object":
             return [make_data_type_node("typing.List")]
         if m := REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE.match(dtype_str):  # noqa # pylint: disable=C0301
