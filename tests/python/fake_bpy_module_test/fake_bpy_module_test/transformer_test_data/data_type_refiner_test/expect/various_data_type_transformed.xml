@@ -339,6 +339,13 @@
                 str
     <data>
         <name>
+            data_integer
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                int
+    <data>
+        <name>
             data_tuple
         <description>
         <data-type-list>
