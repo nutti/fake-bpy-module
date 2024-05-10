@@ -536,3 +536,19 @@
         <data-type-list>
             <data-type>
                 module_1.ClassA
+    <data>
+        <name>
+            data_start_and_end_with_parentheses
+        <description>
+        <data-type-list>
+            <data-type>
+                (
+                <class-ref>
+                    RefinedClassA
+                , 
+                <class-ref>
+                    bpy_prop_collection
+                , 
+                <class-ref>
+                    ClassA
+                )

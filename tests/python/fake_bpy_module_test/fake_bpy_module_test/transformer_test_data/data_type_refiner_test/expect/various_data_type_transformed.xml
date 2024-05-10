@@ -560,3 +560,19 @@
             <data-type option="never none">
                 <class-ref>
                     module_1.ClassA
+    <data>
+        <name>
+            data_start_and_end_with_parentheses
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                typing.Tuple[
+                <class-ref>
+                    refined_module_a.RefinedClassA
+                , 
+                <class-ref>
+                    bpy.types.bpy_prop_collection
+                , 
+                <class-ref>
+                    module_1.ClassA
+                ]

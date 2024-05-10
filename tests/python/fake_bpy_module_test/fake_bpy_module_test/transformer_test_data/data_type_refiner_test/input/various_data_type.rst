@@ -266,3 +266,7 @@
 .. data:: data_name
 
    :type: module_1.ClassA
+
+.. data:: data_start_and_end_with_parentheses
+
+   :type: (:class:`RefinedClassA`, :class:`bpy_prop_collection`, :class:`ClassA`)
