@@ -313,6 +313,13 @@
                 string
     <data>
         <name>
+            data_integer
+        <description>
+        <data-type-list>
+            <data-type>
+                integer
+    <data>
+        <name>
             data_tuple
         <description>
         <data-type-list>

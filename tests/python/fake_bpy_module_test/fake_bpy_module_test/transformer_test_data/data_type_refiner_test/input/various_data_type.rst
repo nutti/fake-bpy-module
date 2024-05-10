@@ -163,6 +163,10 @@
 
    :type: string
 
+.. data:: data_integer
+
+   :type: integer
+
 .. data:: data_tuple
 
    :type: tuple
