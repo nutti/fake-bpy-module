@@ -25,8 +25,6 @@ from ..analyzer.nodes import (
 )
 from ..utils import get_first_child, find_children, output_log, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG
 
-ALLOWED_CHAR_BEFORE = {" ", "("}
-ALLOWED_CHAR_AFTER = {" ", ",", ")"}
 
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
 
@@ -57,6 +55,7 @@ REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|
 REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`,$")
 REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
+REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 # pylint: enable=line-too-long
 
@@ -394,6 +393,21 @@ class DataTypeRefiner(TransformerBase):
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return [make_data_type_node(f"typing.Tuple[`{s}`]")]
+
+        # Ex: (Vector, Quaternion, Vector)
+        if m1 := REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES.match(dtype_str):
+            splited = m1.group(1).split(",")
+            dtypes = []
+            for sp in splited:
+                sp = sp.strip()
+                if m2 := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(sp):
+                    s = self._parse_custom_data_type(
+                        m2.group(1), uniq_full_names, uniq_module_names, module_name)
+                    if s:
+                        dtypes.append(f"`{s}`")
+            if len(dtypes) != 0:
+                elem_str = ", ".join(dtypes)
+                return [make_data_type_node(f"typing.Tuple[{elem_str}]")]
 
         if dtype_str == "dict with string keys":
             return [make_data_type_node("typing.Dict[str, typing.Any]")]
