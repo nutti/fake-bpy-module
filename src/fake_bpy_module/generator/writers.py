@@ -435,7 +435,7 @@ class PyCodeWriterBase(BaseWriter):
                             if not dtype_list_node.empty():
                                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                                 if len(dtype_nodes) >= 2:
-                                    dtype = f" | ".join(n.to_string() for n in dtype_nodes)
+                                    dtype = " | ".join(n.to_string() for n in dtype_nodes)
                                 else:
                                     dtype = dtype_nodes[0].to_string()
                                 for dtype_node in dtype_nodes:
@@ -466,7 +466,7 @@ class PyCodeWriterBase(BaseWriter):
         if not dtype_list_node.empty():
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             if len(dtype_nodes) >= 2:
-                dtype = f" | ".join(n.to_string() for n in dtype_nodes)
+                dtype = " | ".join(n.to_string() for n in dtype_nodes)
             else:
                 dtype = dtype_nodes[0].to_string()
             for dtype_node in dtype_nodes:

@@ -281,7 +281,7 @@ class DataTypeRefiner(TransformerBase):
                 f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
             ] * int(m.group(2))
             return [
-                make_data_type_node("list[list[float]]"), 
+                make_data_type_node("list[list[float]]"),
                 make_data_type_node(f"tuple[{', '.join(tuple_elems)}]")
             ]
 
