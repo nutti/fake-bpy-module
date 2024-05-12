@@ -11,7 +11,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Tuple[
+                tuple[
                 <class-ref>
                     module_1.ClassA
                 , 

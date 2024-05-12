@@ -45,10 +45,10 @@ class DefaultValueFiller(TransformerBase):
                         "bytes": "0",
                         "float": "0.0",
                         "int": "0",
-                        "typing.List": "[]",
-                        "typing.Dict": "{}",
-                        "typing.Set": "()",
-                        "typing.Tuple": "()",
+                        "list": "[]",
+                        "dict": "{}",
+                        "set": "()",
+                        "tuple": "()",
                     }
                     if dtype in BUILTIN_DTYPE_DEFAULT_VALUE_MAP:
                         default_value_node.add_text(BUILTIN_DTYPE_DEFAULT_VALUE_MAP[dtype])
@@ -56,10 +56,10 @@ class DefaultValueFiller(TransformerBase):
 
                     # Modifier data type.
                     MODIFIER_DTYPE_DEFAULT_VALUE_MAP = {
-                        "typing.List": "[]",
-                        "typing.Dict": "{}",
-                        "typing.Set": "()",
-                        "typing.Tuple": "()",
+                        "list": "[]",
+                        "dict": "{}",
+                        "set": "()",
+                        "tuple": "()",
                         "Generic": "None",
                         "typing.Iterator": "[]",
                         "typing.Callable": "None",

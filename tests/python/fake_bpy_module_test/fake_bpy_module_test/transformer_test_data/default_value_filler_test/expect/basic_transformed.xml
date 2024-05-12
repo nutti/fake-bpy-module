@@ -63,7 +63,7 @@
                     []
                 <data-type-list>
                     <data-type option="optional">
-                        typing.List
+                        list
             <argument argument_type="arg">
                 <name>
                     arg_dict
@@ -72,7 +72,7 @@
                     {}
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Dict
+                        dict
             <argument argument_type="arg">
                 <name>
                     arg_set
@@ -81,7 +81,7 @@
                     ()
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Set
+                        set
             <argument argument_type="arg">
                 <name>
                     arg_tuple
@@ -90,7 +90,7 @@
                     ()
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Tuple
+                        tuple
         <return>
             <description>
             <data-type-list>
@@ -107,7 +107,7 @@
                     []
                 <data-type-list>
                     <data-type option="optional">
-                        typing.List[int]
+                        list[int]
             <argument argument_type="arg">
                 <name>
                     arg_dict
@@ -116,7 +116,7 @@
                     {}
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Dict[str, int]
+                        dict[str, int]
             <argument argument_type="arg">
                 <name>
                     arg_set
@@ -125,7 +125,7 @@
                     ()
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Set[int]
+                        set[int]
             <argument argument_type="arg">
                 <name>
                     arg_tuple
@@ -134,7 +134,7 @@
                     ()
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Tuple[int, float, int]
+                        tuple[int, float, int]
             <argument argument_type="arg">
                 <name>
                     arg_generic

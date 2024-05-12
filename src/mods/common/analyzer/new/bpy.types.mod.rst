@@ -14,21 +14,21 @@
 
    .. method:: __getitem__(key)
 
-      :type key: typing.Union[int, str]
+      :type key: int | str
       :mod-option arg key: skip-refine
       :rtype: GenericType
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: typing.Union[int, str]
+      :type key: int | str
       :mod-option arg key: skip-refine
       :type value: GenericType
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: typing.Union[int, str]
+      :type key: int | str
       :mod-option arg key: skip-refine
       :rtype: GenericType
       :mod-option rtype: skip-refine
