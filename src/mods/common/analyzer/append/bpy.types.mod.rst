@@ -16,6 +16,18 @@
 
    .. classmethod:: remove(draw_func)
 
+.. class:: Panel
+
+   .. attribute:: is_registered
+
+      :type: bool
+
+.. class:: Operator
+
+   .. attribute:: is_registered
+
+      :type: bool
+
 .. class:: bpy_prop_collection
 
    .. base-class:: typing.Generic[GenericType]
