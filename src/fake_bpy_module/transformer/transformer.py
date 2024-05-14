@@ -24,13 +24,15 @@ from .first_title_remover import FirstTitleRemover
 
 def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nodes.document]:
     t = Transformer([
+        # Must before base_class_fixture
         "module_name_fixture",
         "first_title_remover",
+        "rst_specific_node_cleaner",
+
         "base_class_fixture",
 
         # Must after base_class_fixture
         "same_module_merger",
-        "rst_specific_node_cleaner",
         "module_level_attribute_fixture",
         "bpy_app_handlers_data_type_adder",
         "bpy_ops_override_parameters_adder",
