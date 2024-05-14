@@ -304,6 +304,7 @@ class DataDirective(rst.Directive):
     node_class = DataNode
 
     _DATA_NAME_REGEX = re.compile(r"([0-9a-zA-Z_]+)")
+    _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s*(\S*)")
 
     def run(self):
         paragraph: nodes.paragraph = nodes.paragraph()
@@ -338,6 +339,9 @@ class DataDirective(rst.Directive):
                 if fname_node.astext() == "type":
                     dtype = parse_data_type(fbody_node)
                     dtype_list_node.append_child(dtype)
+                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                    for dtype_node in dtype_list_node.findall(DataTypeNode):
+                        dtype_node.attributes[m.group(1)] = fbody_node.astext()
 
         return [node]
 

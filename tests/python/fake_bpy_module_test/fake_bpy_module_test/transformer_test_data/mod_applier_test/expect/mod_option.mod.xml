@@ -5,6 +5,13 @@
         <name>
             module_1
         <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+        <data-type-list>
+            <data-type mod-option="skip-refine">
+                DATA_1 type
     <function function_type="function">
         <name>
             function_1

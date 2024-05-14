@@ -1,0 +1,14 @@
+<document source="<string>">
+    <mod-type>
+        update
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+        <data-type-list>
+            <data-type>
+                DATA_1 type updated
