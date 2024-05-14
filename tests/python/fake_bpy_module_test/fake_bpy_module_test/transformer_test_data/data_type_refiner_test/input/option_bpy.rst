@@ -13,3 +13,13 @@
 
    :arg arg_1: function_2 arg_1 description
    :type arg_1: int (optional, readonly, never none)
+
+.. class:: ClassA
+
+   .. attribute:: active_attr
+
+      :type: int
+
+.. data:: active_data
+
+   :type: int

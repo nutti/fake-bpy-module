@@ -287,6 +287,12 @@ class PyCodeWriterBase(BaseWriter):
                         dtype_str = f"typing.Union[{dtype_str}]"
                     else:
                         dtype_str = dtype_nodes[0].to_string()
+                    for dtype_node in dtype_nodes:
+                        if "option" not in dtype_node.attributes:
+                            continue
+                        if "accept none" in dtype_node.attributes["option"]:
+                            dtype_str = f"typing.Optional[{dtype_str}]"
+                            break
 
                 if dtype_str is not None:
                     wt.addln(f"{name_node.astext()}: {dtype_str}"
@@ -467,6 +473,12 @@ class PyCodeWriterBase(BaseWriter):
                 dtype = f"typing.Union[{', '.join([n.to_string() for n in dtype_nodes])}]"
             else:
                 dtype = dtype_nodes[0].to_string()
+            for dtype_node in dtype_nodes:
+                if "option" not in dtype_node.attributes:
+                    continue
+                if "accept none" in dtype_node.attributes["option"]:
+                    dtype = f"typing.Optional[{dtype}]"
+                    break
             wt.addln(f"{name_node.astext()}: {dtype}"
                      f"{self.ellipsis_strings['constant']}")
         else:

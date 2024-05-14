@@ -461,7 +461,9 @@ class DataTypeRefiner(TransformerBase):
 
         return None
 
-    def _get_data_type_options(self, dtype_str: str, module_name: str) -> Tuple[List[str], str]:
+    def _get_data_type_options(
+            self, dtype_str: str, module_name: str, variable_kind: str,
+            additional_info: Dict[str, typing.Any] = None) -> Tuple[List[str], str]:
         if module_name.startswith("bpy."):
             if m := _REGEX_DATA_TYPE_OPTION_STR.search(dtype_str):
                 option_str = m.group(1)
@@ -483,6 +485,12 @@ class DataTypeRefiner(TransformerBase):
                 output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
 
                 return options, stripped
+
+            # Active object can accept None.
+            if variable_kind == 'CONST':
+                if additional_info["data_name"].startswith("active_"):
+                    return ["accept none"], dtype_str
+
             return [], dtype_str
         # From this, we assumed non-bpy module.
         if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
@@ -500,7 +508,8 @@ class DataTypeRefiner(TransformerBase):
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
-        options, dtype_str_changed = self._get_data_type_options(dtype_str, module_name)
+        options, dtype_str_changed = self._get_data_type_options(
+            dtype_str, module_name, variable_kind, additional_info)
 
         result = self._get_refined_data_type_internal(
             dtype_str_changed, module_name, variable_kind, additional_info)
@@ -640,9 +649,13 @@ class DataTypeRefiner(TransformerBase):
             attr_list_node = class_node.element(AttributeListNode)
             attr_nodes = find_children(attr_list_node, AttributeNode)
             for attr_node in attr_nodes:
+                attr_name = attr_node.element(NameNode).astext()
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'CONST',
-                       additional_info={"self_class": f"{module_name}.{class_name}"})
+                       additional_info={
+                           "self_class": f"{module_name}.{class_name}",
+                           "data_name": f"{attr_name}"
+                       })
 
             base_class_list_node = class_node.element(BaseClassListNode)
             base_class_nodes = find_children(base_class_list_node, BaseClassNode)
@@ -666,8 +679,10 @@ class DataTypeRefiner(TransformerBase):
 
         data_nodes = find_children(document, DataNode)
         for data_node in data_nodes:
+            data_name = data_node.element(NameNode).astext()
             dtype_list_node = data_node.element(DataTypeListNode)
-            refine(dtype_list_node, module_name, 'CONST')
+            refine(dtype_list_node, module_name, 'CONST',
+                   additional_info={"data_name": f"{data_name}"})
 
     @classmethod
     def name(cls) -> str:

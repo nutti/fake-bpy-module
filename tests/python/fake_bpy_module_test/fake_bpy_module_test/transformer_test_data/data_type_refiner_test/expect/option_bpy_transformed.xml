@@ -57,3 +57,24 @@
         <return>
             <description>
             <data-type-list>
+    <class>
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    active_attr
+                <description>
+                <data-type-list>
+                    <data-type option="accept none">
+                        int
+        <function-list>
+    <data>
+        <name>
+            active_data
+        <description>
+        <data-type-list>
+            <data-type option="accept none">
+                int
