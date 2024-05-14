@@ -19,6 +19,8 @@ from ..analyzer.nodes import (
     BaseClassListNode,
     BaseClassNode,
     ModTypeNode,
+    DataTypeNode,
+    DataTypeListNode,
 )
 from ..utils import get_first_child, append_child, find_children
 
@@ -27,6 +29,22 @@ class ModApplier(TransformerBase):
 
     def get_mod_documents(self) -> List[nodes.document]:
         return self.mod_documents
+
+    def _mod_update_data(self, data_nodes: List[DataNode],
+                         mod_data_nodes: List[DataNode]):
+        for mod_data_node in mod_data_nodes:
+            mod_data_name_node = mod_data_node.element(NameNode)
+            for data_node in data_nodes:
+                data_name_node = data_node.element(NameNode)
+                if data_name_node.astext() == mod_data_name_node.astext():
+                    dtype_list_node = data_node.element(DataTypeListNode)
+                    dtype_list_node.clear()
+
+                    mod_dtype_list_node = mod_data_node.element(DataTypeListNode)
+                    dtype_nodes = find_children(mod_dtype_list_node, DataTypeNode)
+                    for node in dtype_nodes:
+                        dtype_list_node.append(node)
+                    break
 
     def _mod_append_function(self, func_nodes: List[FunctionNode],
                              mod_func_nodes: List[FunctionNode]):
@@ -184,5 +202,19 @@ class ModApplier(TransformerBase):
                     self._mod_append_class(class_nodes, mod_class_nodes)
                 else:
                     raise ValueError(f"Modules to be appended are not found {mod_module_name}")
+            elif mod_type_node.astext() == "update":
+                mod_module_node = get_first_child(mod_document, ModuleNode)
+                mod_module_name_node = mod_module_node.element(NameNode)
+
+                mod_module_name = mod_module_name_node.astext()
+                if mod_module_name in module_name_to_document:
+                    document = module_name_to_document[mod_module_name]
+
+                    # For data, suppor only updating type.
+                    data_nodes = find_children(document, DataNode)
+                    mod_data_nodes = find_children(mod_document, DataNode)
+                    self._mod_update_data(data_nodes, mod_data_nodes)
+                else:
+                    raise ValueError(f"Modules to be updated are not found {mod_module_name}")
             else:
                 raise NotImplementedError(f"ModTypeNode does not support {mod_type_node.astext()}")
