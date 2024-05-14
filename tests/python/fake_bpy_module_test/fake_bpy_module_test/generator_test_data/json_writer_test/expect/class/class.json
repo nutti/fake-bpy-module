@@ -212,7 +212,8 @@
                     ]
                 },
                 "options": {
-                    "function_type": "function"
+                    "function_type": "function",
+                    "option": "overload"
                 }
             }
         ],

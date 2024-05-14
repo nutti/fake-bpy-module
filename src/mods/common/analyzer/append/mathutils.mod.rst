@@ -110,6 +110,18 @@
 
    .. method:: __matmul__(other)
 
+      :type other: :class:`Matrix`
+      :rtype: :class:`Matrix`
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
+      :type other: :class:`Vector`
+      :rtype: :class:`Vector`
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
       :type other: :class:`Matrix`, :class:`Vector`
       :rtype: :class:`Matrix`, :class:`Vector`
 
@@ -128,19 +140,9 @@
       :type other: int, float
       :rtype: :class:`Matrix`
 
-   .. method:: __rmatmul__(other)
-
-      :type other: :class:`Matrix`
-      :rtype: :class:`Matrix`
-
    .. method:: __imul__(other)
 
       :type other: int, float
-      :rtype: :class:`Matrix`
-
-   .. method:: __imatmul__(other)
-
-      :type other: :class:`Matrix`
       :rtype: :class:`Matrix`
 
 .. class:: Quaternion
@@ -179,6 +181,18 @@
 
    .. method:: __matmul__(other)
 
+      :type other: :class:`Quaternion`
+      :rtype: :class:`Quaternion`
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
+      :type other: :class:`Vector`
+      :rtype: :class:`Vector`
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
       :type other: :class:`Vector`, :class:`Quaternion`
       :rtype: :class:`Vector`, :class:`Quaternion`
 
@@ -197,20 +211,10 @@
       :type other: int, float, :class:`Quaternion`
       :rtype: :class:`Quaternion`
 
-   .. method:: __rmatmul__(other)
-
-      :type other: :class:`Vector`
-      :rtype: :class:`Vector`
-
    .. method:: __imul__(other)
 
       :type other: int, float, :class:`Quaternion`
       :rtype: :class:`Quaternion`
-
-   .. method:: __imatmul__(other)
-
-      :type other: :class:`Vector`
-      :rtype: :class:`Vector`
 
 .. class:: Vector
 
@@ -257,8 +261,20 @@
 
    .. method:: __matmul__(other)
 
+      :type other: :class:`Vector`
+      :rtype: float
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
       :type other: :class:`Matrix`
       :rtype: :class:`Vector`
+      :option function: overload
+
+   .. method:: __matmul__(other)
+
+      :type other: :class:`Vector`, :class:`Matrix`
+      :rtype: :class:`Vector`, float
 
    .. method:: __radd__(other)
 
@@ -280,11 +296,6 @@
       :type other: int, float
       :rtype: :class:`Vector`
 
-   .. method:: __rmatmul__(other)
-
-      :type other: :class:`Matrix`
-      :rtype: :class:`Vector`
-
    .. method:: __iadd__(other)
 
       :type other: :class:`Vector`
@@ -303,9 +314,4 @@
    .. method:: __itruediv__(other)
 
       :type other: int, float
-      :rtype: :class:`Vector`
-
-   .. method:: __imatmul__(other)
-
-      :type other: :class:`Matrix`
       :rtype: :class:`Vector`

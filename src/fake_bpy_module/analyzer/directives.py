@@ -358,7 +358,8 @@ class FunctionDirective(rst.Directive):
     _FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
-    _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s+(arg|rtype)\s*(\S*)")
+    _OPTION_MODOPTION_FIELD_REFEX = re.compile(
+        r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)")
 
     def run(self):
         paragraph: nodes.paragraph = nodes.paragraph()
@@ -452,6 +453,8 @@ class FunctionDirective(rst.Directive):
                             func_ret_node = func_node.element(FunctionReturnNode)
                             for dtype_node in func_ret_node.findall(DataTypeNode):
                                 dtype_node.attributes[m.group(1)] = fbody_node.astext()
+                        elif m.group(2) == "function":
+                            func_node.attributes[m.group(1)] = fbody_node.astext()
 
         return func_nodes
 

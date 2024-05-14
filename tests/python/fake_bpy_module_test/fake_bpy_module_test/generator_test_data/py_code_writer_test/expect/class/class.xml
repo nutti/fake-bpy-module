@@ -122,7 +122,7 @@
                     <data-type-list>
                         <data-type>
                             str
-            <function function_type="function">
+            <function function_type="function" option="overload">
                 <name>
                     function_1
                 <description>
