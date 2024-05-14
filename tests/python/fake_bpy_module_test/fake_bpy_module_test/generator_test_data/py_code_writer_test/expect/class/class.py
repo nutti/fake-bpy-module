@@ -56,6 +56,7 @@ class ClassA:
         """
         pass
 
+    @typing.overload
     def function_1(self, arg_1: float, arg_2: int) -> typing.Optional[str]:
         """function_1 description
 

@@ -1,0 +1,22 @@
+<document source="<string>">
+    <source-filename>
+        option.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+            <function function_type="method" option="overload">
+                <name>
+                    method_1
+                <description>
+                <argument-list>
+                <return>
+                    <description>
+                    <data-type-list>

@@ -318,6 +318,9 @@ class PyCodeWriterBase(BaseWriter):
                 arg_list_node = method_node.element(ArgumentListNode)
                 name_node = method_node.element(NameNode)
 
+                if "option" in method_node.attributes:
+                    if method_node.attributes["option"] == "overload":
+                        wt.addln("@typing.overload")
                 if func_type in ("function", "method"):
                     if not arg_list_node.empty():
                         wt.add(f"def {name_node.astext()}(self, ")
