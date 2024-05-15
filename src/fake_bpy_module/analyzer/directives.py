@@ -103,15 +103,35 @@ def parse_func_arg_default_value(expr: ast.expr):
     if isinstance(expr, ast.Name):
         return "None"   # TODO: Should be "expr.id"
     if isinstance(expr, ast.List):
-        return [parse_func_arg_default_value(e) for e in expr.elts]
+        return (
+            f"""[{', '.join(str(parse_func_arg_default_value(e))
+            for e in expr.elts)}]"""
+            if len(expr.elts) > 0
+            else "[]"
+        )
     if isinstance(expr, ast.Tuple):
-        return tuple((parse_func_arg_default_value(e) for e in expr.elts))
+        return (
+            f"""({', '.join(str(parse_func_arg_default_value(e))
+            for e in expr.elts)})"""
+            if len(expr.elts) > 0
+            else "()"
+        )
     if isinstance(expr, ast.Set):
-        return {parse_func_arg_default_value(e) for e in expr.elts}
+        return (
+            f"""{{{', '.join(str(parse_func_arg_default_value(e))
+            for e in expr.elts)}}}"""
+            if len(expr.elts) > 0
+            else "set()"
+        )
     if isinstance(expr, ast.Dict):
-        return {
-            parse_func_arg_default_value(k): parse_func_arg_default_value(v)
-            for k, v in zip(expr.keys, expr.values)}
+        return (
+            f"""{{{', '.join(
+            f'{parse_func_arg_default_value(k)}'
+            f':{parse_func_arg_default_value(v)}'
+            for k, v in zip(expr.keys, expr.values))}}}"""
+            if len(expr.keys) > 0
+            else "{}"
+        )
     if isinstance(expr, ast.UnaryOp):
         if isinstance(expr.op, ast.USub):
             operand = parse_func_arg_default_value(expr.operand)
