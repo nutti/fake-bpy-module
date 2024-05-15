@@ -395,7 +395,7 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"typing.Tuple[`{s}`]")]
+                return [make_data_type_node(f"typing.Tuple[`{s}`, ...]")]
 
         # Ex: (Vector, Quaternion, Vector)
         if m1 := REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES.match(dtype_str):

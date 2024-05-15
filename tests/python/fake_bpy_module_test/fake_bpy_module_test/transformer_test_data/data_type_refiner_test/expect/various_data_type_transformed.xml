@@ -476,7 +476,7 @@
                 typing.Tuple[
                 <class-ref>
                     refined_module_a.RefinedClassA
-                ]
+                , ...]
     <data>
         <name>
             data_dict_with_string_keys
