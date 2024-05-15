@@ -204,10 +204,7 @@ class PyCodeWriterBase(BaseWriter):
                         wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                        if len(dtype_nodes) >= 2:
-                            dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
-                        else:
-                            dtype_str = dtype_nodes[0].to_string()
+                        dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
@@ -222,10 +219,7 @@ class PyCodeWriterBase(BaseWriter):
                         wt.addln(f":return: {desc_node.astext()}")
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                        if len(dtype_nodes) >= 2:
-                            dtype = " | ".join(n.to_string() for n in dtype_nodes)
-                        else:
-                            dtype = dtype_nodes[0].to_string()
+                        dtype = " | ".join(n.to_string() for n in dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
@@ -280,10 +274,7 @@ class PyCodeWriterBase(BaseWriter):
                 dtype_str = None
                 if not dtype_list_node.empty():
                     dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                    if len(dtype_nodes) >= 2:
-                        dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
-                    else:
-                        dtype_str = dtype_nodes[0].to_string()
+                    dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
                     for dtype_node in dtype_nodes:
                         if "option" not in dtype_node.attributes:
                             continue
@@ -348,10 +339,7 @@ class PyCodeWriterBase(BaseWriter):
 
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                        if len(dtype_nodes) >= 2:
-                            dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
-                        else:
-                            dtype_str = dtype_nodes[0].to_string()
+                        dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
@@ -381,10 +369,7 @@ class PyCodeWriterBase(BaseWriter):
                     dtype_list_node = return_node.element(DataTypeListNode)
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                        if len(dtype_nodes) >= 2:
-                            dtype = " | ".join(n.to_string() for n in dtype_nodes)
-                        else:
-                            dtype = dtype_nodes[0].to_string()
+                        dtype = " | ".join(n.to_string() for n in dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
@@ -414,10 +399,7 @@ class PyCodeWriterBase(BaseWriter):
                             wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
                             if not dtype_list_node.empty():
                                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                                if len(dtype_nodes) >= 2:
-                                    dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
-                                else:
-                                    dtype_str = dtype_nodes[0].to_string()
+                                dtype_str = " | ".join(n.to_string() for n in dtype_nodes)
                                 for dtype_node in dtype_nodes:
                                     if "option" not in dtype_node.attributes:
                                         continue
@@ -434,10 +416,7 @@ class PyCodeWriterBase(BaseWriter):
 
                             if not dtype_list_node.empty():
                                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-                                if len(dtype_nodes) >= 2:
-                                    dtype = " | ".join(n.to_string() for n in dtype_nodes)
-                                else:
-                                    dtype = dtype_nodes[0].to_string()
+                                dtype = " | ".join(n.to_string() for n in dtype_nodes)
                                 for dtype_node in dtype_nodes:
                                     if "option" not in dtype_node.attributes:
                                         continue
@@ -465,10 +444,7 @@ class PyCodeWriterBase(BaseWriter):
 
         if not dtype_list_node.empty():
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-            if len(dtype_nodes) >= 2:
-                dtype = " | ".join(n.to_string() for n in dtype_nodes)
-            else:
-                dtype = dtype_nodes[0].to_string()
+            dtype = " | ".join(n.to_string() for n in dtype_nodes)
             for dtype_node in dtype_nodes:
                 if "option" not in dtype_node.attributes:
                     continue
