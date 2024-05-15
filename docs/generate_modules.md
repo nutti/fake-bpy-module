@@ -203,7 +203,7 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -T <target> -t <target-
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-bash tools/gen_module/run_gen_module.sh <blender-version>
+bash tools/gen_module/run_gen_module_in_docker.sh <blender-version>
 ```
 <!-- markdownlint-enable MD013 -->
 
