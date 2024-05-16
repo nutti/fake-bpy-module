@@ -44,20 +44,20 @@ class ClassA:
         pass
 
     @staticmethod
-    def staticmethod_1(arg_1: float, arg_2: typing.Tuple = (0, 0)) -> str:
+    def staticmethod_1(arg_1: float, arg_2: tuple = (0, 0)) -> str:
         """staticmethod_1 description
 
         :param arg_1: staticmethod_1 arg_1 description
         :type arg_1: float
         :param arg_2: staticmethod_1 arg_2 description
-        :type arg_2: typing.Tuple
+        :type arg_2: tuple
         :return: staticmethod_1 return description
         :rtype: str
         """
         pass
 
     @typing.overload
-    def function_1(self, arg_1: float, arg_2: int) -> typing.Optional[str]:
+    def function_1(self, arg_1: float, arg_2: int) -> str | None:
         """function_1 description
 
         :param arg_1: function_1 arg_1 description
@@ -65,6 +65,6 @@ class ClassA:
         :param arg_2: function_1 arg_2 description
         :type arg_2: int
         :return: function_1 return description
-        :rtype: typing.Optional[str]
+        :rtype: str | None
         """
         pass

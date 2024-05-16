@@ -45,7 +45,7 @@
       :param arg_1: staticmethod_1 arg_1 description
       :type arg_1: float
       :arg arg_2: staticmethod_1 arg_2 description
-      :type arg_2: typing.Tuple
+      :type arg_2: tuple
       :return: staticmethod_1 return description
       :rtype: str
 

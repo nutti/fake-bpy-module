@@ -147,7 +147,7 @@ class DataTypeRefiner(TransformerBase):
                 module_name)
             if s:
                 return [
-                    make_data_type_node("typing.List[typing.Callable[[`bpy.types.Scene`, None]]]")
+                    make_data_type_node("list[typing.Callable[[`bpy.types.Scene`, None]]]")
                 ]
 
         if dtype_str == "Same type with self class":
@@ -194,8 +194,8 @@ class DataTypeRefiner(TransformerBase):
 
         # Ex: enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
-            return [make_data_type_node("typing.Set[str]"),
-                    make_data_type_node("typing.Set[int]")]
+            return [make_data_type_node("set[str]"),
+                    make_data_type_node("set[int]")]
 
         # Ex: enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
@@ -203,15 +203,15 @@ class DataTypeRefiner(TransformerBase):
 
         # Ex: Enumerated constant
         if dtype_str == "Enumerated constant":
-            return [make_data_type_node("typing.Set[str]"),
-                    make_data_type_node("typing.Set[int]")]
+            return [make_data_type_node("set[str]"),
+                    make_data_type_node("set[int]")]
 
         # Ex: boolean, default False
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT.match(dtype_str):
             return [make_data_type_node("bool")]
         # Ex: boolean array of 3 items, (optional)
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF.match(dtype_str):
-            return [make_data_type_node("typing.List[bool]")]
+            return [make_data_type_node("list[bool]")]
 
         if dtype_str == "boolean":
             return [make_data_type_node("bool")]
@@ -250,8 +250,8 @@ class DataTypeRefiner(TransformerBase):
             if s:
                 tuple_elms = ["float"] * int(m.group(3))
                 return [
-                    make_data_type_node("typing.List[float]"),
-                    make_data_type_node(f"typing.Tuple[{', '.join(tuple_elms)}]"),
+                    make_data_type_node("list[float]"),
+                    make_data_type_node(f"tuple[{', '.join(tuple_elms)}]"),
                     make_data_type_node(f"`{s}`")
                 ]
 
@@ -278,11 +278,11 @@ class DataTypeRefiner(TransformerBase):
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(dtype_str):  # noqa # pylint: disable=C0301
             tuple_elems = [
-                f"typing.Tuple[{', '.join(['float'] * int(m.group(1)))}]"
+                f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
             ] * int(m.group(2))
             return [
-                make_data_type_node("typing.List[typing.List[float]]"),
-                make_data_type_node(f"typing.Tuple[{', '.join(tuple_elems)}]")
+                make_data_type_node("list[list[float]]"),
+                make_data_type_node(f"tuple[{', '.join(tuple_elems)}]")
             ]
 
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF.match(dtype_str):
@@ -291,11 +291,11 @@ class DataTypeRefiner(TransformerBase):
                 module_name)
             if s:
                 tuple_elems = [
-                    f"typing.Tuple[{', '.join(['float'] * int(m.group(1)))}]"
+                    f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
                 ] * int(m.group(2))
                 return [
-                    make_data_type_node("typing.List[typing.List[float]]"),
-                    make_data_type_node(f"typing.Tuple[{', '.join(tuple_elems)}]"),
+                    make_data_type_node("list[list[float]]"),
+                    make_data_type_node(f"tuple[{', '.join(tuple_elems)}]"),
                     make_data_type_node(f"`{s}`")
                 ]
 
@@ -309,7 +309,7 @@ class DataTypeRefiner(TransformerBase):
         if REGEX_MATCH_DATA_TYPE_INTEGER.match(dtype_str):
             return [make_data_type_node("int")]
         if dtype_str == "tuple":
-            return [make_data_type_node("typing.Tuple")]
+            return [make_data_type_node("tuple")]
         if dtype_str == "sequence":
             return [make_data_type_node("typing.Sequence")]
 
@@ -328,7 +328,7 @@ class DataTypeRefiner(TransformerBase):
                 return [make_data_type_node(f"`{s1}`")]
 
         if dtype_str.startswith("set of strings"):
-            return [make_data_type_node("typing.Set[str]")]
+            return [make_data_type_node("set[str]")]
 
         # [Pattern] sequence of string tuples or a function
         # [Test]
@@ -358,16 +358,16 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"typing.List[`{s}`]")]
+                return [make_data_type_node(f"list[`{s}`]")]
         # Ex: list of FEdge
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"typing.List[`{s}`]")]
+                return [make_data_type_node(f"list[`{s}`]")]
         # Ex: list of ints
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING.match(dtype_str):  # noqa # pylint: disable=C0301
-            return [make_data_type_node(f"typing.List[{m.group(2)}]")]
+            return [make_data_type_node(f"list[{m.group(2)}]")]
         # Ex: list of (bmesh.types.BMVert)
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE.match(dtype_str):  # noqa # pylint: disable=C0301
             items = m.group(1).split(",")
@@ -379,7 +379,7 @@ class DataTypeRefiner(TransformerBase):
                         im.group(1), uniq_full_names, uniq_module_names,
                         module_name)
                     if s:
-                        dtypes.append(make_data_type_node(f"typing.List[`{s}`]"))
+                        dtypes.append(make_data_type_node(f"list[`{s}`]"))
             return dtypes
         # Ex: BMElemSeq of BMEdge
         if m := REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE.match(dtype_str):
@@ -387,7 +387,7 @@ class DataTypeRefiner(TransformerBase):
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return [
-                    make_data_type_node(f"typing.List[`{s}`]"),
+                    make_data_type_node(f"list[`{s}`]"),
                     make_data_type_node("`bmesh.types.BMElemSeq`")
                 ]
         # Ex: tuple of mathutils.Vector's
@@ -395,7 +395,7 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"typing.Tuple[`{s}`, ...]")]
+                return [make_data_type_node(f"tuple[`{s}`, ...]")]
 
         # Ex: (Vector, Quaternion, Vector)
         if m1 := REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES.match(dtype_str):
@@ -410,12 +410,12 @@ class DataTypeRefiner(TransformerBase):
                         dtypes.append(f"`{s}`")
             if len(dtypes) != 0:
                 elem_str = ", ".join(dtypes)
-                return [make_data_type_node(f"typing.Tuple[{elem_str}]")]
+                return [make_data_type_node(f"tuple[{elem_str}]")]
 
         if dtype_str == "dict with string keys":
-            return [make_data_type_node("typing.Dict[str, typing.Any]")]
+            return [make_data_type_node("dict[str, typing.Any]")]
         if dtype_str == "iterable object":
-            return [make_data_type_node("typing.List")]
+            return [make_data_type_node("list")]
         if m := REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE.match(dtype_str):  # noqa # pylint: disable=C0301
             return [make_data_type_node(f"{m.group(1)}")]
 
@@ -548,7 +548,7 @@ class DataTypeRefiner(TransformerBase):
                     dtypes.extend(d)
             if len(dtypes) >= 1:
                 return [make_data_type_node(
-                    f"typing.Tuple[{', '.join([d.astext() for d in dtypes])}]")]
+                    f"tuple[{', '.join([d.astext() for d in dtypes])}]")]
 
         result = self._get_refined_data_type_fast(
             dtype_str, uniq_full_names, uniq_module_names, module_name,

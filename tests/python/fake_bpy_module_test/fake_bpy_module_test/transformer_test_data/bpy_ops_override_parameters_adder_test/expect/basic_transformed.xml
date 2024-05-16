@@ -22,7 +22,7 @@
                         <class-ref>
                             bpy.types.Context
                     <data-type mod-option="skip-refine">
-                        typing.Dict[str, typing.Any]
+                        dict[str, typing.Any]
             <argument argument_type="arg">
                 <name>
                     execution_context
@@ -70,7 +70,7 @@
                         <class-ref>
                             bpy.types.Context
                     <data-type mod-option="skip-refine">
-                        typing.Dict[str, typing.Any]
+                        dict[str, typing.Any]
             <argument argument_type="arg">
                 <name>
                     execution_context
