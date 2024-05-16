@@ -13,24 +13,24 @@
    :option arg arg_float: optional
    :type arg_int: int
    :option arg arg_int: optional
-   :type arg_list: typing.List
+   :type arg_list: list
    :option arg arg_list: optional
-   :type arg_dict: typing.Dict
+   :type arg_dict: dict
    :option arg arg_dict: optional
-   :type arg_set: typing.Set
+   :type arg_set: set
    :option arg arg_set: optional
-   :type arg_tuple: typing.Tuple
+   :type arg_tuple: tuple
    :option arg arg_tuple: optional
 
 .. function:: modifier(arg_list, arg_dict, arg_set, arg_tuple, arg_generic, arg_iterator, arg_callable, arg_any, arg_sequence)
 
-   :type arg_list: typing.List[int]
+   :type arg_list: list[int]
    :option arg arg_list: optional
-   :type arg_dict: typing.Dict[str, int]
+   :type arg_dict: dict[str, int]
    :option arg arg_dict: optional
-   :type arg_set: typing.Set[int]
+   :type arg_set: set[int]
    :option arg arg_set: optional
-   :type arg_tuple: typing.Tuple[int, float, int]
+   :type arg_tuple: tuple[int, float, int]
    :option arg arg_tuple: optional
    :type arg_generic: Generic[Type]
    :option arg arg_generic: optional

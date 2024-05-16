@@ -18,7 +18,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[typing.Callable[[
+                list[typing.Callable[[
                 <class-ref>
                     bpy.types.Scene
                 , None]]]
@@ -126,9 +126,9 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Set[str]
+                set[str]
             <data-type option="never none">
-                typing.Set[int]
+                set[int]
     <data>
         <name>
             data_enum_in_rna
@@ -144,9 +144,9 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Set[str]
+                set[str]
             <data-type option="never none">
-                typing.Set[int]
+                set[int]
     <data>
         <name>
             data_boolean_default
@@ -160,7 +160,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[bool]
+                list[bool]
     <data>
         <name>
             data_boolean
@@ -237,9 +237,9 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[float]
+                list[float]
             <data-type option="never none">
-                typing.Tuple[float, float, float]
+                tuple[float, float, float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -301,18 +301,18 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[typing.List[float]]
+                list[list[float]]
             <data-type option="never none">
-                typing.Tuple[typing.Tuple[float, float, float], typing.Tuple[float, float, float], typing.Tuple[float, float, float]]
+                tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
     <data>
         <name>
             data_mathutils_matrix_of
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[typing.List[float]]
+                list[list[float]]
             <data-type option="never none">
-                typing.Tuple[typing.Tuple[float, float, float], typing.Tuple[float, float, float], typing.Tuple[float, float, float]]
+                tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix
@@ -350,7 +350,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Tuple
+                tuple
     <data>
         <name>
             data_sequence
@@ -380,7 +380,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Set[str]
+                set[str]
     <data>
         <name>
             data_sequence_of_string_tuples_or_a_function
@@ -418,7 +418,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[
+                list[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
@@ -428,7 +428,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[
+                list[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
@@ -438,19 +438,19 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[float]
+                list[float]
     <data>
         <name>
             data_list_of_parentheses_value
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[
+                list[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
             <data-type option="never none">
-                typing.List[
+                list[
                 <class-ref>
                     module_1.ClassA
                 ]
@@ -460,7 +460,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List[
+                list[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
@@ -473,7 +473,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Tuple[
+                tuple[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 , ...]
@@ -483,14 +483,14 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Dict[str, typing.Any]
+                dict[str, typing.Any]
     <data>
         <name>
             data_iterable_object
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.List
+                list
     <data>
         <name>
             data_list
@@ -573,7 +573,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Tuple[
+                tuple[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 , 

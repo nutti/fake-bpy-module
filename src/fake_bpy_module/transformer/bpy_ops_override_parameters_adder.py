@@ -37,7 +37,7 @@ class BpyOpsOverrideParameterAdder(TransformerBase):
                     arg_node.element(DataTypeListNode).append_child(
                         make_data_type_node("`bpy.types.Context`"))
                     dtype_node = DataTypeNode()
-                    append_child(dtype_node, nodes.Text("typing.Dict[str, typing.Any]"))
+                    append_child(dtype_node, nodes.Text("dict[str, typing.Any]"))
                     dtype_node.attributes["mod-option"] = "skip-refine"
                     arg_node.element(DataTypeListNode).append_child(dtype_node)
                     arg_list_node.insert(0, arg_node)

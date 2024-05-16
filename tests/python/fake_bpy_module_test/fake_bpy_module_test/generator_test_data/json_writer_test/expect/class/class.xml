@@ -115,7 +115,7 @@
                             (0, 0)
                         <data-type-list>
                             <data-type>
-                                typing.Tuple
+                                tuple
                 <return>
                     <description>
                         staticmethod_1 return description
