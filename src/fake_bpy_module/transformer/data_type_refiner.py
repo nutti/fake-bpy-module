@@ -27,6 +27,7 @@ from ..utils import get_first_child, find_children, output_log, LOG_LEVEL_WARN, 
 
 
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
+REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+),$")
 
 # pylint: disable=line-too-long
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
@@ -535,6 +536,10 @@ class DataTypeRefiner(TransformerBase):
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
+
+        # Ex. string, default "", -> string
+        if m := REGEX_MATCH_DATA_TYPE_WITH_DEFAULT.match(dtype_str):
+            dtype_str = m.group(1)
 
         # Ex. (Quaternion, float) pair
         if m := REGEX_MATCH_DATA_TYPE_PAIR.match(dtype_str):
