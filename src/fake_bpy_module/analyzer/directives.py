@@ -56,7 +56,7 @@ def parse_function_def(content) -> str:
     for p in params:
         p = p.strip()
         sp = p.split("=")
-        assert len(sp) in (1, 2)
+        assert len(sp) in (1, 2), f"{p} has length {len(sp)}"
         if len(sp) == 1:
             if required_named_argument:
                 fixed_params.append(f"{p}=None")

@@ -38,6 +38,7 @@ class BaseAnalyzer:
             "halt_level": 2,
             "line_length_limit": 20000,
         }
+
         document: nodes.document = publish_doctree(
             contents, settings_overrides=settings_overrides,
             reader=readers.BpyRstDocsReader())

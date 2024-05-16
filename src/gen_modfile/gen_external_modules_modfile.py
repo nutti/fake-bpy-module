@@ -34,6 +34,7 @@
 import sys
 import inspect
 import os
+import re
 import importlib
 import json
 import argparse
@@ -50,6 +51,25 @@ EXCLUDE_MODULE_LIST = {
     "bl_app_templates_system.Video_Editing",
     "bgui.bgui_utils",
 }
+
+IGNORE_DOC_REGEX_LIST = {
+    re.compile(r"^animsys_refactor.update_data_paths$"),
+    re.compile(r"^bl_i18n_utils.utils.I18n.parse_from_po$"),
+    re.compile(r"^bl_i18n_utils.utils.I18nMessages.find_best_messages_matches$"),
+    re.compile(r"^bl_i18n_utils.utils.I18nMessages.merge$"),
+    re.compile(r"^bl_i18n_utils.utils.I18nMessages.parse_messages_from_po$"),
+    re.compile(r"^bpy_extras.wm_utils.progress_report.ProgressReport$"),
+    re.compile(r"^bpy_types.RNAMeta$"),
+    re.compile(r"^bpy_types.RNAMetaPropGroup$"),
+    re.compile(r"^bpy_types.OrderedDictMini.*"),
+    re.compile(r"^bl_operators.presets.AddPresetBase$"),
+    re.compile(r"^bl_ui.UI_UL_list*"),
+    re.compile(r"^bl_ui.space_toolsystem_common.*"),
+    re.compile(r"^bl_ui.space_toolsystem_toolbar.*"),
+    re.compile(r"^progress_report.ProgressReport$"),
+}
+
+CLASS_DEFAULT_VALUE_REGEX = re.compile(r"<(.+)[^<]*>")
 
 
 def separator():
@@ -95,9 +115,11 @@ def import_modules(module_name_list: List[str]) -> List:
     return imported_modules
 
 
+# pylint: disable=C0209
 def analyze_function(module_name: str, function, is_method=False) -> Dict:
     function_def = {
         "name": function[0],
+        "description": None,
         "type": "method" if is_method else "function",
         "return": {
             "type": "return",
@@ -106,10 +128,22 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
     if not is_method:
         function_def["module"] = module_name
 
+        function_full_name = "{}.{}".format(module_name, function_def["name"])
+        for regex in IGNORE_DOC_REGEX_LIST:
+            if regex.match(function_full_name):
+                break
+        else:
+            function_def["description"] = inspect.getdoc(function[1])
+
     if not inspect.isbuiltin(function[1]):
         try:
-            function_def["parameters"] = list(
-                inspect.signature(function[1]).parameters.keys())
+            function_def["parameters"] = []
+            params = inspect.signature(function[1]).parameters
+            for k, v in params.items():
+                if v.default == inspect.Parameter.empty:
+                    function_def["parameters"].append(k)
+                else:
+                    function_def["parameters"].append(CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v)))
         except ValueError:
             function_def["parameters"] = []
     else:
@@ -126,11 +160,19 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
 def analyze_class(module_name: str, class_) -> Dict:
     class_def = {
         "name": class_[0],
+        "description": None,
         "type": "class",
         "module": module_name,
         "methods": [],
         "attributes": [],
     }
+
+    class_full_name = "{}.{}".format(module_name, class_def["name"])
+    for regex in IGNORE_DOC_REGEX_LIST:
+        if regex.match(class_full_name):
+            break
+    else:
+        class_def["description"] = inspect.getdoc(class_[1])
 
     # Get base classes
     class_def["base_classes"] = []
@@ -151,12 +193,23 @@ def analyze_class(module_name: str, class_) -> Dict:
 
         # Get all class method definitions.
         if callable(x[1]):
-            class_def["methods"].append(analyze_function(module_name, x, True))
+            func_def = analyze_function(module_name, x, True)
+
+            function_full_name = "{}.{}.{}".format(
+                module_name, class_def["name"], func_def["name"])
+            for regex in IGNORE_DOC_REGEX_LIST:
+                if regex.match(function_full_name):
+                    break
+            else:
+                func_def["description"] = inspect.getdoc(x[1])
+
+            class_def["methods"].append(func_def)
         # Get all class parameter definitions.
         else:
             attribute_def = {
                 "type": "attribute",
                 "name": x[0],
+                "description": None,
                 "class": class_[0],
                 "module": module_name,
             }
@@ -215,6 +268,13 @@ def analyze(modules: List) -> Dict:
     return results
 
 
+def write_description(f, description: str, indent: str):
+    lines = description.split("\n")
+    for line in lines:
+        f.write("{}{}\n".format(indent, line))
+    f.write("\n")
+
+
 # pylint: disable=C0209
 def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
     os.makedirs(config.output_dir, exist_ok=True)
@@ -231,13 +291,19 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                         f.write("base classes --- {}\n\n".format(
                             ', '.join(class_info["base_classes"])))
                     f.write(".. class:: {}\n\n".format(class_info["name"]))
+                    if class_info["description"] is not None:
+                        write_description(f, class_info["description"], "   ")
                     for attr_info in class_info["attributes"]:
                         f.write("   .. attribute:: {}\n\n".format(
                             attr_info["name"]))
+                        if attr_info["description"] is not None:
+                            write_description(f, attr_info["description"], "      ")
                     for func_info in class_info["methods"]:
                         f.write("   .. method:: {}({})\n\n".format(
                             func_info["name"],
                             ", ".join(func_info["parameters"])))
+                        if func_info["description"] is not None:
+                            write_description(f, func_info["description"], "      ")
             elif info["type"] == "function":
                 func_info = info
                 mod_filename = "{}/{}.mod.rst".format(config.output_dir, module)
@@ -249,6 +315,9 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                     f.write(".. module:: {}\n\n".format(module))
                 f.write(".. function:: {}({})\n\n".format(
                     func_info["name"], ", ".join(func_info["parameters"])))
+                if func_info["description"] is not None:
+                    write_description(f, func_info["description"], "   ")
+                    f.write("\n")
                 f.close()
             elif info["type"] == "constant":
                 constant_info = info
@@ -262,6 +331,8 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                     f.write(".. mod-type:: new\n\n")
                     f.write(".. module:: {}\n\n".format(module))
                 f.write(".. data:: {}\n\n".format(constant_info["name"]))
+                if constant_info["description"] is not None:
+                    write_description(f, constant_info["description"], "   ")
                 if "data_type" in constant_info:
                     f.write("   :type: {}\n\n".format(
                         constant_info["data_type"]))
@@ -313,6 +384,7 @@ def get_alias_to_bpy_types(results):
             if c["name"] in bpy_types:
                 constant_def = {
                     "type": "constant",
+                    "description": None,
                     "name": c["name"],
                     "module": "bpy.types",
                     "data_type": ":class:`{}.{}`".format(c["module"], c["name"]),

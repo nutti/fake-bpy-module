@@ -154,6 +154,7 @@ class ModApplier(TransformerBase):
             }
             mod_document: nodes.document = publish_doctree(
                 contents, settings_overrides=settings_overrides)
+
             fixture = BaseClassFixture([mod_document])
             fixture.apply()
             self.mod_documents.append(mod_document.deepcopy())
