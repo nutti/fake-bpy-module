@@ -24,10 +24,11 @@ def generate(documents: List[nodes.document]):
         dir_path = config.get_output_dir() + "/" + target_filename[:target_filename.rfind("/")]
         pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-        # Create py.typed file.
-        filename = f"{dir_path}/py.typed"
-        with open(filename, "w", encoding="utf-8", newline="\n") as file:
-            file.write("")
+        # Create py.typed file at the root of modules.
+        if target_filename.count("/") == 1:
+            filename = f"{dir_path}/py.typed"
+            with open(filename, "w", encoding="utf-8", newline="\n") as file:
+                file.write("")
 
     # Generate modules.
     generator: BaseWriter = None
