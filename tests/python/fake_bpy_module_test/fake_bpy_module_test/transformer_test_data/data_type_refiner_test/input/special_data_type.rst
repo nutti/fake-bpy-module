@@ -12,3 +12,7 @@
 .. data:: data_or
 
    :type: str or :class:`ClassA`
+
+.. data:: data_with_default
+
+   :type: str, default ""
