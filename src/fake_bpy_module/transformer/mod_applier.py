@@ -21,6 +21,7 @@ from ..analyzer.nodes import (
     ModTypeNode,
     DataTypeNode,
     DataTypeListNode,
+    DescriptionNode,
 )
 from ..utils import get_first_child, append_child, find_children
 
@@ -65,6 +66,79 @@ class ModApplier(TransformerBase):
                     if not mod_return_node.empty() and return_node.empty():
                         func_node.replace_node(mod_return_node)
                     break
+
+    # pylint: disable=R0914,R1702
+    def _mod_update_class(self, class_nodes: List[ClassNode],
+                          mod_class_nodes: List[ClassNode]):
+        for mod_class_node in mod_class_nodes:
+            mod_class_name_node = mod_class_node.element(NameNode)
+            mod_class_name = mod_class_name_node.astext()
+
+            for class_node in class_nodes:
+                class_name_node = class_node.element(NameNode)
+                class_name = class_name_node.astext()
+                if class_name != mod_class_name:
+                    continue
+
+                # Update description.
+                mod_desc_node = mod_class_node.element(DescriptionNode)
+                if not mod_desc_node.empty():
+                    class_node.replace_node(mod_desc_node)
+
+                # Update functions.
+                func_list_node = class_node.element(FunctionListNode)
+                mod_func_list_node = mod_class_node.element(FunctionListNode)
+                func_nodes = find_children(func_list_node, FunctionNode)
+                mod_func_nodes = find_children(mod_func_list_node, FunctionNode)
+                for mod_func_node in mod_func_nodes:
+                    mod_func_name_node = mod_func_node.element(NameNode)
+                    mod_arg_list_node = mod_func_node.element(ArgumentListNode)
+                    mod_return_node = mod_func_node.element(FunctionReturnNode)
+                    for func_node in func_nodes:
+                        func_name_node = func_node.element(NameNode)
+                        if func_name_node.astext() != mod_func_name_node.astext():
+                            continue
+
+                        # Update description.
+                        mod_desc_node = mod_func_node.element(DescriptionNode)
+                        if not mod_desc_node.empty():
+                            func_node.replace_node(mod_desc_node)
+
+                        # Update arguments.
+                        if not mod_arg_list_node.empty():
+                            arg_list_node = func_node.element(ArgumentListNode)
+                            arg_list_node.clear()
+
+                            mod_arg_nodes = find_children(mod_arg_list_node, ArgumentNode)
+                            for mod_arg_node in mod_arg_nodes:
+                                arg_list_node.append_child(mod_arg_node)
+
+                        # Update return.
+                        if not mod_return_node.empty():
+                            func_node.replace_node(mod_return_node)
+                        break
+
+                # Update attributes.
+                attr_list_node = class_node.element(AttributeListNode)
+                attr_nodes = find_children(attr_list_node, AttributeNode)
+                mod_attr_list_node = mod_class_node.element(AttributeListNode)
+                mod_attr_nodes = find_children(mod_attr_list_node, AttributeNode)
+                for mod_attr_node in mod_attr_nodes:
+                    mod_attr_name = mod_attr_node.element(NameNode).astext()
+                    for attr_node in attr_nodes:
+                        attr_name = attr_node.element(NameNode).astext()
+                        if attr_name == mod_attr_name:
+                            attr_list_node.replace(attr_node, mod_attr_node)
+                            break
+
+                # Update base classes.
+                base_class_list_node = class_node.element(BaseClassListNode)
+                mod_base_class_list_node = mod_class_node.element(BaseClassListNode)
+                if not mod_base_class_list_node.empty():
+                    base_class_list_node.clear()
+                    mod_base_class_nodes = find_children(mod_base_class_list_node, BaseClassNode)
+                    for mod_base_class_node in mod_base_class_nodes:
+                        base_class_list_node.append_child(mod_base_class_node)
 
     # pylint: disable=R0914
     def _mod_append_class(self, class_nodes: List[ClassNode], mod_class_nodes: List[ClassNode]):
@@ -215,6 +289,12 @@ class ModApplier(TransformerBase):
                     data_nodes = find_children(document, DataNode)
                     mod_data_nodes = find_children(mod_document, DataNode)
                     self._mod_update_data(data_nodes, mod_data_nodes)
+
+                    # For classes, support updating functions, attributes, and base-classes.
+                    # For methods, support updating arguments and return.
+                    class_nodes = find_children(document, ClassNode)
+                    mod_class_nodes = find_children(mod_document, ClassNode)
+                    self._mod_update_class(class_nodes, mod_class_nodes)
                 else:
                     raise ValueError(f"Modules to be updated are not found {mod_module_name}")
             else:

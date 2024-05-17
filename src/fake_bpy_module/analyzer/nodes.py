@@ -109,7 +109,7 @@ class DescriptionNode(TextNode, nodes.Part):
     child_text_separator = ""
 
     def empty(self) -> bool:
-        return len(self.children) == 0
+        return self.astext() == ""
 
 
 class DataNode(UniqueElementNode, nodes.Part):
