@@ -1,6 +1,7 @@
 import typing
 
-GenericType = typing.TypeVar("GenericType")
+GenericType1 = typing.TypeVar("GenericType1")
+GenericType2 = typing.TypeVar("GenericType2")
 
 def function_1(arg_1: float, arg_2: str = "test", arg_3: int = 1234) -> str:
     """function_1 description

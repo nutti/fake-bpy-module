@@ -8,31 +8,31 @@
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
       :type key: int
       :mod-option arg key: skip-refine
-      :type value: GenericType
+      :type value: GenericType1
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -62,12 +62,12 @@
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -97,12 +97,12 @@
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -132,12 +132,12 @@
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -167,12 +167,12 @@
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()

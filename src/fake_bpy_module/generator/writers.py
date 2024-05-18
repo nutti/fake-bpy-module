@@ -508,7 +508,8 @@ class PyCodeWriterBase(BaseWriter):
 
             # for generic type
             wt.new_line()
-            wt.addln('GenericType = typing.TypeVar("GenericType")')
+            wt.addln('GenericType1 = typing.TypeVar("GenericType1")')
+            wt.addln('GenericType2 = typing.TypeVar("GenericType2")')
 
             for node in sorted_data:
                 if isinstance(node, FunctionNode):
@@ -712,7 +713,10 @@ class JsonWriter(BaseWriter):
         # for generic type
         json_data.append({
             "type": "code",
-            "contents": ['GenericType = typing.TypeVar("GenericType")']
+            "contents": [
+                'GenericType1 = typing.TypeVar("GenericType1")',
+                'GenericType2 = typing.TypeVar("GenericType2")',
+            ]
         })
 
         for node in sorted_data:
