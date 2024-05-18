@@ -30,7 +30,7 @@
 
 .. class:: bpy_prop_collection
 
-   .. base-class:: typing.Generic[GenericType]
+   .. base-class:: typing.Generic[GenericType1]
 
       :mod-option base-class: skip-refine
 
@@ -38,31 +38,31 @@
 
       :type key: int | str | slice
       :mod-option arg key: skip-refine
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :type value: GenericType
+      :type value: GenericType1
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType]
+      :rtype: typing.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType
+      :rtype: GenericType1
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -72,13 +72,12 @@
 
    .. method:: get()
 
-      :rtype: GenericType
+      :rtype: GenericType1 | GenericType2
       :mod-option rtype: skip-refine
-      :option rtype: accept none
 
 .. class:: bpy_struct
 
-   .. base-class:: typing.Generic[GenericType]
+   .. base-class:: typing.Generic[GenericType1]
 
       :mod-option base-class: skip-refine
 
