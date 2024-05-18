@@ -188,24 +188,22 @@ class DataTypeRefiner(TransformerBase):
                 return [make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
-            return [make_data_type_node("str"), make_data_type_node("int")]
+            return [make_data_type_node("str")]
         # Ex: enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
         if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
-            return [make_data_type_node("str"), make_data_type_node("int")]
+            return [make_data_type_node("str")]
 
         # Ex: enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
-            return [make_data_type_node("set[str]"),
-                    make_data_type_node("set[int]")]
+            return [make_data_type_node("set[str]")]
 
         # Ex: enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
-            return [make_data_type_node("str"), make_data_type_node("int")]
+            return [make_data_type_node("str")]
 
         # Ex: Enumerated constant
         if dtype_str == "Enumerated constant":
-            return [make_data_type_node("set[str]"),
-                    make_data_type_node("set[int]")]
+            return [make_data_type_node("set[str]")]
 
         # Ex: boolean, default False
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT.match(dtype_str):
