@@ -109,8 +109,6 @@
         <data-type-list>
             <data-type option="never none">
                 str
-            <data-type option="never none">
-                int
     <data>
         <name>
             data_enum_in
@@ -118,8 +116,6 @@
         <data-type-list>
             <data-type option="never none">
                 str
-            <data-type option="never none">
-                int
     <data>
         <name>
             data_set_in
@@ -127,8 +123,6 @@
         <data-type-list>
             <data-type option="never none">
                 set[str]
-            <data-type option="never none">
-                set[int]
     <data>
         <name>
             data_enum_in_rna
@@ -136,8 +130,6 @@
         <data-type-list>
             <data-type option="never none">
                 str
-            <data-type option="never none">
-                int
     <data>
         <name>
             data_enumerated_constant
@@ -145,8 +137,6 @@
         <data-type-list>
             <data-type option="never none">
                 set[str]
-            <data-type option="never none">
-                set[int]
     <data>
         <name>
             data_boolean_default
