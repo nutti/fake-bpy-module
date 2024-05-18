@@ -134,6 +134,10 @@ def collect_files() -> Tuple[str, str]:
             mod_files -= set(glob.glob(
                 f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/gpu_extras.*.mod.rst"
             ))
+        if fbm.config.get_mod_version() in ["2.78", "2.79"]:
+            mod_files -= set(glob.glob(
+                f"{MOD_FILES_DIR}/mods/common/**/bpy.app.timers.mod.rst", recursive=True
+            ))
     elif fbm.config.get_target() == "upbge":
         if fbm.config.get_mod_version() not in ["0.2.5"]:
             mod_files -= set(glob.glob(
