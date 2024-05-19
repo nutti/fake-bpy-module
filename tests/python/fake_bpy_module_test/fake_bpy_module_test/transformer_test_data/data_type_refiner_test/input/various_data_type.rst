@@ -49,7 +49,11 @@
 
 .. data:: data_4x4_matrix
 
-   :type: 4x4 mathutils.Matrix
+   :type: 4x4 :class:`Matrix`
+
+.. data:: data_4x4_mathutils_matrix
+
+   :type: 4x4 :class:`mathutils.Matrix`
 
 .. data:: data_enum_in_default
 

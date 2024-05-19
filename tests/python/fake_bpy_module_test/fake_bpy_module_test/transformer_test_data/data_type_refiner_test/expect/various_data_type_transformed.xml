@@ -104,6 +104,14 @@
                     mathutils.Matrix
     <data>
         <name>
+            data_4x4_mathutils_matrix
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                <class-ref>
+                    mathutils.Matrix
+    <data>
+        <name>
             data_enum_in_default
         <description>
         <data-type-list>
