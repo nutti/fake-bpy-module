@@ -6,7 +6,8 @@
     {
         "type": "external-depended-modules",
         "contents": [
-            "typing"
+            "typing",
+            "collections.abc"
         ]
     },
     {

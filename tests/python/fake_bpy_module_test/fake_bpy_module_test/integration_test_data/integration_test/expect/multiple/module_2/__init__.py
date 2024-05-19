@@ -1,4 +1,5 @@
 import typing
+import collections.abc
 import module_1
 import module_1.submodule_1
 

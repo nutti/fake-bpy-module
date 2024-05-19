@@ -17,3 +17,22 @@
          *key* is not found.
       :type default: GenericType2
       :mod-option arg default: skip-refine
+
+   .. method:: items()
+
+      :rtype: list[tuple[str, GenericType1]]
+      :mod-option return: skip-refine
+
+   .. method:: foreach_get(attr, seq)
+
+      :type attr: str
+      :mod-option arg attr: skip-refine
+      :type seq: collections.abc.MutableSequence[bool] | collections.abc.MutableSequence[int] | collections.abc.MutableSequence[float]
+      :mod-option arg seq: skip-refine
+
+   .. method:: foreach_set(attr, seq)
+
+      :type attr: str
+      :mod-option arg attr: skip-refine
+      :type seq: typing.Sequence[bool] | typing.Sequence[int] | typing.Sequence[float]
+      :mod-option arg seq: skip-refine
