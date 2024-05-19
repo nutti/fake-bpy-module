@@ -34,7 +34,7 @@
    :option arg arg_tuple: optional
    :type arg_generic: Generic[Type]
    :option arg arg_generic: optional
-   :type arg_iterator: typing.Iterator
+   :type arg_iterator: collections.abc.Iterator
    :option arg arg_iterator: optional
    :type arg_callable: typing.Callable
    :option arg arg_callable: optional

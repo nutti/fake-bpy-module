@@ -152,7 +152,7 @@
                     []
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Iterator
+                        collections.abc.Iterator
             <argument argument_type="arg">
                 <name>
                     arg_callable
