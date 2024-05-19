@@ -64,7 +64,7 @@ class DefaultValueFiller(TransformerBase):
                         "typing.Iterator": "[]",
                         "typing.Callable": "None",
                         "typing.Any": "None",
-                        "typing.Sequence": "[]",
+                        "collections.abc.Sequence": "[]",
                     }
                     found_type = False
                     for mod_dtype, default_value in MODIFIER_DTYPE_DEFAULT_VALUE_MAP.items():

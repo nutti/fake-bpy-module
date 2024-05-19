@@ -220,7 +220,7 @@ class DataTypeRefiner(TransformerBase):
         if dtype_str == "bytes":
             return [make_data_type_node("bytes")]
         if dtype_str.startswith("byte sequence"):
-            return [make_data_type_node("typing.Sequence[bytes]")]
+            return [make_data_type_node("collections.abc.Sequence[bytes]")]
 
         if dtype_str.lower().startswith("callable"):
             return [make_data_type_node("typing.Callable")]
@@ -231,7 +231,7 @@ class DataTypeRefiner(TransformerBase):
                     m.group(1), uniq_full_names, uniq_module_names,
                     module_name)
                 if s:
-                    return [make_data_type_node("typing.Sequence[float]"),
+                    return [make_data_type_node("collections.abc.Sequence[float]"),
                             make_data_type_node(f"`{s}`")]
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
@@ -261,7 +261,7 @@ class DataTypeRefiner(TransformerBase):
                 module_name)
             if s:
                 return [
-                    make_data_type_node("typing.Sequence[float]"),
+                    make_data_type_node("collections.abc.Sequence[float]"),
                     make_data_type_node(f"`{s}`")
                 ]
         # Ex: int in [-inf, inf], default 0, (readonly)
@@ -272,7 +272,7 @@ class DataTypeRefiner(TransformerBase):
         if dtype_str in ("unsigned int", "int (boolean)"):
             return [make_data_type_node("int")]
         if dtype_str == "int sequence":
-            return [make_data_type_node("typing.Sequence[int]")]
+            return [make_data_type_node("collections.abc.Sequence[int]")]
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(dtype_str):  # noqa # pylint: disable=C0301
@@ -310,7 +310,7 @@ class DataTypeRefiner(TransformerBase):
         if dtype_str == "tuple":
             return [make_data_type_node("tuple")]
         if dtype_str == "sequence":
-            return [make_data_type_node("typing.Sequence")]
+            return [make_data_type_node("collections.abc.Sequence")]
 
         if dtype_str.startswith("`bgl.Buffer` "):
             s1 = self._parse_custom_data_type(

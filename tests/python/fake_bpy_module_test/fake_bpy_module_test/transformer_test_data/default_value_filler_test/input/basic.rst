@@ -40,5 +40,5 @@
    :option arg arg_callable: optional
    :type arg_any: typing.Any
    :option arg arg_any: optional
-   :type arg_sequence: typing.Sequence[int]
+   :type arg_sequence: collections.abc.Sequence[int]
    :option arg arg_sequence: optional

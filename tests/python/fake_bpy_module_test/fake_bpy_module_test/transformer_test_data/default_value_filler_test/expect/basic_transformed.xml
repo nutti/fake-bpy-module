@@ -179,7 +179,7 @@
                     []
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Sequence[int]
+                        collections.abc.Sequence[int]
         <return>
             <description>
             <data-type-list>

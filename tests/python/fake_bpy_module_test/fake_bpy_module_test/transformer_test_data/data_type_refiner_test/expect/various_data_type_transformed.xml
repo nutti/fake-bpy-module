@@ -186,7 +186,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[bytes]
+                collections.abc.Sequence[bytes]
     <data>
         <name>
             data_callable
@@ -200,7 +200,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[float]
+                collections.abc.Sequence[float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -247,7 +247,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[float]
+                collections.abc.Sequence[float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -292,7 +292,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[int]
+                collections.abc.Sequence[int]
     <data>
         <name>
             data_float_multi_dimensional_array_of
@@ -355,7 +355,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence
+                collections.abc.Sequence
     <data>
         <name>
             data_bgl_buffer
