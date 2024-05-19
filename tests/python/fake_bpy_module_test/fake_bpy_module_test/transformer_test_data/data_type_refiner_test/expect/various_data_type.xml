@@ -98,7 +98,18 @@
         <description>
         <data-type-list>
             <data-type>
-                4x4 mathutils.Matrix
+                4x4 
+                <class-ref>
+                    Matrix
+    <data>
+        <name>
+            data_4x4_mathutils_matrix
+        <description>
+        <data-type-list>
+            <data-type>
+                4x4 
+                <class-ref>
+                    mathutils.Matrix
     <data>
         <name>
             data_enum_in_default

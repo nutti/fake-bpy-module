@@ -181,7 +181,7 @@ class DataTypeRefiner(TransformerBase):
                 "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
                 return [make_data_type_node(f"`{s}`")]
-        if dtype_str == "4x4 mathutils.Matrix":
+        if dtype_str in ("4x4 `mathutils.Matrix`", "4x4 `Matrix`"):
             s = self._parse_custom_data_type(
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
