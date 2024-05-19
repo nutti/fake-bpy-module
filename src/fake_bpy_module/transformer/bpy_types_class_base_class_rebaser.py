@@ -1,4 +1,5 @@
 import re
+import typing
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -10,10 +11,18 @@ from ..analyzer.nodes import (
     ClassNode,
     AttributeListNode,
     AttributeNode,
+    BaseClassListNode,
+    BaseClassNode,
     make_data_type_node,
 )
 
-from ..utils import find_children, get_first_child
+from ..utils import (
+    find_children,
+    get_first_child,
+    output_log,
+    LOG_LEVEL_WARN,
+    LOG_LEVEL_DEBUG,
+)
 
 
 class BpyTypesClassBaseClassRebaser(TransformerBase):
@@ -26,8 +35,13 @@ class BpyTypesClassBaseClassRebaser(TransformerBase):
         if not name_node.astext().startswith("bpy.types"):
             return
 
+        parent_to_child: typing.Dict[str, str] = {}
+        class_name_to_class_node: typing.Dict[str, ClassNode] = {}
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
+            class_name = class_node.element(NameNode).astext()
+            class_name_to_class_node[class_name] = class_node
+
             attr_node_list = class_node.element(AttributeListNode)
             attr_nodes = find_children(attr_node_list, AttributeNode)
             for attr_node in attr_nodes:
@@ -38,12 +52,25 @@ class BpyTypesClassBaseClassRebaser(TransformerBase):
                     if m := re.match(
                             r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
                             r"([a-zA-Z0-9]+)`, \(readonly\)$", dtype_str):
-                        index = dtype_list_node.index(dtype_node)
-                        dtype_list_node.remove(dtype_node)
-                        new_dtype_node = make_data_type_node(
-                            f"`bpy_prop_collection` of `{m.group(2)}`, (readonly)")
-                        new_dtype_node.attributes = dtype_node.attributes
-                        dtype_list_node.insert(index, new_dtype_node)
+                        parent_to_child[m.group(1)] = m.group(2)
+
+        for parent, child in parent_to_child.items():
+            if parent == child:
+                output_log(
+                    LOG_LEVEL_WARN, f"Parent and child is same ({parent})")
+                continue
+            output_log(
+                LOG_LEVEL_DEBUG,
+                f"Inheritance changed (Parent: {parent}, Child: {child})")
+
+            class_node = class_name_to_class_node[parent]
+            bc_list_node = class_node.element(BaseClassListNode)
+
+            bc_node = BaseClassNode.create_template()
+            dtype_list_node = bc_node.element(DataTypeListNode)
+            dtype_list_node.append_child(make_data_type_node(
+                f"`bpy_prop_collection` of `{child}`, (readonly)"))
+            bc_list_node.append_child(bc_node)
 
     @classmethod
     def name(cls) -> str:

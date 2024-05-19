@@ -175,13 +175,13 @@ function workaround_quirks() {
             echo "Fixing cycles class: \".bpy.types.CYCLES_MT_[a-z]*_presets\""
             sed -i 's/bpy.types.\(CYCLES_MT_[a-z]*_presets\)/\1/' intern/cycles/blender/addon/ui.py
 
-            # pylint does not respect a `hasattr` in `if hasattr(myclass, field) and myclass.field == test`
-            echo "Ignoring pylint bug: https://github.com/PyCQA/pylint/issues/801"
-            sed -i '/^\s*if hasattr(.*/i # pylint: disable=no-member' intern/cycles/blender/addon/*.py
-
             echo "Fixing pylint bug: https://github.com/pylint-dev/pylint/issues/3105"
             sed -i 's/for \(.*\?\) in self\.devices:/for \1 in [self.devices]:/' intern/cycles/blender/addon/properties.py
         fi
+
+        # pylint does not respect a `hasattr` in `if hasattr(myclass, field) and myclass.field == test`
+        echo "Ignoring pylint bug: https://github.com/PyCQA/pylint/issues/801"
+        sed -i '/^\s*if hasattr(.*/i # pylint: disable=no-member' intern/cycles/blender/addon/*.py
     elif [ "${target}" = "upbge" ]; then
         if [[ $version =~ ^latest$ ]]; then
             # The method draw_panel_header comes from the Panel class which is a base class of CYCLES_PT_sampling_presets.

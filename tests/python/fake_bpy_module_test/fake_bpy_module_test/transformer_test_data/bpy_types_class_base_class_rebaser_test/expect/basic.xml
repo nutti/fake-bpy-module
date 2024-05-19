@@ -7,6 +7,20 @@
         <description>
     <class>
         <name>
+            Attribute
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            Attributes
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
             ClassA
         <description>
             ClassA description
