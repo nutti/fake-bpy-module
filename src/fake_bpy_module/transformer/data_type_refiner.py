@@ -238,7 +238,7 @@ class DataTypeRefiner(TransformerBase):
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF.match(dtype_str):
             if m.group(1) in ("int", "float"):
                 if variable_kind == 'FUNC_ARG':
-                    return [make_data_type_node(f"typing.Iterable[{m.group(1)}]")]
+                    return [make_data_type_node(f"collections.abc.Iterable[{m.group(1)}]")]
                 return [make_data_type_node(f"`bpy.types.bpy_prop_array`[{m.group(1)}]")]
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
@@ -336,7 +336,7 @@ class DataTypeRefiner(TransformerBase):
         #   Pattern: sequence of string tuples or a function
         if dtype_str == "sequence of string tuples or a function":
             return [
-                make_data_type_node("typing.Iterable[typing.Iterable[str]]"),
+                make_data_type_node("collections.abc.Iterable[collections.abc.Iterable[str]]"),
                 make_data_type_node("typing.Callable")
             ]
         # Ex: sequence of bpy.types.Action
@@ -344,7 +344,7 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"typing.Iterable[`{s}`]")]
+                return [make_data_type_node(f"collections.abc.Iterable[`{s}`]")]
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF.match(dtype_str):

@@ -225,7 +225,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="never none">
-                        typing.Iterable[float]
+                        collections.abc.Iterable[float]
         <return>
             <description>
             <data-type-list>
@@ -385,7 +385,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Iterable[typing.Iterable[str]]
+                collections.abc.Iterable[collections.abc.Iterable[str]]
             <data-type option="never none">
                 typing.Callable
     <data>
@@ -394,7 +394,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Iterable[
+                collections.abc.Iterable[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
