@@ -78,7 +78,7 @@ bash gen_module.sh <source-dir> <blender-dir> <target> <branch/tag/commit> <targ
 * `<branch/tag/commit>`: Specify target Blender source's branch for the
   generating modules.
   * If you want to generate modules for 2.79, specify `v2.79`
-  * If you want to generate modules for newest Blender version, specify `master`
+  * If you want to generate modules for newest Blender version, specify `main`
 * `<target-version>`: Specify target version.
 * `<output-dir>`: Specify directory where generated modules are output.
 * `<mod-version>`: Modify APIs by using patch files located in `mods` directory.
