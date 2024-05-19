@@ -7,6 +7,29 @@
         <description>
     <class>
         <name>
+            Attribute
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            Attributes
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute
+                        , (readonly)
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
             ClassA
         <description>
             ClassA description
@@ -19,6 +42,9 @@
                     attr_1 description
                 <data-type-list>
                     <data-type>
+                        <class-ref>
+                            Attributes
+                         
                         <class-ref>
                             bpy_prop_collection
                          of 

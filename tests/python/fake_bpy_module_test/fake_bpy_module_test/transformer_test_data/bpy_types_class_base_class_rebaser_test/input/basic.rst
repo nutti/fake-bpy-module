@@ -1,5 +1,9 @@
 .. module:: bpy.types
 
+.. class:: Attribute
+
+.. class:: Attributes
+
 .. class:: ClassA
 
    ClassA description
