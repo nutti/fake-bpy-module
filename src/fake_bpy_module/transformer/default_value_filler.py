@@ -62,7 +62,7 @@ class DefaultValueFiller(TransformerBase):
                         "tuple": "()",
                         "Generic": "None",
                         "collections.abc.Iterator": "[]",
-                        "typing.Callable": "None",
+                        "collections.abc.Callable": "None",
                         "typing.Any": "None",
                         "collections.abc.Sequence": "[]",
                     }

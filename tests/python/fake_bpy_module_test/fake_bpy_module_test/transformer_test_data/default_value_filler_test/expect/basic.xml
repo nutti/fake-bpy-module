@@ -145,7 +145,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Callable
+                        collections.abc.Callable
             <argument argument_type="arg">
                 <name>
                     arg_any

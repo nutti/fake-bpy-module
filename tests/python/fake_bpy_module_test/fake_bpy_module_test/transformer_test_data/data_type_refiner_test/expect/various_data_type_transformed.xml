@@ -18,7 +18,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                list[typing.Callable[[
+                list[collections.abc.Callable[[
                 <class-ref>
                     bpy.types.Scene
                 , None]]]
@@ -193,7 +193,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Callable
+                collections.abc.Callable
     <data>
         <name>
             data_mathutils_values
@@ -387,7 +387,7 @@
             <data-type option="never none">
                 collections.abc.Iterable[collections.abc.Iterable[str]]
             <data-type option="never none">
-                typing.Callable
+                collections.abc.Callable
     <data>
         <name>
             data_sequence_of

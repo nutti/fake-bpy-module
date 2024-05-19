@@ -148,7 +148,7 @@ class DataTypeRefiner(TransformerBase):
                 module_name)
             if s:
                 return [
-                    make_data_type_node("list[typing.Callable[[`bpy.types.Scene`, None]]]")
+                    make_data_type_node("list[collections.abc.Callable[[`bpy.types.Scene`, None]]]")
                 ]
 
         if dtype_str == "Same type with self class":
@@ -223,7 +223,7 @@ class DataTypeRefiner(TransformerBase):
             return [make_data_type_node("collections.abc.Sequence[bytes]")]
 
         if dtype_str.lower().startswith("callable"):
-            return [make_data_type_node("typing.Callable")]
+            return [make_data_type_node("collections.abc.Callable")]
 
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES.match(dtype_str):
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
@@ -337,7 +337,7 @@ class DataTypeRefiner(TransformerBase):
         if dtype_str == "sequence of string tuples or a function":
             return [
                 make_data_type_node("collections.abc.Iterable[collections.abc.Iterable[str]]"),
-                make_data_type_node("typing.Callable")
+                make_data_type_node("collections.abc.Callable")
             ]
         # Ex: sequence of bpy.types.Action
         if m := REGEX_MATCH_DATA_TYPE_SEQUENCE_OF.match(dtype_str):

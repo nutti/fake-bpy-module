@@ -36,7 +36,7 @@
    :option arg arg_generic: optional
    :type arg_iterator: collections.abc.Iterator
    :option arg arg_iterator: optional
-   :type arg_callable: typing.Callable
+   :type arg_callable: collections.abc.Callable
    :option arg arg_callable: optional
    :type arg_any: typing.Any
    :option arg arg_any: optional
