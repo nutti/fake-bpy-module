@@ -21,7 +21,7 @@
    .. method:: items()
 
       :rtype: list[tuple[str, GenericType1]]
-      :mod-option return: skip-refine
+      :mod-option rtype: skip-refine
 
    .. method:: foreach_get(attr, seq)
 
