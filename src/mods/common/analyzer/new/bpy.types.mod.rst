@@ -8,9 +8,15 @@
 
       :mod-option base-class: skip-refine
 
-   .. method:: foreach_get(attr, seq)
+   .. method:: foreach_get(seq)
 
-   .. method:: foreach_set(attr, seq)
+      :type seq: collections.abc.MutableSequence[GenericType1]
+      :mod-option arg seq: skip-refine
+
+   .. method:: foreach_set(seq)
+
+      :type seq: typing.Sequence[GenericType1]
+      :mod-option arg seq: skip-refine
 
    .. method:: __getitem__(key)
 
