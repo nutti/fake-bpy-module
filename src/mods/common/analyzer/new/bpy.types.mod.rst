@@ -30,8 +30,6 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :rtype: GenericType1
-      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
