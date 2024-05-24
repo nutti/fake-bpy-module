@@ -94,3 +94,10 @@
 
       :rtype: GenericType1
       :mod-option rtype: skip-refine
+
+.. class:: BMLayerCollection
+
+   .. method:: get()
+
+      :rtype: BMLayerItem | GenericType2
+      :mod-option rtype: skip-refine
