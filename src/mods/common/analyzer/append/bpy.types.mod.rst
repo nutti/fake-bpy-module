@@ -52,8 +52,6 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :rtype: GenericType1
-      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
@@ -99,5 +97,3 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :rtype: typing.Any
-      :mod-option rtype: skip-refine
