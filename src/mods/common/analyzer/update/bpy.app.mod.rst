@@ -4,7 +4,7 @@
 
 .. data:: version
 
-   :type: typing.Tuple[int, int, int]
+   :type: tuple[int, int, int]
    :mod-option: skip-refine
 
 .. data:: binary_path
