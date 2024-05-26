@@ -279,7 +279,7 @@ class PyCodeWriterBase(BaseWriter):
                         if "option" not in dtype_node.attributes:
                             continue
                         if "accept none" in dtype_node.attributes["option"]:
-                            dtype_str = f"typing.Optional[{dtype_str}]"
+                            dtype_str = f"{dtype_str} | None"
                             break
 
                 if dtype_str is not None:
@@ -449,7 +449,7 @@ class PyCodeWriterBase(BaseWriter):
                 if "option" not in dtype_node.attributes:
                     continue
                 if "accept none" in dtype_node.attributes["option"]:
-                    dtype = f"typing.Optional[{dtype}]"
+                    dtype = f"{dtype} | None"
                     break
             wt.addln(f"{name_node.astext()}: {dtype}"
                      f"{self.ellipsis_strings['constant']}")
