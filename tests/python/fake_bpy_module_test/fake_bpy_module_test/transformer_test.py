@@ -148,66 +148,6 @@ class ModuleNameFixtureTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
-class BpyAppHandlersDataTypeAdderTest(TransformerTestBase):
-
-    name = "BpyAppHandlersDataTypeAdderTest"
-    module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/transformer_test_data/bpy_app_handlers_data_type_adder_test")
-
-    def test_basic(self):
-        rst_files = ["basic.rst"]
-        expect_files = ["basic.xml"]
-        expect_transformed_files = ["basic_transformed.xml"]
-        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
-        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
-
-        analyzer = BaseAnalyzer()
-        documents = analyzer.analyze(rst_files)
-
-        self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
-            self.compare_with_file_contents(doc.pformat(), expect)
-
-        transformer = Transformer(["bpy_app_handlers_data_type_adder"])
-        transformed = transformer.transform(documents)
-
-        self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
-            self.compare_with_file_contents(trans.pformat(), expect)
-
-
-class BpyOpsOverrideParametersAdderTest(TransformerTestBase):
-
-    name = "BpyOpsOverrideParametersAdderTest"
-    module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/transformer_test_data/bpy_ops_override_parameters_adder_test")
-
-    def test_basic(self):
-        rst_files = ["basic.rst"]
-        expect_files = ["basic.xml"]
-        expect_transformed_files = ["basic_transformed.xml"]
-        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
-        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
-
-        analyzer = BaseAnalyzer()
-        documents = analyzer.analyze(rst_files)
-
-        self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
-            self.compare_with_file_contents(doc.pformat(), expect)
-
-        transformer = Transformer(["bpy_ops_override_parameters_adder"])
-        transformed = transformer.transform(documents)
-
-        self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
-            self.compare_with_file_contents(trans.pformat(), expect)
-
-
 class RstSpecificNodeCleanerTest(TransformerTestBase):
 
     name = "RstSpecificNodeCleanerTest"
@@ -297,18 +237,18 @@ class BpyContextVariableConverterTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
-class BpyTypesClassBaseClassRebaserTest(TransformerTestBase):
+class BpyModuleTweakerTest(TransformerTestBase):
 
-    name = "BpyTypesClassBaseClassRebaserTest"
+    name = "BpyModuleTweakerTest"
     module_name = __module__
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/transformer_test_data/"
-        "bpy_types_class_base_class_rebaser_test")
+        "bpy_module_tweaker")
 
-    def test_basic(self):
-        rst_files = ["basic.rst"]
-        expect_files = ["basic.xml"]
-        expect_transformed_files = ["basic_transformed.xml"]
+    def test_make_bpy_prop_functions_arguments_kwonlyargs(self):
+        rst_files = ["make_bpy_prop_functions_arguments_kwonlyargs.rst"]
+        expect_files = ["make_bpy_prop_functions_arguments_kwonlyargs.xml"]
+        expect_transformed_files = ["make_bpy_prop_functions_arguments_kwonlyargs_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
@@ -320,26 +260,61 @@ class BpyTypesClassBaseClassRebaserTest(TransformerTestBase):
         for doc, expect in zip(documents, expect_files):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-        transformer = Transformer(["bpy_types_class_base_class_rebaser"])
+        transformer = Transformer(["bpy_module_tweaker"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
         for trans, expect in zip(transformed, expect_transformed_files):
             self.compare_with_file_contents(trans.pformat(), expect)
 
+    def test_add_bpy_app_handlers_functions_data_types(self):
+        rst_files = ["add_bpy_app_handlers_functions_data_types.rst"]
+        expect_files = ["add_bpy_app_handlers_functions_data_types.xml"]
+        expect_transformed_files = ["add_bpy_app_handlers_functions_data_types_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
 
-class BpyModuleTweakerTest(TransformerTestBase):
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
 
-    name = "BpyModuleTweakerTest"
-    module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/transformer_test_data/"
-        "bpy_module_tweaker")
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
 
-    def test_basic(self):
-        rst_files = ["basic.rst"]
-        expect_files = ["basic.xml"]
-        expect_transformed_files = ["basic_transformed.xml"]
+        transformer = Transformer(["bpy_module_tweaker"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_add_bpy_ops_override_parameters_transformed(self):
+        rst_files = ["add_bpy_ops_override_parameters.rst"]
+        expect_files = ["add_bpy_ops_override_parameters.xml"]
+        expect_transformed_files = ["add_bpy_ops_override_parameters_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["bpy_module_tweaker"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+    def test_rebase_bpy_types_class_base_class(self):
+        rst_files = ["rebase_bpy_types_class_base_class.rst"]
+        expect_files = ["rebase_bpy_types_class_base_class.xml"]
+        expect_transformed_files = ["rebase_bpy_types_class_base_class_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]

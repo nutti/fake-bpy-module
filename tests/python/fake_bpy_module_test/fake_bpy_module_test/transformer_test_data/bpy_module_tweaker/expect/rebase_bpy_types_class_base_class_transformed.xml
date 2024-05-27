@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        basic.rst
+        rebase_bpy_types_class_base_class.rst
     <module>
         <name>
             bpy.types
