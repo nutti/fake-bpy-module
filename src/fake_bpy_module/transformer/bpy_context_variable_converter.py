@@ -14,6 +14,7 @@ from ..analyzer.nodes import (
 from ..utils import append_child, get_first_child, find_children, output_log, LOG_LEVEL_WARN
 
 
+# TODO: Move to BpyModuleTweaker.
 class BpyContextVariableConverter(TransformerBase):
     @classmethod
     def name(cls) -> str:

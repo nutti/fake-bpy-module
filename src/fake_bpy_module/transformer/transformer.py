@@ -7,6 +7,7 @@ from .bpy_app_handlers_data_type_adder import BpyAppHandlersDataTypeAdder
 from .bpy_context_variable_converter import BpyContextVariableConverter
 from .bpy_ops_override_parameters_adder import BpyOpsOverrideParameterAdder
 from .bpy_types_class_base_class_rebaser import BpyTypesClassBaseClassRebaser
+from .bpy_module_tweaker import BpyModuleTweaker
 from .cannonical_data_type_rewriter import CannonicalDataTypeRewriter
 from .code_document_refiner import CodeDocumentRefiner
 from .data_type_refiner import DataTypeRefiner
@@ -34,6 +35,7 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
         # Must after base_class_fixture
         "same_module_merger",
         "module_level_attribute_fixture",
+        "bpy_module_tweaker",
         "bpy_app_handlers_data_type_adder",
         "bpy_ops_override_parameters_adder",
         "bpy_types_class_base_class_rebaser",
@@ -94,6 +96,9 @@ class Transformer:
             },
             BpyContextVariableConverter.name(): {
                 "class": BpyContextVariableConverter,
+            },
+            BpyModuleTweaker.name(): {
+                "class": BpyModuleTweaker,
             },
             ModApplier.name(): {
                 "class": ModApplier,
