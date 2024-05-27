@@ -487,7 +487,7 @@ class DataTypeRefiner(TransformerBase):
 
             # Active object can accept None.
             if variable_kind == 'CONST':
-                if additional_info["data_name"].startswith("active_"):
+                if additional_info["data_name"].startswith("active"):
                     return ["accept none"], dtype_str
 
             return [], dtype_str
