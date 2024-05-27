@@ -20,37 +20,34 @@ from .target_file_combiner import TargetFileCombiner
 from .first_title_remover import FirstTitleRemover
 
 
-def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nodes.document]:
-    t = Transformer([
-        # Must before base_class_fixture
-        "module_name_fixture",
-        "first_title_remover",
-        "rst_specific_node_cleaner",
-
-        "base_class_fixture",
-
-        # Must after base_class_fixture
-        "same_module_merger",
-        "module_level_attribute_fixture",
-        "bpy_module_tweaker",
-        "bpy_context_variable_converter",
-        "mod_applier",
-        "format_validator",
-
-        # Must after mod_applier
-        "target_file_combiner",
-        "data_type_refiner",
-
-        # Must after data_type_refiner
-        "default_value_filler",
-        "cannonical_data_type_rewriter",
-        "dependency_builder",
-        "code_document_refiner",
-    ], {
-        "mod_applier": {
-            "mod_files": mod_files
-        }
-    })
+def transform(
+    documents: List[nodes.document], mod_files: List[str]
+) -> List[nodes.document]:
+    t = Transformer(
+        [
+            # Must before base_class_fixture
+            "module_name_fixture",
+            "first_title_remover",
+            "rst_specific_node_cleaner",
+            "base_class_fixture",
+            # Must after base_class_fixture
+            "same_module_merger",
+            "module_level_attribute_fixture",
+            "bpy_module_tweaker",
+            "bpy_context_variable_converter",
+            "mod_applier",
+            "format_validator",
+            # Must after mod_applier
+            "target_file_combiner",
+            "data_type_refiner",
+            # Must after data_type_refiner
+            "default_value_filler",
+            "cannonical_data_type_rewriter",
+            "dependency_builder",
+            "code_document_refiner",
+        ],
+        {"mod_applier": {"mod_files": mod_files}},
+    )
     documents = t.transform(documents)
 
     return documents
@@ -67,8 +64,7 @@ class Transformer:
     def get_transformers(self) -> List[TransformerBase]:
         return self.transformers
 
-    def transform(self, documents: List[nodes.document],
-                  parameters: dict = None):
+    def transform(self, documents: List[nodes.document], parameters: dict = None):
         transformer_specs = {
             BaseClassFixture.name(): {
                 "class": BaseClassFixture,

@@ -1,19 +1,19 @@
 import shutil
 import os
 
-from fake_bpy_module.analyzer.analyzer import analyze   # pylint: disable=E0401
-from fake_bpy_module.transformer.transformer import transform   # pylint: disable=E0401
-from fake_bpy_module.generator.generator import generate    # pylint: disable=E0401
+from fake_bpy_module.analyzer.analyzer import analyze  # pylint: disable=E0401
+from fake_bpy_module.transformer.transformer import transform  # pylint: disable=E0401
+from fake_bpy_module.generator.generator import generate  # pylint: disable=E0401
 from fake_bpy_module import config  # pylint: disable=E0401
 from . import common
 
 
 class IntegrationTest(common.FakeBpyModuleTestBase):
-
     name = "IntegrationTest"
     module_name = __module__
     data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/integration_test_data/integration_test")
+        f"{os.path.dirname(__file__)}/integration_test_data/integration_test"
+    )
 
     def setUp(self):
         super().setUp()

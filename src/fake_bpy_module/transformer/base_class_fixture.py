@@ -48,7 +48,8 @@ class BaseClassFixture(TransformerBase):
                     for bc in base_classes:
                         base_class_node = BaseClassNode.create_template()
                         base_class_node.element(DataTypeListNode).append_child(
-                            DataTypeNode(text=bc))
+                            DataTypeNode(text=bc)
+                        )
                         base_class_list_node.append_child(base_class_node)
 
                 para.parent.remove(para)

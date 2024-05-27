@@ -12,7 +12,6 @@ from .. import config
 
 
 class ModuleNameFixture(TransformerBase):
-
     def _no_module(self, document: nodes.document):
         module_node = get_first_child(document, ModuleNode)
         if module_node is not None:
@@ -23,7 +22,8 @@ class ModuleNameFixture(TransformerBase):
             if source_filename.startswith("bge.types."):
                 module_node = ModuleNode.create_template()
                 module_node.element(NameNode).add_text(
-                    os.path.splitext(os.path.basename(source_filename))[0])
+                    os.path.splitext(os.path.basename(source_filename))[0]
+                )
                 document.insert(0, module_node)
                 return False
 

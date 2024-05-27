@@ -31,7 +31,6 @@ from ..analyzer.roles import (
 
 
 class FormatValidator(TransformerBase):
-
     def _check_num_children(self, node: nodes.Node, expect: int):
         assert len(node.children) == expect, f"{node.pformat()}"
 
@@ -86,12 +85,23 @@ class FormatValidator(TransformerBase):
 
     def _check_data_type_node(self, data_type_node: DataTypeNode):
         for child in data_type_node.children:
-            assert isinstance(child, (nodes.Text, ModuleRef, ClassRef, RefRef,
-                                      nodes.literal, nodes.emphasis,
-                                      nodes.title_reference)), f"{child.pformat()}"
+            assert isinstance(
+                child,
+                (
+                    nodes.Text,
+                    ModuleRef,
+                    ClassRef,
+                    RefRef,
+                    nodes.literal,
+                    nodes.emphasis,
+                    nodes.title_reference,
+                ),
+            ), f"{child.pformat()}"
 
-            if isinstance(child, (nodes.Text, nodes.literal, nodes.emphasis,
-                                  nodes.title_reference)):
+            if isinstance(
+                child,
+                (nodes.Text, nodes.literal, nodes.emphasis, nodes.title_reference),
+            ):
                 for c in child.children:
                     self._check_node(c, nodes.Text)
             elif isinstance(child, ModuleRef):
@@ -112,8 +122,7 @@ class FormatValidator(TransformerBase):
         self._check_node(children[0], NameNode)
         self._check_node(children[1], DescriptionNode)
 
-    def _check_attribute_list_node(self,
-                                   attribute_list_node: AttributeListNode):
+    def _check_attribute_list_node(self, attribute_list_node: AttributeListNode):
         for attr_node in attribute_list_node.children:
             self._check_node(attr_node, AttributeNode)
 
@@ -121,8 +130,7 @@ class FormatValidator(TransformerBase):
         for func_node in function_list_node.children:
             self._check_node(func_node, FunctionNode)
 
-    def _check_base_class_list_node(self,
-                                    base_class_list_node: BaseClassListNode):
+    def _check_base_class_list_node(self, base_class_list_node: BaseClassListNode):
         for base_class_node in base_class_list_node.children:
             self._check_node(base_class_node, BaseClassNode)
 
@@ -187,23 +195,26 @@ class FormatValidator(TransformerBase):
 
     def _check_code_document_node(self, code_document_node: CodeDocumentNode):
         for child in code_document_node.children:
-            assert not isinstance(child, (
-                ModuleNode,
-                FunctionListNode,
-                FunctionNode,
-                FunctionReturnNode,
-                ArgumentListNode,
-                ArgumentNode,
-                AttributeListNode,
-                AttributeNode,
-                BaseClassListNode,
-                BaseClassNode,
-                NameNode,
-                DescriptionNode,
-                DataTypeListNode,
-                DataTypeNode,
-                DefaultValueNode
-            )), f"{code_document_node.pformat()}"
+            assert not isinstance(
+                child,
+                (
+                    ModuleNode,
+                    FunctionListNode,
+                    FunctionNode,
+                    FunctionReturnNode,
+                    ArgumentListNode,
+                    ArgumentNode,
+                    AttributeListNode,
+                    AttributeNode,
+                    BaseClassListNode,
+                    BaseClassNode,
+                    NameNode,
+                    DescriptionNode,
+                    DataTypeListNode,
+                    DataTypeNode,
+                    DefaultValueNode,
+                ),
+            ), f"{code_document_node.pformat()}"
 
     def _check_filename_node(self, source_filename_node: SourceFilenameNode):
         for child in source_filename_node.children:
@@ -224,8 +235,10 @@ class FormatValidator(TransformerBase):
             elif isinstance(child, SourceFilenameNode):
                 self._check_filename_node(child)
             else:
-                raise ValueError(f"{type(child)} must not be a child of "
-                                 f"{type(document)}.\n{document.pformat()}")
+                raise ValueError(
+                    f"{type(child)} must not be a child of "
+                    f"{type(document)}.\n{document.pformat()}"
+                )
 
     def _apply(self, document: nodes.document):
         self._check_document(document)

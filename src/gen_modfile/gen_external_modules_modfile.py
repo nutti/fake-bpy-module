@@ -39,7 +39,7 @@ import importlib
 import json
 import argparse
 from typing import List, Dict
-import bpy      # pylint: disable=E0401
+import bpy  # pylint: disable=E0401
 
 
 EXCLUDE_MODULE_LIST = {
@@ -96,7 +96,8 @@ def get_module_name_list(config: 'GenerationConfig') -> List[str]:
             if not f.endswith(".py"):
                 continue
             module_name = os.path.join(cur_dir, f).replace(
-                modules_dir + separator(), "")
+                modules_dir + separator(), ""
+            )
             module_name = module_name[:-3].replace(separator(), ".")
             module_name = module_name.replace(".__init__", "")
             module_name_list.append(module_name)
@@ -123,7 +124,7 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
         "type": "method" if is_method else "function",
         "return": {
             "type": "return",
-        }
+        },
     }
     if not is_method:
         function_def["module"] = module_name
@@ -143,7 +144,9 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
                 if v.default == inspect.Parameter.empty:
                     function_def["parameters"].append(k)
                 else:
-                    function_def["parameters"].append(CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v)))
+                    function_def["parameters"].append(
+                        CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v))
+                    )
         except ValueError:
             function_def["parameters"] = []
     else:
@@ -181,22 +184,22 @@ def analyze_class(module_name: str, class_) -> Dict:
             continue
         if c.__module__ == "builtins":
             continue
-        class_def["base_classes"].append(
-            "{}.{}".format(c.__module__, c.__name__))
+        class_def["base_classes"].append("{}.{}".format(c.__module__, c.__name__))
         # This avoids "E0240: Inconsistent method resolution order" error on
         # pylint_cycles.sh
         class_def["base_classes"].reverse()
 
     for x in inspect.getmembers(class_[1]):
         if x[0].startswith("_"):
-            continue        # Skip private methods and attributes.
+            continue  # Skip private methods and attributes.
 
         # Get all class method definitions.
         if callable(x[1]):
             func_def = analyze_function(module_name, x, True)
 
             function_full_name = "{}.{}.{}".format(
-                module_name, class_def["name"], func_def["name"])
+                module_name, class_def["name"], func_def["name"]
+            )
             for regex in IGNORE_DOC_REGEX_LIST:
                 if regex.match(function_full_name):
                     break
@@ -231,7 +234,7 @@ def analyze_module(module_name: str, module) -> Dict:
         if inspect.isbuiltin(c[1]):
             continue
         if inspect.getmodule(c[1]) != module:
-            continue    # Remove indirect classes. (ex. from XXX import ZZZ)
+            continue  # Remove indirect classes. (ex. from XXX import ZZZ)
         class_def = analyze_class(module_name, c)
 
         # To avoid circular dependency, we remove classes whose base class is
@@ -250,9 +253,9 @@ def analyze_module(module_name: str, module) -> Dict:
     functions = inspect.getmembers(module, inspect.isfunction)
     for f in functions:
         if f[0].startswith("_"):
-            continue    # Skip private functions.
+            continue  # Skip private functions.
         if inspect.getmodule(f[1]) != module:
-            continue    # Remove indirect functions. (ex. from XXX import ZZZ)
+            continue  # Remove indirect functions. (ex. from XXX import ZZZ)
 
         result["functions"].append(analyze_function(module_name, f))
 
@@ -262,8 +265,7 @@ def analyze_module(module_name: str, module) -> Dict:
 def analyze(modules: List) -> Dict:
     results = {}
     for m in modules:
-        results[m["module_name"]] = analyze_module(
-            m["module_name"], m["module"])
+        results[m["module_name"]] = analyze_module(m["module_name"], m["module"])
 
     return results
 
@@ -283,25 +285,30 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
             if info["type"] == "class":
                 class_info = info
                 mod_filename = "{}/{}.{}.mod.rst".format(
-                    config.output_dir, module, class_info["name"])
+                    config.output_dir, module, class_info["name"]
+                )
                 with open(mod_filename, "w", encoding="utf-8") as f:
                     f.write(".. mod-type:: new\n\n")
                     f.write(".. module:: {}\n\n".format(module))
                     if len(class_info["base_classes"]) != 0:
-                        f.write("base classes --- {}\n\n".format(
-                            ', '.join(class_info["base_classes"])))
+                        f.write(
+                            "base classes --- {}\n\n".format(
+                                ', '.join(class_info["base_classes"])
+                            )
+                        )
                     f.write(".. class:: {}\n\n".format(class_info["name"]))
                     if class_info["description"] is not None:
                         write_description(f, class_info["description"], "   ")
                     for attr_info in class_info["attributes"]:
-                        f.write("   .. attribute:: {}\n\n".format(
-                            attr_info["name"]))
+                        f.write("   .. attribute:: {}\n\n".format(attr_info["name"]))
                         if attr_info["description"] is not None:
                             write_description(f, attr_info["description"], "      ")
                     for func_info in class_info["methods"]:
-                        f.write("   .. method:: {}({})\n\n".format(
-                            func_info["name"],
-                            ", ".join(func_info["parameters"])))
+                        f.write(
+                            "   .. method:: {}({})\n\n".format(
+                                func_info["name"], ", ".join(func_info["parameters"])
+                            )
+                        )
                         if func_info["description"] is not None:
                             write_description(f, func_info["description"], "      ")
             elif info["type"] == "function":
@@ -313,16 +320,18 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                     f = open(mod_filename, "w", encoding="utf-8")
                     f.write(".. mod-type:: new\n\n")
                     f.write(".. module:: {}\n\n".format(module))
-                f.write(".. function:: {}({})\n\n".format(
-                    func_info["name"], ", ".join(func_info["parameters"])))
+                f.write(
+                    ".. function:: {}({})\n\n".format(
+                        func_info["name"], ", ".join(func_info["parameters"])
+                    )
+                )
                 if func_info["description"] is not None:
                     write_description(f, func_info["description"], "   ")
                     f.write("\n")
                 f.close()
             elif info["type"] == "constant":
                 constant_info = info
-                mod_filename = "{}/{}.mod.rst".format(
-                    config.output_dir, module)
+                mod_filename = "{}/{}.mod.rst".format(config.output_dir, module)
                 if os.path.isfile(mod_filename):
                     f = open(mod_filename, "a", encoding="utf-8")
                 else:
@@ -334,8 +343,7 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                 if constant_info["description"] is not None:
                     write_description(f, constant_info["description"], "   ")
                 if "data_type" in constant_info:
-                    f.write("   :type: {}\n\n".format(
-                        constant_info["data_type"]))
+                    f.write("   :type: {}\n\n".format(constant_info["data_type"]))
                 f.close()
 
 
@@ -353,9 +361,7 @@ def write_to_modfile(info: Dict, config: 'GenerationConfig'):
 
     for module_name, module_info in info.items():
         if module_name not in data:
-            data[module_name] = {
-                "new": []
-            }
+            data[module_name] = {"new": []}
         for class_info in module_info["classes"]:
             data[module_name]["new"].append(class_info)
         for function_info in module_info["functions"]:
@@ -400,28 +406,36 @@ def parse_options() -> 'GenerationConfig':
     argv = sys.argv
     try:
         index = argv.index("--") + 1
-    except:     # noqa # pylint: disable=W0702
+    except:  # noqa # pylint: disable=W0702
         index = len(argv)
     argv = argv[index:]
 
-    usage = "Usage: blender -noaudio --factory-startup --background " \
-            "--python {} -- [-m <first_import_module_name>] [-a] " \
-            "[-o <output_dir>]".format(__file__)
+    usage = (
+        "Usage: blender -noaudio --factory-startup --background "
+        "--python {} -- [-m <first_import_module_name>] [-a] "
+        "[-o <output_dir>]".format(__file__)
+    )
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
-        "-m", dest="first_import_module_name", type=str,
+        "-m",
+        dest="first_import_module_name",
+        type=str,
         help="""Module name to import first.
         This is used for finding blender's 'modules' directory.
         """,
-        required=True
+        required=True,
     )
     parser.add_argument(
-        "-o", dest="output_dir", type=str, help="Output directory.",
-        required=True
+        "-o", dest="output_dir", type=str, help="Output directory.", required=True
     )
     parser.add_argument("-a", dest="output_alias", action="store_true")
-    parser.add_argument("-f", dest="output_format", type=str,
-                        help="Output format (rst, json).", required=True)
+    parser.add_argument(
+        "-f",
+        dest="output_format",
+        type=str,
+        help="Output format (rst, json).",
+        required=True,
+    )
     args = parser.parse_args(argv)
 
     config = GenerationConfig()
@@ -431,8 +445,7 @@ def parse_options() -> 'GenerationConfig':
     config.output_format = args.output_format
 
     if config.output_format not in ["rst", "json"]:
-        raise ValueError(
-            "Unsupported output format: {}".format(config.output_format))
+        raise ValueError("Unsupported output format: {}".format(config.output_format))
 
     return config
 

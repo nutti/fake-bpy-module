@@ -11,7 +11,6 @@ from ..utils import get_first_child, append_child
 
 
 class SameModuleMerger(TransformerBase):
-
     def _merge(self, documents: List[nodes.document]) -> List[nodes.document]:
         module_to_documents = {}
         for document in documents:

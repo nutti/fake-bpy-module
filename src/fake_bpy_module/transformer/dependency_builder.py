@@ -15,7 +15,12 @@ from ..analyzer.roles import (
     ClassRef,
 )
 from ..utils import get_first_child, find_children, append_child
-from .utils import ModuleStructure, get_module_name, get_base_name, build_module_structure
+from .utils import (
+    ModuleStructure,
+    get_module_name,
+    get_base_name,
+    build_module_structure,
+)
 
 
 class Dependency:
@@ -36,8 +41,7 @@ class Dependency:
     @property
     def type_lists(self) -> List[str]:
         if not self._type_lists:
-            raise RuntimeError(
-                "At least 1 element must be added to type lists")
+            raise RuntimeError("At least 1 element must be added to type lists")
         return self._type_lists
 
     def add_type(self, type_: str):
@@ -45,15 +49,15 @@ class Dependency:
 
 
 class DependencyBuilder(TransformerBase):
-
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
             self._package_structure = kwargs["package_structure"]
 
-    def _get_import_module_path(self, module_structure: ModuleStructure,
-                                data_type_1: str, data_type_2: str):
+    def _get_import_module_path(
+        self, module_structure: ModuleStructure, data_type_1: str, data_type_2: str
+    ):
         mod_names_full_1 = get_module_name(data_type_1, module_structure)
         mod_names_full_2 = get_module_name(data_type_2, module_structure)
         if mod_names_full_1 is None or mod_names_full_2 is None:
@@ -114,10 +118,13 @@ class DependencyBuilder(TransformerBase):
 
         return module_path
 
-    def _add_dependency(self, dependencies: List[Dependency],
-                        module_structure: ModuleStructure,
-                        data_type_1: str, data_type_2: str):
-
+    def _add_dependency(
+        self,
+        dependencies: List[Dependency],
+        module_structure: ModuleStructure,
+        data_type_1: str,
+        data_type_2: str,
+    ):
         mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
         base = get_base_name(data_type_1)
         if mod is None:
@@ -138,8 +145,8 @@ class DependencyBuilder(TransformerBase):
                 target_dep.add_type(base)
 
     def _build_dependencies(
-            self, document: nodes.document, package_structure: ModuleStructure):
-
+        self, document: nodes.document, package_structure: ModuleStructure
+    ):
         dependencies: List[Dependency] = []
         module_node = get_first_child(document, ModuleNode)
         if module_node is None:
@@ -152,8 +159,11 @@ class DependencyBuilder(TransformerBase):
             class_refs = class_node.traverse(ClassRef)
             for class_ref in class_refs:
                 self._add_dependency(
-                    dependencies, package_structure, class_ref.to_string(),
-                    f"{module_name}.{class_name}")
+                    dependencies,
+                    package_structure,
+                    class_ref.to_string(),
+                    f"{module_name}.{class_name}",
+                )
 
         func_nodes = find_children(document, FunctionNode)
         for func_node in func_nodes:
@@ -161,8 +171,11 @@ class DependencyBuilder(TransformerBase):
             class_refs = func_node.traverse(ClassRef)
             for class_ref in class_refs:
                 self._add_dependency(
-                    dependencies, package_structure, class_ref.to_string(),
-                    f"{module_name}.{func_name}")
+                    dependencies,
+                    package_structure,
+                    class_ref.to_string(),
+                    f"{module_name}.{func_name}",
+                )
 
         data_nodes = find_children(document, DataNode)
         for data_node in data_nodes:
@@ -170,8 +183,11 @@ class DependencyBuilder(TransformerBase):
             class_refs = data_node.traverse(ClassRef)
             for class_ref in class_refs:
                 self._add_dependency(
-                    dependencies, package_structure, class_ref.to_string(),
-                    f"{module_name}.{data_name}")
+                    dependencies,
+                    package_structure,
+                    class_ref.to_string(),
+                    f"{module_name}.{data_name}",
+                )
 
         dep_list_node = DependencyListNode()
         for dep in dependencies:

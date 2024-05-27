@@ -62,6 +62,8 @@ def register_roles():
 
     roles.register_local_role("exc", roles.GenericRole("exc", OtherRef))
     roles.register_local_role("kbd", roles.GenericRole("kbd", OtherRef))
-    roles.register_local_role("menuselection", roles.GenericRole("menuselection", OtherRef))
+    roles.register_local_role(
+        "menuselection", roles.GenericRole("menuselection", OtherRef)
+    )
     roles.register_local_role("abbr", roles.GenericRole("abbr", OtherRef))
     roles.register_local_role("doc", roles.GenericRole("doc", OtherRef))

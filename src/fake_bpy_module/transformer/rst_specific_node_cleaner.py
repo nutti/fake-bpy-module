@@ -9,7 +9,6 @@ from ..utils import append_child
 
 
 class RstSpecificNodeCleaner(TransformerBase):
-
     def _replace(self, from_node: nodes.Node, to_node: nodes.Node):
         parent = from_node.parent
         index = from_node.parent.index(from_node)
@@ -27,7 +26,9 @@ class RstSpecificNodeCleaner(TransformerBase):
 
         # Make CodeDocumentNode from RST specific nodes.
         for node in document.children[:]:
-            if isinstance(node, (
+            if isinstance(
+                node,
+                (
                     nodes.title,
                     nodes.paragraph,
                     nodes.bullet_list,
@@ -41,7 +42,9 @@ class RstSpecificNodeCleaner(TransformerBase):
                     nodes.note,
                     nodes.warning,
                     nodes.target,
-                    CodeNode)):
+                    CodeNode,
+                ),
+            ):
                 code_doc_node = CodeDocumentNode()
                 self._replace(node, code_doc_node)
                 append_child(code_doc_node, node)

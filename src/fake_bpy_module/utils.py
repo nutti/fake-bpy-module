@@ -87,8 +87,7 @@ def split_string_by_comma(line: str) -> list:
         elif c in (")", "}", "]"):
             level -= 1
             if level < 0:
-                raise ValueError(
-                    f"Level must be >= 0 but {level} (Line: {line})")
+                raise ValueError(f"Level must be >= 0 but {level} (Line: {line})")
         if level == 0 and c == ",":
             splited.append(current)
             current = ""
@@ -96,8 +95,7 @@ def split_string_by_comma(line: str) -> list:
             current += c
 
     if level != 0:
-        raise ValueError(
-            f"Level must be == 0 but {level} (Line: {line})")
+        raise ValueError(f"Level must be == 0 but {level} (Line: {line})")
 
     if current != "":
         splited.append(current)

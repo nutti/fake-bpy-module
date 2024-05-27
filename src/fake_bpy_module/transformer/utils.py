@@ -89,8 +89,8 @@ def get_module_name(data_type: str, module_structure: ModuleStructure) -> str:
     module_names = data_type.split(".")[:-1]
 
     def search(
-            mod_names, structure: ModuleStructure, dtype: str,
-            is_first_level: bool = False):
+        mod_names, structure: ModuleStructure, dtype: str, is_first_level: bool = False
+    ):
         if len(mod_names) == 0:
             return dtype
         for s in structure.children():

@@ -13,7 +13,6 @@ from ..utils import find_children
 
 
 class DefaultValueFiller(TransformerBase):
-
     def _fill(self, document: nodes.document):
         func_nodes = document.findall(FunctionNode)
         for func_node in func_nodes:
@@ -51,7 +50,9 @@ class DefaultValueFiller(TransformerBase):
                         "tuple": "()",
                     }
                     if dtype in BUILTIN_DTYPE_DEFAULT_VALUE_MAP:
-                        default_value_node.add_text(BUILTIN_DTYPE_DEFAULT_VALUE_MAP[dtype])
+                        default_value_node.add_text(
+                            BUILTIN_DTYPE_DEFAULT_VALUE_MAP[dtype]
+                        )
                         continue
 
                     # Modifier data type.
@@ -67,7 +68,10 @@ class DefaultValueFiller(TransformerBase):
                         "collections.abc.Sequence": "[]",
                     }
                     found_type = False
-                    for mod_dtype, default_value in MODIFIER_DTYPE_DEFAULT_VALUE_MAP.items():
+                    for (
+                        mod_dtype,
+                        default_value,
+                    ) in MODIFIER_DTYPE_DEFAULT_VALUE_MAP.items():
                         if dtype.startswith(mod_dtype):
                             default_value_node.add_text(default_value)
                             found_type = True

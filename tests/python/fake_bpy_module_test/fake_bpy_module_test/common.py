@@ -5,7 +5,6 @@ LOG_DIR = "fake_bpy_module_test.log"
 
 
 class FakeBpyModuleTestBase(unittest.TestCase):
-
     name = None
     module_name = None
     log_dir = None
@@ -22,14 +21,14 @@ class FakeBpyModuleTestBase(unittest.TestCase):
         os.makedirs(cls.log_dir, exist_ok=True)
 
         filename = f"{cls.log_dir}/{cls.name}.log"
-        cls.file_ = open(filename, "w", encoding="utf-8")   # noqa # pylint: disable=R1732
+        cls.file_ = open(filename, "w", encoding="utf-8")  # noqa # pylint: disable=R1732
 
     @classmethod
     def tearDownClass(cls):
         cls.file_.close()
 
     def setUp(self):
-        self.maxDiff = None     # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=C0103
         self.log(f"========== Test: {self.id()} ==========")
 
     def tearDown(self):

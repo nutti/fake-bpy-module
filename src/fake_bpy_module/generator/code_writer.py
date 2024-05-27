@@ -85,18 +85,21 @@ class CodeWriter:
 
     def format(self, style_config: str, file_format: str):
         if style_config == "yapf":
-            self._code_data = io.StringIO(FormatCode(
-                self._code_data.getvalue(), style_config="pep8")[0])
+            self._code_data = io.StringIO(
+                FormatCode(self._code_data.getvalue(), style_config="pep8")[0]
+            )
         elif style_config == "ruff":
-            self._code_data = io.StringIO(subprocess.check_output(
-                [
-                    "ruff",
-                    "format",
-                    "--isolated",
-                    f"--stdin-filename=_.{file_format}",
-                ],
-                input=self._code_data.getvalue().encode(),
-            ).decode())
+            self._code_data = io.StringIO(
+                subprocess.check_output(
+                    [
+                        "ruff",
+                        "format",
+                        "--isolated",
+                        f"--stdin-filename=_.{file_format}",
+                    ],
+                    input=self._code_data.getvalue().encode(),
+                ).decode()
+            )
         elif style_config == "none":
             pass
         else:

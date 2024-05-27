@@ -23,7 +23,13 @@ from ..analyzer.nodes import (
     DataTypeNode,
     make_data_type_node,
 )
-from ..utils import get_first_child, find_children, output_log, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG
+from ..utils import (
+    get_first_child,
+    find_children,
+    output_log,
+    LOG_LEVEL_WARN,
+    LOG_LEVEL_DEBUG,
+)
 
 
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
@@ -35,29 +41,59 @@ REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default 
 REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*,?$")
 REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*,?$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF = re.compile(r"^boolean array of ([0-9]+) items(, .+)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES = re.compile(r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF = re.compile(r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF = re.compile(r"^`(mathutils.[a-zA-Z]+)` (rotation )*of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_NUMBER_IN = re.compile(r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF = re.compile(r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF = re.compile(
+    r"^boolean array of ([0-9]+) items(, .+)*$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES = re.compile(
+    r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF = re.compile(
+    r"^(int|float) array of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF = re.compile(
+    r"^`(mathutils.[a-zA-Z]+)` (rotation )*of ([0-9]+) items in \[([-einf+0-9,. ]+)\](, .+)*$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_NUMBER_IN = re.compile(
+    r"^(int|float) in \[([-einf+0-9,. ]+)\](, .+)*$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF = re.compile(
+    r"^float multi-dimensional array of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(
+    r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$"
+)  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
-REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`,$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(
+    r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`,$"
+)  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of `([a-zA-Z0-9_.]+)`$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(
+    r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(
+    r"^List of `([A-Za-z0-9]+)` objects$"
+)  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) of (float|int|str)")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE = re.compile(r"^list of \(([a-zA-Z.,` ]+)\)")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(
+    r"^(list|sequence) of (float|int|str)"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE = re.compile(
+    r"^list of \(([a-zA-Z.,` ]+)\)"
+)  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(
+    r"`BMElemSeq` of `([a-zA-Z0-9]+)`$"
+)  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE = re.compile(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|set|tuple)`*\.*$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(
+    r"^`*(list|dict|set|tuple)`*\.*$"
+)  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`,$")
 REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
-REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")
+REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(
+    r"^\(([a-zA-Z0-9_.,` ]+)\)$"
+)
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 # pylint: enable=line-too-long
 
@@ -76,7 +112,6 @@ class EntryPoint:
 
 
 class DataTypeRefiner(TransformerBase):
-
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._entry_points = None
@@ -85,7 +120,9 @@ class DataTypeRefiner(TransformerBase):
 
         self._entry_points_cache: Dict[str, Set] = {}
 
-    def _build_entry_points(self, documents: List[nodes.document]) -> List['EntryPoint']:
+    def _build_entry_points(
+        self, documents: List[nodes.document]
+    ) -> List['EntryPoint']:
         entry_points: List['EntryPoint'] = []
 
         for document in documents:
@@ -116,8 +153,12 @@ class DataTypeRefiner(TransformerBase):
         return entry_points
 
     def _parse_custom_data_type(
-            self, string_to_parse: str, uniq_full_names: Set[str],
-            uniq_module_names: Set[str], module_name: str) -> str:
+        self,
+        string_to_parse: str,
+        uniq_full_names: Set[str],
+        uniq_module_names: Set[str],
+        module_name: str,
+    ) -> str:
         dtype_str = string_to_parse
         if dtype_str in uniq_full_names:
             return dtype_str
@@ -134,27 +175,36 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=R0913
     def _get_refined_data_type_fast(
-            self, dtype_str: str, uniq_full_names: Set[str],
-            uniq_module_names: Set[str], module_name: str,
-            variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> List['DataTypeNode']:
+        self,
+        dtype_str: str,
+        uniq_full_names: Set[str],
+        uniq_module_names: Set[str],
+        module_name: str,
+        variable_kind: str,
+        additional_info: Dict[str, typing.Any] = None,
+    ) -> List['DataTypeNode']:
         # pylint: disable=R0912,R0911,R0915
         if REGEX_MATCH_DATA_TYPE_SPACE.match(dtype_str):
             return [make_data_type_node("typing.Any")]
 
         if m := re.match(r"list of callable\[`([0-9a-zA-Z.]+)`\]", dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names,
-                module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [
-                    make_data_type_node("list[collections.abc.Callable[[`bpy.types.Scene`, None]]]")
+                    make_data_type_node(
+                        "list[collections.abc.Callable[[`bpy.types.Scene`, None]]]"
+                    )
                 ]
 
         if dtype_str == "Same type with self class":
             s = self._parse_custom_data_type(
-                additional_info["self_class"], uniq_full_names,
-                uniq_module_names, module_name)
+                additional_info["self_class"],
+                uniq_full_names,
+                uniq_module_names,
+                module_name,
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
@@ -178,12 +228,14 @@ class DataTypeRefiner(TransformerBase):
         # "[23][dD] [Vv]ector"
         if dtype_str[1:].lower() == "d vector":
             s = self._parse_custom_data_type(
-                "Vector", uniq_full_names, uniq_module_names, module_name)
+                "Vector", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
         if dtype_str in ("4x4 `mathutils.Matrix`", "4x4 `Matrix`"):
             s = self._parse_custom_data_type(
-                "Matrix", uniq_full_names, uniq_module_names, module_name)
+                "Matrix", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
@@ -228,41 +280,47 @@ class DataTypeRefiner(TransformerBase):
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES.match(dtype_str):
             if variable_kind in ('FUNC_ARG', 'CONST', 'CLS_ATTR'):
                 s = self._parse_custom_data_type(
-                    m.group(1), uniq_full_names, uniq_module_names,
-                    module_name)
+                    m.group(1), uniq_full_names, uniq_module_names, module_name
+                )
                 if s:
-                    return [make_data_type_node("collections.abc.Sequence[float]"),
-                            make_data_type_node(f"`{s}`")]
+                    return [
+                        make_data_type_node("collections.abc.Sequence[float]"),
+                        make_data_type_node(f"`{s}`"),
+                    ]
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF.match(dtype_str):
             if m.group(1) in ("int", "float"):
                 if variable_kind == 'FUNC_ARG':
-                    return [make_data_type_node(f"collections.abc.Iterable[{m.group(1)}]")]
-                return [make_data_type_node(f"`bpy.types.bpy_prop_array`[{m.group(1)}]")]
+                    return [
+                        make_data_type_node(f"collections.abc.Iterable[{m.group(1)}]")
+                    ]
+                return [
+                    make_data_type_node(f"`bpy.types.bpy_prop_array`[{m.group(1)}]")
+                ]
         # Ex: :`mathutils.Euler` rotation of 3 items in [-inf, inf],
         #     default (0.0, 0.0, 0.0)
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_ARRAY_OF.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names,
-                module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 tuple_elms = ["float"] * int(m.group(3))
                 return [
                     make_data_type_node("list[float]"),
                     make_data_type_node(f"tuple[{', '.join(tuple_elms)}]"),
-                    make_data_type_node(f"`{s}`")
+                    make_data_type_node(f"`{s}`"),
                 ]
 
         # Ex: float triplet
         if dtype_str == "float triplet":
             s = self._parse_custom_data_type(
-                "mathutils.Vector", uniq_full_names, uniq_module_names,
-                module_name)
+                "mathutils.Vector", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [
                     make_data_type_node("collections.abc.Sequence[float]"),
-                    make_data_type_node(f"`{s}`")
+                    make_data_type_node(f"`{s}`"),
                 ]
         # Ex: int in [-inf, inf], default 0, (readonly)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_IN.match(dtype_str):
@@ -276,18 +334,18 @@ class DataTypeRefiner(TransformerBase):
 
         # Ex: float multi-dimensional array of 3 * 3 items in [-inf, inf]
         if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(dtype_str):  # noqa # pylint: disable=C0301
-            tuple_elems = [
-                f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
-            ] * int(m.group(2))
+            tuple_elems = [f"tuple[{', '.join(['float'] * int(m.group(1)))}]"] * int(
+                m.group(2)
+            )
             return [
                 make_data_type_node("list[list[float]]"),
-                make_data_type_node(f"tuple[{', '.join(tuple_elems)}]")
+                make_data_type_node(f"tuple[{', '.join(tuple_elems)}]"),
             ]
 
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF.match(dtype_str):
             s = self._parse_custom_data_type(
-                "mathutils.Matrix", uniq_full_names, uniq_module_names,
-                module_name)
+                "mathutils.Matrix", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 tuple_elems = [
                     f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
@@ -295,7 +353,7 @@ class DataTypeRefiner(TransformerBase):
                 return [
                     make_data_type_node("list[list[float]]"),
                     make_data_type_node(f"tuple[{', '.join(tuple_elems)}]"),
-                    make_data_type_node(f"`{s}`")
+                    make_data_type_node(f"`{s}`"),
                 ]
 
         if dtype_str == "double":
@@ -314,15 +372,18 @@ class DataTypeRefiner(TransformerBase):
 
         if dtype_str.startswith("`bgl.Buffer` "):
             s1 = self._parse_custom_data_type(
-                "bgl.Buffer", uniq_full_names, uniq_module_names, module_name)
+                "bgl.Buffer", uniq_full_names, uniq_module_names, module_name
+            )
             if s1:
                 return [make_data_type_node(f"`{s1}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF.match(dtype_str):  # noqa # pylint: disable=C0301
             s1 = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             s2 = self._parse_custom_data_type(
-                m.group(2), uniq_full_names, uniq_module_names, module_name)
+                m.group(2), uniq_full_names, uniq_module_names, module_name
+            )
             if s1 and s2:
                 return [make_data_type_node(f"`{s1}`")]
 
@@ -336,32 +397,38 @@ class DataTypeRefiner(TransformerBase):
         #   Pattern: sequence of string tuples or a function
         if dtype_str == "sequence of string tuples or a function":
             return [
-                make_data_type_node("collections.abc.Iterable[collections.abc.Iterable[str]]"),
-                make_data_type_node("collections.abc.Callable")
+                make_data_type_node(
+                    "collections.abc.Iterable[collections.abc.Iterable[str]]"
+                ),
+                make_data_type_node("collections.abc.Callable"),
             ]
         # Ex: sequence of bpy.types.Action
         if m := REGEX_MATCH_DATA_TYPE_SEQUENCE_OF.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"collections.abc.Iterable[`{s}`]")]
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`bpy.types.bpy_prop_collection`[`{s}`]")]
         # Ex: List of FEdge objects
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"list[`{s}`]")]
         # Ex: list of FEdge
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"list[`{s}`]")]
         # Ex: list of ints
@@ -375,24 +442,26 @@ class DataTypeRefiner(TransformerBase):
                 im = re.match(r"^`([a-zA-Z.]+)`$", item.strip())
                 if im:
                     s = self._parse_custom_data_type(
-                        im.group(1), uniq_full_names, uniq_module_names,
-                        module_name)
+                        im.group(1), uniq_full_names, uniq_module_names, module_name
+                    )
                     if s:
                         dtypes.append(make_data_type_node(f"list[`{s}`]"))
             return dtypes
         # Ex: BMElemSeq of BMEdge
         if m := REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [
                     make_data_type_node(f"list[`{s}`]"),
-                    make_data_type_node("`bmesh.types.BMElemSeq`")
+                    make_data_type_node("`bmesh.types.BMElemSeq`"),
                 ]
         # Ex: tuple of mathutils.Vector's
         if m := REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"tuple[`{s}`, ...]")]
 
@@ -404,7 +473,8 @@ class DataTypeRefiner(TransformerBase):
                 sp = sp.strip()
                 if m2 := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(sp):
                     s = self._parse_custom_data_type(
-                        m2.group(1), uniq_full_names, uniq_module_names, module_name)
+                        m2.group(1), uniq_full_names, uniq_module_names, module_name
+                    )
                     if s:
                         dtypes.append(f"`{s}`")
             if len(dtypes) != 0:
@@ -421,14 +491,15 @@ class DataTypeRefiner(TransformerBase):
         # Ex: bpy.types.Struct subclass
         if dtype_str == "`bpy.types.Struct` subclass":
             s = self._parse_custom_data_type(
-                "bpy.types.Struct", uniq_full_names, uniq_module_names,
-                module_name)
+                "bpy.types.Struct", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
         if dtype_str == "`bpy_struct`":
             s = self._parse_custom_data_type(
-                "bpy_struct", uniq_full_names, uniq_module_names, module_name)
+                "bpy_struct", uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
@@ -436,33 +507,41 @@ class DataTypeRefiner(TransformerBase):
         if m := REGEX_MATCH_DATA_TYPE_OT.match(dtype_str):
             idname = f"bpy.ops.{m.group(1).lower()}.{m.group(2)}"
             s = self._parse_custom_data_type(
-                idname, uniq_full_names, uniq_module_names, module_name)
+                idname, uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_DOT.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(1), uniq_full_names, uniq_module_names, module_name)
+                m.group(1), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_NAME.match(dtype_str):
             s = self._parse_custom_data_type(
-                m.group(0), uniq_full_names, uniq_module_names, module_name)
+                m.group(0), uniq_full_names, uniq_module_names, module_name
+            )
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
         return None
 
     def _get_data_type_options(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> Tuple[List[str], str]:
+        self,
+        dtype_str: str,
+        module_name: str,
+        variable_kind: str,
+        additional_info: Dict[str, typing.Any] = None,
+    ) -> Tuple[List[str], str]:
         if module_name.startswith("bpy."):
             if m := _REGEX_DATA_TYPE_OPTION_STR.search(dtype_str):
                 option_str = m.group(1)
@@ -471,8 +550,10 @@ class DataTypeRefiner(TransformerBase):
                 for opt in options:
                     if opt not in ("optional", "readonly", "never none"):
                         has_unknown_option = True
-                        output_log(LOG_LEVEL_WARN,
-                                   f"Unknown option '{opt}' is found from {dtype_str}")
+                        output_log(
+                            LOG_LEVEL_WARN,
+                            f"Unknown option '{opt}' is found from {dtype_str}",
+                        )
 
                 # If there is unknown parameter options, we don't strip them from
                 # original string.
@@ -481,7 +562,9 @@ class DataTypeRefiner(TransformerBase):
 
                 # Strip the unused string to speed up the later parsing process.
                 stripped = _REGEX_DATA_TYPE_OPTION_STR.sub("", dtype_str)
-                output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+                output_log(
+                    LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}"
+                )
 
                 return options, stripped
 
@@ -494,24 +577,36 @@ class DataTypeRefiner(TransformerBase):
         # From this, we assumed non-bpy module.
         if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
             stripped = _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.sub("", dtype_str)
-            output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+            output_log(
+                LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}"
+            )
 
             return [""], stripped
 
         return ["never none"], dtype_str
 
     def _get_refined_data_type(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
-
+        self,
+        dtype_str: str,
+        module_name: str,
+        variable_kind: str,
+        additional_info: Dict[str, typing.Any] = None,
+    ) -> List[DataTypeNode]:
         assert variable_kind in (
-            'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
+            'FUNC_ARG',
+            'FUNC_RET',
+            'CONST',
+            'CLS_ATTR',
+            'CLS_BASE',
+        )
 
         options, dtype_str_changed = self._get_data_type_options(
-            dtype_str, module_name, variable_kind, additional_info)
+            dtype_str, module_name, variable_kind, additional_info
+        )
 
         result = self._get_refined_data_type_internal(
-            dtype_str_changed, module_name, variable_kind, additional_info)
+            dtype_str_changed, module_name, variable_kind, additional_info
+        )
 
         # Add options.
         for r in result:
@@ -522,14 +617,18 @@ class DataTypeRefiner(TransformerBase):
         output_log(
             LOG_LEVEL_DEBUG,
             f"Result of refining (kind={variable_kind}): "
-            f"{dtype_str} -> {', '.join(r.to_string() for r in result)}")
+            f"{dtype_str} -> {', '.join(r.to_string() for r in result)}",
+        )
 
         return result
 
     def _get_refined_data_type_internal(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
-
+        self,
+        dtype_str: str,
+        module_name: str,
+        variable_kind: str,
+        additional_info: Dict[str, typing.Any] = None,
+    ) -> List[DataTypeNode]:
         dtype_str = dtype_str.strip()
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
@@ -545,17 +644,30 @@ class DataTypeRefiner(TransformerBase):
             dtypes: List[DataTypeNode] = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
-                    s.strip(), uniq_full_names, uniq_module_names,
-                    module_name, variable_kind, additional_info)
+                    s.strip(),
+                    uniq_full_names,
+                    uniq_module_names,
+                    module_name,
+                    variable_kind,
+                    additional_info,
+                )
                 if d is not None:
                     dtypes.extend(d)
             if len(dtypes) >= 1:
-                return [make_data_type_node(
-                    f"tuple[{', '.join([d.astext() for d in dtypes])}]")]
+                return [
+                    make_data_type_node(
+                        f"tuple[{', '.join([d.astext() for d in dtypes])}]"
+                    )
+                ]
 
         result = self._get_refined_data_type_fast(
-            dtype_str, uniq_full_names, uniq_module_names, module_name,
-            variable_kind, additional_info)
+            dtype_str,
+            uniq_full_names,
+            uniq_module_names,
+            module_name,
+            variable_kind,
+            additional_info,
+        )
         if result is not None:
             return result
 
@@ -571,38 +683,56 @@ class DataTypeRefiner(TransformerBase):
             for s in splist:
                 s = s.strip()
                 result = self._get_refined_data_type_fast(
-                    s, uniq_full_names, uniq_module_names, module_name,
-                    variable_kind, additional_info)
+                    s,
+                    uniq_full_names,
+                    uniq_module_names,
+                    module_name,
+                    variable_kind,
+                    additional_info,
+                )
                 if result is not None:
                     dtypes.extend(result)
             return dtypes
         return []
 
     def _parse_from_description(
-            self, module_name: str, description_str: str = None,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
-
+        self,
+        module_name: str,
+        description_str: str = None,
+        additional_info: Dict[str, typing.Any] = None,
+    ) -> List[DataTypeNode]:
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
         if description_str == "An instance of this object.":
             s = self._parse_custom_data_type(
-                additional_info["self_class"], uniq_full_names,
-                uniq_module_names, module_name)
+                additional_info["self_class"],
+                uniq_full_names,
+                uniq_module_names,
+                module_name,
+            )
             return [make_data_type_node(f"`{s}`")]
 
         return []
 
     def _refine(self, document: nodes.document):
-        def refine(dtype_list_node: DataTypeListNode, module_name: str,
-                   variable_kind: str, description_str: str = None,
-                   additional_info: Dict[str, typing.Any] = None):
+        def refine(
+            dtype_list_node: DataTypeListNode,
+            module_name: str,
+            variable_kind: str,
+            description_str: str = None,
+            additional_info: Dict[str, typing.Any] = None,
+        ):
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             new_dtype_nodes = []
 
-            new_dtype_nodes.extend(self._parse_from_description(
-                module_name, description_str=description_str,
-                additional_info=additional_info))
+            new_dtype_nodes.extend(
+                self._parse_from_description(
+                    module_name,
+                    description_str=description_str,
+                    additional_info=additional_info,
+                )
+            )
 
             for dtype_node in dtype_nodes:
                 mod_options = []
@@ -615,9 +745,14 @@ class DataTypeRefiner(TransformerBase):
                     skip_refine = "skip-refine" in mod_options
                 if skip_refine:
                     continue
-                new_dtype_nodes.extend(self._get_refined_data_type(
-                    dtype_node.astext(), module_name, variable_kind,
-                    additional_info=additional_info))
+                new_dtype_nodes.extend(
+                    self._get_refined_data_type(
+                        dtype_node.astext(),
+                        module_name,
+                        variable_kind,
+                        additional_info=additional_info,
+                    )
+                )
                 dtype_list_node.remove(dtype_node)
 
             for node in new_dtype_nodes:
@@ -639,26 +774,38 @@ class DataTypeRefiner(TransformerBase):
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
                 for arg_node in arg_nodes:
                     dtype_list_node = arg_node.element(DataTypeListNode)
-                    refine(dtype_list_node, module_name, 'FUNC_ARG',
-                           additional_info={"self_class": f"{module_name}.{class_name}"})
+                    refine(
+                        dtype_list_node,
+                        module_name,
+                        'FUNC_ARG',
+                        additional_info={"self_class": f"{module_name}.{class_name}"},
+                    )
 
                 return_node = func_node.element(FunctionReturnNode)
                 description = return_node.element(DescriptionNode).astext()
                 dtype_list_node = return_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'FUNC_RET',
-                       description_str=description,
-                       additional_info={"self_class": f"{module_name}.{class_name}"})
+                refine(
+                    dtype_list_node,
+                    module_name,
+                    'FUNC_RET',
+                    description_str=description,
+                    additional_info={"self_class": f"{module_name}.{class_name}"},
+                )
 
             attr_list_node = class_node.element(AttributeListNode)
             attr_nodes = find_children(attr_list_node, AttributeNode)
             for attr_node in attr_nodes:
                 attr_name = attr_node.element(NameNode).astext()
                 dtype_list_node = attr_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'CONST',
-                       additional_info={
-                           "self_class": f"{module_name}.{class_name}",
-                           "data_name": f"{attr_name}"
-                       })
+                refine(
+                    dtype_list_node,
+                    module_name,
+                    'CONST',
+                    additional_info={
+                        "self_class": f"{module_name}.{class_name}",
+                        "data_name": f"{attr_name}",
+                    },
+                )
 
             base_class_list_node = class_node.element(BaseClassListNode)
             base_class_nodes = find_children(base_class_list_node, BaseClassNode)
@@ -673,8 +820,9 @@ class DataTypeRefiner(TransformerBase):
             for arg_node in arg_nodes:
                 arg_name = arg_node.element(NameNode).astext()
                 dtype_list_node = arg_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'FUNC_ARG',
-                       description_str=arg_name)
+                refine(
+                    dtype_list_node, module_name, 'FUNC_ARG', description_str=arg_name
+                )
 
             return_node = func_node.element(FunctionReturnNode)
             dtype_list_node = return_node.element(DataTypeListNode)
@@ -684,8 +832,12 @@ class DataTypeRefiner(TransformerBase):
         for data_node in data_nodes:
             data_name = data_node.element(NameNode).astext()
             dtype_list_node = data_node.element(DataTypeListNode)
-            refine(dtype_list_node, module_name, 'CONST',
-                   additional_info={"data_name": f"{data_name}"})
+            refine(
+                dtype_list_node,
+                module_name,
+                'CONST',
+                additional_info={"data_name": f"{data_name}"},
+            )
 
     @classmethod
     def name(cls) -> str:
@@ -696,9 +848,11 @@ class DataTypeRefiner(TransformerBase):
             self._entry_points = self._build_entry_points(self.documents)
 
         self._entry_points_cache["uniq_full_names"] = {
-            e.fullname() for e in self._entry_points}
+            e.fullname() for e in self._entry_points
+        }
         self._entry_points_cache["uniq_module_names"] = {
-            e.module for e in self._entry_points}
+            e.module for e in self._entry_points
+        }
 
         for document in self.documents:
             self._refine(document)

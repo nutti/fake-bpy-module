@@ -2,12 +2,12 @@ import os
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from fake_bpy_module.analyzer.nodes import (    # pylint: disable=E0401
+from fake_bpy_module.analyzer.nodes import (  # pylint: disable=E0401
     DataNode,
     NameNode,
     FunctionNode,
 )
-from fake_bpy_module.utils import (     # pylint: disable=E0401
+from fake_bpy_module.utils import (  # pylint: disable=E0401
     check_os,
     output_log,
     remove_unencodable,
@@ -25,7 +25,6 @@ from . import common
 
 
 class UtilsTest(common.FakeBpyModuleTestBase):
-
     name = "UtilsTest"
     module_name = __module__
 
@@ -96,7 +95,9 @@ class UtilsTest(common.FakeBpyModuleTestBase):
         func_node.element(NameNode).add_text("function_1")
         append_child(document, func_node)
 
-        self.assertEqual(document.pformat(), """<document source="<string>">
+        self.assertEqual(
+            document.pformat(),
+            """<document source="<string>">
     <module>
         <name>
             module.a
@@ -114,7 +115,8 @@ class UtilsTest(common.FakeBpyModuleTestBase):
         <return>
             <description>
             <data-type-list>
-""")
+""",
+        )
 
     def test_split_string_by_comma(self):
         sp = split_string_by_comma("a, b")

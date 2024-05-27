@@ -40,8 +40,10 @@ class BaseAnalyzer:
         }
 
         document: nodes.document = publish_doctree(
-            contents, settings_overrides=settings_overrides,
-            reader=readers.BpyRstDocsReader())
+            contents,
+            settings_overrides=settings_overrides,
+            reader=readers.BpyRstDocsReader(),
+        )
 
         document.insert(0, SourceFilenameNode(text=os.path.basename(filename)))
 

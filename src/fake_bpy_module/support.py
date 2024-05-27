@@ -1,15 +1,8 @@
 from typing import List
 
-SUPPORTED_TARGET: List[str] = [
-    "blender",
-    "upbge"
-]
+SUPPORTED_TARGET: List[str] = ["blender", "upbge"]
 
-SUPPORTED_STYLE_FORMAT: List[str] = [
-    "none",
-    "yapf",
-    "ruff"
-]
+SUPPORTED_STYLE_FORMAT: List[str] = ["none", "yapf", "ruff"]
 
 SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
     "2.78", "2.79",
@@ -18,12 +11,9 @@ SUPPORTED_MOD_BLENDER_VERSION: List[str] = [
     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
     "4.0", "4.1",
     "latest"
-]
+]  # fmt: skip
 
-SUPPORTED_MOD_UPBGE_VERSION: List[str] = [
-    "0.2.5",
-    "latest"
-]
+SUPPORTED_MOD_UPBGE_VERSION: List[str] = ["0.2.5", "latest"]
 
 SUPPORTED_BLENDER_VERSION: List[str] = [
     "2.78", "2.79",
@@ -32,9 +22,6 @@ SUPPORTED_BLENDER_VERSION: List[str] = [
     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
     "4.0", "4.1",
     "latest"
-]
+]  # fmt: skip
 
-SUPPORTED_UPBGE_VERSION: List[str] = [
-    "0.2.5",
-    "latest"
-]
+SUPPORTED_UPBGE_VERSION: List[str] = ["0.2.5", "latest"]

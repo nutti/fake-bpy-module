@@ -8,11 +8,11 @@ from . import common
 
 
 class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
-
     name = "BaseAnalyzerTest"
     module_name = __module__
     data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/analyzer_test_data/base_analyzer_test")
+        f"{os.path.dirname(__file__)}/analyzer_test_data/base_analyzer_test"
+    )
 
     def setUp(self):
         super().setUp()

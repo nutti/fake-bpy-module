@@ -32,7 +32,6 @@ from ..utils import (
 
 
 class BpyModuleTweaker(TransformerBase):
-
     def _make_bpy_prop_functions_arguments_kwonlyargs(self, document: nodes.document):
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
         if module_name != "bpy.props":
@@ -57,7 +56,8 @@ class BpyModuleTweaker(TransformerBase):
                 continue
             data_type_list_node = data_node.element(DataTypeListNode)
             data_type_list_node.insert(
-                0, make_data_type_node("list of callable[`bpy.types.Scene`]"))
+                0, make_data_type_node("list of callable[`bpy.types.Scene`]")
+            )
 
     def _add_bpy_ops_override_parameters(self, document: nodes.document):
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
@@ -77,7 +77,8 @@ class BpyModuleTweaker(TransformerBase):
             arg_node.element(NameNode).add_text("override_context")
             arg_node.element(DefaultValueNode).add_text("None")
             arg_node.element(DataTypeListNode).append_child(
-                make_data_type_node("`bpy.types.Context`"))
+                make_data_type_node("`bpy.types.Context`")
+            )
             dtype_node = DataTypeNode()
             append_child(dtype_node, nodes.Text("dict[str, typing.Any]"))
             dtype_node.attributes["mod-option"] = "skip-refine"
@@ -88,14 +89,14 @@ class BpyModuleTweaker(TransformerBase):
             arg_node.element(NameNode).add_text("execution_context")
             arg_node.element(DefaultValueNode).add_text("None")
             arg_node.element(DataTypeListNode).append_child(
-                make_data_type_node("str, int"))
+                make_data_type_node("str, int")
+            )
             arg_list_node.insert(1, arg_node)
 
             arg_node = ArgumentNode.create_template(argument_type="arg")
             arg_node.element(NameNode).add_text("undo")
             arg_node.element(DefaultValueNode).add_text("None")
-            arg_node.element(DataTypeListNode).append_child(
-                make_data_type_node("bool"))
+            arg_node.element(DataTypeListNode).append_child(make_data_type_node("bool"))
             arg_list_node.insert(2, arg_node)
 
     def _rebase_bpy_types_class_base_class(self, document: nodes.document):
@@ -118,26 +119,29 @@ class BpyModuleTweaker(TransformerBase):
                 for dtype_node in dtype_nodes:
                     dtype_str = dtype_node.astext()
                     if m := re.match(
-                            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
-                            r"([a-zA-Z0-9]+)`, \(readonly\)$", dtype_str):
+                        r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
+                        r"([a-zA-Z0-9]+)`, \(readonly\)$",
+                        dtype_str,
+                    ):
                         parent_to_child[m.group(1)] = m.group(2)
 
         for parent, child in parent_to_child.items():
             if parent == child:
-                output_log(
-                    LOG_LEVEL_WARN, f"Parent and child is same ({parent})")
+                output_log(LOG_LEVEL_WARN, f"Parent and child is same ({parent})")
                 continue
             output_log(
                 LOG_LEVEL_DEBUG,
-                f"Inheritance changed (Parent: {parent}, Child: {child})")
+                f"Inheritance changed (Parent: {parent}, Child: {child})",
+            )
 
             class_node = class_name_to_class_node[parent]
             bc_list_node = class_node.element(BaseClassListNode)
 
             bc_node = BaseClassNode.create_template()
             dtype_list_node = bc_node.element(DataTypeListNode)
-            dtype_list_node.append_child(make_data_type_node(
-                f"`bpy_prop_collection` of `{child}`, (readonly)"))
+            dtype_list_node.append_child(
+                make_data_type_node(f"`bpy_prop_collection` of `{child}`, (readonly)")
+            )
             bc_list_node.append_child(bc_node)
 
     def _apply(self, document: nodes.document):

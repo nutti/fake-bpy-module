@@ -17,7 +17,6 @@ from .utils import get_base_name, get_module_name, build_module_structure
 
 
 class CannonicalDataTypeRewriter(TransformerBase):
-
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
 
@@ -31,13 +30,11 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         ensured = f"{mod_name}.{base_name}"
         if ensured != data_type:
-            raise RuntimeError(
-                f"Invalid data type: ({data_type} vs {ensured})")
+            raise RuntimeError(f"Invalid data type: ({data_type} vs {ensured})")
 
         return ensured
 
-    def _get_generation_data_type(self, data_type: str,
-                                  target_module: str) -> str:
+    def _get_generation_data_type(self, data_type: str, target_module: str) -> str:
         mod_names_full_1 = get_module_name(data_type, self._package_structure)
         mod_names_full_2 = target_module
 
@@ -96,15 +93,15 @@ class CannonicalDataTypeRewriter(TransformerBase):
             else:
                 raise RuntimeError(
                     f"Should not reach this condition. ({rest_level_1} vs "
-                    f"{rest_level_2})")
+                    f"{rest_level_2})"
+                )
 
         return final_data_type
 
     def _rewrite(self, document: nodes.document):
         def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
             class_name = class_ref.to_string()
-            new_class_name = self._get_generation_data_type(
-                class_name, module_name)
+            new_class_name = self._get_generation_data_type(class_name, module_name)
             new_class_ref = ClassRef(text=new_class_name)
             return new_class_ref
 

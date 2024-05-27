@@ -27,12 +27,12 @@ from ..utils import get_first_child, append_child, find_children
 
 
 class ModApplier(TransformerBase):
-
     def get_mod_documents(self) -> List[nodes.document]:
         return self.mod_documents
 
-    def _mod_update_data(self, data_nodes: List[DataNode],
-                         mod_data_nodes: List[DataNode]):
+    def _mod_update_data(
+        self, data_nodes: List[DataNode], mod_data_nodes: List[DataNode]
+    ):
         for mod_data_node in mod_data_nodes:
             mod_data_name_node = mod_data_node.element(NameNode)
             for data_node in data_nodes:
@@ -48,8 +48,9 @@ class ModApplier(TransformerBase):
                     break
 
     # pylint: disable=R0914,R1702
-    def _mod_update_function(self, func_nodes: List[FunctionNode],
-                             mod_func_nodes: List[FunctionNode]):
+    def _mod_update_function(
+        self, func_nodes: List[FunctionNode], mod_func_nodes: List[FunctionNode]
+    ):
         for mod_func_node in mod_func_nodes:
             mod_func_name_node = mod_func_node.element(NameNode)
             mod_arg_list_node = mod_func_node.element(ArgumentListNode)
@@ -79,8 +80,9 @@ class ModApplier(TransformerBase):
                 break
 
     # pylint: disable=R0914,R1702
-    def _mod_update_class(self, class_nodes: List[ClassNode],
-                          mod_class_nodes: List[ClassNode]):
+    def _mod_update_class(
+        self, class_nodes: List[ClassNode], mod_class_nodes: List[ClassNode]
+    ):
         for mod_class_node in mod_class_nodes:
             mod_class_name_node = mod_class_node.element(NameNode)
             mod_class_name = mod_class_name_node.astext()
@@ -120,7 +122,9 @@ class ModApplier(TransformerBase):
                             arg_list_node = func_node.element(ArgumentListNode)
                             arg_list_node.clear()
 
-                            mod_arg_nodes = find_children(mod_arg_list_node, ArgumentNode)
+                            mod_arg_nodes = find_children(
+                                mod_arg_list_node, ArgumentNode
+                            )
                             for mod_arg_node in mod_arg_nodes:
                                 arg_list_node.append_child(mod_arg_node)
 
@@ -147,12 +151,15 @@ class ModApplier(TransformerBase):
                 mod_base_class_list_node = mod_class_node.element(BaseClassListNode)
                 if not mod_base_class_list_node.empty():
                     base_class_list_node.clear()
-                    mod_base_class_nodes = find_children(mod_base_class_list_node, BaseClassNode)
+                    mod_base_class_nodes = find_children(
+                        mod_base_class_list_node, BaseClassNode
+                    )
                     for mod_base_class_node in mod_base_class_nodes:
                         base_class_list_node.append_child(mod_base_class_node)
 
-    def _mod_append_function(self, func_nodes: List[FunctionNode],
-                             mod_func_nodes: List[FunctionNode]):
+    def _mod_append_function(
+        self, func_nodes: List[FunctionNode], mod_func_nodes: List[FunctionNode]
+    ):
         for mod_func_node in mod_func_nodes:
             mod_func_name_node = mod_func_node.element(NameNode)
             mod_arg_list_node = mod_func_node.element(ArgumentListNode)
@@ -161,7 +168,6 @@ class ModApplier(TransformerBase):
             for func_node in func_nodes:
                 func_name_node = func_node.element(NameNode)
                 if func_name_node.astext() == mod_func_name_node.astext():
-
                     arg_list_node = func_node.element(ArgumentListNode)
                     for mod_arg_node in mod_arg_nodes:
                         arg_list_node.append_child(mod_arg_node)
@@ -172,7 +178,9 @@ class ModApplier(TransformerBase):
                     break
 
     # pylint: disable=R0914
-    def _mod_append_class(self, class_nodes: List[ClassNode], mod_class_nodes: List[ClassNode]):
+    def _mod_append_class(
+        self, class_nodes: List[ClassNode], mod_class_nodes: List[ClassNode]
+    ):
         for mod_class_node in mod_class_nodes:
             mod_class_name_node = mod_class_node.element(NameNode)
             mod_class_name = mod_class_name_node.astext()
@@ -220,7 +228,9 @@ class ModApplier(TransformerBase):
                 # Append base classes.
                 base_class_list_node = class_node.element(BaseClassListNode)
                 mod_base_class_list_node = mod_class_node.element(BaseClassListNode)
-                mod_base_class_nodes = find_children(mod_base_class_list_node, BaseClassNode)
+                mod_base_class_nodes = find_children(
+                    mod_base_class_list_node, BaseClassNode
+                )
                 for mod_base_class_node in mod_base_class_nodes:
                     base_class_list_node.append_child(mod_base_class_node)
 
@@ -258,7 +268,8 @@ class ModApplier(TransformerBase):
                 "line_length_limit": 20000,
             }
             mod_document: nodes.document = publish_doctree(
-                contents, settings_overrides=settings_overrides)
+                contents, settings_overrides=settings_overrides
+            )
 
             fixture = BaseClassFixture([mod_document])
             fixture.apply()
@@ -281,7 +292,7 @@ class ModApplier(TransformerBase):
                     mod_class_nodes = find_children(mod_document, ClassNode)
                     for mod_class_node in mod_class_nodes:
                         append_child(document, mod_class_node.deepcopy())
-                else:   # If the module is not found, add whole document.
+                else:  # If the module is not found, add whole document.
                     mod_type_nodes = mod_document.findall(ModTypeNode)
                     for mod_type_node in mod_type_nodes:
                         mod_document.remove(mod_type_node)
@@ -307,7 +318,9 @@ class ModApplier(TransformerBase):
                     mod_class_nodes = find_children(mod_document, ClassNode)
                     self._mod_append_class(class_nodes, mod_class_nodes)
                 else:
-                    raise ValueError(f"Modules to be appended are not found {mod_module_name}")
+                    raise ValueError(
+                        f"Modules to be appended are not found {mod_module_name}"
+                    )
             elif mod_type_node.astext() == "update":
                 mod_module_node = get_first_child(mod_document, ModuleNode)
                 mod_module_name_node = mod_module_node.element(NameNode)
@@ -332,6 +345,10 @@ class ModApplier(TransformerBase):
                     mod_class_nodes = find_children(mod_document, ClassNode)
                     self._mod_update_class(class_nodes, mod_class_nodes)
                 else:
-                    raise ValueError(f"Modules to be updated are not found {mod_module_name}")
+                    raise ValueError(
+                        f"Modules to be updated are not found {mod_module_name}"
+                    )
             else:
-                raise NotImplementedError(f"ModTypeNode does not support {mod_type_node.astext()}")
+                raise NotImplementedError(
+                    f"ModTypeNode does not support {mod_type_node.astext()}"
+                )

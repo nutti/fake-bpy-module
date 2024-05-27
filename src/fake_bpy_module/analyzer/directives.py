@@ -101,7 +101,7 @@ def parse_func_arg_default_value(expr: ast.expr):
             return "None"
         return expr.value
     if isinstance(expr, ast.Name):
-        return "None"   # TODO: Should be "expr.id"
+        return "None"  # TODO: Should be "expr.id"
     if isinstance(expr, ast.List):
         return (
             f"""[{', '.join(str(parse_func_arg_default_value(e))
@@ -136,28 +136,26 @@ def parse_func_arg_default_value(expr: ast.expr):
         if isinstance(expr.op, ast.USub):
             operand = parse_func_arg_default_value(expr.operand)
             if isinstance(operand, (float, int)):
-                return -operand     # pylint: disable=E1130
+                return -operand  # pylint: disable=E1130
             if isinstance(operand, str):
                 return "None"
             raise NotImplementedError(
-                f"{type(operand)} is not supported as an operand of USub")
-        raise NotImplementedError(
-            f"{type(expr.op)} is not supported as an UnaryOp")
+                f"{type(operand)} is not supported as an operand of USub"
+            )
+        raise NotImplementedError(f"{type(expr.op)} is not supported as an UnaryOp")
     if isinstance(expr, ast.BinOp):
-        return "None"   # TODO: Should return result
+        return "None"  # TODO: Should return result
     if isinstance(expr, ast.Subscript):
         value = parse_func_arg_default_value(expr.value)
         slice_ = parse_func_arg_default_value(expr.slice)
         return f"{value}[{slice_}]"
     if isinstance(expr, ast.Call):
         func = parse_func_arg_default_value(expr.func)
-        args = ', '.join([str(parse_func_arg_default_value(arg))
-                          for arg in expr.args])
+        args = ', '.join([str(parse_func_arg_default_value(arg)) for arg in expr.args])
         return f"{func}({args})"
     if isinstance(expr, ast.Attribute):
-        return "None"   # TODO: Should be "expr.attr"
-    raise NotImplementedError(
-        f"{type(expr)} is not supported as a default value")
+        return "None"  # TODO: Should be "expr.attr"
+    raise NotImplementedError(f"{type(expr)} is not supported as a default value")
 
 
 def build_function_node_from_def(fdef: str) -> FunctionNode:
@@ -177,8 +175,7 @@ def build_function_node_from_def(fdef: str) -> FunctionNode:
             continue
         arg_node = ArgumentNode.create_template(argument_type="arg")
         arg_node.element(NameNode).add_text(arg.arg)
-        default_start = \
-            len(func_def.args.args) - len(func_def.args.defaults)
+        default_start = len(func_def.args.args) - len(func_def.args.defaults)
         if i >= default_start:
             default = func_def.args.defaults[i - default_start]
             default_value = parse_func_arg_default_value(default)
@@ -229,8 +226,7 @@ class ModuleDirective(rst.Directive):
 
     def run(self):
         paragraph_node = nodes.paragraph()
-        self.state.nested_parse(
-            self.content, self.content_offset, paragraph_node)
+        self.state.nested_parse(self.content, self.content_offset, paragraph_node)
 
         module_node = ModuleNode.create_template()
 
@@ -239,12 +235,12 @@ class ModuleDirective(rst.Directive):
         if config.get_target() == "blender":
             if config.get_target_version() == "2.90":
                 if module_name.startswith("bpy.types."):
-                    module_name = module_name[:module_name.rfind(".")]
+                    module_name = module_name[: module_name.rfind(".")]
             elif config.get_target_version() in [
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
                     "4.0", "4.1",
-                    "latest"]:
+                    "latest"]:  # fmt: skip
                 if module_name == "bpy.data":
                     module_name = "bpy"
         module_node.element(NameNode).add_text(module_name)
@@ -269,8 +265,7 @@ class ClassDirective(rst.Directive):
 
     def run(self):
         paragraph_node = nodes.paragraph()
-        self.state.nested_parse(
-            self.content, self.content_offset, paragraph_node)
+        self.state.nested_parse(self.content, self.content_offset, paragraph_node)
 
         class_node = ClassNode.create_template()
         class_name = self.arguments[0]
@@ -379,7 +374,8 @@ class FunctionDirective(rst.Directive):
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(
-        r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)")
+        r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)"
+    )
 
     def run(self):
         paragraph: nodes.paragraph = nodes.paragraph()
@@ -446,18 +442,24 @@ class FunctionDirective(rst.Directive):
                                 break
                         if arg_node:
                             if m.group(1) in ("arg", "param"):
-                                arg_node.element(DescriptionNode).add_text(fbody_node.astext())
+                                arg_node.element(DescriptionNode).add_text(
+                                    fbody_node.astext()
+                                )
                             elif m.group(1) == "type":
                                 dtype = parse_data_type(fbody_node)
                                 arg_node.element(DataTypeListNode).append_child(dtype)
                     elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
                         func_ret_node = func_node.element(FunctionReturnNode)
                         if m.group(1) == "return":
-                            func_ret_node.element(DescriptionNode).add_text(fbody_node.astext())
+                            func_ret_node.element(DescriptionNode).add_text(
+                                fbody_node.astext()
+                            )
                         elif m.group(1) == "rtype":
                             dtype = parse_data_type(fbody_node)
                             func_ret_node.element(DataTypeListNode).append_child(dtype)
-                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                        fname_node.astext()
+                    ):
                         if m.group(2) == "arg":
                             arg_name = m.group(3)
                             arg_node: ArgumentNode = None
@@ -468,7 +470,9 @@ class FunctionDirective(rst.Directive):
                                     break
                             if arg_node:
                                 for dtype_node in arg_node.findall(DataTypeNode):
-                                    dtype_node.attributes[m.group(1)] = fbody_node.astext()
+                                    dtype_node.attributes[m.group(1)] = (
+                                        fbody_node.astext()
+                                    )
                         elif m.group(2) == "rtype":
                             func_ret_node = func_node.element(FunctionReturnNode)
                             for dtype_node in func_ret_node.findall(DataTypeNode):
@@ -498,9 +502,7 @@ class LiteralIncludeDirective(rst.Directive):
     required_arguments = 1
     final_argument_whitespace = True
     has_content = True
-    option_spec = {
-        "lines": rst.directives.unchanged
-    }
+    option_spec = {"lines": rst.directives.unchanged}
 
     def run(self):
         path: str = self.arguments[0]
@@ -546,7 +548,9 @@ class BaseClassDirective(rst.Directive):
 
         for sp in base_classes.split(", "):
             base_class_node = BaseClassNode.create_template()
-            base_class_node.element(DataTypeListNode).append_child(make_data_type_node(sp))
+            base_class_node.element(DataTypeListNode).append_child(
+                make_data_type_node(sp)
+            )
             base_class_list_node.append_child(base_class_node)
 
         field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
@@ -575,8 +579,7 @@ def register_directives():
     rst.directives.register_directive("data", DataDirective)
     rst.directives.register_directive("DATA", DataDirective)
 
-    rst.directives.register_directive(
-        "literalinclude", LiteralIncludeDirective)
+    rst.directives.register_directive("literalinclude", LiteralIncludeDirective)
     rst.directives.register_directive("seealso", DocumentDirective)
     rst.directives.register_directive("hlist", DocumentDirective)
     rst.directives.register_directive("toctree", DocumentDirective)

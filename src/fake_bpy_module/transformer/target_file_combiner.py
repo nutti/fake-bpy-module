@@ -29,8 +29,10 @@ class GenerationInfo:
 
     def get(self, module_name: str) -> GenerationInfoByModule:
         if module_name not in self._info:
-            raise RuntimeError("Could not find module in GenerationInfoByModule "
-                               f"(module: {module_name})")
+            raise RuntimeError(
+                "Could not find module in GenerationInfoByModule "
+                f"(module: {module_name})"
+            )
         return self._info[module_name]
 
     def create(self, module_name: str) -> GenerationInfoByModule:
@@ -42,7 +44,6 @@ class GenerationInfo:
 
 
 class TargetFileCombiner(TransformerBase):
-
     def __init__(self, documents: List[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
@@ -50,31 +51,32 @@ class TargetFileCombiner(TransformerBase):
             self._package_structure = kwargs["package_structure"]
 
     def _build_generation_info(
-            self, documents: List[nodes.document],
-            module_structure: ModuleStructure) -> GenerationInfoByModule:
+        self, documents: List[nodes.document], module_structure: ModuleStructure
+    ) -> GenerationInfoByModule:
         def find_target_file(
-                name: str, structure: ModuleStructure, target: str,
-                module_level: int) -> str:
+            name: str, structure: ModuleStructure, target: str, module_level: int
+        ) -> str:
             for m in structure.children():
                 mod_name = name + m.name
                 if mod_name == target:
                     return mod_name + "/__init__"
 
                 if len(m.children()) > 0:
-                    ret = find_target_file(
-                        mod_name + "/", m, target, module_level+1)
+                    ret = find_target_file(mod_name + "/", m, target, module_level + 1)
                     if ret:
                         return ret
             return None
 
         def build_child_modules(
-                gen_info: GenerationInfo, name: str,
-                structure: ModuleStructure, module_level: int):
+            gen_info: GenerationInfo,
+            name: str,
+            structure: ModuleStructure,
+            module_level: int,
+        ):
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
-                    filename = \
-                        re.sub(r"\.", "/", mod_name) + "/__init__"
+                    filename = re.sub(r"\.", "/", mod_name) + "/__init__"
                     info = gen_info.create(mod_name)
                     info.documents = []
                     info.child_modules = []
@@ -85,8 +87,7 @@ class TargetFileCombiner(TransformerBase):
                     info.documents = []
                     info.child_modules = [child.name for child in m.children()]
                     info.target_filename = filename
-                    build_child_modules(
-                        gen_info, mod_name + ".", m, module_level+1)
+                    build_child_modules(gen_info, mod_name + ".", m, module_level + 1)
 
         # build child modules
         gen_info = GenerationInfo()
@@ -98,11 +99,13 @@ class TargetFileCombiner(TransformerBase):
             if module_node is None:
                 continue
             module_name = module_node.element(NameNode).astext()
-            target = find_target_file("", module_structure,
-                                      re.sub(r"\.", "/", module_name), 0)
+            target = find_target_file(
+                "", module_structure, re.sub(r"\.", "/", module_name), 0
+            )
             if target is None:
-                raise RuntimeError("Could not find target file to "
-                                   f"generate (target: {module_name})")
+                raise RuntimeError(
+                    "Could not find target file to " f"generate (target: {module_name})"
+                )
             info = gen_info.get(module_name)
             info.documents.append(document)
 

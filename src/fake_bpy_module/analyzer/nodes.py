@@ -14,8 +14,7 @@ class NodeBase(nodes.Element):
 
 class UniqueElementNode(NodeBase):
     # pylint: disable=W1113
-    def __init__(self, rawsource: str = "", *children: nodes.Node,
-                 **attributes):
+    def __init__(self, rawsource: str = "", *children: nodes.Node, **attributes):
         super().__init__(rawsource, *children, **attributes)
 
         self.elements = {}
@@ -118,8 +117,9 @@ class DataNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "DataNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "DataNode":
         node = DataNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -135,8 +135,9 @@ class AttributeNode(DataNode):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "AttributeNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "AttributeNode":
         node = AttributeNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -165,8 +166,9 @@ class ArgumentNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ArgumentNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "ArgumentNode":
         node = ArgumentNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -183,8 +185,9 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "FunctionReturnNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "FunctionReturnNode":
         node = FunctionReturnNode(rawsource, *children, **attributes)
 
         node.append_child(DescriptionNode())
@@ -205,8 +208,9 @@ class FunctionNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "FunctionNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "FunctionNode":
         node = FunctionNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -228,8 +232,9 @@ class BaseClassNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "BaseClassNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "BaseClassNode":
         node = BaseClassNode(rawsource, *children, **attributes)
 
         node.append_child(DataTypeListNode())
@@ -243,8 +248,9 @@ class ClassNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ClassNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "ClassNode":
         node = ClassNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -262,8 +268,9 @@ class ModuleNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ModuleNode":
+    def create_template(
+        cls, rawsource: str = "", *children: nodes.Node, **attributes
+    ) -> "ModuleNode":
         node = ModuleNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())

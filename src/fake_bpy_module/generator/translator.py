@@ -86,7 +86,13 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         new_line_num = 0
         if len(self.status_stack) >= 1:
             status = self.status_stack[-1]
-            if status.kind in ('BULLET_LIST', 'ENUMERATED_LIST', 'NOTE', 'WARNING', 'BLOCK_QUOTE'):
+            if status.kind in (
+                'BULLET_LIST',
+                'ENUMERATED_LIST',
+                'NOTE',
+                'WARNING',
+                'BLOCK_QUOTE',
+            ):
                 new_line_num = 1
         else:
             new_line_num = 2
@@ -114,7 +120,9 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
 
     def visit_enumerated_list(self, _: nodes.enumerated_list):
         level = self.get_list_level()
-        self.status_stack.append(Status('ENUMERATED_LIST', {"number": 0, "level": level}))
+        self.status_stack.append(
+            Status('ENUMERATED_LIST', {"number": 0, "level": level})
+        )
 
     def depart_enumerated_list(self, _: nodes.enumerated_list):
         status = self.status_stack.pop()

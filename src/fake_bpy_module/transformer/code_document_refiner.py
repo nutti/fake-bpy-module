@@ -22,9 +22,13 @@ class CodeDocumentRefiner(TransformerBase):
         para_nodes = find_children(new_doc_node, nodes.paragraph)
         nodes_to_remove: List[nodes.Node] = []
         for node in para_nodes:
-            if node.astext() in ("Inherited Functions", "Inherited Properties", "References"):
+            if node.astext() in (
+                "Inherited Functions",
+                "Inherited Properties",
+                "References",
+            ):
                 index = node.parent.children.index(node)
-                next_node = node.parent.children[index+1]
+                next_node = node.parent.children[index + 1]
                 nodes_to_remove.append(node)
                 nodes_to_remove.append(next_node)
             elif node.astext().startswith("subclasses ---"):

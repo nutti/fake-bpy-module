@@ -75,7 +75,7 @@ def get_function_info(line: str) -> Dict:
         return {
             "func_name": f"gl{func_name}",
             "return_type": return_type,
-            "arg_types": args_list[1:-1].split(",")
+            "arg_types": args_list[1:-1].split(","),
         }
 
     return None
@@ -125,26 +125,24 @@ def gltype_to_pytype(gltype: str) -> str:
     return type_map[gltype]
 
 
-def create_function_def(
-        func_name: str, return_type: str, arg_types: List[str]) -> Dict:
+def create_function_def(func_name: str, return_type: str, arg_types: List[str]) -> Dict:
     function_def = {
         "name": func_name,
         "type": "function",
         "module": "bgl",
-        "return": {
-            "type": "return",
-            "data_type": gltype_to_pytype(return_type)
-        },
+        "return": {"type": "return", "data_type": gltype_to_pytype(return_type)},
         "parameters": [],
         "parameter_details": [],
     }
     for i, arg_type in enumerate(arg_types):
         function_def["parameters"].append(f"p{i}")
-        function_def["parameter_details"].append({
-            "name": f"p{i}",
-            "type": "parameter",
-            "data_type": gltype_to_pytype(arg_type)
-        })
+        function_def["parameter_details"].append(
+            {
+                "name": f"p{i}",
+                "type": "parameter",
+                "data_type": gltype_to_pytype(arg_type),
+            }
+        )
 
     return function_def
 
@@ -181,9 +179,13 @@ def analyze(config: 'GenerationConfig') -> Dict:
     for const in const_lists:
         data["new"].append(create_constant_def(const))
     for func in func_lists:
-        data["new"].append(create_function_def(func_info[func]["func_name"],
-                                               func_info[func]["return_type"],
-                                               func_info[func]["arg_types"]))
+        data["new"].append(
+            create_function_def(
+                func_info[func]["func_name"],
+                func_info[func]["return_type"],
+                func_info[func]["arg_types"],
+            )
+        )
 
     return data
 
@@ -191,15 +193,18 @@ def analyze(config: 'GenerationConfig') -> Dict:
 def parse_options() -> 'GenerationConfig':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", dest="bgl_c_file", type=str, help="Path to bgl.c",
-        required=True
+        "-i", dest="bgl_c_file", type=str, help="Path to bgl.c", required=True
     )
     parser.add_argument(
-        "-o", dest="output_file", type=str, help="Output directory",
-        required=True
+        "-o", dest="output_file", type=str, help="Output directory", required=True
     )
-    parser.add_argument("-f", dest="output_format", type=str,
-                        help="Output format (rst, json).", required=True)
+    parser.add_argument(
+        "-f",
+        dest="output_format",
+        type=str,
+        help="Output format (rst, json).",
+        required=True,
+    )
     args = parser.parse_args()
 
     config = GenerationConfig()
@@ -220,10 +225,14 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
         for info in data["new"]:
             if info["type"] == "function":
                 func_info = info
-                f.write(f".. function:: {func_info['name']}"
-                        f"({', '.join(func_info['parameters'])})\n\n")
+                f.write(
+                    f".. function:: {func_info['name']}"
+                    f"({', '.join(func_info['parameters'])})\n\n"
+                )
                 for param_info in func_info["parameter_details"]:
-                    f.write(f"   :type {param_info['name']}: {param_info['data_type']}\n")
+                    f.write(
+                        f"   :type {param_info['name']}: {param_info['data_type']}\n"
+                    )
                 if func_info["return"]["data_type"] == "":
                     f.write("\n")
                 else:
