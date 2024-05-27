@@ -3,10 +3,7 @@ from docutils import nodes
 
 from .transformer_base import TransformerBase
 from .base_class_fixture import BaseClassFixture
-from .bpy_app_handlers_data_type_adder import BpyAppHandlersDataTypeAdder
 from .bpy_context_variable_converter import BpyContextVariableConverter
-from .bpy_ops_override_parameters_adder import BpyOpsOverrideParameterAdder
-from .bpy_types_class_base_class_rebaser import BpyTypesClassBaseClassRebaser
 from .bpy_module_tweaker import BpyModuleTweaker
 from .cannonical_data_type_rewriter import CannonicalDataTypeRewriter
 from .code_document_refiner import CodeDocumentRefiner
@@ -36,9 +33,6 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
         "same_module_merger",
         "module_level_attribute_fixture",
         "bpy_module_tweaker",
-        "bpy_app_handlers_data_type_adder",
-        "bpy_ops_override_parameters_adder",
-        "bpy_types_class_base_class_rebaser",
         "bpy_context_variable_converter",
         "mod_applier",
         "format_validator",
@@ -84,15 +78,6 @@ class Transformer:
             },
             ModuleLevelAttributeFixture.name(): {
                 "class": ModuleLevelAttributeFixture,
-            },
-            BpyAppHandlersDataTypeAdder.name(): {
-                "class": BpyAppHandlersDataTypeAdder,
-            },
-            BpyOpsOverrideParameterAdder.name(): {
-                "class": BpyOpsOverrideParameterAdder,
-            },
-            BpyTypesClassBaseClassRebaser.name(): {
-                "class": BpyTypesClassBaseClassRebaser,
             },
             BpyContextVariableConverter.name(): {
                 "class": BpyContextVariableConverter,

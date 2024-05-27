@@ -1,6 +1,6 @@
 .. module:: bpy.props
 
-.. fucnction:: function_1(arg_1, arg_2=5.0)
+.. function:: function_1(arg_1, arg_2=5.0)
 
    function_1 description
 

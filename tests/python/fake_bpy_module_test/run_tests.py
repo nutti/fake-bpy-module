@@ -42,10 +42,8 @@ def main():
         fake_bpy_module_test.generator_test.CodeDocumentNodeTranslatorTest,
 
         fake_bpy_module_test.transformer_test.BaseClassFixtureTest,
-        fake_bpy_module_test.transformer_test.BpyAppHandlersDataTypeAdderTest,
         fake_bpy_module_test.transformer_test.BpyContextVariableConverterTest,
-        fake_bpy_module_test.transformer_test.BpyOpsOverrideParametersAdderTest,
-        fake_bpy_module_test.transformer_test.BpyTypesClassBaseClassRebaserTest,
+        fake_bpy_module_test.transformer_test.BpyModuleTweakerTest,
         fake_bpy_module_test.transformer_test.CannonicalDataTypeRewriterTest,
         fake_bpy_module_test.transformer_test.CodeDocumentRefinerTest,
         fake_bpy_module_test.transformer_test.DataTypeRefinerTest,

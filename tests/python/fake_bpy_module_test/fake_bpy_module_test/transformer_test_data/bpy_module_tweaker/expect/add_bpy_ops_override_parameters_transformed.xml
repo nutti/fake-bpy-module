@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        basic.rst
+        add_bpy_ops_override_parameters.rst
     <module>
         <name>
             bpy.ops.pose

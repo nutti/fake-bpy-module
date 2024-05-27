@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        basic.rst
+        add_bpy_app_handlers_functions_data_types.rst
     <module>
         <name>
             bpy.app.handlers
