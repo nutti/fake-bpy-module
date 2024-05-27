@@ -129,10 +129,21 @@ class PyCodeWriterBase(BaseWriter):
         wt = self._writer
 
         wt.add("def " + func_name + "(")
+        start_kwarg = False
         for i, arg_node in enumerate(arg_nodes):
             arg_name = arg_node.element(NameNode).astext()
             dtype_list_node = arg_node.element(DataTypeListNode)
             default_value_node = arg_node.element(DefaultValueNode)
+
+            is_kwonlyarg = arg_node.attributes["argument_type"] == "kwonlyarg"
+            if not start_kwarg and is_kwonlyarg:
+                wt.add("*, ")
+                start_kwarg = True
+
+            if arg_node.attributes["argument_type"] == "vararg":
+                arg_name = f"*{arg_name}"
+            elif arg_node.attributes["argument_type"] == "kwarg":
+                arg_name = f"**{arg_name}"
 
             if not dtype_list_node.empty():
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
@@ -332,10 +343,21 @@ class PyCodeWriterBase(BaseWriter):
                     raise NotImplementedError(f"func_type={func_type} is not supported")
 
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
+                start_kwarg = False
                 for i, arg_node in enumerate(arg_nodes):
-                    name_node = arg_node.element(NameNode)
+                    arg_name = arg_node.element(NameNode).astext()
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     default_value_node = arg_node.element(DefaultValueNode)
+
+                    is_kwonlyarg = arg_node.attributes["argument_type"] == "kwonlyarg"
+                    if not start_kwarg and is_kwonlyarg:
+                        wt.add("*, ")
+                        start_kwarg = True
+
+                    if arg_node.attributes["argument_type"] == "vararg":
+                        arg_name = f"*{arg_name}"
+                    elif arg_node.attributes["argument_type"] == "kwarg":
+                        arg_name = f"**{arg_name}"
 
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
@@ -348,16 +370,16 @@ class PyCodeWriterBase(BaseWriter):
                                 break
 
                         if not default_value_node.empty():
-                            wt.add(f"{name_node.astext()}: {dtype_str}="
+                            wt.add(f"{arg_name}: {dtype_str}="
                                    f"{default_value_node.astext()}")
                         else:
-                            wt.add(f"{name_node.astext()}: {dtype_str}")
+                            wt.add(f"{arg_name}: {dtype_str}")
                     else:
                         if not default_value_node.empty():
-                            wt.add(f"{name_node.astext()}="
+                            wt.add(f"{arg_name}="
                                    f"{default_value_node.astext()}")
                         else:
-                            wt.add(name_node.astext())
+                            wt.add(arg_name)
 
                     if i != len(arg_nodes) - 1:
                         wt.add(", ")
