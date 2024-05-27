@@ -25,6 +25,7 @@ from ..utils import (
 )
 
 
+# TODO: Move to BpyModuleTweaker.
 class BpyTypesClassBaseClassRebaser(TransformerBase):
     def _apply(self, document: nodes.document):
         module_node = get_first_child(document, ModuleNode)

@@ -16,6 +16,7 @@ from ..analyzer.nodes import (
 from ..utils import find_children, get_first_child, append_child
 
 
+# TODO: Move to BpyModuleTweaker.
 class BpyOpsOverrideParameterAdder(TransformerBase):
     def _apply(self, document: nodes.document):
         module_node = get_first_child(document, ModuleNode)

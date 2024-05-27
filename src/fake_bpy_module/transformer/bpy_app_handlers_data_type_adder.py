@@ -11,6 +11,7 @@ from ..analyzer.nodes import (
 from ..utils import get_first_child
 
 
+# TODO: Move to BpyModuleTweaker.
 class BpyAppHandlersDataTypeAdder(TransformerBase):
 
     def _apply(self, document: nodes.document):
