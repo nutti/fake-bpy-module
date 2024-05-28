@@ -18,7 +18,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                list[typing.Callable[[
+                list[collections.abc.Callable[[
                 <class-ref>
                     bpy.types.Scene
                 , None]]]
@@ -186,21 +186,21 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[bytes]
+                collections.abc.Sequence[bytes]
     <data>
         <name>
             data_callable
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Callable
+                collections.abc.Callable
     <data>
         <name>
             data_mathutils_values
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[float]
+                collections.abc.Sequence[float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -225,7 +225,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="never none">
-                        typing.Iterable[float]
+                        collections.abc.Iterable[float]
         <return>
             <description>
             <data-type-list>
@@ -247,7 +247,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[float]
+                collections.abc.Sequence[float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -292,7 +292,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence[int]
+                collections.abc.Sequence[int]
     <data>
         <name>
             data_float_multi_dimensional_array_of
@@ -355,7 +355,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Sequence
+                collections.abc.Sequence
     <data>
         <name>
             data_bgl_buffer
@@ -385,16 +385,16 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Iterable[typing.Iterable[str]]
+                collections.abc.Iterable[collections.abc.Iterable[str]]
             <data-type option="never none">
-                typing.Callable
+                collections.abc.Callable
     <data>
         <name>
             data_sequence_of
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Iterable[
+                collections.abc.Iterable[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]

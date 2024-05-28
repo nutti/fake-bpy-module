@@ -34,11 +34,11 @@
    :option arg arg_tuple: optional
    :type arg_generic: Generic[Type]
    :option arg arg_generic: optional
-   :type arg_iterator: typing.Iterator
+   :type arg_iterator: collections.abc.Iterator
    :option arg arg_iterator: optional
-   :type arg_callable: typing.Callable
+   :type arg_callable: collections.abc.Callable
    :option arg arg_callable: optional
    :type arg_any: typing.Any
    :option arg arg_any: optional
-   :type arg_sequence: typing.Sequence[int]
+   :type arg_sequence: collections.abc.Sequence[int]
    :option arg arg_sequence: optional

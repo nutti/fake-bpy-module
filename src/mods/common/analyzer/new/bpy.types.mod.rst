@@ -39,7 +39,7 @@
 
    .. method:: __iter__()
 
-      :rtype: typing.Iterator[GenericType1]
+      :rtype: collections.abc.Iterator[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()

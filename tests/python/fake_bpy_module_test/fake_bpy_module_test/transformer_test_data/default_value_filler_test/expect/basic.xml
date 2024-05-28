@@ -137,7 +137,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Iterator
+                        collections.abc.Iterator
             <argument argument_type="arg">
                 <name>
                     arg_callable
@@ -145,7 +145,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Callable
+                        collections.abc.Callable
             <argument argument_type="arg">
                 <name>
                     arg_any
@@ -161,7 +161,7 @@
                 <default-value>
                 <data-type-list>
                     <data-type option="optional">
-                        typing.Sequence[int]
+                        collections.abc.Sequence[int]
         <return>
             <description>
             <data-type-list>
