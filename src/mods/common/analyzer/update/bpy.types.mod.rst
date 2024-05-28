@@ -34,5 +34,5 @@
 
       :type attr: str
       :mod-option arg attr: skip-refine
-      :type seq: typing.Sequence[bool] | typing.Sequence[int] | typing.Sequence[float]
+      :type seq: collections.abc.Sequence[bool] | collections.abc.Sequence[int] | collections.abc.Sequence[float]
       :mod-option arg seq: skip-refine
