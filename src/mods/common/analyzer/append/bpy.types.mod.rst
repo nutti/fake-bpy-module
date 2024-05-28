@@ -68,6 +68,13 @@
       :rtype: int
       :mod-option rtype: skip-refine
 
+   .. method:: __contains__(key)
+
+      :type key: str | tuple[str, ...]
+      :mod-option arg key: skip-refine
+      :rtype: bool
+      :mod-option rtype: skip-refine
+
    .. method:: get()
 
       :rtype: GenericType1 | GenericType2
