@@ -168,7 +168,7 @@ ${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-cod
 ${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o mods/generated_mods/gen_startup_modfile -f json
 
 mkdir -p mods/generated_mods/gen_bgl_modfile
-python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.c -o mods/generated_mods/gen_bgl_modfile/bgl.json -f json
+python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.cc -o mods/generated_mods/gen_bgl_modfile/bgl.json -f json
 ```
 <!-- markdownlint-enable MD013 -->
 
