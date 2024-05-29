@@ -41,3 +41,10 @@ platforms = ["Windows", "Linux", "Mac OS-X"]
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "preserve"
