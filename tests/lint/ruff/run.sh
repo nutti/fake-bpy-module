@@ -13,7 +13,7 @@ error=0
 for file in $(find "${PYTHON_SCRIPT_DIRECTORY}" -name "*.py" | sort); do
     echo "======= ruff ${file} ======="
 
-    if ! ${RUFF_CMD} check --fix "${file}"; then
+    if ! ${RUFF_CMD} check --output-format=github "${file}"; then
         ((error+=1))
     fi
 done
