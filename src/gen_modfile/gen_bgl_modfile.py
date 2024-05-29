@@ -4,11 +4,11 @@
 #
 # Description:
 #   gen_bgl_modfile.py generates python constant and function definitions
-#   which are defined by bgl.c.
+#   which are defined by bgl.cc.
 #   The definitions are output as a modfile format.
 #
 # Note:
-#   You need to download blender source code for passing 'bgl.c' file to
+#   You need to download blender source code for passing 'bgl.cc' file to
 #   this script.
 #
 # Usage:
@@ -16,7 +16,7 @@
 #     -f <output_format>
 #
 #     bgl_c_file:
-#       Path to bgl.c.
+#       Path to bgl.cc.
 #
 #     output_file:
 #       Generated definitions are output to specified file.
@@ -191,7 +191,7 @@ def analyze(config: 'GenerationConfig') -> Dict:
 def parse_options() -> 'GenerationConfig':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", dest="bgl_c_file", type=str, help="Path to bgl.c",
+        "-i", dest="bgl_c_file", type=str, help="Path to bgl.cc",
         required=True
     )
     parser.add_argument(
@@ -250,7 +250,7 @@ def write_to_modfile(data: Dict, config: 'GenerationConfig'):
 def main():
     config = parse_options()
 
-    # Analyze bgl.c.
+    # Analyze bgl.cc.
     results = analyze(config)
 
     # Write definitions to file.
