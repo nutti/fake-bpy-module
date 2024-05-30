@@ -46,7 +46,7 @@ where = ["."]
 target-version = "py39"
 line-length = 88
 exclude = [
-    "tests",
+    "tests/*",
 ]
 
 [tool.ruff.lint]
