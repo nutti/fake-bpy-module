@@ -1,0 +1,19 @@
+target-version = "py39"
+line-length = 88
+exclude = [
+    "tests/*",
+]
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "UP015",
+    "COM812",
+    "ANN101",
+    "PT009",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]

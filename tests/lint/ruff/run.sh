@@ -5,6 +5,10 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+# shellcheck disable=SC2046,SC2155,SC2164
+{
+readonly SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+}
 readonly PYTHON_SCRIPT_DIRECTORY=${1}
 readonly RUFF_CMD="ruff"
 
@@ -13,7 +17,7 @@ error=0
 for file in $(find "${PYTHON_SCRIPT_DIRECTORY}" -name "*.py" | sort); do
     echo "======= ruff ${file} ======="
 
-    if ! ${RUFF_CMD} check --output-format=github "${file}"; then
+    if ! ${RUFF_CMD} check --output-format=github --config="${SCRIPT_DIR}/ruff.toml" "${file}"; then
         ((error+=1))
     fi
 done
