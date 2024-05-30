@@ -243,7 +243,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln(self.ellipsis_strings["function"])
             wt.new_line(2)
 
-    # pylint: disable=R0915
+    # pylint: disable=R0914,R0915
     def _write_class_code(self, class_node: ClassNode):
         wt = self._writer
 
@@ -267,6 +267,18 @@ class PyCodeWriterBase(BaseWriter):
                     else:
                         dtype = dtype_nodes[0].to_string()
                     dtypes.append(dtype)
+            # bpy_prop_collection must be higher priority than bpy_struct.
+            bpy_struct_index = -1
+            bpy_prop_collection_index = -1
+            for i, dtype in enumerate(dtypes):
+                if dtype == "bpy_struct":
+                    bpy_struct_index = i
+                elif dtype.startswith("bpy_prop_collection["):
+                    bpy_prop_collection_index = i
+            if (bpy_struct_index != -1) and (bpy_prop_collection_index != -1):
+                tmp = dtypes[bpy_struct_index]
+                dtypes[bpy_struct_index] = dtypes[bpy_prop_collection_index]
+                dtypes[bpy_prop_collection_index] = tmp
             wt.addln(f"class {name_node.astext()}({', '.join(dtypes)}):")
 
         with CodeWriterIndent(1):
