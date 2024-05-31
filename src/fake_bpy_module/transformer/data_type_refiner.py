@@ -45,7 +45,7 @@ REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of 
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
 REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`,$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of `([a-zA-Z0-9_.]+)`$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of\s+`([a-zA-Z0-9_.]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")  # noqa # pylint: disable=C0301
@@ -345,7 +345,7 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"collections.abc.Iterable[`{s}`]")]
+                return [make_data_type_node(f"list[`{s}`]")]
         # Ex: `bpy_prop_collection` of `ThemeStripColor`,
         #     (readonly, never None)
         if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF.match(dtype_str):
