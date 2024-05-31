@@ -394,7 +394,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                collections.abc.Iterable[
+                list[
                 <class-ref>
                     refined_module_a.RefinedClassA
                 ]
