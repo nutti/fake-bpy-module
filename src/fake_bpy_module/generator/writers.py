@@ -96,6 +96,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> List[NodeBase]:
 
     return sorted_nodes
 
+
 def make_union(dtype_nodes: List[DataTypeNode]) -> str:
     return ' | '.join(sorted({n.to_string() for n in set(dtype_nodes)}))
 
