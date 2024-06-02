@@ -12,7 +12,7 @@
 
    .. method:: __set__(instance, value)
 
-      :type value: :class:`Color`, collections.abc.Sequence[float]
+      :type value: :class:`Color`
 
    .. method:: __add__(other)
 
@@ -89,7 +89,7 @@
 
    .. method:: __set__(instance, value)
 
-      :type value: :class:`Euler`, collections.abc.Sequence[float]
+      :type value: :class:`Euler`
 
    .. method:: __getitem__(key)
 
@@ -106,7 +106,7 @@
 
    .. method:: __set__(instance, value)
 
-      :type value: :class:`Matrix`, collections.abc.Sequence[collections.abc.Sequence[float]]
+      :type value: :class:`Matrix`
 
    .. method:: __getitem__(key)
 
@@ -179,7 +179,7 @@
 
    .. method:: __set__(instance, value)
 
-      :type value: :class:`Quaternion`, collections.abc.Sequence[float]
+      :type value: :class:`Quaternion`
 
    .. method:: __len__()
 
@@ -258,7 +258,7 @@
 
    .. method:: __set__(instance, value)
 
-      :type value: :class:`Vector`, collections.abc.Sequence[float]
+      :type value: :class:`Vector`
 
    .. method:: __len__()
 
