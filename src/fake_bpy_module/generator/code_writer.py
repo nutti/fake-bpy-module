@@ -88,15 +88,23 @@ class CodeWriter:
             self._code_data = io.StringIO(FormatCode(
                 self._code_data.getvalue(), style_config="pep8")[0])
         elif style_config == "ruff":
-            self._code_data = io.StringIO(subprocess.check_output(
-                [
-                    "ruff",
-                    "format",
-                    "--isolated",
-                    f"--stdin-filename=_.{file_format}",
-                ],
-                input=self._code_data.getvalue().encode(),
-            ).decode())
+            try:
+                self._code_data = io.StringIO(subprocess.check_output(
+                    [
+                        "ruff",
+                        "format",
+                        "--isolated",
+                        f"--stdin-filename=_.{file_format}",
+                    ],
+                    input=self._code_data.getvalue().encode(),
+                    stderr=subprocess.PIPE
+                ).decode())
+            except subprocess.CalledProcessError as e:
+                print("===== Code Data =====")
+                print(self._code_data.getvalue())
+                print("=====================")
+                print(e.stderr)
+                raise e
         elif style_config == "none":
             pass
         else:
