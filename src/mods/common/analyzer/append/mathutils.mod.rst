@@ -6,6 +6,14 @@
 
    .. method:: __init__(rgb=(0.0, 0.0, 0.0))
 
+   .. method:: __get__(instance, owner)
+
+      :rtype: :class:`Color`
+
+   .. method:: __set__(instance, value)
+
+      :type value: :class:`Color`
+
    .. method:: __add__(other)
 
       :type other: :class:`Color`
@@ -75,6 +83,14 @@
 
    .. method:: __init__(angles=(0.0, 0.0, 0.0), order='XYZ')
 
+   .. method:: __get__(instance, owner)
+
+      :rtype: :class:`Euler`
+
+   .. method:: __set__(instance, value)
+
+      :type value: :class:`Euler`
+
    .. method:: __getitem__(key)
 
       :type key: int
@@ -83,6 +99,14 @@
 .. class:: Matrix
 
    .. method:: __init__(rows=((1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0), (0.0, 0.0, 0.0, 1.0)))
+
+   .. method:: __get__(instance, owner)
+
+      :rtype: :class:`Matrix`
+
+   .. method:: __set__(instance, value)
+
+      :type value: :class:`Matrix`
 
    .. method:: __getitem__(key)
 
@@ -148,6 +172,14 @@
 .. class:: Quaternion
 
    .. method:: __init__(seq=(1.0, 0.0, 0.0, 0.0))
+
+   .. method:: __get__(instance, owner)
+
+      :rtype: :class:`Quaternion`
+
+   .. method:: __set__(instance, value)
+
+      :type value: :class:`Quaternion`
 
    .. method:: __len__()
 
@@ -219,6 +251,14 @@
 .. class:: Vector
 
    .. method:: __init__(seq=(0.0, 0.0, 0.0))
+
+   .. method:: __get__(instance, owner)
+
+      :rtype: :class:`Vector`
+
+   .. method:: __set__(instance, value)
+
+      :type value: :class:`Vector`
 
    .. method:: __len__()
 
