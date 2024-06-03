@@ -20,21 +20,53 @@
 
    .. method:: __getitem__(key)
 
-      :type key: int | str
+      :type key: int
       :mod-option arg key: skip-refine
       :rtype: GenericType1
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[GenericType1]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :rtype: GenericType1 | tuple[GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: int | str
+      :type key: int
       :mod-option arg key: skip-refine
       :type value: GenericType1
+      :mod-option arg value: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: tuple[GenericType1]
+      :mod-option arg value: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :type value: GenericType1 | tuple[GenericType1]
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: int | str
+      :type key: int | slice
       :mod-option arg key: skip-refine
 
    .. method:: __iter__()
