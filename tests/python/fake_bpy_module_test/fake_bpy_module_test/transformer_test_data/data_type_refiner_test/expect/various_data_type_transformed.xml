@@ -92,6 +92,8 @@
         <description>
         <data-type-list>
             <data-type option="never none">
+                collections.abc.Sequence[float]
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -100,6 +102,8 @@
         <description>
         <data-type-list>
             <data-type option="never none">
+                collections.abc.Sequence[collections.abc.Sequence[float]]
+            <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix
     <data>
@@ -107,6 +111,8 @@
             data_4x4_mathutils_matrix
         <description>
         <data-type-list>
+            <data-type option="never none">
+                collections.abc.Sequence[collections.abc.Sequence[float]]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix
@@ -200,8 +206,6 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                collections.abc.Sequence[float]
-            <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
     <data>
@@ -234,10 +238,6 @@
             data_mathutils_array_of
         <description>
         <data-type-list>
-            <data-type option="never none">
-                list[float]
-            <data-type option="never none">
-                tuple[float, float, float]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Vector
@@ -307,10 +307,6 @@
             data_mathutils_matrix_of
         <description>
         <data-type-list>
-            <data-type option="never none">
-                list[list[float]]
-            <data-type option="never none">
-                tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
             <data-type option="never none">
                 <class-ref>
                     mathutils.Matrix

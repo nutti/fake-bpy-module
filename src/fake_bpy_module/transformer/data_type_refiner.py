@@ -181,12 +181,18 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 "Vector", uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"`{s}`")]
+                return [make_data_type_node("collections.abc.Sequence[float]"),
+                        make_data_type_node(f"`{s}`")]
         if dtype_str in ("4x4 `mathutils.Matrix`", "4x4 `Matrix`"):
             s = self._parse_custom_data_type(
                 "Matrix", uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [make_data_type_node(f"`{s}`")]
+                if variable_kind == 'FUNC_RET':
+                    return [make_data_type_node(f"`{s}`")]
+                return [
+                    make_data_type_node(
+                        "collections.abc.Sequence[collections.abc.Sequence[float]]"),
+                    make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
             return [make_data_type_node("str")]
@@ -232,8 +238,15 @@ class DataTypeRefiner(TransformerBase):
                     m.group(1), uniq_full_names, uniq_module_names,
                     module_name)
                 if s:
-                    return [make_data_type_node("collections.abc.Sequence[float]"),
-                            make_data_type_node(f"`{s}`")]
+                    if variable_kind in ('CONST', 'CLS_ATTR'):
+                        return [make_data_type_node(f"`{s}`")]
+                    return [
+                        make_data_type_node(
+                            "collections.abc.Sequence[collections.abc.Sequence[float]]")
+                        if m.group(3) == "Matrix"
+                        else make_data_type_node("collections.abc.Sequence[float]"),
+                        make_data_type_node(f"`{s}`")
+                    ]
 
         # Ex: int array of 2 items in [-32768, 32767], default (0, 0)
         if m := REGEX_MATCH_DATA_TYPE_NUMBER_ARRAY_OF.match(dtype_str):
@@ -248,12 +261,10 @@ class DataTypeRefiner(TransformerBase):
                 m.group(1), uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                tuple_elms = ["float"] * int(m.group(3))
-                return [
-                    make_data_type_node("list[float]"),
-                    make_data_type_node(f"tuple[{', '.join(tuple_elms)}]"),
-                    make_data_type_node(f"`{s}`")
-                ]
+                if variable_kind in ('CONST', 'CLS_ATTR', 'FUNC_RET'):
+                    return [make_data_type_node(f"`{s}`")]
+                return [make_data_type_node("collections.abc.Sequence[float]"),
+                        make_data_type_node(f"`{s}`")]
 
         # Ex: float triplet
         if dtype_str == "float triplet":
@@ -290,12 +301,11 @@ class DataTypeRefiner(TransformerBase):
                 "mathutils.Matrix", uniq_full_names, uniq_module_names,
                 module_name)
             if s:
-                tuple_elems = [
-                    f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
-                ] * int(m.group(2))
+                if variable_kind in ('CONST', 'CLS_ATTR', 'FUNC_RET'):
+                    return [make_data_type_node(f"`{s}`")]
                 return [
-                    make_data_type_node("list[list[float]]"),
-                    make_data_type_node(f"tuple[{', '.join(tuple_elems)}]"),
+                    make_data_type_node(
+                        "collections.abc.Sequence[collections.abc.Sequence[float]]"),
                     make_data_type_node(f"`{s}`")
                 ]
 
