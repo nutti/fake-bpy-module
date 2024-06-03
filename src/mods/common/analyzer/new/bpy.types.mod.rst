@@ -8,6 +8,16 @@
 
       :mod-option base-class: skip-refine
 
+   .. method:: __get__(instance, owner)
+
+      :rtype: bpy_prop_array[GenericType1]
+      :mod-option rtype: skip-refine
+
+   .. method:: __set__(instance, value)
+
+      :type value: collections.abc.Iterable[GenericType1]
+      :mod-option arg value: skip-refine
+
    .. method:: foreach_get(seq)
 
       :type seq: collections.abc.MutableSequence[GenericType1]
