@@ -149,7 +149,7 @@ class DataTypeRefiner(TransformerBase):
                 module_name)
             if s:
                 return [
-                    make_data_type_node("list[collections.abc.Callable[[`bpy.types.Scene`, None]]]")
+                    make_data_type_node("list[collections.abc.Callable[[`bpy.types.Scene`], None]]")
                 ]
 
         if dtype_str == "Same type with self class":
