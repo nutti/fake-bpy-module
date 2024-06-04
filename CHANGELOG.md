@@ -2,7 +2,32 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20231118...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20240604...master)
+
+<!-- markdownlint-disable-next-line MD013 -->
+## [20240604](https://github.com/nutti/fake-bpy-module/compare/20231118...20240604) - 2024.6.4
+
+### Updated Features
+
+* Support fake-bpy-module-4.1
+* Support generating .pyi based modules
+* Create an alias fake-bpy-module to fake-bpy-module-latest
+* Support generating modules on Docker environment
+* Add documents for each module as comments
+* Use Python 3.10 syntax for type annotations on the generated modules
+
+### Other Updates
+
+* Refactor all code to use docutils package
+* Optimize code for module generation
+* Fix bugs
+
+### Contributors
+
+* [**@JonathanPlasse**](https://github.com/JonathanPlasse)
+* [**@UuuNyaa**](https://github.com/UuuNyaa)
+* [**@Road-hog123**](https://github.com/Road-hog123)
+* [**@Andrej730**](https://github.com/Andrej730)
 
 <!-- markdownlint-disable-next-line MD013 -->
 ## [20231118](https://github.com/nutti/fake-bpy-module/compare/20230117...20231118) - 2023.11.18
