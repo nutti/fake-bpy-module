@@ -21,7 +21,7 @@
                 list[collections.abc.Callable[[
                 <class-ref>
                     bpy.types.Scene
-                , None]]]
+                ], None]]
     <class>
         <name>
             ClassA
