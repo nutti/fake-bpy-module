@@ -101,7 +101,7 @@ def parse_func_arg_default_value(expr: ast.expr):
             return "None"
         return expr.value
     if isinstance(expr, ast.Name):
-        return "None"   # TODO: Should be "expr.id"
+        return expr.id
     if isinstance(expr, ast.List):
         return (
             f"""[{', '.join(str(parse_func_arg_default_value(e))
