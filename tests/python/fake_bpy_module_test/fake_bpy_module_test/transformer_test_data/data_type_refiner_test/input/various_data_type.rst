@@ -219,6 +219,10 @@
 
    :type: list of (:class:`RefinedClassA`, :class:`ClassA`)
 
+.. data:: data_pair_of_value
+
+   :type: pair of :class:`RefinedClassA`
+
 .. data:: data_bmelemseq_of_value
 
    :type: :class:`BMElemSeq` of :class:`RefinedClassA`

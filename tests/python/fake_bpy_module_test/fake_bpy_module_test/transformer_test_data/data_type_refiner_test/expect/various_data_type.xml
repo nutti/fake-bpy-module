@@ -443,6 +443,15 @@
                 )
     <data>
         <name>
+            data_pair_of_value
+        <description>
+        <data-type-list>
+            <data-type>
+                pair of 
+                <class-ref>
+                    RefinedClassA
+    <data>
+        <name>
             data_bmelemseq_of_value
         <description>
         <data-type-list>
