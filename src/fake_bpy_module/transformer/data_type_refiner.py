@@ -51,6 +51,7 @@ REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) of (float|int|str)")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE = re.compile(r"^list of \(([a-zA-Z.,` ]+)\)")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_PAIR_OF_VALUE = re.compile(r"^pair of `([A-Za-z0-9_.]+)`")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE = re.compile(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|set|tuple)`*\.*$")  # noqa # pylint: disable=C0301
@@ -391,6 +392,12 @@ class DataTypeRefiner(TransformerBase):
                     if s:
                         dtypes.append(make_data_type_node(f"list[`{s}`]"))
             return dtypes
+        # Ex: pair of bmesh.types.BMVert
+        if m := REGEX_MATCH_DATA_TYPE_PAIR_OF_VALUE.match(dtype_str):
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return [make_data_type_node(f"tuple[`{s}`, `{s}`]")]
         # Ex: BMElemSeq of BMEdge
         if m := REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(

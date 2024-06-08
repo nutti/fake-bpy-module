@@ -450,6 +450,19 @@
                 ]
     <data>
         <name>
+            data_pair_of_value
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                tuple[
+                <class-ref>
+                    refined_module_a.RefinedClassA
+                , 
+                <class-ref>
+                    refined_module_a.RefinedClassA
+                ]
+    <data>
+        <name>
             data_bmelemseq_of_value
         <description>
         <data-type-list>
