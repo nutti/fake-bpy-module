@@ -22,6 +22,7 @@ from ..analyzer.nodes import (
     DataTypeNode,
     DataTypeListNode,
     DescriptionNode,
+    DefaultValueNode,
 )
 from ..utils import get_first_child, append_child, find_children
 
@@ -67,15 +68,39 @@ class ModApplier(TransformerBase):
                 # Update arguments.
                 if not mod_arg_list_node.empty():
                     arg_list_node = func_node.element(ArgumentListNode)
-                    arg_list_node.clear()
-
+                    arg_nodes = find_children(arg_list_node, ArgumentNode)
                     mod_arg_nodes = find_children(mod_arg_list_node, ArgumentNode)
+
                     for mod_arg_node in mod_arg_nodes:
-                        arg_list_node.append_child(mod_arg_node)
+                        mod_arg_name = mod_arg_node.element(NameNode).astext()
+
+                        for arg_node in arg_nodes:
+                            arg_name = arg_node.element(NameNode).astext()
+
+                            if arg_name == mod_arg_name:
+                                mod_desc_node = mod_arg_node.element(DescriptionNode)
+                                if not mod_desc_node.empty():
+                                    arg_node.replace_node(mod_desc_node)
+                                mod_default_value_node = mod_arg_node.element(DefaultValueNode)
+                                if not mod_default_value_node.empty():
+                                    arg_node.replace_node(mod_default_value_node)
+                                mod_dtype_list_node = mod_arg_node.element(DataTypeListNode)
+                                if not mod_dtype_list_node.empty():
+                                    arg_node.replace_node(mod_dtype_list_node)
+                                break
+                        else:
+                            arg_list_node.append_child(mod_arg_node)
 
                 # Update return.
                 if not mod_return_node.empty():
-                    func_node.replace_node(mod_return_node)
+                    return_node = func_node.element(FunctionReturnNode)
+
+                    mod_desc_node = mod_return_node.element(DescriptionNode)
+                    if not mod_desc_node.empty():
+                        return_node.replace_node(mod_desc_node)
+                    mod_dtype_list_node = mod_return_node.element(DataTypeListNode)
+                    if not mod_dtype_list_node.empty():
+                        return_node.replace_node(mod_dtype_list_node)
                 break
 
     # pylint: disable=R0914,R1702
@@ -118,15 +143,40 @@ class ModApplier(TransformerBase):
                         # Update arguments.
                         if not mod_arg_list_node.empty():
                             arg_list_node = func_node.element(ArgumentListNode)
-                            arg_list_node.clear()
-
+                            arg_nodes = find_children(arg_list_node, ArgumentNode)
                             mod_arg_nodes = find_children(mod_arg_list_node, ArgumentNode)
+
                             for mod_arg_node in mod_arg_nodes:
-                                arg_list_node.append_child(mod_arg_node)
+                                mod_arg_name = mod_arg_node.element(NameNode).astext()
+
+                                for arg_node in arg_nodes:
+                                    arg_name = arg_node.element(NameNode).astext()
+
+                                    if arg_name == mod_arg_name:
+                                        mod_desc_node = mod_arg_node.element(DescriptionNode)
+                                        if not mod_desc_node.empty():
+                                            arg_node.replace_node(mod_desc_node)
+                                        mod_default_value_node = mod_arg_node.element(
+                                            DefaultValueNode)
+                                        if not mod_default_value_node.empty():
+                                            arg_node.replace_node(mod_default_value_node)
+                                        mod_dtype_list_node = mod_arg_node.element(DataTypeListNode)
+                                        if not mod_dtype_list_node.empty():
+                                            arg_node.replace_node(mod_dtype_list_node)
+                                        break
+                                else:
+                                    arg_list_node.append_child(mod_arg_node)
 
                         # Update return.
                         if not mod_return_node.empty():
-                            func_node.replace_node(mod_return_node)
+                            return_node = func_node.element(FunctionReturnNode)
+
+                            mod_desc_node = mod_return_node.element(DescriptionNode)
+                            if not mod_desc_node.empty():
+                                return_node.replace_node(mod_desc_node)
+                            mod_dtype_list_node = mod_return_node.element(DataTypeListNode)
+                            if not mod_dtype_list_node.empty():
+                                return_node.replace_node(mod_dtype_list_node)
                         break
 
                 # Update attributes.
