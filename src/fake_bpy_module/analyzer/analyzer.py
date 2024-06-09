@@ -1,6 +1,5 @@
 import os
 import re
-from typing import List
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -13,7 +12,7 @@ from ..utils import output_log, LOG_LEVEL_DEBUG
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
 
 
-def analyze(rst_files: List[str]) -> List[nodes.document]:
+def analyze(rst_files: list[str]) -> list[nodes.document]:
     rst_files = [f.replace("\\", "/") for f in rst_files]
     analyzer = BaseAnalyzer()
     documents = analyzer.analyze(rst_files)
@@ -26,7 +25,7 @@ class BaseAnalyzer:
         directives.register_directives()
         roles.register_roles()
 
-        self.mod_documents: List[nodes.document] = []
+        self.mod_documents: list[nodes.document] = []
 
     def _analyze_by_file(self, filename: str) -> nodes.document:
         output_log(LOG_LEVEL_DEBUG, f"Analyze file: {filename}")
@@ -47,8 +46,8 @@ class BaseAnalyzer:
 
         return document
 
-    def analyze(self, filenames: list) -> List[nodes.document]:
-        documents: List[nodes.document] = []
+    def analyze(self, filenames: list) -> list[nodes.document]:
+        documents: list[nodes.document] = []
         for f in filenames:
             document = self._analyze_by_file(f)
             documents.append(document)

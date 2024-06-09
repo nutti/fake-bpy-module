@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -21,7 +20,7 @@ from .utils import ModuleStructure, get_module_name, get_base_name, build_module
 class Dependency:
     def __init__(self):
         self._mod_name: str = None
-        self._type_lists: List[str] = []
+        self._type_lists: list[str] = []
 
     @property
     def mod_name(self) -> str:
@@ -34,7 +33,7 @@ class Dependency:
         self._mod_name = value
 
     @property
-    def type_lists(self) -> List[str]:
+    def type_lists(self) -> list[str]:
         if not self._type_lists:
             raise RuntimeError(
                 "At least 1 element must be added to type lists")
@@ -46,7 +45,7 @@ class Dependency:
 
 class DependencyBuilder(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
@@ -114,7 +113,7 @@ class DependencyBuilder(TransformerBase):
 
         return module_path
 
-    def _add_dependency(self, dependencies: List[Dependency],
+    def _add_dependency(self, dependencies: list[Dependency],
                         module_structure: ModuleStructure,
                         data_type_1: str, data_type_2: str):
 
@@ -140,7 +139,7 @@ class DependencyBuilder(TransformerBase):
     def _build_dependencies(
             self, document: nodes.document, package_structure: ModuleStructure):
 
-        dependencies: List[Dependency] = []
+        dependencies: list[Dependency] = []
         module_node = get_first_child(document, ModuleNode)
         if module_node is None:
             return

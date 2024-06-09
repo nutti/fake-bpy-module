@@ -1,5 +1,4 @@
 import pathlib
-from typing import List
 
 from docutils import nodes
 
@@ -17,7 +16,7 @@ from .writers import (
 )
 
 
-def generate(documents: List[nodes.document]):
+def generate(documents: list[nodes.document]):
     # Create module directories.
     for doc in documents:
         target_filename = get_first_child(doc, TargetFileNode).astext()

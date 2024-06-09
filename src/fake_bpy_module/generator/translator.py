@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from ..analyzer.nodes import (
@@ -36,7 +35,7 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         self.doc_writer: CodeWriter = doc_writer
         CodeWriterIndent.reset_indent()
 
-        self.status_stack: List[Status] = []
+        self.status_stack: list[Status] = []
 
     def get_list_level(self) -> int:
         c = 0

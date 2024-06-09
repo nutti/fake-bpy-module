@@ -1,4 +1,3 @@
-from typing import Union
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -174,7 +173,7 @@ class FormatValidator(TransformerBase):
         self._check_node(children[2], ArgumentListNode)
         self._check_node(children[3], FunctionReturnNode)
 
-    def _check_data_node(self, data_node: Union[DataNode, AttributeNode]):
+    def _check_data_node(self, data_node: DataNode | AttributeNode):
         self._check_num_children(data_node, 3)
 
         children = data_node.children

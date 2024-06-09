@@ -2,7 +2,6 @@ import abc
 import copy
 import graphlib
 import json
-from typing import List
 from collections import OrderedDict
 from docutils import nodes
 
@@ -35,11 +34,11 @@ from .translator import CodeDocumentNodeTranslator
 from ..utils import find_children, get_first_child, remove_unencodable
 
 
-def sorted_entry_point_nodes(document: nodes.document) -> List[NodeBase]:
-    all_class_nodes: List[ClassNode] = []
-    all_function_nodes: List[FunctionNode] = []
-    all_data_nodes: List[DataNode] = []
-    all_high_priority_class_nodes: List[ClassNode] = []
+def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
+    all_class_nodes: list[ClassNode] = []
+    all_function_nodes: list[FunctionNode] = []
+    all_data_nodes: list[DataNode] = []
+    all_high_priority_class_nodes: list[ClassNode] = []
 
     class_nodes = find_children(document, ClassNode)
     for class_node in class_nodes:
@@ -97,7 +96,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> List[NodeBase]:
     return sorted_nodes
 
 
-def make_union(dtype_nodes: List[DataTypeNode]) -> str:
+def make_union(dtype_nodes: list[DataTypeNode]) -> str:
     return ' | '.join(sorted({n.to_string() for n in set(dtype_nodes)}))
 
 

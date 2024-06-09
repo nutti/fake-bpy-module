@@ -1,11 +1,10 @@
 import io
 import subprocess
-from typing import List
 from yapf.yapflib.yapf_api import FormatCode
 
 
 class CodeWriterIndent:
-    indent_stack: List[int] = [0]
+    indent_stack: list[int] = [0]
 
     def __init__(self, indent: int = 0, append_current_indent: bool = False):
         self._indent: int = indent

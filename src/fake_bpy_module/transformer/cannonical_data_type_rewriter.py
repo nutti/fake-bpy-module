@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -18,7 +17,7 @@ from .utils import get_base_name, get_module_name, build_module_structure
 
 class CannonicalDataTypeRewriter(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
 
         self._package_structure = None

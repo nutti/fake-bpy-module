@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -20,7 +19,7 @@ class CodeDocumentRefiner(TransformerBase):
 
         # Remove trivial nodes.
         para_nodes = find_children(new_doc_node, nodes.paragraph)
-        nodes_to_remove: List[nodes.Node] = []
+        nodes_to_remove: list[nodes.Node] = []
         for node in para_nodes:
             if node.astext() in ("Inherited Functions", "Inherited Properties", "References"):
                 index = node.parent.children.index(node)

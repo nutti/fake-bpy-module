@@ -1,6 +1,5 @@
 import re
 import typing
-from typing import List, Dict, Set, Tuple
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -84,16 +83,16 @@ class EntryPoint:
 
 class DataTypeRefiner(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._entry_points = None
         if "entry_points" in kwargs:
             self._entry_points = kwargs["entry_points"]
 
-        self._entry_points_cache: Dict[str, Set] = {}
+        self._entry_points_cache: dict[str, set] = {}
 
-    def _build_entry_points(self, documents: List[nodes.document]) -> List['EntryPoint']:
-        entry_points: List['EntryPoint'] = []
+    def _build_entry_points(self, documents: list[nodes.document]) -> list['EntryPoint']:
+        entry_points: list['EntryPoint'] = []
 
         for document in documents:
             module_node = get_first_child(document, ModuleNode)
@@ -123,8 +122,8 @@ class DataTypeRefiner(TransformerBase):
         return entry_points
 
     def _parse_custom_data_type(
-            self, string_to_parse: str, uniq_full_names: Set[str],
-            uniq_module_names: Set[str], module_name: str) -> str:
+            self, string_to_parse: str, uniq_full_names: set[str],
+            uniq_module_names: set[str], module_name: str) -> str:
         dtype_str = string_to_parse
         if dtype_str in uniq_full_names:
             return dtype_str
@@ -141,10 +140,10 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=R0911,R0912,R0913
     def _get_refined_data_type_fast(
-            self, dtype_str: str, uniq_full_names: Set[str],
-            uniq_module_names: Set[str], module_name: str,
+            self, dtype_str: str, uniq_full_names: set[str],
+            uniq_module_names: set[str], module_name: str,
             variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> List['DataTypeNode']:
+            additional_info: dict[str, typing.Any] = None) -> list['DataTypeNode']:
 
         dtype_str = dtype_str.strip().strip(",")
 
@@ -493,7 +492,7 @@ class DataTypeRefiner(TransformerBase):
             self, dtype_str: str, module_name: str, variable_kind: str,
             is_pointer_prop: bool = False,
             description_str: str = None,
-            additional_info: Dict[str, typing.Any] = None) -> Tuple[List[str], str]:
+            additional_info: dict[str, typing.Any] = None) -> tuple[list[str], str]:
         if module_name.startswith("bpy."):
             option_results = []
 
@@ -557,7 +556,7 @@ class DataTypeRefiner(TransformerBase):
             self, dtype_str: str, module_name: str, variable_kind: str,
             is_pointer_prop: bool = False,
             description_str: str = None,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
+            additional_info: dict[str, typing.Any] = None) -> list[DataTypeNode]:
 
         assert variable_kind in (
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
@@ -590,7 +589,7 @@ class DataTypeRefiner(TransformerBase):
 
     def _get_refined_data_type_internal(
             self, dtype_str: str, module_name: str, variable_kind: str,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
+            additional_info: dict[str, typing.Any] = None) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip()
 
@@ -604,7 +603,7 @@ class DataTypeRefiner(TransformerBase):
         # Ex. (Quaternion, float) pair
         if m := REGEX_MATCH_DATA_TYPE_PAIR.match(dtype_str):
             sp = m.group(1).split(",")
-            dtypes: List[DataTypeNode] = []
+            dtypes: list[DataTypeNode] = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
                     s.strip(), uniq_full_names, uniq_module_names,
@@ -642,7 +641,7 @@ class DataTypeRefiner(TransformerBase):
 
     def _parse_from_description(
             self, module_name: str, description_str: str = None,
-            additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
+            additional_info: dict[str, typing.Any] = None) -> list[DataTypeNode]:
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
@@ -658,7 +657,7 @@ class DataTypeRefiner(TransformerBase):
     def _refine(self, document: nodes.document):
         def refine(dtype_list_node: DataTypeListNode, module_name: str,
                    variable_kind: str, description_str: str = None,
-                   additional_info: Dict[str, typing.Any] = None):
+                   additional_info: dict[str, typing.Any] = None):
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             new_dtype_nodes = []
 
@@ -670,7 +669,7 @@ class DataTypeRefiner(TransformerBase):
                 mod_options = []
                 skip_refine = False
                 if "mod-option" in dtype_node.attributes:
-                    mod_options: List[str] = [
+                    mod_options: list[str] = [
                         sp.strip()
                         for sp in dtype_node.attributes["mod-option"].split(",")
                     ]

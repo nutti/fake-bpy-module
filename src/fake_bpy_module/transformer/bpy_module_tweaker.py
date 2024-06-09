@@ -1,5 +1,4 @@
 import re
-import typing
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -103,8 +102,8 @@ class BpyModuleTweaker(TransformerBase):
         if not module_name.startswith("bpy.types"):
             return
 
-        parent_to_child: typing.Dict[str, str] = {}
-        class_name_to_class_node: typing.Dict[str, ClassNode] = {}
+        parent_to_child: dict[str, str] = {}
+        class_name_to_class_node: dict[str, ClassNode] = {}
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
             class_name = class_node.element(NameNode).astext()
