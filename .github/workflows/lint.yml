@@ -69,7 +69,7 @@ jobs:
         run: pip3 install ruff==0.4.5
 
       - name: ruff format check
-        run: bash tests/lint/ruff/run.sh .
+        run: ruff check --output-format=github .
 
   markdownlint:
     name: markdownlint
