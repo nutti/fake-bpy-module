@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from ..analyzer.nodes import (
@@ -11,7 +10,7 @@ from ..utils import get_first_child
 class ModuleStructure:
     def __init__(self):
         self._name: str = None
-        self._children: List['ModuleStructure'] = []
+        self._children: list['ModuleStructure'] = []
 
     @property
     def name(self) -> str:
@@ -27,11 +26,11 @@ class ModuleStructure:
     def add_child(self, child: 'ModuleStructure'):
         self._children.append(child)
 
-    def children(self) -> List['ModuleStructure']:
+    def children(self) -> list['ModuleStructure']:
         return self._children
 
     def to_dict(self) -> dict:
-        def to_dict_internal(c: List[dict], psc: List['ModuleStructure']):
+        def to_dict_internal(c: list[dict], psc: list['ModuleStructure']):
             for p in psc:
                 nd = {"name": p.name, "children": []}
                 to_dict_internal(nd["children"], p.children())
@@ -43,7 +42,7 @@ class ModuleStructure:
         return result
 
 
-def build_module_structure(documents: List[nodes.document]) -> 'ModuleStructure':
+def build_module_structure(documents: list[nodes.document]) -> 'ModuleStructure':
     def build(mod_name: str, structure_: ModuleStructure):
         sp = mod_name.split(".")
         for i in structure_.children():

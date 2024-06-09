@@ -1,19 +1,18 @@
-from typing import List, Dict
 from docutils import nodes
 
 
 class TransformerBase:
 
     # pylint: disable=W0613
-    def __init__(self, documents: List[nodes.document], **kwargs):
-        self.documents: List[nodes.document] = documents
-        self.outputs: Dict = {}
+    def __init__(self, documents: list[nodes.document], **kwargs):
+        self.documents: list[nodes.document] = documents
+        self.outputs: dict = {}
 
     @classmethod
     def name(cls) -> str:
         raise NotImplementedError("Subclass must implement this method")
 
-    def get_outputs(self) -> Dict:
+    def get_outputs(self) -> dict:
         return self.outputs
 
     def apply(self, **kwargs):

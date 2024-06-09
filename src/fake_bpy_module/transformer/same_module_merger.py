@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -12,7 +11,7 @@ from ..utils import get_first_child, append_child
 
 class SameModuleMerger(TransformerBase):
 
-    def _merge(self, documents: List[nodes.document]) -> List[nodes.document]:
+    def _merge(self, documents: list[nodes.document]) -> list[nodes.document]:
         module_to_documents = {}
         for document in documents:
             module_node = get_first_child(document, ModuleNode)
@@ -25,7 +24,7 @@ class SameModuleMerger(TransformerBase):
             module_to_documents[module_name].append(document)
 
         # Combine document by the same module document.
-        results: List[nodes.document] = []
+        results: list[nodes.document] = []
         for module_name, docs in module_to_documents.items():
             new_doc: nodes.document = publish_doctree("")
             for doc in docs:

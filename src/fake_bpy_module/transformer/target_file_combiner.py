@@ -1,5 +1,4 @@
 import re
-from typing import List, Dict
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -18,14 +17,14 @@ from .utils import ModuleStructure, build_module_structure
 class GenerationInfoByModule:
     def __init__(self):
         self.target_filename: str = None
-        self.documents: List[nodes.document] = []
-        self.child_modules: List[str] = []
+        self.documents: list[nodes.document] = []
+        self.child_modules: list[str] = []
 
 
 class GenerationInfo:
     def __init__(self):
         # Key: Module name
-        self._info: Dict[str, GenerationInfoByModule] = {}
+        self._info: dict[str, GenerationInfoByModule] = {}
 
     def get(self, module_name: str) -> GenerationInfoByModule:
         if module_name not in self._info:
@@ -43,14 +42,14 @@ class GenerationInfo:
 
 class TargetFileCombiner(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs):
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
             self._package_structure = kwargs["package_structure"]
 
     def _build_generation_info(
-            self, documents: List[nodes.document],
+            self, documents: list[nodes.document],
             module_structure: ModuleStructure) -> GenerationInfoByModule:
         def find_target_file(
                 name: str, structure: ModuleStructure, target: str,
@@ -107,7 +106,7 @@ class TargetFileCombiner(TransformerBase):
             info.documents.append(document)
 
         # Combine document by the same targets.
-        results: List[nodes.document] = []
+        results: list[nodes.document] = []
         for mod_name in gen_info.modules():
             info = gen_info.get(mod_name)
             new_doc: nodes.document = publish_doctree("")

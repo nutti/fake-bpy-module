@@ -1,4 +1,3 @@
-from typing import List
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -21,7 +20,7 @@ from .target_file_combiner import TargetFileCombiner
 from .first_title_remover import FirstTitleRemover
 
 
-def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nodes.document]:
+def transform(documents: list[nodes.document], mod_files: list[str]) -> list[nodes.document]:
     t = Transformer([
         # Must before base_class_fixture
         "module_name_fixture",
@@ -59,17 +58,17 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
 
 
 class Transformer:
-    def __init__(self, transform_kinds: List[str], parameters: dict = None):
-        self.transform_kinds: List[str] = transform_kinds
+    def __init__(self, transform_kinds: list[str], parameters: dict = None):
+        self.transform_kinds: list[str] = transform_kinds
         self.init_parameters: dict = {}
         if parameters is not None:
             self.init_parameters = parameters
-        self.transformers: List[TransformerBase] = []
+        self.transformers: list[TransformerBase] = []
 
-    def get_transformers(self) -> List[TransformerBase]:
+    def get_transformers(self) -> list[TransformerBase]:
         return self.transformers
 
-    def transform(self, documents: List[nodes.document],
+    def transform(self, documents: list[nodes.document],
                   parameters: dict = None):
         transformer_specs = {
             BaseClassFixture.name(): {

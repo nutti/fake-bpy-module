@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List, TypeVar, Type
+from typing import TypeVar, Type
 from docutils import nodes
 
 
@@ -26,7 +26,7 @@ def check_os():
 
 
 def output_log(level: int, message: str):
-    LOG_LEVEL_LABEL: List[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]
+    LOG_LEVEL_LABEL: list[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]
     if level >= LOG_LEVEL:
         print(f"[{LOG_LEVEL_LABEL[level]}] {message}")
 
@@ -38,8 +38,8 @@ def remove_unencodable(str_: str) -> str:
     return s
 
 
-def find_children(node: nodes.Node, node_type: Type[T]) -> List[T]:
-    result: List[T] = []
+def find_children(node: nodes.Node, node_type: Type[T]) -> list[T]:
+    result: list[T] = []
     for child in node.children:
         if isinstance(child, node_type):
             result.append(child)
