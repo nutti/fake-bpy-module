@@ -1,4 +1,4 @@
-yapf==0.25.0
-ruff==0.1.9
-docutils==0.20.1
-Pygments==2.17.2
+yapf~=0.40.2
+ruff~=0.1.9
+docutils~=0.20.1
+Pygments~=2.17.2
