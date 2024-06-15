@@ -26,7 +26,7 @@
                     function_1 arg_readonly description
                 <default-value>
                 <data-type-list>
-                    <data-type option="readonly">
+                    <data-type option="never none,readonly">
                         int
             <argument argument_type="arg">
                 <name>
@@ -52,7 +52,7 @@
                     function_2 arg_1 description
                 <default-value>
                 <data-type-list>
-                    <data-type option="optional,readonly,never none">
+                    <data-type option="never none,optional,readonly">
                         int
         <return>
             <description>
