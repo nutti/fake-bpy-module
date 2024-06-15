@@ -299,7 +299,8 @@ class PyCodeWriterBase(BaseWriter):
                     for dtype_node in dtype_nodes:
                         if "option" not in dtype_node.attributes:
                             continue
-                        if "accept none" in dtype_node.attributes["option"]:
+                        if ("accept none" in dtype_node.attributes["option"] or
+                                "never none" not in dtype_node.attributes["option"]):
                             dtype_str = f"{dtype_str} | None"
                             break
 
@@ -480,7 +481,8 @@ class PyCodeWriterBase(BaseWriter):
             for dtype_node in dtype_nodes:
                 if "option" not in dtype_node.attributes:
                     continue
-                if "accept none" in dtype_node.attributes["option"]:
+                if ("accept none" in dtype_node.attributes["option"] or
+                        "never none" not in dtype_node.attributes["option"]):
                     dtype = f"{dtype} | None"
                     break
             wt.addln(f"{name_node.astext()}: {dtype}"

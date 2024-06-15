@@ -23,6 +23,9 @@ from ..analyzer.nodes import (
     DataTypeNode,
     make_data_type_node,
 )
+from ..analyzer.roles import (
+    ClassRef,
+)
 from ..utils import get_first_child, find_children, output_log, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG
 
 
@@ -65,6 +68,7 @@ REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|\s|\()[oO]ptional(\s|\))")
+_REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
 
 class EntryPoint:
@@ -480,9 +484,19 @@ class DataTypeRefiner(TransformerBase):
 
     def _get_data_type_options(
             self, dtype_str: str, module_name: str, variable_kind: str,
+            is_pointer_prop: bool = False,
             description_str: str = None,
             additional_info: Dict[str, typing.Any] = None) -> Tuple[List[str], str]:
         if module_name.startswith("bpy."):
+            option_results = []
+
+            # If not pointer property, should not accept None.
+            if variable_kind == 'CLS_ATTR':
+                if not is_pointer_prop:
+                    option_results.append("never none")
+            elif variable_kind == 'CONST':
+                option_results.append("never none")
+
             if m := _REGEX_DATA_TYPE_OPTION_STR.search(dtype_str):
                 option_str = m.group(1)
                 options = [sp.strip().lower() for sp in option_str.split(",")]
@@ -495,21 +509,28 @@ class DataTypeRefiner(TransformerBase):
 
                 # If there is unknown parameter options, we don't strip them from
                 # original string.
-                if has_unknown_option:
-                    return [], dtype_str
+                if not has_unknown_option:
+                    option_results.extend(options)
 
-                # Strip the unused string to speed up the later parsing process.
-                stripped = _REGEX_DATA_TYPE_OPTION_STR.sub("", dtype_str)
-                output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+                    # Strip the unused string to speed up the later parsing process.
+                    stripped = _REGEX_DATA_TYPE_OPTION_STR.sub("", dtype_str)
+                    output_log(LOG_LEVEL_DEBUG, f"Data type is stripped: {dtype_str} -> {stripped}")
+                    dtype_str = stripped
 
-                return options, stripped
+            # If readonly is specified, we should add never none as well.
+            if "readonly" in option_results:
+                option_results.append("never none")
+
+            option_results = sorted(list(set(option_results)))
 
             # Active object can accept None.
-            if variable_kind == 'CONST':
+            if variable_kind in ('CONST', 'CLS_ATTR'):
                 if additional_info["data_name"].startswith("active"):
-                    return ["accept none"], dtype_str
+                    if "never none" in option_results:
+                        option_results.remove("never none")
+                    option_results.append("accept none")
 
-            return [], dtype_str
+            return option_results, dtype_str
 
         # From this, we assumed non-bpy module.
 
@@ -527,6 +548,7 @@ class DataTypeRefiner(TransformerBase):
 
     def _get_refined_data_type(
             self, dtype_str: str, module_name: str, variable_kind: str,
+            is_pointer_prop: bool = False,
             description_str: str = None,
             additional_info: Dict[str, typing.Any] = None) -> List[DataTypeNode]:
 
@@ -534,16 +556,23 @@ class DataTypeRefiner(TransformerBase):
             'FUNC_ARG', 'FUNC_RET', 'CONST', 'CLS_ATTR', 'CLS_BASE')
 
         options, dtype_str_changed = self._get_data_type_options(
-            dtype_str, module_name, variable_kind, description_str, additional_info)
+            dtype_str, module_name, variable_kind,
+            is_pointer_prop=is_pointer_prop,
+            description_str=description_str, additional_info=additional_info)
 
         result = self._get_refined_data_type_internal(
-            dtype_str_changed, module_name, variable_kind, additional_info)
+            dtype_str_changed, module_name, variable_kind, additional_info=additional_info)
 
         # Add options.
         for r in result:
+            option_results = options.copy()
             if "option" in r.attributes:
-                options.extend(r.attributes["option"].split(","))
-            r.attributes["option"] = ",".join(options)
+                option_results.extend(r.attributes["option"].split(","))
+            # list object will not be None.
+            if variable_kind in ('CLS_ATTR', 'CONST') and "never none" not in option_results:
+                if _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION.match(r.to_string()):
+                    option_results.append("never none")
+            r.attributes["option"] = ",".join(option_results)
 
         output_log(
             LOG_LEVEL_DEBUG,
@@ -641,8 +670,26 @@ class DataTypeRefiner(TransformerBase):
                     skip_refine = "skip-refine" in mod_options
                 if skip_refine:
                     continue
+
+                is_pointer_prop = False
+                class_refs = find_children(dtype_node, ClassRef)
+                if len(class_refs) >= 1:
+                    is_pointer_prop = True
+                    # Omit collection property and non-bpy types.
+                    for class_ref in class_refs:
+                        if class_ref.to_string() in ("bpy_prop_collection", "bpy_prop_array"):
+                            is_pointer_prop = False
+                            break
+                        # Accept like :class:`Object`
+                        if module_name == "bpy.types" and class_ref.to_string().count(".") == 0:
+                            continue
+                        if not class_ref.to_string().startswith("bpy.types"):
+                            is_pointer_prop = False
+                            break
+
                 new_dtype_nodes.extend(self._get_refined_data_type(
                     dtype_node.astext(), module_name, variable_kind,
+                    is_pointer_prop=is_pointer_prop,
                     description_str=description_str,
                     additional_info=additional_info))
                 dtype_list_node.remove(dtype_node)
@@ -683,7 +730,7 @@ class DataTypeRefiner(TransformerBase):
             for attr_node in attr_nodes:
                 attr_name = attr_node.element(NameNode).astext()
                 dtype_list_node = attr_node.element(DataTypeListNode)
-                refine(dtype_list_node, module_name, 'CONST',
+                refine(dtype_list_node, module_name, 'CLS_ATTR',
                        additional_info={
                            "self_class": f"{module_name}.{class_name}",
                            "data_name": f"{attr_name}"
