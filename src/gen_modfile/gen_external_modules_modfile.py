@@ -234,6 +234,11 @@ def analyze_module(module_name: str, module) -> Dict:
             continue    # Remove indirect classes. (ex. from XXX import ZZZ)
         class_def = analyze_class(module_name, c)
 
+        # Only class _GenericUI is allowd in bpy_types module.
+        if module_name == "bpy_types":
+            if class_def["name"] != "_GenericUI":
+                continue
+
         # To avoid circular dependency, we remove classes whose base class is
         # defined in bpy.types module.
         has_bpy_types_base_class = False
