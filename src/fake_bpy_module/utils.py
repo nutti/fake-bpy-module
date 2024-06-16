@@ -25,7 +25,7 @@ def check_os():
     return ""
 
 
-def output_log(level: int, message: str):
+def output_log(level: int, message: str) -> None:
     LOG_LEVEL_LABEL: list[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]
     if level >= LOG_LEVEL:
         print(f"[{LOG_LEVEL_LABEL[level]}] {message}")

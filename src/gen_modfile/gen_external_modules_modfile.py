@@ -74,7 +74,7 @@ IGNORE_DOC_REGEX_LIST = {
 CLASS_DEFAULT_VALUE_REGEX = re.compile(r"<(.+)[^<]*>")
 
 
-def separator():
+def separator() -> str:
     if os.name == "nt":
         return "\\"
     return "/"
@@ -275,7 +275,7 @@ def analyze(modules: List) -> Dict:
     return results
 
 
-def write_description(f, description: str, indent: str):
+def write_description(f, description: str, indent: str) -> None:
     lines = description.split("\n")
     for line in lines:
         f.write("{}{}\n".format(indent, line))
@@ -283,7 +283,7 @@ def write_description(f, description: str, indent: str):
 
 
 # pylint: disable=C0209
-def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
     os.makedirs(config.output_dir, exist_ok=True)
     for module, d in data.items():
         for info in d["new"]:
@@ -347,7 +347,7 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
 
 
 # pylint: disable=C0209
-def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_json_modfile(data: Dict, config: 'GenerationConfig') -> None:
     os.makedirs(config.output_dir, exist_ok=True)
     for module, d in data.items():
         mod_filename = "{}/{}.json".format(config.output_dir, module)
@@ -355,7 +355,7 @@ def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
             json.dump(d, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 
-def write_to_modfile(info: Dict, config: 'GenerationConfig'):
+def write_to_modfile(info: Dict, config: 'GenerationConfig') -> None:
     data = {}
 
     for module_name, module_info in info.items():
@@ -444,7 +444,7 @@ def parse_options() -> 'GenerationConfig':
     return config
 
 
-def main():
+def main() -> None:
     config = parse_options()
 
     # Get modules to import.

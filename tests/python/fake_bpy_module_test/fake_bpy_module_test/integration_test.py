@@ -16,7 +16,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/integration_test_data/integration_test")
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
@@ -25,12 +25,12 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
         self.__setup_config()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
 
         shutil.rmtree(self.output_dir)
 
-    def __setup_config(self):
+    def __setup_config(self) -> None:
         config.set_output_dir(self.output_dir)
         config.set_os("Linux")
         config.set_style_format("ruff")
@@ -43,7 +43,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             return False
         return os.path.getsize(filepath) == 0
 
-    def test_single(self):
+    def test_single(self) -> None:
         rst_files = [
             f"{self.data_dir}/input/single/module_abc.rst",
         ]
@@ -76,7 +76,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
             self.assertFalse(self.__is_py_typed_exist(f"{self.output_dir}/py.typed"))
 
-    def test_multiple(self):
+    def test_multiple(self) -> None:
         rst_files = [
             f"{self.data_dir}/input/multiple/module_1.rst",
             f"{self.data_dir}/input/multiple/module_1.submodule_1.rst",
@@ -113,7 +113,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
             self.assertFalse(self.__is_py_typed_exist(f"{self.output_dir}/py.typed"))
 
-    def test_eceptional(self):
+    def test_eceptional(self) -> None:
         rst_files = [
             f"{self.data_dir}/input/exceptional/module_exceptional.rst",
         ]

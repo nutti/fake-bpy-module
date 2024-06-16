@@ -30,7 +30,7 @@ class UtilsTest(common.FakeBpyModuleTestBase):
     name = "UtilsTest"
     module_name = __module__
 
-    def test_check_os(self):
+    def test_check_os(self) -> None:
         to_osname = {
             "nt": "Windows",
             "posix": "Linux",
@@ -38,14 +38,14 @@ class UtilsTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(check_os(), to_osname[os.name])
 
-    def test_output_log(self):
+    def test_output_log(self) -> None:
         output_log(LOG_LEVEL_DEBUG, "Debug")
         output_log(LOG_LEVEL_INFO, "Info")
         output_log(LOG_LEVEL_NOTICE, "Notice")
         output_log(LOG_LEVEL_WARN, "Warning")
         output_log(LOG_LEVEL_ERR, "Error")
 
-    def test_remove_unencodable(self):
+    def test_remove_unencodable(self) -> None:
         original_string = "\xb2AAA\u2013BBB\u2019"
         expect = "AAABBB"
 
@@ -53,7 +53,7 @@ class UtilsTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(expect, actual)
 
-    def test_find_children(self):
+    def test_find_children(self) -> None:
         document: nodes.document = publish_doctree(""".. module:: module.a
 
 .. data:: DATA_1
@@ -70,7 +70,7 @@ class UtilsTest(common.FakeBpyModuleTestBase):
         self.assertEqual(data_nodes[0].element(NameNode).astext(), "DATA_1")
         self.assertEqual(data_nodes[1].element(NameNode).astext(), "DATA_2")
 
-    def test_get_find_children(self):
+    def test_get_find_children(self) -> None:
         document: nodes.document = publish_doctree(""".. module:: module.a
 
 .. data:: DATA_1
@@ -86,7 +86,7 @@ class UtilsTest(common.FakeBpyModuleTestBase):
 
         self.assertEqual(data_node.element(NameNode).astext(), "DATA_1")
 
-    def test_append_child(self):
+    def test_append_child(self) -> None:
         document: nodes.document = publish_doctree(""".. module:: module.a
 
 .. data:: DATA_1
@@ -117,7 +117,7 @@ class UtilsTest(common.FakeBpyModuleTestBase):
             <data-type-list>
 """)
 
-    def test_split_string_by_comma(self):
+    def test_split_string_by_comma(self) -> None:
         sp = split_string_by_comma("a, b")
         self.assertListEqual(sp, ["a", "b"])
 

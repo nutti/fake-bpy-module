@@ -213,7 +213,7 @@ def parse_options() -> 'GenerationConfig':
     return config
 
 
-def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
     with open(config.output_file, "w", encoding="utf-8") as f:
         f.write(".. mod-type:: new\n\n")
         f.write(".. module:: bgl\n\n")
@@ -235,19 +235,19 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                     f.write(f"   :type: {constant_info['data_type']}\n\n")
 
 
-def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_json_modfile(data: Dict, config: 'GenerationConfig') -> None:
     with open(config.output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 
-def write_to_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_modfile(data: Dict, config: 'GenerationConfig') -> None:
     if config.output_format == "rst":
         write_to_rst_modfile(data, config)
     elif config.output_format == "json":
         write_to_json_modfile(data, config)
 
 
-def main():
+def main() -> None:
     config = parse_options()
 
     # Analyze bgl.cc.

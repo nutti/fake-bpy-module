@@ -12,7 +12,7 @@ class FakeBpyModuleTestBase(unittest.TestCase):
     file_ = None
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         if cls.module_name is None:
             raise ValueError("module_name must set")
         if cls.name is None:
@@ -25,15 +25,15 @@ class FakeBpyModuleTestBase(unittest.TestCase):
         cls.file_ = open(filename, "w", encoding="utf-8")   # noqa # pylint: disable=R1732
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         cls.file_.close()
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.maxDiff = None     # pylint: disable=C0103
         self.log(f"========== Test: {self.id()} ==========")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def log(self, message):
+    def log(self, message) -> None:
         self.__class__.file_.write(message + "\n")

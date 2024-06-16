@@ -58,7 +58,7 @@ def transform(documents: list[nodes.document], mod_files: list[str]) -> list[nod
 
 
 class Transformer:
-    def __init__(self, transform_kinds: list[str], parameters: dict = None):
+    def __init__(self, transform_kinds: list[str], parameters: dict = None) -> None:
         self.transform_kinds: list[str] = transform_kinds
         self.init_parameters: dict = {}
         if parameters is not None:
@@ -69,7 +69,7 @@ class Transformer:
         return self.transformers
 
     def transform(self, documents: list[nodes.document],
-                  parameters: dict = None):
+                  parameters: dict = None) -> list[nodes.document]:
         transformer_specs = {
             BaseClassFixture.name(): {
                 "class": BaseClassFixture,

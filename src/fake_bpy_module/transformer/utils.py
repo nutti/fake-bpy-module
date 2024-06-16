@@ -17,17 +17,17 @@ class ModuleStructure:
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
 
-    def add_child(self, child: 'ModuleStructure'):
+    def add_child(self, child: 'ModuleStructure') -> None:
         self._children.append(child)
 
     def children(self) -> list['ModuleStructure']:
         return self._children
 
     def to_dict(self) -> dict:
-        def to_dict_internal(c: list[dict], psc: list['ModuleStructure']):
+        def to_dict_internal(c: list[dict], psc: list['ModuleStructure']) -> None:
             for p in psc:
                 nd = {"name": p.name, "children": []}
                 to_dict_internal(nd["children"], p.children())
@@ -40,7 +40,7 @@ class ModuleStructure:
 
 
 def build_module_structure(documents: list[nodes.document]) -> 'ModuleStructure':
-    def build(mod_name: str, structure_: ModuleStructure):
+    def build(mod_name: str, structure_: ModuleStructure) -> None:
         sp = mod_name.split(".")
         for i in structure_.children():
             if i.name == sp[0]:
@@ -78,15 +78,15 @@ def get_base_name(data_type: str) -> str:
     return sp[-1]
 
 
-def get_module_name(data_type: str, module_structure: ModuleStructure) -> str:
+def get_module_name(data_type: str, module_structure: ModuleStructure) -> str | None:
     if data_type is None:
         return None
 
     module_names = data_type.split(".")[:-1]
 
     def search(
-            mod_names, structure: ModuleStructure, dtype: str,
-            is_first_level: bool = False):
+            mod_names: list[str], structure: ModuleStructure, dtype: str,
+            is_first_level: bool = False) -> str:
         if len(mod_names) == 0:
             return dtype
         for s in structure.children():

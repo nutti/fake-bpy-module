@@ -28,16 +28,16 @@ class CodeWriterIndentTest(common.FakeBpyModuleTestBase):
     name = "CodeWriterIndentTest"
     module_name = __module__
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         CodeWriterIndent.reset_indent()
 
-    def test_single(self):
+    def test_single(self) -> None:
         with CodeWriterIndent() as _:
             self.assertEqual(CodeWriterIndent.current_indent(), 0)
 
-    def test_multiple(self):
+    def test_multiple(self) -> None:
         with CodeWriterIndent():
             self.assertEqual(CodeWriterIndent.current_indent(), 0)
 
@@ -49,7 +49,7 @@ class CodeWriterIndentTest(common.FakeBpyModuleTestBase):
             with CodeWriterIndent(2) as _:
                 self.assertEqual(CodeWriterIndent.current_indent(), 2)
 
-    def test_add_current_level(self):
+    def test_add_current_level(self) -> None:
         with CodeWriterIndent(1):
             self.assertEqual(CodeWriterIndent.current_indent(), 1)
 
@@ -61,7 +61,7 @@ class CodeWriterIndentTest(common.FakeBpyModuleTestBase):
         with CodeWriterIndent(1, True):
             self.assertEqual(CodeWriterIndent.current_indent(), 1)
 
-    def test_call_classmethod(self):
+    def test_call_classmethod(self) -> None:
         CodeWriterIndent.add_indent(0)
 
         self.assertEqual(CodeWriterIndent.current_indent(), 0)
@@ -86,19 +86,19 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/code_writer_test")
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_writer_test_output"
         os.makedirs(self.output_dir, exist_ok=False)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
 
         shutil.rmtree(self.output_dir)
 
-    def test_normal(self):
+    def test_normal(self) -> None:
         with open(self.output_file_path, "w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
@@ -122,7 +122,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.log(actual_contents)
         self.assertEqual(expect_contents, actual_contents)
 
-    def test_with_code_indent(self):
+    def test_with_code_indent(self) -> None:
         with open(self.output_file_path, "w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
@@ -151,7 +151,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.log(actual_contents)
         self.assertEqual(expect_contents, actual_contents)
 
-    def test_with_reset(self):
+    def test_with_reset(self) -> None:
         with open(self.output_file_path, "w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
@@ -179,7 +179,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.log(actual_contents)
         self.assertEqual(expect_contents, actual_contents)
 
-    def test_get_data_as_string(self):
+    def test_get_data_as_string(self) -> None:
         writer = CodeWriter()
 
         writer.addln("import module_1")
@@ -203,21 +203,21 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/sorted_entry_point_nodes_test")
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.__setup_config()
 
-    def __setup_config(self):
+    def __setup_config(self) -> None:
         config.set_target("blender")
         config.set_target_version("2.80")
 
-    def compare_with_file_contents(self, actual: str, expect_file: str):
+    def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
         with open(expect_file, "r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         rst_files = ["basic.rst"]
         expect_analyzed_files = ["basic.xml"]
         expect_sorted_files = ["basic_sorted.xml"]
@@ -242,7 +242,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
             self.compare_with_file_contents(sorted_document.pformat(), expect)
 
-    def test_high_priority_class(self):
+    def test_high_priority_class(self) -> None:
         rst_files = ["high_priority_class.rst"]
         expect_analyzed_files = ["high_priority_class.xml"]
         expect_sorted_files = ["high_priority_class_sorted.xml"]
@@ -269,7 +269,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
             self.compare_with_file_contents(sorted_document.pformat(), expect)
 
-    def test_base_class_dependency(self):
+    def test_base_class_dependency(self) -> None:
         rst_files = ["base_class_dependency.rst"]
         expect_analyzed_files = ["base_class_dependency.xml"]
         expect_sorted_files = ["base_class_dependency_sorted.xml"]
@@ -307,24 +307,24 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
     file_extension: str = ""
     output_file: str = "py_code_writer_test_output"
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/{self.output_file}"
         os.makedirs(self.output_dir, exist_ok=False)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
 
         shutil.rmtree(self.output_dir)
 
-    def compare_with_file_contents(self, actual: str, expect_file: str):
+    def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
         with open(expect_file, "r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
-    def test_class(self):
+    def test_class(self) -> None:
         rst_files = ["class.rst"]
         expect_analyzed_files = ["class.xml"]
         expect_generated_files = [f"class.{self.file_extension}"]
@@ -357,7 +357,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
-    def test_function(self):
+    def test_function(self) -> None:
         rst_files = ["function.rst"]
         expect_analyzed_files = ["function.xml"]
         expect_generated_files = [f"function.{self.file_extension}"]
@@ -391,7 +391,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
-    def test_data(self):
+    def test_data(self) -> None:
         rst_files = ["data.rst"]
         expect_analyzed_files = ["data.xml"]
         expect_generated_files = [f"data.{self.file_extension}"]
@@ -424,7 +424,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
-    def test_dependencies(self):
+    def test_dependencies(self) -> None:
         rst_files = ["dependencies.rst"]
         expect_analyzed_files = ["dependencies.xml"]
         expect_transformed_files = ["dependencies_transformed.xml"]
@@ -483,7 +483,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
-    def test_children(self):
+    def test_children(self) -> None:
         rst_files = ["children.rst"]
         expect_analyzed_files = ["children.xml"]
         expect_transformed_files = [
@@ -548,7 +548,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
-    def test_deprecated(self):
+    def test_deprecated(self) -> None:
         rst_files = ["deprecated.rst"]
         expect_analyzed_files = ["deprecated.xml"]
         expect_generated_files = [f"deprecated.{self.file_extension}"]
@@ -623,24 +623,24 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
     data_dir = os.path.abspath(
         f"{os.path.dirname(__file__)}/generator_test_data/code_document_node_translator_test")
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_document_node_translator_test_output"
         os.makedirs(self.output_dir, exist_ok=False)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
 
         shutil.rmtree(self.output_dir)
 
-    def compare_with_file_contents(self, actual: str, expect_file: str):
+    def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
         with open(expect_file, "r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         rst_files = ["basic.rst"]
         expect_analyzed_files = ["basic.xml"]
         expect_transformed_files = ["basic_transformed.xml"]

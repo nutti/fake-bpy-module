@@ -20,13 +20,13 @@ class Configuration:
         raise NotImplementedError("Not allowed to call constructor")
 
     @classmethod
-    def __internal_new(cls):
+    def __internal_new(cls) -> 'Configuration':
         inst = super().__new__(cls)
 
         return inst
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> 'Configuration':
         if not cls.__inst:
             with cls.__lock:
                 if not cls.__inst:
@@ -35,37 +35,37 @@ class Configuration:
         return cls.__inst
 
 
-def set_output_dir(output_dir: str):
+def set_output_dir(output_dir: str) -> None:
     inst = Configuration.get_instance()
     inst.output_dir = output_dir
 
 
-def set_os(os: str):
+def set_os(os: str) -> None:
     inst = Configuration.get_instance()
     inst.os = os
 
 
-def set_style_format(style_format: str):
+def set_style_format(style_format: str) -> None:
     inst = Configuration.get_instance()
     inst.style_format = style_format
 
 
-def set_target(target: str):
+def set_target(target: str) -> None:
     inst = Configuration.get_instance()
     inst.target = target
 
 
-def set_target_version(target_version: str):
+def set_target_version(target_version: str) -> None:
     inst = Configuration.get_instance()
     inst.target_version = target_version
 
 
-def set_mod_version(mod_version: str):
+def set_mod_version(mod_version: str) -> None:
     inst = Configuration.get_instance()
     inst.mod_version = mod_version
 
 
-def set_output_format(output_format: str):
+def set_output_format(output_format: str) -> None:
     inst = Configuration.get_instance()
     inst.output_format = output_format
 
