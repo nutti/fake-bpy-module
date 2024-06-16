@@ -3,7 +3,7 @@ import typing
 
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     AttributeListNode,
@@ -22,16 +22,15 @@ from ..analyzer.nodes import (
     NameNode,
     make_data_type_node,
 )
-from ..analyzer.roles import (
-    ClassRef,
-)
-from ..utils import (
+from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
     find_children,
     get_first_child,
     output_log,
 )
+
 from .transformer_base import TransformerBase
 
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")

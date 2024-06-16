@@ -2,7 +2,7 @@ import re
 
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     AttributeListNode,
@@ -19,7 +19,7 @@ from ..analyzer.nodes import (
     NameNode,
     make_data_type_node,
 )
-from ..utils import (
+from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
     append_child,
@@ -27,6 +27,7 @@ from ..utils import (
     get_first_child,
     output_log,
 )
+
 from .transformer_base import TransformerBase
 
 

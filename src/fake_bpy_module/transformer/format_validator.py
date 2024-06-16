@@ -1,6 +1,6 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     AttributeListNode,
@@ -21,11 +21,8 @@ from ..analyzer.nodes import (
     NameNode,
     SourceFilenameNode,
 )
-from ..analyzer.roles import (
-    ClassRef,
-    ModuleRef,
-    RefRef,
-)
+from fake_bpy_module.analyzer.roles import ClassRef, ModuleRef, RefRef
+
 from .transformer_base import TransformerBase
 
 

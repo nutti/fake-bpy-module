@@ -1,5 +1,5 @@
-import unittest
 import os
+import unittest
 
 LOG_DIR = "fake_bpy_module_test.log"
 

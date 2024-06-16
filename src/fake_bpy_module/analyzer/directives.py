@@ -4,11 +4,9 @@ import re
 from docutils import nodes
 from docutils.parsers import rst
 
-from .. import config
-from ..utils import (
-    append_child,
-    split_string_by_comma,
-)
+from fake_bpy_module import config
+from fake_bpy_module.utils import append_child, split_string_by_comma
+
 from .nodes import (
     ArgumentListNode,
     ArgumentNode,

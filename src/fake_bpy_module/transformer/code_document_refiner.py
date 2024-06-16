@@ -1,9 +1,8 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
-    CodeDocumentNode,
-)
-from ..utils import append_child, find_children
+from fake_bpy_module.analyzer.nodes import CodeDocumentNode
+from fake_bpy_module.utils import append_child, find_children
+
 from .transformer_base import TransformerBase
 
 

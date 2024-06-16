@@ -1,10 +1,7 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
-    CodeDocumentNode,
-    CodeNode,
-)
-from ..analyzer.roles import (
+from fake_bpy_module.analyzer.nodes import CodeDocumentNode, CodeNode
+from fake_bpy_module.analyzer.roles import (
     ClassRef,
     ConstRef,
     DataRef,
@@ -13,6 +10,7 @@ from ..analyzer.roles import (
     ModuleRef,
     RefRef,
 )
+
 from .code_writer import (
     CodeWriter,
     CodeWriterIndent,

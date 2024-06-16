@@ -3,14 +3,15 @@ import re
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ChildModuleListNode,
     ChildModuleNode,
     ModuleNode,
     NameNode,
     TargetFileNode,
 )
-from ..utils import append_child, get_first_child
+from fake_bpy_module.utils import append_child, get_first_child
+
 from .transformer_base import TransformerBase
 from .utils import ModuleStructure, build_module_structure
 

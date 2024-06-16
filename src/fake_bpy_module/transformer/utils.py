@@ -1,10 +1,7 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-)
-from ..utils import get_first_child
+from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode
+from fake_bpy_module.utils import get_first_child
 
 
 class ModuleStructure:

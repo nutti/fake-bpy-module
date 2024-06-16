@@ -2,7 +2,7 @@ import re
 
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     BaseClassListNode,
     BaseClassNode,
     ClassNode,
@@ -10,7 +10,8 @@ from ..analyzer.nodes import (
     DataTypeNode,
     NameNode,
 )
-from ..utils import find_children, split_string_by_comma
+from fake_bpy_module.utils import find_children, split_string_by_comma
+
 from .transformer_base import TransformerBase
 
 

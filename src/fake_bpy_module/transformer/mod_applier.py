@@ -1,7 +1,7 @@
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     AttributeListNode,
@@ -21,7 +21,8 @@ from ..analyzer.nodes import (
     ModuleNode,
     NameNode,
 )
-from ..utils import append_child, find_children, get_first_child
+from fake_bpy_module.utils import append_child, find_children, get_first_child
+
 from .base_class_fixture import BaseClassFixture
 from .transformer_base import TransformerBase
 

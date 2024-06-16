@@ -1,6 +1,6 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     AttributeListNode,
     AttributeNode,
     ClassNode,
@@ -10,13 +10,14 @@ from ..analyzer.nodes import (
     NameNode,
     make_data_type_node,
 )
-from ..utils import (
+from fake_bpy_module.utils import (
     LOG_LEVEL_WARN,
     append_child,
     find_children,
     get_first_child,
     output_log,
 )
+
 from .transformer_base import TransformerBase
 
 

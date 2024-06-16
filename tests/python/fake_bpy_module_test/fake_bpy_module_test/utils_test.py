@@ -1,26 +1,27 @@
 import os
+
 from docutils import nodes
 from docutils.core import publish_doctree
-
-from fake_bpy_module.analyzer.nodes import (    # pylint: disable=E0401
+from fake_bpy_module.analyzer.nodes import (  # pylint: disable=E0401
     DataNode,
-    NameNode,
     FunctionNode,
+    NameNode,
 )
-from fake_bpy_module.utils import (     # pylint: disable=E0401
-    check_os,
-    output_log,
-    remove_unencodable,
+from fake_bpy_module.utils import (  # pylint: disable=E0401
     LOG_LEVEL_DEBUG,
+    LOG_LEVEL_ERR,
     LOG_LEVEL_INFO,
     LOG_LEVEL_NOTICE,
     LOG_LEVEL_WARN,
-    LOG_LEVEL_ERR,
+    append_child,
+    check_os,
     find_children,
     get_first_child,
-    append_child,
+    output_log,
+    remove_unencodable,
     split_string_by_comma,
 )
+
 from . import common
 
 

@@ -2,13 +2,10 @@ import os
 
 from docutils import nodes
 
-from .. import config
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-    SourceFilenameNode,
-)
-from ..utils import get_first_child
+from fake_bpy_module import config
+from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode, SourceFilenameNode
+from fake_bpy_module.utils import get_first_child
+
 from .transformer_base import TransformerBase
 
 

@@ -1,11 +1,9 @@
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-)
-from ..utils import append_child, get_first_child
+from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode
+from fake_bpy_module.utils import append_child, get_first_child
+
 from .transformer_base import TransformerBase
 
 

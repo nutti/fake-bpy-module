@@ -1,16 +1,15 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ClassNode,
     DataNode,
     FunctionNode,
     ModuleNode,
     NameNode,
 )
-from ..analyzer.roles import (
-    ClassRef,
-)
-from ..utils import find_children, get_first_child
+from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.utils import find_children, get_first_child
+
 from .transformer_base import TransformerBase
 from .utils import build_module_structure, get_base_name, get_module_name
 

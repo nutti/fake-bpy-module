@@ -1,24 +1,25 @@
-import shutil
 import os
+import shutil
+
 from docutils import nodes
 from docutils.core import publish_doctree
-
-from fake_bpy_module.analyzer.analyzer import BaseAnalyzer      # pylint: disable=E0401
-from fake_bpy_module.transformer.transformer import Transformer     # pylint: disable=E0401
-from fake_bpy_module.transformer.utils import ModuleStructure       # pylint: disable=E0401
-from fake_bpy_module.generator.writers import (     # pylint: disable=E0401
-    sorted_entry_point_nodes,
+from fake_bpy_module import config  # pylint: disable=E0401
+from fake_bpy_module.analyzer.analyzer import BaseAnalyzer  # pylint: disable=E0401
+from fake_bpy_module.generator.code_writer import (  # pylint: disable=E0401
+    CodeWriter,
+    CodeWriterIndent,
+)
+from fake_bpy_module.generator.writers import (  # pylint: disable=E0401
     BaseWriter,
+    JsonWriter,
     PyCodeWriter,
     PyInterfaceWriter,
-    JsonWriter,
+    sorted_entry_point_nodes,
 )
-from fake_bpy_module.generator.code_writer import (     # pylint: disable=E0401
-    CodeWriterIndent,
-    CodeWriter,
-)
-from fake_bpy_module import config  # pylint: disable=E0401
-from fake_bpy_module.utils import append_child      # pylint: disable=E0401
+from fake_bpy_module.transformer.transformer import Transformer  # pylint: disable=E0401
+from fake_bpy_module.transformer.utils import ModuleStructure  # pylint: disable=E0401
+from fake_bpy_module.utils import append_child  # pylint: disable=E0401
+
 from . import common
 
 

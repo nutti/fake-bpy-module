@@ -1,10 +1,8 @@
 from docutils import nodes
 
-from ..analyzer.nodes import (
-    AttributeNode,
-    DataNode,
-)
-from ..utils import append_child, find_children
+from fake_bpy_module.analyzer.nodes import AttributeNode, DataNode
+from fake_bpy_module.utils import append_child, find_children
+
 from .transformer_base import TransformerBase
 
 

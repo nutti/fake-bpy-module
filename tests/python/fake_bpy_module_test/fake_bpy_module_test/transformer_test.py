@@ -1,19 +1,21 @@
 import os
 from typing import List
+
 from docutils import nodes
 from docutils.core import publish_doctree
+from fake_bpy_module import config
+from fake_bpy_module.analyzer.analyzer import BaseAnalyzer
+from fake_bpy_module.transformer.data_type_refiner import EntryPoint
+from fake_bpy_module.transformer.transformer import Transformer
 
 # pylint: disable=E0401
-from fake_bpy_module.analyzer.analyzer import BaseAnalyzer
-from fake_bpy_module.transformer.transformer import Transformer
 from fake_bpy_module.transformer.utils import (
     ModuleStructure,
     build_module_structure,
     get_base_name,
     get_module_name,
 )
-from fake_bpy_module.transformer.data_type_refiner import EntryPoint
-from fake_bpy_module import config
+
 from . import common
 
 

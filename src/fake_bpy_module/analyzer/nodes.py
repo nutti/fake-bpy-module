@@ -2,7 +2,8 @@ from typing import Type, TypeVar
 
 from docutils import nodes
 
-from ..utils import append_child
+from fake_bpy_module.utils import append_child
+
 from .roles import ClassRef
 
 T = TypeVar("T", bound=nodes.Node)

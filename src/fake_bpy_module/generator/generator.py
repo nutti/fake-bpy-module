@@ -2,11 +2,10 @@ import pathlib
 
 from docutils import nodes
 
-from .. import config
-from ..analyzer.nodes import (
-    TargetFileNode,
-)
-from ..utils import get_first_child
+from fake_bpy_module import config
+from fake_bpy_module.analyzer.nodes import TargetFileNode
+from fake_bpy_module.utils import get_first_child
+
 from .writers import (
     BaseWriter,
     JsonWriter,

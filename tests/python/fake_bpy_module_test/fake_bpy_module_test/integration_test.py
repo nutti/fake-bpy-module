@@ -1,10 +1,11 @@
-import shutil
 import os
+import shutil
 
-from fake_bpy_module.analyzer.analyzer import analyze   # pylint: disable=E0401
-from fake_bpy_module.transformer.transformer import transform   # pylint: disable=E0401
-from fake_bpy_module.generator.generator import generate    # pylint: disable=E0401
 from fake_bpy_module import config  # pylint: disable=E0401
+from fake_bpy_module.analyzer.analyzer import analyze  # pylint: disable=E0401
+from fake_bpy_module.generator.generator import generate  # pylint: disable=E0401
+from fake_bpy_module.transformer.transformer import transform  # pylint: disable=E0401
+
 from . import common
 
 

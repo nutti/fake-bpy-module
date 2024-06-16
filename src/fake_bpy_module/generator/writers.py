@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 from docutils import nodes
 
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     AttributeListNode,
@@ -30,7 +30,8 @@ from ..analyzer.nodes import (
     NameNode,
     NodeBase,
 )
-from ..utils import find_children, get_first_child, remove_unencodable
+from fake_bpy_module.utils import find_children, get_first_child, remove_unencodable
+
 from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
 
