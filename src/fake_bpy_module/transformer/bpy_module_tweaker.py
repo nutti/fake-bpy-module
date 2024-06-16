@@ -1,33 +1,33 @@
 import re
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ClassNode,
-    DataNode,
-    DataTypeListNode,
-    DataTypeNode,
-    ModuleNode,
-    FunctionNode,
-    NameNode,
-    ArgumentNode,
     ArgumentListNode,
-    DefaultValueNode,
+    ArgumentNode,
     AttributeListNode,
     AttributeNode,
     BaseClassListNode,
     BaseClassNode,
+    ClassNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
+    FunctionNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
 )
-
 from ..utils import (
-    find_children,
-    get_first_child,
-    append_child,
-    output_log,
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
+    append_child,
+    find_children,
+    get_first_child,
+    output_log,
 )
+from .transformer_base import TransformerBase
 
 
 class BpyModuleTweaker(TransformerBase):

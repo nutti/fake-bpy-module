@@ -2,17 +2,16 @@ import pathlib
 
 from docutils import nodes
 
+from .. import config
 from ..analyzer.nodes import (
     TargetFileNode,
 )
 from ..utils import get_first_child
-from .. import config
-
 from .writers import (
     BaseWriter,
+    JsonWriter,
     PyCodeWriter,
     PyInterfaceWriter,
-    JsonWriter,
 )
 
 

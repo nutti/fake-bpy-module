@@ -1,16 +1,16 @@
 from docutils import nodes
 
 from ..analyzer.nodes import (
-    CodeNode,
     CodeDocumentNode,
+    CodeNode,
 )
 from ..analyzer.roles import (
-    ModuleRef,
     ClassRef,
-    FunctionRef,
-    MethodRef,
     ConstRef,
     DataRef,
+    FunctionRef,
+    MethodRef,
+    ModuleRef,
     RefRef,
 )
 from .code_writer import (

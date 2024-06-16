@@ -1,32 +1,32 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ModuleNode,
-    ClassNode,
-    FunctionNode,
-    DataNode,
-    NameNode,
-    SourceFilenameNode,
-    DescriptionNode,
-    AttributeListNode,
-    AttributeNode,
-    DataTypeListNode,
-    DataTypeNode,
-    FunctionListNode,
-    BaseClassListNode,
-    BaseClassNode,
     ArgumentListNode,
     ArgumentNode,
-    FunctionReturnNode,
-    DefaultValueNode,
+    AttributeListNode,
+    AttributeNode,
+    BaseClassListNode,
+    BaseClassNode,
+    ClassNode,
     CodeDocumentNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
+    ModuleNode,
+    NameNode,
+    SourceFilenameNode,
 )
 from ..analyzer.roles import (
-    ModuleRef,
     ClassRef,
+    ModuleRef,
     RefRef,
 )
+from .transformer_base import TransformerBase
 
 
 class FormatValidator(TransformerBase):

@@ -1,8 +1,9 @@
-from typing import TypeVar, Type
+from typing import Type, TypeVar
+
 from docutils import nodes
 
-from .roles import ClassRef
 from ..utils import append_child
+from .roles import ClassRef
 
 T = TypeVar("T", bound=nodes.Node)
 

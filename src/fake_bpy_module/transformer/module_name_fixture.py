@@ -1,14 +1,15 @@
 import os
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
+from .. import config
 from ..analyzer.nodes import (
     ModuleNode,
-    SourceFilenameNode,
     NameNode,
+    SourceFilenameNode,
 )
 from ..utils import get_first_child
-from .. import config
+from .transformer_base import TransformerBase
 
 
 class ModuleNameFixture(TransformerBase):

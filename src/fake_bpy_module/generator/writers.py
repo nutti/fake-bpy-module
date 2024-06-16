@@ -3,35 +3,36 @@ import copy
 import graphlib
 import json
 from collections import OrderedDict
+
 from docutils import nodes
 
 from ..analyzer.nodes import (
-    NameNode,
-    ClassNode,
-    FunctionListNode,
-    FunctionNode,
-    DataNode,
-    DataTypeListNode,
-    DataTypeNode,
     ArgumentListNode,
     ArgumentNode,
-    FunctionReturnNode,
     AttributeListNode,
     AttributeNode,
     BaseClassListNode,
     BaseClassNode,
-    NodeBase,
-    DefaultValueNode,
-    DescriptionNode,
     ChildModuleListNode,
     ChildModuleNode,
+    ClassNode,
+    CodeDocumentNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
     DependencyListNode,
     DependencyNode,
-    CodeDocumentNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
+    NameNode,
+    NodeBase,
 )
+from ..utils import find_children, get_first_child, remove_unencodable
 from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
-from ..utils import find_children, get_first_child, remove_unencodable
 
 
 def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:

@@ -31,16 +31,16 @@
 #
 ##############################################################################
 
-import sys
+import argparse
+import importlib
 import inspect
+import json
 import os
 import re
-import importlib
-import json
-import argparse
-from typing import List, Dict
-import bpy      # pylint: disable=E0401
+import sys
+from typing import Dict, List
 
+import bpy  # pylint: disable=E0401
 
 EXCLUDE_MODULE_LIST = {
     "bl_i18n_utils.settings_user",

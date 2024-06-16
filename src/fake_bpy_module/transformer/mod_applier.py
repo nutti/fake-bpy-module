@@ -1,29 +1,29 @@
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from .transformer_base import TransformerBase
-from .base_class_fixture import BaseClassFixture
 from ..analyzer.nodes import (
-    ModuleNode,
-    DataNode,
-    FunctionNode,
-    ClassNode,
-    NameNode,
     ArgumentListNode,
     ArgumentNode,
-    FunctionReturnNode,
-    FunctionListNode,
     AttributeListNode,
     AttributeNode,
     BaseClassListNode,
     BaseClassNode,
-    ModTypeNode,
-    DataTypeNode,
+    ClassNode,
+    DataNode,
     DataTypeListNode,
-    DescriptionNode,
+    DataTypeNode,
     DefaultValueNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
+    ModTypeNode,
+    ModuleNode,
+    NameNode,
 )
-from ..utils import get_first_child, append_child, find_children
+from ..utils import append_child, find_children, get_first_child
+from .base_class_fixture import BaseClassFixture
+from .transformer_base import TransformerBase
 
 
 class ModApplier(TransformerBase):

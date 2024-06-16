@@ -1,6 +1,5 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from .base_class_fixture import BaseClassFixture
 from .bpy_context_variable_converter import BpyContextVariableConverter
 from .bpy_module_tweaker import BpyModuleTweaker
@@ -10,6 +9,7 @@ from .data_type_refiner import DataTypeRefiner
 from .default_value_filler import DefaultValueFiller
 from .dependency_builder import DependencyBuilder
 from .duplicated_function_arguments_remover import DuplicatedFunctionArgumentsRemover
+from .first_title_remover import FirstTitleRemover
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
@@ -17,7 +17,7 @@ from .module_name_fixture import ModuleNameFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
 from .same_module_merger import SameModuleMerger
 from .target_file_combiner import TargetFileCombiner
-from .first_title_remover import FirstTitleRemover
+from .transformer_base import TransformerBase
 
 
 def transform(documents: list[nodes.document], mod_files: list[str]) -> list[nodes.document]:

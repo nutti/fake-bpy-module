@@ -1,18 +1,18 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
+    ClassNode,
+    DataNode,
+    FunctionNode,
     ModuleNode,
     NameNode,
-    ClassNode,
-    FunctionNode,
-    DataNode,
 )
 from ..analyzer.roles import (
     ClassRef,
 )
-from ..utils import get_first_child, find_children
-from .utils import get_base_name, get_module_name, build_module_structure
+from ..utils import find_children, get_first_child
+from .transformer_base import TransformerBase
+from .utils import build_module_structure, get_base_name, get_module_name
 
 
 class CannonicalDataTypeRewriter(TransformerBase):

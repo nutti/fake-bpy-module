@@ -1,16 +1,17 @@
 import re
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ClassNode,
     BaseClassListNode,
     BaseClassNode,
+    ClassNode,
     DataTypeListNode,
     DataTypeNode,
     NameNode,
 )
 from ..utils import find_children, split_string_by_comma
+from .transformer_base import TransformerBase
 
 
 class BaseClassFixture(TransformerBase):

@@ -1,35 +1,35 @@
 import ast
 import re
-from docutils.parsers import rst
-from docutils import nodes
 
-from .nodes import (
-    ModuleNode,
-    ClassNode,
-    BaseClassListNode,
-    BaseClassNode,
-    DataNode,
-    AttributeNode,
-    AttributeListNode,
-    FunctionNode,
-    FunctionListNode,
-    ArgumentNode,
-    ArgumentListNode,
-    DefaultValueNode,
-    FunctionReturnNode,
-    NameNode,
-    DescriptionNode,
-    DataTypeNode,
-    DataTypeListNode,
-    CodeNode,
-    ModTypeNode,
-    make_data_type_node,
-)
+from docutils import nodes
+from docutils.parsers import rst
 
 from .. import config
 from ..utils import (
     append_child,
     split_string_by_comma,
+)
+from .nodes import (
+    ArgumentListNode,
+    ArgumentNode,
+    AttributeListNode,
+    AttributeNode,
+    BaseClassListNode,
+    BaseClassNode,
+    ClassNode,
+    CodeNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
+    ModTypeNode,
+    ModuleNode,
+    NameNode,
+    make_data_type_node,
 )
 
 _ARG_REPLACE_1_REGEX = re.compile(r"<class '([a-zA-Z]+?)'>")

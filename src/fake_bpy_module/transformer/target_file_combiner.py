@@ -1,16 +1,17 @@
 import re
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
+    ChildModuleListNode,
+    ChildModuleNode,
     ModuleNode,
     NameNode,
     TargetFileNode,
-    ChildModuleListNode,
-    ChildModuleNode,
 )
-from ..utils import get_first_child, append_child
+from ..utils import append_child, get_first_child
+from .transformer_base import TransformerBase
 from .utils import ModuleStructure, build_module_structure
 
 

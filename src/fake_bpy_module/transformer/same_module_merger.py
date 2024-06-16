@@ -1,12 +1,12 @@
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     ModuleNode,
     NameNode,
 )
-from ..utils import get_first_child, append_child
+from ..utils import append_child, get_first_child
+from .transformer_base import TransformerBase
 
 
 class SameModuleMerger(TransformerBase):

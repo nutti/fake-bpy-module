@@ -1,11 +1,11 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     CodeDocumentNode,
     CodeNode,
 )
 from ..utils import append_child
+from .transformer_base import TransformerBase
 
 
 class RstSpecificNodeCleaner(TransformerBase):

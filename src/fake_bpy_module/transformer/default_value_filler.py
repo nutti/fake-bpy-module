@@ -1,15 +1,15 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    FunctionNode,
     ArgumentListNode,
     ArgumentNode,
     DataTypeListNode,
     DataTypeNode,
     DefaultValueNode,
+    FunctionNode,
 )
 from ..utils import find_children
+from .transformer_base import TransformerBase
 
 
 class DefaultValueFiller(TransformerBase):

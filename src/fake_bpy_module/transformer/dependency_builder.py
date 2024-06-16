@@ -1,20 +1,25 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
     ClassNode,
-    FunctionNode,
     DataNode,
     DependencyListNode,
     DependencyNode,
+    FunctionNode,
+    ModuleNode,
+    NameNode,
 )
 from ..analyzer.roles import (
     ClassRef,
 )
-from ..utils import get_first_child, find_children, append_child
-from .utils import ModuleStructure, get_module_name, get_base_name, build_module_structure
+from ..utils import append_child, find_children, get_first_child
+from .transformer_base import TransformerBase
+from .utils import (
+    ModuleStructure,
+    build_module_structure,
+    get_base_name,
+    get_module_name,
+)
 
 
 class Dependency:

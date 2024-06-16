@@ -1,17 +1,23 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
+    AttributeListNode,
+    AttributeNode,
     ClassNode,
     DataNode,
     DataTypeListNode,
-    AttributeListNode,
-    AttributeNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
 )
-from ..utils import append_child, get_first_child, find_children, output_log, LOG_LEVEL_WARN
+from ..utils import (
+    LOG_LEVEL_WARN,
+    append_child,
+    find_children,
+    get_first_child,
+    output_log,
+)
+from .transformer_base import TransformerBase
 
 
 class BpyContextVariableConverter(TransformerBase):

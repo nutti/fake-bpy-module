@@ -1,32 +1,38 @@
 import re
 import typing
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-    DescriptionNode,
-    ClassNode,
-    FunctionListNode,
-    FunctionNode,
     ArgumentListNode,
     ArgumentNode,
-    FunctionReturnNode,
     AttributeListNode,
     AttributeNode,
     BaseClassListNode,
     BaseClassNode,
+    ClassNode,
     DataNode,
     DataTypeListNode,
     DataTypeNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
 )
 from ..analyzer.roles import (
     ClassRef,
 )
-from ..utils import get_first_child, find_children, output_log, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG
-
+from ..utils import (
+    LOG_LEVEL_DEBUG,
+    LOG_LEVEL_WARN,
+    find_children,
+    get_first_child,
+    output_log,
+)
+from .transformer_base import TransformerBase
 
 REGEX_MATCH_DATA_TYPE_PAIR = re.compile(r"^\((.*)\) pair$")
 REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+),$")

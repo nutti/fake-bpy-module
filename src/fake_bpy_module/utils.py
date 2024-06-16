@@ -1,8 +1,8 @@
 import os
 import re
-from typing import TypeVar, Type
-from docutils import nodes
+from typing import Type, TypeVar
 
+from docutils import nodes
 
 _ARG_LIST_WITH_BRACE_REGEX = re.compile(r"^\[([a-zA-Z0-9_,]+)\]$")
 

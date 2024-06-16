@@ -1,4 +1,5 @@
 from threading import Lock
+
 from .utils import check_os
 
 

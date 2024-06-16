@@ -1,10 +1,10 @@
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from ..analyzer.nodes import (
     CodeDocumentNode,
 )
-from ..utils import find_children, append_child
+from ..utils import append_child, find_children
+from .transformer_base import TransformerBase
 
 
 class CodeDocumentRefiner(TransformerBase):

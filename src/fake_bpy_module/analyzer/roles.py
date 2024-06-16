@@ -1,5 +1,5 @@
-from docutils.parsers.rst import roles
 from docutils import nodes
+from docutils.parsers.rst import roles
 
 
 class PythonAPIRef(nodes.Inline, nodes.TextElement):

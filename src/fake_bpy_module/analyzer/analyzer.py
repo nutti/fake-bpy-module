@@ -1,13 +1,12 @@
 import os
 import re
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from . import directives
-from . import readers
-from . import roles
+from ..utils import LOG_LEVEL_DEBUG, output_log
+from . import directives, readers, roles
 from .nodes import SourceFilenameNode
-from ..utils import output_log, LOG_LEVEL_DEBUG
 
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
 
