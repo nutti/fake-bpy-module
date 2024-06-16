@@ -8,13 +8,13 @@ from .transformer_base import TransformerBase
 
 class RstSpecificNodeCleaner(TransformerBase):
 
-    def _replace(self, from_node: nodes.Node, to_node: nodes.Node):
+    def _replace(self, from_node: nodes.Node, to_node: nodes.Node) -> None:
         parent = from_node.parent
         index = from_node.parent.index(from_node)
         parent.remove(from_node)
         parent.insert(index, to_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         # Move to the upper node under the section node.
         for section_node in document.traverse(nodes.section):
             parent = section_node.parent
@@ -48,6 +48,6 @@ class RstSpecificNodeCleaner(TransformerBase):
     def name(cls) -> str:
         return "rst_specific_node_cleaner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)

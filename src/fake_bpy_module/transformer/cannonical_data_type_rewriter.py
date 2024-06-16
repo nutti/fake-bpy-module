@@ -16,7 +16,7 @@ from .utils import build_module_structure, get_base_name, get_module_name
 
 class CannonicalDataTypeRewriter(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
         super().__init__(documents, **kwargs)
 
         self._package_structure = None
@@ -142,7 +142,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
     def name(cls) -> str:
         return "cannonical_data_type_rewriter"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         if self._package_structure is None:
             self._package_structure = build_module_structure(self.documents)
 

@@ -7,7 +7,7 @@ from .transformer_base import TransformerBase
 
 
 class ModuleLevelAttributeFixture(TransformerBase):
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         attribute_nodes = find_children(document, AttributeNode)
 
         nodes_to_remove = []
@@ -29,6 +29,6 @@ class ModuleLevelAttributeFixture(TransformerBase):
     def name(cls) -> str:
         return "module_level_attribute_fixture"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)

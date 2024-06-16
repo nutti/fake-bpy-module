@@ -19,7 +19,7 @@ class BaseClassFixture(TransformerBase):
     _BASE_CLASS_REGEX = re.compile(r"^base (class|classes) --- (.*)")
 
     # Remove same base class with parent class.
-    def _remove_self_parent_class(self, document: nodes.document):
+    def _remove_self_parent_class(self, document: nodes.document) -> None:
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
             class_name = class_node.element(NameNode).astext()
@@ -35,7 +35,7 @@ class BaseClassFixture(TransformerBase):
                 if dtype_list_node.empty():
                     base_class_list_node.remove(base_class_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         paragraphs = document.findall(nodes.paragraph)
         for para in paragraphs:
             m = self._BASE_CLASS_REGEX.match(para.astext())
@@ -60,7 +60,7 @@ class BaseClassFixture(TransformerBase):
     def name(cls) -> str:
         return "base_class_fixture"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)
             self._remove_self_parent_class(document)

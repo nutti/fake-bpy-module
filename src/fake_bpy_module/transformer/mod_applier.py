@@ -33,7 +33,7 @@ class ModApplier(TransformerBase):
         return self.mod_documents
 
     def _mod_update_data(self, data_nodes: list[DataNode],
-                         mod_data_nodes: list[DataNode]):
+                         mod_data_nodes: list[DataNode]) -> None:
         for mod_data_node in mod_data_nodes:
             mod_data_name_node = mod_data_node.element(NameNode)
             for data_node in data_nodes:
@@ -50,7 +50,7 @@ class ModApplier(TransformerBase):
 
     # pylint: disable=R0914,R1702
     def _mod_update_function(self, func_nodes: list[FunctionNode],
-                             mod_func_nodes: list[FunctionNode]):
+                             mod_func_nodes: list[FunctionNode]) -> None:
         for mod_func_node in mod_func_nodes:
             mod_func_name_node = mod_func_node.element(NameNode)
             mod_arg_list_node = mod_func_node.element(ArgumentListNode)
@@ -105,7 +105,7 @@ class ModApplier(TransformerBase):
 
     # pylint: disable=R0914,R1702
     def _mod_update_class(self, class_nodes: list[ClassNode],
-                          mod_class_nodes: list[ClassNode]):
+                          mod_class_nodes: list[ClassNode]) -> None:
         for mod_class_node in mod_class_nodes:
             mod_class_name_node = mod_class_node.element(NameNode)
             mod_class_name = mod_class_name_node.astext()
@@ -202,7 +202,7 @@ class ModApplier(TransformerBase):
                         base_class_list_node.append_child(mod_base_class_node)
 
     def _mod_append_function(self, func_nodes: list[FunctionNode],
-                             mod_func_nodes: list[FunctionNode]):
+                             mod_func_nodes: list[FunctionNode]) -> None:
         for mod_func_node in mod_func_nodes:
             mod_func_name_node = mod_func_node.element(NameNode)
             mod_arg_list_node = mod_func_node.element(ArgumentListNode)
@@ -222,7 +222,7 @@ class ModApplier(TransformerBase):
                     break
 
     # pylint: disable=R0914
-    def _mod_append_class(self, class_nodes: list[ClassNode], mod_class_nodes: list[ClassNode]):
+    def _mod_append_class(self, class_nodes: list[ClassNode], mod_class_nodes: list[ClassNode]) -> None:
         for mod_class_node in mod_class_nodes:
             mod_class_name_node = mod_class_node.element(NameNode)
             mod_class_name = mod_class_name_node.astext()
@@ -274,7 +274,7 @@ class ModApplier(TransformerBase):
                 for mod_base_class_node in mod_base_class_nodes:
                     base_class_list_node.append_child(mod_base_class_node)
 
-    def __init__(self, documents: list[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
         super().__init__(documents, **kwargs)
         self.mod_files = kwargs["mod_files"]
         self.mod_documents = []
@@ -283,7 +283,7 @@ class ModApplier(TransformerBase):
     def name(cls) -> str:
         return "mod_applier"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         self.mod_documents = []
 
         if self.mod_files is None:

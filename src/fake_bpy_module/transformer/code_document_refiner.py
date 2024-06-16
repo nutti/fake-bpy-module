@@ -7,7 +7,7 @@ from .transformer_base import TransformerBase
 
 
 class CodeDocumentRefiner(TransformerBase):
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         # Merge CodeDocumentNode.
         doc_nodes = find_children(document, CodeDocumentNode)
         new_doc_node = CodeDocumentNode()
@@ -38,6 +38,6 @@ class CodeDocumentRefiner(TransformerBase):
     def name(cls) -> str:
         return "code_document_refiner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)

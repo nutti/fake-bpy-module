@@ -17,14 +17,14 @@ from .utils import ModuleStructure, build_module_structure
 
 
 class GenerationInfoByModule:
-    def __init__(self):
+    def __init__(self) -> None:
         self.target_filename: str = None
         self.documents: list[nodes.document] = []
         self.child_modules: list[str] = []
 
 
 class GenerationInfo:
-    def __init__(self):
+    def __init__(self) -> None:
         # Key: Module name
         self._info: dict[str, GenerationInfoByModule] = {}
 
@@ -44,7 +44,7 @@ class GenerationInfo:
 
 class TargetFileCombiner(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
@@ -145,7 +145,7 @@ class TargetFileCombiner(TransformerBase):
     def name(cls) -> str:
         return "target_file_combiner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         if self._package_structure is None:
             structure = build_module_structure(self.documents)
         else:

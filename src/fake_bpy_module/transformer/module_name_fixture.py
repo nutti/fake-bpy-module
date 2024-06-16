@@ -11,7 +11,7 @@ from .transformer_base import TransformerBase
 
 class ModuleNameFixture(TransformerBase):
 
-    def _no_module(self, document: nodes.document):
+    def _no_module(self, document: nodes.document) -> bool:
         module_node = get_first_child(document, ModuleNode)
         if module_node is not None:
             return False
@@ -31,7 +31,7 @@ class ModuleNameFixture(TransformerBase):
     def name(cls) -> str:
         return "module_name_fixture"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents[:]:
             if self._no_module(document):
                 self.documents.remove(document)

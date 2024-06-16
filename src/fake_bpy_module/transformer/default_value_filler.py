@@ -15,7 +15,7 @@ from .transformer_base import TransformerBase
 
 class DefaultValueFiller(TransformerBase):
 
-    def _fill(self, document: nodes.document):
+    def _fill(self, document: nodes.document) -> None:
         func_nodes = document.findall(FunctionNode)
         for func_node in func_nodes:
             arg_list_node = func_node.element(ArgumentListNode)
@@ -82,6 +82,6 @@ class DefaultValueFiller(TransformerBase):
     def name(cls) -> str:
         return "default_value_filler"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._fill(document)

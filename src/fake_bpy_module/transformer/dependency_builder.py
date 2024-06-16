@@ -22,7 +22,7 @@ from .utils import (
 
 
 class Dependency:
-    def __init__(self):
+    def __init__(self) -> None:
         self._mod_name: str = None
         self._type_lists: list[str] = []
 
@@ -43,13 +43,13 @@ class Dependency:
                 "At least 1 element must be added to type lists")
         return self._type_lists
 
-    def add_type(self, type_: str):
+    def add_type(self, type_: str) -> None:
         self._type_lists.append(type_)
 
 
 class DependencyBuilder(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
@@ -119,7 +119,7 @@ class DependencyBuilder(TransformerBase):
 
     def _add_dependency(self, dependencies: list[Dependency],
                         module_structure: ModuleStructure,
-                        data_type_1: str, data_type_2: str):
+                        data_type_1: str, data_type_2: str) -> None:
 
         mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
         base = get_base_name(data_type_1)
@@ -187,7 +187,7 @@ class DependencyBuilder(TransformerBase):
     def name(cls) -> str:
         return "dependency_builder"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         if self._package_structure is None:
             structure = build_module_structure(self.documents)
         else:

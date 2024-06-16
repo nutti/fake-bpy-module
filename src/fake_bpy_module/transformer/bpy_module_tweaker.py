@@ -33,7 +33,7 @@ from .transformer_base import TransformerBase
 
 class BpyModuleTweaker(TransformerBase):
 
-    def _make_bpy_prop_functions_arguments_kwonlyargs(self, document: nodes.document):
+    def _make_bpy_prop_functions_arguments_kwonlyargs(self, document: nodes.document) -> None:
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
         if module_name != "bpy.props":
             return
@@ -45,7 +45,7 @@ class BpyModuleTweaker(TransformerBase):
             for arg_node in arg_nodes:
                 arg_node.attributes["argument_type"] = "kwonlyarg"
 
-    def _add_bpy_app_handlers_functions_data_types(self, document: nodes.document):
+    def _add_bpy_app_handlers_functions_data_types(self, document: nodes.document) -> None:
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
         if module_name != "bpy.app.handlers":
             return
@@ -59,7 +59,7 @@ class BpyModuleTweaker(TransformerBase):
             data_type_list_node.insert(
                 0, make_data_type_node("list of callable[`bpy.types.Scene`]"))
 
-    def _add_bpy_ops_override_parameters(self, document: nodes.document):
+    def _add_bpy_ops_override_parameters(self, document: nodes.document) -> None:
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
         if not module_name.startswith("bpy.ops"):
             return
@@ -98,7 +98,7 @@ class BpyModuleTweaker(TransformerBase):
                 make_data_type_node("bool"))
             arg_list_node.insert(2, arg_node)
 
-    def _rebase_bpy_types_class_base_class(self, document: nodes.document):
+    def _rebase_bpy_types_class_base_class(self, document: nodes.document) -> None:
         module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
         if not module_name.startswith("bpy.types"):
             return
@@ -140,7 +140,7 @@ class BpyModuleTweaker(TransformerBase):
                 f"`bpy_prop_collection` of `{child}`, (readonly)"))
             bc_list_node.append_child(bc_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
             return
@@ -158,6 +158,6 @@ class BpyModuleTweaker(TransformerBase):
     def name(cls) -> str:
         return "bpy_module_tweaker"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)

@@ -43,7 +43,7 @@ class SameModuleMerger(TransformerBase):
     def name(cls) -> str:
         return "same_module_merger"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         new_documents = self._merge(self.documents)
 
         self.documents.clear()

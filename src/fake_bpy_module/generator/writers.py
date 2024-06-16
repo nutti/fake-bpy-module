@@ -34,6 +34,7 @@ from fake_bpy_module.utils import find_children, get_first_child, remove_unencod
 
 from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
+from typing import NoReturn
 
 
 def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
@@ -103,16 +104,16 @@ def make_union(dtype_nodes: list[DataTypeNode]) -> str:
 
 
 class BaseWriter(metaclass=abc.ABCMeta):
-    def __init__(self):
+    def __init__(self) -> None:
         self.file_format = ""
 
     @abc.abstractmethod
-    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff'):
+    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff') -> None:
         raise NotImplementedError()
 
 
 class PyCodeWriterBase(BaseWriter):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._writer: CodeWriter = CodeWriter()
@@ -126,7 +127,7 @@ class PyCodeWriterBase(BaseWriter):
         self.file_format = "py"
 
     # pylint: disable=R0912
-    def _write_function_code(self, func_node: FunctionNode):
+    def _write_function_code(self, func_node: FunctionNode) -> None:
         func_name = func_node.element(NameNode).astext()
         arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
         return_node = func_node.element(FunctionReturnNode)
@@ -243,7 +244,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
-    def _write_class_code(self, class_node: ClassNode):
+    def _write_class_code(self, class_node: ClassNode) -> None:
         wt = self._writer
 
         base_class_list_node = class_node.element(BaseClassListNode)
@@ -467,7 +468,7 @@ class PyCodeWriterBase(BaseWriter):
                 wt.addln(self.ellipsis_strings["class"])
                 wt.new_line(2)
 
-    def _write_constant_code(self, data_node: DataNode):
+    def _write_constant_code(self, data_node: DataNode) -> None:
         wt = self._writer
 
         name_node = data_node.element(NameNode)
@@ -496,7 +497,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln("'''")
         wt.new_line(2)
 
-    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff'):
+    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff') -> None:
         # At first, sort data to avoid generating large diff.
         # Note: Base class must be located above derived class
         sorted_data = sorted_entry_point_nodes(document)
@@ -560,7 +561,7 @@ class PyCodeWriterBase(BaseWriter):
 
 
 class PyCodeWriter(PyCodeWriterBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.ellipsis_strings = {
@@ -574,7 +575,7 @@ class PyCodeWriter(PyCodeWriterBase):
 
 
 class PyInterfaceWriter(PyCodeWriterBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.ellipsis_strings = {
@@ -588,7 +589,7 @@ class PyInterfaceWriter(PyCodeWriterBase):
 
 
 class JsonWriter(BaseWriter):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.file_format = "json"
@@ -703,7 +704,7 @@ class JsonWriter(BaseWriter):
 
         return class_data
 
-    def write(self, filename: str, document: nodes.document, style_config: str = 'none'):
+    def write(self, filename: str, document: nodes.document, style_config: str = 'none') -> None:
         sorted_data = sorted_entry_point_nodes(document)
 
         json_data = []

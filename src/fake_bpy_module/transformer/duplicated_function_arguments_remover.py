@@ -16,7 +16,7 @@ from .transformer_base import TransformerBase
 
 
 class DuplicatedFunctionArgumentsRemover(TransformerBase):
-    def _remove_duplicated_arguments(self, func_node: FunctionNode):
+    def _remove_duplicated_arguments(self, func_node: FunctionNode) -> None:
         arg_list_node = func_node.element(ArgumentListNode)
         arg_nodes = find_children(arg_list_node, ArgumentNode)
         exist_arg_names = set()
@@ -27,7 +27,7 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
             else:
                 exist_arg_names.add(arg_name)
 
-    def _remove_duplicated_attributes(self, class_node: ClassNode):
+    def _remove_duplicated_attributes(self, class_node: ClassNode) -> None:
         attr_list_node = class_node.element(AttributeListNode)
         attr_nodes = find_children(attr_list_node, AttributeNode)
         exist_attr_names = set()
@@ -38,7 +38,7 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
             else:
                 exist_attr_names.add(attr_name)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
             func_list_node = class_node.element(FunctionListNode)
@@ -55,6 +55,6 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
     def name(cls) -> str:
         return "duplicated_function_arguments_remover"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         for document in self.documents:
             self._apply(document)

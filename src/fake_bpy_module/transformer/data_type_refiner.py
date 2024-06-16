@@ -77,7 +77,7 @@ _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
 
 class EntryPoint:
-    def __init__(self, module: str, name: str, type_: str):
+    def __init__(self, module: str, name: str, type_: str) -> None:
         self.module: str = module
         self.name: str = name
         self.type: str = type_
@@ -88,7 +88,7 @@ class EntryPoint:
 
 class DataTypeRefiner(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
         super().__init__(documents, **kwargs)
         self._entry_points = None
         if "entry_points" in kwargs:
