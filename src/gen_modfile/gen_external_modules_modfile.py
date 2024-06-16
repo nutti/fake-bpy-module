@@ -31,6 +31,8 @@
 #
 ##############################################################################
 
+# ruff: noqa: UP032
+
 import argparse
 import importlib
 import inspect

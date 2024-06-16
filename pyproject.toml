@@ -46,7 +46,7 @@ where = ["."]
 target-version = "py39"
 line-length = 88
 exclude = [
-    "tests/**/*_test_data/*",
+    "tests/python/fake_bpy_module_test/fake_bpy_module_test/*_test_data/*",
 ]
 
 [tool.ruff.lint]
