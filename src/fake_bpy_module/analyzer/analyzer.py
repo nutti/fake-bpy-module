@@ -4,7 +4,8 @@ import re
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from ..utils import LOG_LEVEL_DEBUG, output_log
+from fake_bpy_module.utils import LOG_LEVEL_DEBUG, output_log
+
 from . import directives, readers, roles
 from .nodes import SourceFilenameNode
 
