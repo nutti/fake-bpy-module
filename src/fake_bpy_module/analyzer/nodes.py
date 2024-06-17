@@ -1,3 +1,4 @@
+import abc
 from typing import Type, TypeVar
 
 from docutils import nodes
@@ -10,19 +11,19 @@ T = TypeVar("T", bound=nodes.Node)
 
 
 class NodeBase(nodes.Element):
-    def append_child(self, item: nodes.Node):
+    def append_child(self, item: nodes.Node) -> None:
         self.insert(len(self.children), item)
 
 
 class UniqueElementNode(NodeBase):
     # pylint: disable=W1113
     def __init__(self, rawsource: str = "", *children: nodes.Node,
-                 **attributes):
+                 **attributes) -> None:
         super().__init__(rawsource, *children, **attributes)
 
         self.elements = {}
 
-    def append_child(self, item: nodes.Node):
+    def append_child(self, item: nodes.Node) -> None:
         super().insert(len(self.children), item)
         self.elements[type(item)] = item
 
@@ -36,13 +37,15 @@ class UniqueElementNode(NodeBase):
             new_obj.elements[type(child)] = child
         return new_obj
 
-    def remove(self, item):
+    @abc.abstractmethod
+    def remove(self, item: nodes.Node) -> None:
         raise ValueError("Don't call remove directly, and use replace instead.")
 
-    def insert(self, index, item):
+    @abc.abstractmethod
+    def insert(self, index: int, item: nodes.Node) -> None:
         raise ValueError("Don't call insert directly, and use replace instead.")
 
-    def replace_node(self, item: nodes.Node):
+    def replace_node(self, item: nodes.Node) -> None:
         node_type = type(item)
         old = self.elements[node_type]
 
@@ -58,7 +61,7 @@ class ListNode(NodeBase, nodes.Sequential):
 
 
 class TextNode(nodes.TextElement):
-    def add_text(self, text: str):
+    def add_text(self, text: str) -> None:
         self.insert(len(self.children), nodes.Text(text))
 
 
@@ -91,10 +94,10 @@ class DataTypeNode(TextNode, nodes.Part):
     tagname = "data-type"
     child_text_separator = ""
 
-    def astext(self):
+    def astext(self) -> str:
         return "".join(c.astext() for c in self.children)
 
-    def to_string(self):
+    def to_string(self) -> str:
         s = ""
         for c in self.children:
             if isinstance(c, nodes.Text):

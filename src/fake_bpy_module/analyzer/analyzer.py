@@ -21,7 +21,7 @@ def analyze(rst_files: list[str]) -> list[nodes.document]:
 
 
 class BaseAnalyzer:
-    def __init__(self):
+    def __init__(self) -> None:
         directives.register_directives()
         roles.register_roles()
 

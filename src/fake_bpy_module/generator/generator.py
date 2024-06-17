@@ -14,7 +14,7 @@ from .writers import (
 )
 
 
-def generate(documents: list[nodes.document]):
+def generate(documents: list[nodes.document]) -> None:
     # Create module directories.
     for doc in documents:
         target_filename = get_first_child(doc, TargetFileNode).astext()

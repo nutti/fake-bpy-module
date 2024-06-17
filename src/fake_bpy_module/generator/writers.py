@@ -34,7 +34,6 @@ from fake_bpy_module.utils import find_children, get_first_child, remove_unencod
 
 from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
-from typing import NoReturn
 
 
 def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
@@ -604,7 +603,7 @@ class JsonWriter(BaseWriter):
 
         return cleaned
 
-    def _create_function_json_data(self, func_node: FunctionNode):
+    def _create_function_json_data(self, func_node: FunctionNode) -> dict:
         func_data = {
             "type": "function",
             "name": func_node.element(NameNode).astext(),
@@ -646,7 +645,7 @@ class JsonWriter(BaseWriter):
 
         return func_data
 
-    def _create_constant_json_data(self, data_node: DataNode):
+    def _create_constant_json_data(self, data_node: DataNode) -> dict:
         data_data = {
             "type": "data",
             "name": data_node.element(NameNode).astext(),
@@ -665,7 +664,7 @@ class JsonWriter(BaseWriter):
 
         return data_data
 
-    def _create_class_json_data(self, class_node: ClassNode):
+    def _create_class_json_data(self, class_node: ClassNode) -> dict:
         class_data = {
             "type": "class",
             "name": class_node.element(NameNode).astext(),

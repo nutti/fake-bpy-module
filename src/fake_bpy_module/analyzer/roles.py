@@ -48,7 +48,7 @@ class OtherRef(PythonAPIRef):
     tagname = "other-ref"
 
 
-def register_roles():
+def register_roles() -> None:
     roles.register_local_role("class", roles.GenericRole("class", ClassRef))
     roles.register_local_role("meth", roles.GenericRole("meth", MethodRef))
     roles.register_local_role("py:meth", roles.GenericRole("py:meth", MethodRef))

@@ -36,7 +36,7 @@ _ARG_REPLACE_3_REGEX = re.compile(r"\\")
 _ARG_LIST_FROM_FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
 
 
-def parse_function_def(content) -> str:
+def parse_function_def(content: str) -> str:
     content = _ARG_REPLACE_1_REGEX.sub("\\1", content)
     content = _ARG_REPLACE_2_REGEX.sub("\\1", content)
     content = _ARG_REPLACE_3_REGEX.sub("", content)
@@ -88,7 +88,7 @@ def parse_function_def(content) -> str:
 
 
 # pylint: disable=R0911
-def parse_func_arg_default_value(expr: ast.expr):
+def parse_func_arg_default_value(expr: ast.expr) -> str | None:
     if expr is None:
         return None
 
@@ -225,7 +225,7 @@ class ModuleDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list[ModuleNode]:
         paragraph_node = nodes.paragraph()
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
@@ -265,7 +265,7 @@ class ClassDirective(rst.Directive):
     _CLASS_NAME_WITH_ARGS_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
     _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)")
 
-    def run(self):
+    def run(self) -> list[ClassNode]:
         paragraph_node = nodes.paragraph()
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
@@ -324,7 +324,7 @@ class DataDirective(rst.Directive):
     _DATA_NAME_REGEX = re.compile(r"([0-9a-zA-Z_]+)")
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s*(\S*)")
 
-    def run(self):
+    def run(self) -> list[DataNode]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -379,7 +379,7 @@ class FunctionDirective(rst.Directive):
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(
         r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)")
 
-    def run(self):
+    def run(self) -> list[FunctionNode]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -500,7 +500,7 @@ class LiteralIncludeDirective(rst.Directive):
         "lines": rst.directives.unchanged
     }
 
-    def run(self):
+    def run(self) -> list[CodeNode]:
         path: str = self.arguments[0]
         code_node: CodeNode = CodeNode(text=path)
 
@@ -512,7 +512,7 @@ class NopDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list:
         return []
 
 
@@ -521,7 +521,7 @@ class ModTypeDirective(rst.Directive):
     final_argument_whitespace = False
     has_content = False
 
-    def run(self):
+    def run(self) -> list[ModTypeNode]:
         mod_type: str = self.arguments[0]
         mod_type_node: ModTypeNode = ModTypeNode(text=mod_type)
 
@@ -559,7 +559,7 @@ class BaseClassDirective(rst.Directive):
         return [base_class_list_node]
 
 
-def register_directives():
+def register_directives() -> None:
     rst.directives.register_directive("module", ModuleDirective)
     rst.directives.register_directive("currentmodule", ModuleDirective)
     rst.directives.register_directive("class", ClassDirective)

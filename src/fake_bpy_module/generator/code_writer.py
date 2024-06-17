@@ -7,11 +7,11 @@ from yapf.yapflib.yapf_api import FormatCode
 class CodeWriterIndent:
     indent_stack: list[int] = [0]
 
-    def __init__(self, indent: int = 0, append_current_indent: bool = False):
+    def __init__(self, indent: int = 0, append_current_indent: bool = False) -> None:
         self._indent: int = indent
         self._append_current_indent = append_current_indent
 
-    def __enter__(self):
+    def __enter__(self) -> "CodeWriterIndent":
         cls = self.__class__
         cls.add_indent(self._indent, self._append_current_indent)
 
@@ -22,11 +22,11 @@ class CodeWriterIndent:
         cls.remove_indent()
 
     @classmethod
-    def reset_indent(cls):
+    def reset_indent(cls) -> None:
         cls.indent_stack = [0]
 
     @classmethod
-    def add_indent(cls, indent: int = 0, append_current_indent: bool = False):
+    def add_indent(cls, indent: int = 0, append_current_indent: bool = False) -> None:
         if append_current_indent:
             if len(cls.indent_stack) == 0:
                 cls.indent_stack.append(indent)
@@ -36,7 +36,7 @@ class CodeWriterIndent:
             cls.indent_stack.append(indent)
 
     @classmethod
-    def remove_indent(cls):
+    def remove_indent(cls) -> None:
         cls.indent_stack.pop()
 
     @classmethod
@@ -47,12 +47,12 @@ class CodeWriterIndent:
 class CodeWriter:
     INDENT = "    "
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._code_data: io.StringIO = io.StringIO()
         self._buffer: io.StringIO = io.StringIO()
         CodeWriterIndent.reset_indent()
 
-    def add(self, code: str, new_line: bool = False):
+    def add(self, code: str, new_line: bool = False) -> None:
         self._buffer.write(code)
         if new_line:
             indent = CodeWriterIndent.current_indent()
@@ -61,10 +61,10 @@ class CodeWriter:
             self._code_data.write("\n")
             self._buffer = io.StringIO()
 
-    def addln(self, code: str):
+    def addln(self, code: str) -> None:
         self.add(code, True)
 
-    def new_line(self, num: int = 1):
+    def new_line(self, num: int = 1) -> None:
         if self._buffer.tell() > 0:
             indent = CodeWriterIndent.current_indent()
             self._code_data.write(self.INDENT * indent)
@@ -72,18 +72,18 @@ class CodeWriter:
             self._buffer = io.StringIO()
         self._code_data.write("\n" * num)
 
-    def write(self, file: io.TextIOWrapper):
+    def write(self, file: io.TextIOWrapper) -> None:
         file.write(self._code_data.getvalue())
 
     def get_data_as_string(self) -> str:
         return self._code_data.getvalue()
 
-    def reset(self):
+    def reset(self) -> None:
         self._code_data = io.StringIO()
         self._buffer = io.StringIO()
         CodeWriterIndent.reset_indent()
 
-    def format(self, style_config: str, file_format: str):
+    def format(self, style_config: str, file_format: str) -> None:
         if style_config == "yapf":
             self._code_data = io.StringIO(FormatCode(
                 self._code_data.getvalue(), style_config="pep8")[0])
