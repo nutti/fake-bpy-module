@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -1272,7 +1271,7 @@ class UtilsTest(TransformerTestBase):
     module_name = __module__
 
     def test_build_module_structure(self) -> None:
-        documents: List[nodes.document] = []
+        documents: list[nodes.document] = []
         documents.append(publish_doctree(".. module:: module_1"))
         documents.append(publish_doctree(".. module:: module_1.submodule_1"))
         documents.append(publish_doctree(".. module:: module_1.submodule_2"))

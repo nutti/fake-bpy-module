@@ -5,11 +5,11 @@ import unittest
 
 
 class FakeBpyModuleTestConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.modules_path = ""
 
 
-def parse_options(config: FakeBpyModuleTestConfig):
+def parse_options(config: FakeBpyModuleTestConfig) -> None:
     usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
@@ -20,7 +20,7 @@ def parse_options(config: FakeBpyModuleTestConfig):
         config.modules_path = args.modules_path
 
 
-def main():
+def main() -> None:
     config = FakeBpyModuleTestConfig()
     parse_options(config)
 

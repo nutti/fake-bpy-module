@@ -1,25 +1,22 @@
-import os
-import sys
 import argparse
-import unittest
 import glob
+import inspect
+import os
 import re
 import shutil
-import inspect
-
-from typing import List
-
+import sys
+import unittest
 
 TESTS_TEMPLATE_FILE = "template.py.tpl"
 GENERATED_TESTS_DIR = "generated_tests"
 
 
 class ImportModuleTestConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.modules_path = ""
 
 
-def parse_options(config: ImportModuleTestConfig):
+def parse_options(config: ImportModuleTestConfig) -> None:
     usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
@@ -54,7 +51,7 @@ def generate_tests(config: ImportModuleTestConfig) -> list:
                      encoding="utf-8")
 
     def replace_template_content(
-            content: List[str], module_name: str) -> List[str]:
+            content: list[str], module_name: str) -> list[str]:
         output = []
         for line in content:
             line = re.sub(
@@ -111,7 +108,7 @@ def run_tests(test_cases: list) -> bool:
     return ret
 
 
-def main():
+def main() -> None:
     # Parse options.
     config = ImportModuleTestConfig()
     parse_options(config)
