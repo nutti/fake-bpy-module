@@ -26,7 +26,7 @@ class ModuleLevelAttributeFixture(TransformerBase):
             append_child(document, node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["ModuleLevelAttributeFixture"]) -> str:
         return "module_level_attribute_fixture"
 
     def apply(self, **kwargs) -> None:

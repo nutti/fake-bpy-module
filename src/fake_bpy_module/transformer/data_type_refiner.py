@@ -659,10 +659,10 @@ class DataTypeRefiner(TransformerBase):
 
         return []
 
-    def _refine(self, document: nodes.document):
+    def _refine(self, document: nodes.document) -> None:    # noqa: PLR0915, C901
         def refine(dtype_list_node: DataTypeListNode, module_name: str,
-                   variable_kind: str, description_str: str = None,
-                   additional_info: dict[str, typing.Any] = None):
+                   variable_kind: str, description_str: str | None = None,
+                   additional_info: dict[str, typing.Any] = None) -> None:
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             new_dtype_nodes = []
 
@@ -778,7 +778,7 @@ class DataTypeRefiner(TransformerBase):
     def name(cls) -> str:
         return "data_type_refiner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs) -> None:
         if self._entry_points is None:
             self._entry_points = self._build_entry_points(self.documents)
 

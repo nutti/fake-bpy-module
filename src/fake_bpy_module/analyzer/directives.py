@@ -94,7 +94,7 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
 
     if isinstance(expr, ast.Constant):
         if isinstance(expr.value, str):
-            return f"\"{expr.value}\""
+            return f'"{expr.value}"'
         if expr.value is None:
             return "None"
         return expr.value

@@ -34,7 +34,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         return ensured
 
-    def _get_generation_data_type(self, data_type: str,
+    def _get_generation_data_type(self, data_type: str,     # noqa: PLR0912
                                   target_module: str) -> str:
         mod_names_full_1 = get_module_name(data_type, self._package_structure)
         mod_names_full_2 = target_module
@@ -58,8 +58,8 @@ class CannonicalDataTypeRewriter(TransformerBase):
                 match_level = len(mod_names_1)
 
         # [Case 1] No match => Use data_type
-        #   data_type: bpy.types.Mesh
-        #   target_module: bgl
+        #   * data_type: bpy.types.Mesh
+        #   * target_module: bgl
         #       => bpy.types.Mesh
         if match_level == 0:
             final_data_type = self._ensure_correct_data_type(data_type)
@@ -68,26 +68,26 @@ class CannonicalDataTypeRewriter(TransformerBase):
             rest_level_2 = len(mod_names_2) - match_level
 
             # [Case 2] Match exactly => Use data_type without module
-            #   data_type: bgl.Buffer
-            #   target_module: bgl
+            #   * data_type: bgl.Buffer
+            #   * target_module: bgl
             #       => Buffer
             if rest_level_1 == 0 and rest_level_2 == 0:
                 final_data_type = get_base_name(data_type)
             # [Case 3] Match partially (Same level) => Use data_type
-            #   data_type: bpy.types.Mesh
-            #   target_module: bpy.ops
+            #   * data_type: bpy.types.Mesh
+            #   * target_module: bpy.ops
             #       => bpy.types.Mesh
             elif rest_level_1 >= 1 and rest_level_2 >= 1:
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 4] Match partially (Upper level) => Use data_type
-            #   data_type: mathutils.Vector
-            #   target_module: mathutils.noise
+            #   * data_type: mathutils.Vector
+            #   * target_module: mathutils.noise
             #       => mathutils.Vector
             elif rest_level_1 == 0 and rest_level_2 >= 1:
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 5] Match partially (Lower level) => Use data_type
-            #   data_type: mathutils.noise.cell
-            #   target_module: mathutils
+            #   * data_type: mathutils.noise.cell
+            #   * target_module: mathutils
             #       => mathutils.noise.cell
             elif rest_level_1 >= 1 and rest_level_2 == 0:
                 final_data_type = self._ensure_correct_data_type(data_type)
@@ -98,15 +98,14 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         return final_data_type
 
-    def _rewrite(self, document: nodes.document):
+    def _rewrite(self, document: nodes.document) -> None:
         def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
             class_name = class_ref.to_string()
             new_class_name = self._get_generation_data_type(
                 class_name, module_name)
-            new_class_ref = ClassRef(text=new_class_name)
-            return new_class_ref
+            return ClassRef(text=new_class_name)
 
-        def replace(from_node: nodes.Node, to_node: nodes.Node):
+        def replace(from_node: nodes.Node, to_node: nodes.Node) -> None:
             parent = from_node.parent
             index = from_node.parent.index(from_node)
             parent.remove(from_node)

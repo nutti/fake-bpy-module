@@ -57,7 +57,7 @@ class BaseClassFixture(TransformerBase):
                 break
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["BaseClassFixture"]) -> str:
         return "base_class_fixture"
 
     def apply(self, **kwargs) -> None:

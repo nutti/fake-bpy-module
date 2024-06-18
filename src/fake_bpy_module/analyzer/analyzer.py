@@ -1,5 +1,5 @@
-import os
 import re
+from pathlib import Path
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -29,7 +29,7 @@ class BaseAnalyzer:
 
     def _analyze_by_file(self, filename: str) -> nodes.document:
         output_log(LOG_LEVEL_DEBUG, f"Analyze file: {filename}")
-        with open(filename, "r", encoding="utf-8") as f:
+        with Path(filename).open("r", encoding="utf-8") as f:
             contents = f.read()
 
         settings_overrides = {
@@ -42,7 +42,7 @@ class BaseAnalyzer:
             contents, settings_overrides=settings_overrides,
             reader=readers.BpyRstDocsReader())
 
-        document.insert(0, SourceFilenameNode(text=os.path.basename(filename)))
+        document.insert(0, SourceFilenameNode(text=Path(filename).name))
 
         return document
 

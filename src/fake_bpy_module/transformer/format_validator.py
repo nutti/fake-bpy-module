@@ -220,14 +220,14 @@ class FormatValidator(TransformerBase):
             elif isinstance(child, SourceFilenameNode):
                 self._check_filename_node(child)
             else:
-                raise ValueError(f"{type(child)} must not be a child of "
-                                 f"{type(document)}.\n{document.pformat()}")
+                raise TypeError(f"{type(child)} must not be a child of "
+                                f"{type(document)}.\n{document.pformat()}")
 
     def _apply(self, document: nodes.document) -> None:
         self._check_document(document)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["FormatValidator"]) -> str:
         return "format_validator"
 
     def apply(self, **kwargs) -> None:

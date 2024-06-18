@@ -3,6 +3,7 @@ import copy
 import graphlib
 import json
 from collections import OrderedDict
+from pathlib import Path
 
 from docutils import nodes
 
@@ -126,7 +127,7 @@ class PyCodeWriterBase(BaseWriter):
         self.file_format = "py"
 
     # pylint: disable=R0912
-    def _write_function_code(self, func_node: FunctionNode) -> None:
+    def _write_function_code(self, func_node: FunctionNode) -> None:    # noqa: PLR0912, PLR0915, C901
         func_name = func_node.element(NameNode).astext()
         arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
         return_node = func_node.element(FunctionReturnNode)
@@ -243,7 +244,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
-    def _write_class_code(self, class_node: ClassNode) -> None:
+    def _write_class_code(self, class_node: ClassNode) -> None: # noqa: PLR0912, PLR0915, C901
         wt = self._writer
 
         base_class_list_node = class_node.element(BaseClassListNode)
@@ -501,7 +502,7 @@ class PyCodeWriterBase(BaseWriter):
         # Note: Base class must be located above derived class
         sorted_data = sorted_entry_point_nodes(document)
 
-        with open(f"{filename}.{self.file_format}", "w",
+        with Path(f"{filename}.{self.file_format}").open("w",
                   encoding="utf-8", newline="\n") as file:
             wt = self._writer
             wt.reset()
@@ -763,5 +764,5 @@ class JsonWriter(BaseWriter):
             elif isinstance(node, DataNode):
                 json_data.append(self._create_constant_json_data(node))
 
-        with open(f"{filename}.{self.file_format}", "w", newline="\n", encoding="utf-8") as f:
+        with Path(f"{filename}.{self.file_format}").open("w", newline="\n", encoding="utf-8") as f:
             json.dump(json_data, f, indent=4)

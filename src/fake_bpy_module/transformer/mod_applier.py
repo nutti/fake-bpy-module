@@ -280,7 +280,7 @@ class ModApplier(TransformerBase):
         self.mod_documents = []
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["ModApplier"]) -> str:
         return "mod_applier"
 
     def apply(self, **kwargs) -> None:

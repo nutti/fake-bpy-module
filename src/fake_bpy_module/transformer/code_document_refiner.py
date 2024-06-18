@@ -35,7 +35,7 @@ class CodeDocumentRefiner(TransformerBase):
             append_child(document, new_doc_node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["CodeDocumentRefiner"]) -> str:
         return "code_document_refiner"
 
     def apply(self, **kwargs) -> None:

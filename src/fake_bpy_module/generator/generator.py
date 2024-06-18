@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 
 from docutils import nodes
 
@@ -19,16 +19,16 @@ def generate(documents: list[nodes.document]) -> None:
     for doc in documents:
         target_filename = get_first_child(doc, TargetFileNode).astext()
         dir_path = config.get_output_dir() + "/" + target_filename[:target_filename.rfind("/")]
-        pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
 
         # Create py.typed file at the root of modules.
         if target_filename.count("/") == 1:
             filename = f"{dir_path}/py.typed"
-            with open(filename, "w", encoding="utf-8", newline="\n") as file:
+            with Path(filename).open("w", encoding="utf-8", newline="\n") as file:
                 file.write("")
 
     # Generate modules.
-    generator: BaseWriter = None
+    generator: BaseWriter
     if config.get_output_format() == "py":
         generator = PyCodeWriter()
     elif config.get_output_format() == "pyi":

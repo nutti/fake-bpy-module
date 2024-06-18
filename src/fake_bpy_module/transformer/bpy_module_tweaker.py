@@ -155,7 +155,7 @@ class BpyModuleTweaker(TransformerBase):
         self._rebase_bpy_types_class_base_class(document)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type["BpyModuleTweaker"]) -> str:
         return "bpy_module_tweaker"
 
     def apply(self, **kwargs) -> None:
