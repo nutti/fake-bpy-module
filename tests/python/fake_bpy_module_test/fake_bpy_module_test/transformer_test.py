@@ -193,7 +193,7 @@ class FormatValidatorTest(TransformerTestBase):
 """)
 
         transformer = Transformer(["format_validator"])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             transformer.transform([document])
 
 
