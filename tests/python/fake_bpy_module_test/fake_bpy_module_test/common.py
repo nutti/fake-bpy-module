@@ -19,7 +19,7 @@ class FakeBpyModuleTestBase(unittest.TestCase):
             raise ValueError("name must set")
 
         cls.log_dir = f"{LOG_DIR}/{cls.module_name}"
-        Path(cls.log_dir).mkdir(exist_ok=True)
+        Path(cls.log_dir).mkdir(parents=True, exist_ok=True)
 
         filename = f"{cls.log_dir}/{cls.name}.log"
         cls.file_ = open(filename, "w", encoding="utf-8")   # noqa # pylint: disable=R1732

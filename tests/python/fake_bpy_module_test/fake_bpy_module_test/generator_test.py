@@ -92,7 +92,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_writer_test_output"
-        Path(self.output_dir).mkdir(exist_ok=False)
+        Path(self.output_dir).mkdir(parents=True, exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -313,7 +313,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/{self.output_file}"
-        Path(self.output_dir).mkdir(exist_ok=False)
+        Path(self.output_dir).mkdir(parents=True, exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -629,7 +629,7 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_document_node_translator_test_output"
-        Path(self.output_dir).mkdir(exist_ok=False)
+        Path(self.output_dir).mkdir(parents=True, exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
