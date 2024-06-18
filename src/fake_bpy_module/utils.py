@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Type, TypeVar
+from typing import TypeVar
 
 from docutils import nodes
 
@@ -17,7 +17,7 @@ LOG_LEVEL_ERR = 4
 LOG_LEVEL = LOG_LEVEL_WARN
 
 
-def check_os():
+def check_os() -> str:
     if os.name == "nt":
         return "Windows"
     if os.name == "posix":
@@ -38,7 +38,7 @@ def remove_unencodable(str_: str) -> str:
     return s
 
 
-def find_children(node: nodes.Node, node_type: Type[T]) -> list[T]:
+def find_children(node: nodes.Node, node_type: type[T]) -> list[T]:
     result: list[T] = []
     for child in node.children:
         if isinstance(child, node_type):
@@ -46,7 +46,7 @@ def find_children(node: nodes.Node, node_type: Type[T]) -> list[T]:
     return result
 
 
-def get_first_child(node: nodes.Node, node_type: Type[T]) -> T:
+def get_first_child(node: nodes.Node, node_type: type[T]) -> T:
     for child in node.children:
         if isinstance(child, node_type):
             return child
@@ -59,7 +59,7 @@ def append_child(node: nodes.Node, item: nodes.Node) -> nodes.Node:
 
 
 # pylint: disable=R0912,R0915
-def split_string_by_comma(line: str) -> list:
+def split_string_by_comma(line: str) -> list:   # noqa: C901
     level = 0
     splited = []
     current = ""

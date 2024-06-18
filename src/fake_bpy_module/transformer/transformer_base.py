@@ -9,7 +9,7 @@ class TransformerBase:
         self.outputs: dict = {}
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['TransformerBase']) -> str:
         raise NotImplementedError("Subclass must implement this method")
 
     def get_outputs(self) -> dict:

@@ -26,7 +26,7 @@ class CodeWriterIndent:
         cls.indent_stack = [0]
 
     @classmethod
-    def add_indent(cls: type["CodeWriterIndent"], indent: int = 0,
+    def add_indent(cls: type['CodeWriterIndent'], indent: int = 0,
                    append_current_indent: bool = False) -> None:
         if append_current_indent:
             if len(cls.indent_stack) == 0:
@@ -37,11 +37,11 @@ class CodeWriterIndent:
             cls.indent_stack.append(indent)
 
     @classmethod
-    def remove_indent(cls: type["CodeWriterIndent"]) -> None:
+    def remove_indent(cls: type['CodeWriterIndent']) -> None:
         cls.indent_stack.pop()
 
     @classmethod
-    def current_indent(cls: type["CodeWriterIndent"]) -> int:
+    def current_indent(cls: type['CodeWriterIndent']) -> int:
         return cls.indent_stack[-1]
 
 

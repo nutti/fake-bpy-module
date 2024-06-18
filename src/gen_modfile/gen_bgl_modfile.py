@@ -29,7 +29,6 @@
 import argparse
 import json
 import re
-from typing import Dict, List
 
 
 class GenerationConfig:
@@ -64,7 +63,7 @@ def get_const_name(line: str) -> str:
     return None
 
 
-def get_function_info(line: str) -> Dict:
+def get_function_info(line: str) -> dict:
     regex = r"^BGL_Wrap\(([A-Za-z0-9]+),([A-Za-z]+),(\([A-Za-z0-9,]+\))\);$"
     pattern = re.compile(regex)
     match = re.match(pattern, line)
@@ -81,7 +80,7 @@ def get_function_info(line: str) -> Dict:
     return None
 
 
-def create_constant_def(const_name: str) -> Dict:
+def create_constant_def(const_name: str) -> dict:
     constant_def = {
         "name": const_name,
         "type": "constant",
@@ -126,7 +125,7 @@ def gltype_to_pytype(gltype: str) -> str:
 
 
 def create_function_def(
-        func_name: str, return_type: str, arg_types: List[str]) -> Dict:
+        func_name: str, return_type: str, arg_types: list[str]) -> dict:
     function_def = {
         "name": func_name,
         "type": "function",
@@ -149,7 +148,7 @@ def create_function_def(
     return function_def
 
 
-def analyze(config: 'GenerationConfig') -> Dict:
+def analyze(config: 'GenerationConfig') -> dict:
     func_info = {}
     with open(config.bgl_c_file, "r", encoding="utf-8") as f:
         data = f.read()
@@ -213,7 +212,7 @@ def parse_options() -> 'GenerationConfig':
     return config
 
 
-def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
+def write_to_rst_modfile(data: dict, config: 'GenerationConfig') -> None:
     with open(config.output_file, "w", encoding="utf-8") as f:
         f.write(".. mod-type:: new\n\n")
         f.write(".. module:: bgl\n\n")
@@ -235,12 +234,12 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
                     f.write(f"   :type: {constant_info['data_type']}\n\n")
 
 
-def write_to_json_modfile(data: Dict, config: 'GenerationConfig') -> None:
+def write_to_json_modfile(data: dict, config: 'GenerationConfig') -> None:
     with open(config.output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 
-def write_to_modfile(data: Dict, config: 'GenerationConfig') -> None:
+def write_to_modfile(data: dict, config: 'GenerationConfig') -> None:
     if config.output_format == "rst":
         write_to_rst_modfile(data, config)
     elif config.output_format == "json":

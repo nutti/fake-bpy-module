@@ -184,7 +184,7 @@ class DependencyBuilder(TransformerBase):
         append_child(document, dep_list_node)
 
     @classmethod
-    def name(cls: type["DependencyBuilder"]) -> str:
+    def name(cls: type['DependencyBuilder']) -> str:
         return "dependency_builder"
 
     def apply(self, **kwargs) -> None:

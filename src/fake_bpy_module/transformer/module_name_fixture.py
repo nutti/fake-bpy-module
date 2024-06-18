@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from docutils import nodes
@@ -21,15 +20,16 @@ class ModuleNameFixture(TransformerBase):
         if config.get_target() == "upbge":
             if source_filename.startswith("bge.types."):
                 module_node = ModuleNode.create_template()
-                module_node.element(NameNode).add_text(
-                    os.path.splitext(Path(source_filename).name)[0])
+                path = Path(source_filename)
+                root = path.parent / path.stem
+                module_node.element(NameNode).add_text(str(root))
                 document.insert(0, module_node)
                 return False
 
         return True
 
     @classmethod
-    def name(cls: type["ModuleNameFixture"]) -> str:
+    def name(cls: type['ModuleNameFixture']) -> str:
         return "module_name_fixture"
 
     def apply(self, **kwargs) -> None:

@@ -775,7 +775,7 @@ class DataTypeRefiner(TransformerBase):
                    additional_info={"data_name": f"{data_name}"})
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['DataTypeRefiner']) -> str:
         return "data_type_refiner"
 
     def apply(self, **kwargs) -> None:

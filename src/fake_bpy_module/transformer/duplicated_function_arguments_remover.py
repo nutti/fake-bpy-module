@@ -52,7 +52,7 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
             self._remove_duplicated_arguments(func_node)
 
     @classmethod
-    def name(cls: type["DuplicatedFunctionArgumentsRemover"]) -> str:
+    def name(cls: type['DuplicatedFunctionArgumentsRemover']) -> str:
         return "duplicated_function_arguments_remover"
 
     def apply(self, **kwargs) -> None:

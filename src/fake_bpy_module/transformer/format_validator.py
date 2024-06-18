@@ -227,7 +227,7 @@ class FormatValidator(TransformerBase):
         self._check_document(document)
 
     @classmethod
-    def name(cls: type["FormatValidator"]) -> str:
+    def name(cls: type['FormatValidator']) -> str:
         return "format_validator"
 
     def apply(self, **kwargs) -> None:

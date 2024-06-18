@@ -138,7 +138,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
                 replace(class_ref, new_class_ref)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['CannonicalDataTypeRewriter']) -> str:
         return "cannonical_data_type_rewriter"
 
     def apply(self, **kwargs) -> None:

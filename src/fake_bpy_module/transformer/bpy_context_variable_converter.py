@@ -23,7 +23,7 @@ from .transformer_base import TransformerBase
 
 class BpyContextVariableConverter(TransformerBase):
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['BpyContextVariableConverter']) -> str:
         return "bpy_context_variable_converter"
 
     def apply(self, **kwargs) -> None:  # noqa: C901, PLR0912

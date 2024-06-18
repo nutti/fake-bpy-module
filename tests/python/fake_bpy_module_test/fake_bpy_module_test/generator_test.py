@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 
 from docutils import nodes
@@ -83,15 +84,15 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
 
     name = "CodeWriterTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/code_writer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/code_writer_test").resolve()
 
     def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_writer_test_output"
-        os.makedirs(self.output_dir, exist_ok=False)
+        Path(self.output_dir).mkdir(exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -99,7 +100,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_dir)
 
     def test_normal(self) -> None:
-        with open(self.output_file_path, "w", newline="\n",
+        with Path(self.output_file_path).open("w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
 
@@ -112,9 +113,9 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
 
         expect_file_path = f"{self.data_dir}/code_writer_test_normal.py"
         actual_file_path = self.output_file_path
-        with open(actual_file_path, "r", encoding="utf-8") as f:
+        with Path(actual_file_path).open("r", encoding="utf-8") as f:
             expect_contents = f.read()
-        with open(expect_file_path, "r", encoding="utf-8") as f:
+        with Path(expect_file_path).open("r", encoding="utf-8") as f:
             actual_contents = f.read()
         self.log(f"============= Expect: {expect_file_path} =============")
         self.log(expect_contents)
@@ -123,7 +124,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.assertEqual(expect_contents, actual_contents)
 
     def test_with_code_indent(self) -> None:
-        with open(self.output_file_path, "w", newline="\n",
+        with Path(self.output_file_path).open("w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
 
@@ -141,9 +142,9 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         expect_file_path = \
             f"{self.data_dir}/code_writer_test_with_code_indent.py"
         actual_file_path = self.output_file_path
-        with open(actual_file_path, "r", encoding="utf-8") as f:
+        with Path(actual_file_path).open("r", encoding="utf-8") as f:
             expect_contents = f.read()
-        with open(expect_file_path, "r", encoding="utf-8") as f:
+        with Path(expect_file_path).open("r", encoding="utf-8") as f:
             actual_contents = f.read()
         self.log(f"============= Expect: {expect_file_path} =============")
         self.log(expect_contents)
@@ -152,7 +153,7 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.assertEqual(expect_contents, actual_contents)
 
     def test_with_reset(self) -> None:
-        with open(self.output_file_path, "w", newline="\n",
+        with Path(self.output_file_path).open("w", newline="\n",
                   encoding="utf-8") as f:
             writer = CodeWriter()
 
@@ -169,9 +170,9 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
 
         expect_file_path = f"{self.data_dir}/code_writer_test_with_reset.py"
         actual_file_path = self.output_file_path
-        with open(actual_file_path, "r", encoding="utf-8") as f:
+        with Path(actual_file_path).open("r", encoding="utf-8") as f:
             expect_contents = f.read()
-        with open(expect_file_path, "r", encoding="utf-8") as f:
+        with Path(expect_file_path).open("r", encoding="utf-8") as f:
             actual_contents = f.read()
         self.log(f"============= Expect: {expect_file_path} =============")
         self.log(expect_contents)
@@ -200,8 +201,8 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
 
     name = "SortedEntryPointNodesTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/sorted_entry_point_nodes_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/sorted_entry_point_nodes_test").resolve()
 
     def setUp(self) -> None:
         super().setUp()
@@ -213,7 +214,7 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         config.set_target_version("2.80")
 
     def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
-        with open(expect_file, "r", encoding="utf-8") as f:
+        with Path(expect_file).open("r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
@@ -301,8 +302,8 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
     name = "WriterTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/py_code_writer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/py_code_writer_test").resolve()
     writer_class: type[BaseWriter] = BaseWriter
     file_extension: str = ""
     output_file: str = "py_code_writer_test_output"
@@ -312,7 +313,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/{self.output_file}"
-        os.makedirs(self.output_dir, exist_ok=False)
+        Path(self.output_dir).mkdir(exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -320,7 +321,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_dir)
 
     def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
-        with open(expect_file, "r", encoding="utf-8") as f:
+        with Path(expect_file).open("r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
@@ -347,9 +348,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -381,9 +382,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -414,9 +415,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -473,9 +474,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -538,9 +539,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -572,9 +573,9 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)
@@ -587,8 +588,8 @@ class PyCodeWriterTest(WriterTestBase):
 
     name = "PyCodeWriterTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/py_code_writer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/py_code_writer_test").resolve()
     writer_class: type[BaseWriter] = PyCodeWriter
     file_extension: str = "py"
     output_file: str = "py_code_writer_test_output"
@@ -598,8 +599,8 @@ class PyInterfaceWriterTest(WriterTestBase):
 
     name = "PyInterfaceWriterTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/py_interface_writer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/py_interface_writer_test").resolve()
     writer_class: type[BaseWriter] = PyInterfaceWriter
     file_extension: str = "pyi"
     output_file: str = "py_interface_writer_test_output"
@@ -609,8 +610,8 @@ class JsonWriterTest(WriterTestBase):
 
     name = "JsonWriterTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/json_writer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/json_writer_test").resolve()
     writer_class: type[BaseWriter] = JsonWriter
     file_extension: str = "json"
     output_file: str = "json_writer_test_output"
@@ -620,15 +621,15 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
 
     name = "CodeDocumentNodeTranslatorTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/generator_test_data/code_document_node_translator_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/generator_test_data/code_document_node_translator_test").resolve()
 
     def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/code_document_node_translator_test_output"
-        os.makedirs(self.output_dir, exist_ok=False)
+        Path(self.output_dir).mkdir(exist_ok=False)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -636,7 +637,7 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_dir)
 
     def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
-        with open(expect_file, "r", encoding="utf-8") as f:
+        with Path(expect_file).open("r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 
@@ -677,9 +678,9 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
-            with open(actual_file_path, "r", encoding="utf-8") as f:
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
                 expect_contents = f.read()
-            with open(expect_file_path, "r", encoding="utf-8") as f:
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
                 actual_contents = f.read()
             self.log(f"============= Expect: {expect_file_path} =============")
             self.log(expect_contents)

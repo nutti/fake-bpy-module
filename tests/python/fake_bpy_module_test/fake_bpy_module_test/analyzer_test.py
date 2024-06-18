@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import docutils
 from fake_bpy_module import config  # pylint: disable=E0401
@@ -11,20 +11,20 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
 
     name = "BaseAnalyzerTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/analyzer_test_data/base_analyzer_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/analyzer_test_data/base_analyzer_test").resolve()
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.__setup_config()
 
-    def __setup_config(self):
+    def __setup_config(self) -> None:
         config.set_target("blender")
         config.set_target_version("2.80")
 
-    def compare_with_file_contents(self, actual: str, expect_file: str):
-        with open(expect_file, "r", encoding="utf-8") as f:
+    def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
+        with Path(expect_file).open("r", encoding="utf-8") as f:
             expect = f.read()
         self.assertEqual(actual, expect)
 

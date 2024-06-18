@@ -12,7 +12,7 @@ class FirstTitleRemover(TransformerBase):
             break
 
     @classmethod
-    def name(cls: type["FirstTitleRemover"]) -> str:
+    def name(cls: type['FirstTitleRemover']) -> str:
         return "first_title_remover"
 
     def apply(self, **kwargs) -> None:

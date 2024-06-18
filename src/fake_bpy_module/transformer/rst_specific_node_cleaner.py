@@ -45,7 +45,7 @@ class RstSpecificNodeCleaner(TransformerBase):
                 append_child(code_doc_node, node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['RstSpecificNodeCleaner']) -> str:
         return "rst_specific_node_cleaner"
 
     def apply(self, **kwargs) -> None:

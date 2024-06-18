@@ -5,7 +5,7 @@ from fake_bpy_module.utils import get_first_child
 
 
 class ModuleStructure:
-    def __init__(self):
+    def __init__(self) -> None:
         self._name: str = None
         self._children: list['ModuleStructure'] = []
 
@@ -70,7 +70,7 @@ def build_module_structure(documents: list[nodes.document]) -> 'ModuleStructure'
     return structure
 
 
-def get_base_name(data_type: str) -> str:
+def get_base_name(data_type: str) -> str | None:
     if data_type is None:
         return None
 

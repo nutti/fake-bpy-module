@@ -16,11 +16,11 @@ class Configuration:
     __inst = None
     __lock = Lock()
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise NotImplementedError("Not allowed to call constructor")
 
     @classmethod
-    def __internal_new(cls) -> 'Configuration':
+    def __internal_new(cls: type['Configuration']) -> 'Configuration':
         inst = super().__new__(cls)
 
         return inst

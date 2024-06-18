@@ -79,7 +79,7 @@ class DefaultValueFiller(TransformerBase):
                     default_value_node.add_text("None")
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['DefaultValueFiller']) -> str:
         return "default_value_filler"
 
     def apply(self, **kwargs) -> None:

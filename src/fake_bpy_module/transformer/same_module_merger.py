@@ -40,7 +40,7 @@ class SameModuleMerger(TransformerBase):
         return results
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['SameModuleMerger']) -> str:
         return "same_module_merger"
 
     def apply(self, **kwargs) -> None:

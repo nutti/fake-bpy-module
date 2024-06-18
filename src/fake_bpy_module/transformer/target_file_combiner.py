@@ -55,7 +55,7 @@ class TargetFileCombiner(TransformerBase):
             module_structure: ModuleStructure) -> GenerationInfoByModule:
         def find_target_file(
                 name: str, structure: ModuleStructure, target: str,
-                module_level: int) -> str:
+                module_level: int) -> str | None:
             for m in structure.children():
                 mod_name = name + m.name
                 if mod_name == target:
@@ -70,7 +70,7 @@ class TargetFileCombiner(TransformerBase):
 
         def build_child_modules(
                 gen_info: GenerationInfo, name: str,
-                structure: ModuleStructure, module_level: int):
+                structure: ModuleStructure, module_level: int) -> None:
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
@@ -142,7 +142,7 @@ class TargetFileCombiner(TransformerBase):
         return results
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type['TargetFileCombiner']) -> str:
         return "target_file_combiner"
 
     def apply(self, **kwargs) -> None:
