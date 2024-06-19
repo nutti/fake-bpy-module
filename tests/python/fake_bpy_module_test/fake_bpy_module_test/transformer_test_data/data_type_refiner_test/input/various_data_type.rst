@@ -67,6 +67,10 @@
 
    :type: enum set in {'ONE', 'TWO'}
 
+.. data:: data_enum_set_in_rna
+
+   :type: enum set in :ref:`rna_enum`
+
 .. data:: data_enum_in_rna
 
    :type: enum in :ref:`rna_enum`
