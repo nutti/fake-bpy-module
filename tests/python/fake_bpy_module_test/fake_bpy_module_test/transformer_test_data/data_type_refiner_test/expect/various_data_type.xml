@@ -133,6 +133,15 @@
                 enum set in {'ONE', 'TWO'}
     <data>
         <name>
+            data_enum_set_in_rna
+        <description>
+        <data-type-list>
+            <data-type>
+                enum set in 
+                <ref-ref>
+                    rna_enum
+    <data>
+        <name>
             data_enum_in_rna
         <description>
         <data-type-list>

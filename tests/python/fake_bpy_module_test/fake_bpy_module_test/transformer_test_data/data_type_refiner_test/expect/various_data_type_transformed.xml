@@ -139,6 +139,13 @@
                 set[str]
     <data>
         <name>
+            data_enum_set_in_rna
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                set[str]
+    <data>
+        <name>
             data_enum_in_rna
         <description>
         <data-type-list>
