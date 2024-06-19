@@ -118,6 +118,10 @@
 
       :mod-option base-class: skip-refine
 
+   .. attribute:: bl_rna
+
+      :type: :class:`bpy.types.BlenderRNA`, (never none)
+
    .. method:: __getitem__(key)
 
       :type key: int | str
@@ -136,3 +140,9 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
+
+.. class:: BlenderRNA
+
+   .. attribute:: properties
+
+      :type: :class:`bpy_prop_collection` of :class:`Property`
