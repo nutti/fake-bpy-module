@@ -35,9 +35,9 @@ REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+)
 # pylint: disable=line-too-long
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
 REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default (.+)$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*,?$")
-REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*,?$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_SET_IN_RNA = re.compile(r"^enum set in `(.*)`(, \(.+\))*,?$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*$")
+REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_SET_IN_RNA = re.compile(r"^enum set in `(.*)`(, \(.+\))*$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF = re.compile(r"^boolean array of ([0-9]+) items(, .+)*$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_MATHUTILS_VALUES = re.compile(r"^`((mathutils.)*(Color|Euler|Matrix|Quaternion|Vector))`$")  # noqa # pylint: disable=C0301
@@ -48,7 +48,7 @@ REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF = re.compile(r"^float mul
 REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
-REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`,$")  # noqa # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of\s+`([a-zA-Z0-9_.]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa # pylint: disable=C0301
@@ -59,7 +59,7 @@ REGEX_MATCH_DATA_TYPE_PAIR_OF_VALUE = re.compile(r"^pair of `([A-Za-z0-9_.]+)`")
 REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE = re.compile(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$")  # noqa # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|set|tuple)`*\.*$")  # noqa # pylint: disable=C0301
-REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`,$")
+REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
 REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")
@@ -139,13 +139,15 @@ class DataTypeRefiner(TransformerBase):
 
         return None
 
-    # pylint: disable=R0913
+    # pylint: disable=R0911,R0912,R0913
     def _get_refined_data_type_fast(
             self, dtype_str: str, uniq_full_names: Set[str],
             uniq_module_names: Set[str], module_name: str,
             variable_kind: str,
             additional_info: Dict[str, typing.Any] = None) -> List['DataTypeNode']:
-        # pylint: disable=R0912,R0911,R0915
+
+        dtype_str = dtype_str.strip().strip(",")
+
         if REGEX_MATCH_DATA_TYPE_SPACE.match(dtype_str):
             return [make_data_type_node("typing.Any")]
 
