@@ -14,6 +14,22 @@
       :mod-option arg key: skip-refine
       :rtype: GenericType1
       :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[GenericType1]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :rtype: GenericType1 | tuple[GenericType1]
+      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
@@ -31,7 +47,24 @@
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: :class:`BMVert`
+      :rtype: BMVert
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[BMVert]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :rtype: BMVert | tuple[BMVert]
+      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
@@ -49,7 +82,24 @@
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: :class:`BMEdge`
+      :rtype: BMEdge
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[BMEdge]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :rtype: BMEdge | tuple[BMEdge]
+      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
@@ -67,7 +117,24 @@
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: :class:`BMFace`
+      :rtype: BMFace
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[BMFace]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: int | slice
+      :mod-option arg key: skip-refine
+      :rtype: BMFace | tuple[BMFace]
+      :mod-option rtype: skip-refine
 
    .. method:: __iter__()
 
