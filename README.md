@@ -115,12 +115,10 @@ See [CHANGELOG.md](CHANGELOG.md)
 If you want to report bug, request features or discuss about this project, see
 [ISSUES.md](ISSUES.md).
 
-[fake-bpy-module](https://blender.chat/channel/fake-bpy-module) channel is
-available on [blender.chat](https://blender.chat/).  
+[fake-bpy-module channel](https://discord.gg/dGU9et5S2d) is
+available on the Discord server.  
 The timely discussion and release announcement about fake-bpy-module will be
 made in this channel.
-
-Note: Registration of blender.chat is required for accessing fake-bpy-module channel.
 
 ## Contribution
 
