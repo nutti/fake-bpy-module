@@ -18,7 +18,7 @@ from .code_writer import (
 
 
 class Status:
-    def __init__(self, status: str | None=None, parameters=None) -> None:
+    def __init__(self, status: str | None = None, parameters = None) -> None:
         self.kind = status
         self.parameters = parameters
 
@@ -76,7 +76,7 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         if new_line_num >= 1:
             self.doc_writer.new_line(new_line_num)
 
-    def visit_Text(self, node: nodes.Text) -> None: # noqa: N802
+    def visit_Text(self, node: nodes.Text) -> None:     # noqa: N802
         lines = str(node).split("\n")
         for line in lines[:-1]:
             self.doc_writer.addln(line)
@@ -88,14 +88,14 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
     def visit_CodeNode(self, _: CodeNode) -> None:  # noqa: N802
         self.doc_writer.add("```")
 
-    def depart_CodeNode(self, _: CodeNode) -> None: # noqa: N802
+    def depart_CodeNode(self, _: CodeNode) -> None:     # noqa: N802
         self.doc_writer.addln("```")
         self.doc_writer.new_line()
 
     def visit_CodeDocumentNode(self, _: CodeDocumentNode) -> None:  # noqa: N802
         self.doc_writer.addln('"""')
 
-    def depart_CodeDocumentNode(self, _: CodeDocumentNode) -> None: # noqa: N802
+    def depart_CodeDocumentNode(self, _: CodeDocumentNode) -> None:     # noqa: N802
         self.doc_writer.addln('"""')
 
     def visit_bullet_list(self, _: nodes.bullet_list) -> None:
@@ -235,7 +235,7 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         self.doc_writer.addln("```")
         self.doc_writer.new_line()
 
-    def visit_ModuleRef(self, node: ModuleRef)-> None:  # noqa: N802
+    def visit_ModuleRef(self, node: ModuleRef) -> None:  # noqa: N802
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
@@ -256,21 +256,21 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
     def depart_ClassRef(self, _: ClassRef) -> None: # noqa: N802
         pass
 
-    def visit_FunctionRef(self, node: FunctionRef) -> None: # noqa: N802
+    def visit_FunctionRef(self, node: FunctionRef) -> None:     # noqa: N802
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
     def depart_FunctionRef(self, _: FunctionRef) -> None:   # noqa: N802
         pass
 
-    def visit_MethodRef(self, node: MethodRef) -> None: # noqa: N802
+    def visit_MethodRef(self, node: MethodRef) -> None:     # noqa: N802
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
     def depart_MethodRef(self, _: MethodRef) -> None:   # noqa: N802
         pass
 
-    def visit_DataRef(self, node: DataRef) -> None: # noqa: N802
+    def visit_DataRef(self, node: DataRef) -> None:     # noqa: N802
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
@@ -281,7 +281,7 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
-    def depart_ConstRef(self, _: ConstRef) -> None: # noqa: N802
+    def depart_ConstRef(self, _: ConstRef) -> None:     # noqa: N802
         pass
 
     def visit_note(self, _: nodes.note) -> None:

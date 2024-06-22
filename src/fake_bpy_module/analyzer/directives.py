@@ -51,8 +51,8 @@ def parse_function_def(content: str) -> str:
     #   function_1(arg_1, arg_2, arg_3='NONE', arg_4=True, arg_5): pass
     fixed_params = []
     required_named_argument = False
-    for p in params:
-        p = p.strip()
+    for param in params:
+        p = param.strip()
         sp = p.split("=")
         assert len(sp) in (1, 2), f"{p} has length {len(sp)}"
         if len(sp) == 1:
@@ -82,9 +82,7 @@ def parse_function_def(content: str) -> str:
             else:
                 fixed_params.append(p)
 
-    content = f"def {name}({', '.join(fixed_params)}): pass"
-
-    return content
+    return f"def {name}({', '.join(fixed_params)}): pass"
 
 
 # pylint: disable=R0911
@@ -126,7 +124,7 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
             f"""{{{', '.join(
             f'{parse_func_arg_default_value(k)}'
             f':{parse_func_arg_default_value(v)}'
-            for k, v in zip(expr.keys, expr.values))}}}"""
+            for k, v in zip(expr.keys, expr.values, strict=False))}}}"""
             if len(expr.keys) > 0
             else "{}"
         )

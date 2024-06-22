@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import shutil
 
 from fake_bpy_module import config  # pylint: disable=E0401
@@ -13,15 +13,15 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
     name = "IntegrationTest"
     module_name = __module__
-    data_dir = os.path.abspath(
-        f"{os.path.dirname(__file__)}/integration_test_data/integration_test")
+    data_dir = Path(
+        f"{Path(__file__).parent}/integration_test_data/integration_test").resolve()
 
     def setUp(self) -> None:
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
         self.output_file_path = f"{self.output_dir}/integration_test_output"
-        os.makedirs(self.output_dir, exist_ok=False)
+        Path(self.output_dir).mkdir(parents=True, exist_ok=False)
 
         self.__setup_config()
 
@@ -39,9 +39,9 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
         config.set_mod_version("2.80")
 
     def __is_py_typed_exist(self, filepath: str) -> bool:
-        if not os.path.isfile(filepath):
+        if not Path(filepath).is_file:
             return False
-        return os.path.getsize(filepath) == 0
+        return Path(filepath).stat().st_size == 0
 
     def test_single(self) -> None:
         rst_files = [
@@ -64,9 +64,9 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"
                 actual_file_path = f"{actual_files_dir}/{file_}"
-                with open(actual_file_path, "r", encoding="utf-8") as f:
+                with Path(actual_file_path).open("r", encoding="utf-8") as f:
                     expect_contents = f.read()
-                with open(expect_file_path, "r", encoding="utf-8") as f:
+                with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
                 self.log(f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)
@@ -101,9 +101,9 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"
                 actual_file_path = f"{actual_files_dir}/{file_}"
-                with open(actual_file_path, "r", encoding="utf-8") as f:
+                with Path(actual_file_path).open("r", encoding="utf-8") as f:
                     expect_contents = f.read()
-                with open(expect_file_path, "r", encoding="utf-8") as f:
+                with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
                 self.log(f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)
@@ -134,9 +134,9 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"
                 actual_file_path = f"{actual_files_dir}/{file_}"
-                with open(actual_file_path, "r", encoding="utf-8") as f:
+                with Path(actual_file_path).open("r", encoding="utf-8") as f:
                     expect_contents = f.read()
-                with open(expect_file_path, "r", encoding="utf-8") as f:
+                with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
                 self.log(f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)

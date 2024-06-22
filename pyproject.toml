@@ -43,8 +43,8 @@ platforms = ["Windows", "Linux", "Mac OS-X"]
 where = ["."]
 
 [tool.ruff]
-target-version = "py39"
-line-length = 88
+target-version = "py310"
+line-length = 80
 exclude = [
     "tests/python/fake_bpy_module_test/fake_bpy_module_test/*_test_data/*",
 ]
@@ -72,4 +72,5 @@ ignore = [
     "EM101",
     "EM102",
     "T201",
+    "PT027",
 ]

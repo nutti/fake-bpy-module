@@ -244,7 +244,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
-    def _write_class_code(self, class_node: ClassNode) -> None: # noqa: PLR0912, PLR0915, C901
+    def _write_class_code(self, class_node: ClassNode) -> None:     # noqa: PLR0912, PLR0915, C901
         wt = self._writer
 
         base_class_list_node = class_node.element(BaseClassListNode)
@@ -431,9 +431,11 @@ class PyCodeWriterBase(BaseWriter):
                             name_node = arg_node.element(NameNode)
                             desc_node = arg_node.element(DescriptionNode)
                             dtype_list_node = arg_node.element(DataTypeListNode)
-                            wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
+                            wt.addln(f":param {name_node.astext()}: "
+                                     f"{desc_node.astext()}")
                             if not dtype_list_node.empty():
-                                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                                dtype_nodes = find_children(
+                                    dtype_list_node, DataTypeNode)
                                 dtype_str = make_union(dtype_nodes)
                                 for dtype_node in dtype_nodes:
                                     if "option" not in dtype_node.attributes:
@@ -441,7 +443,8 @@ class PyCodeWriterBase(BaseWriter):
                                     if "never none" not in dtype_node.attributes["option"]:
                                         dtype_str = f"{dtype_str} | None"
                                         break
-                                wt.addln(f":type {name_node.astext()}: {dtype_str}")
+                                wt.addln(f":type {name_node.astext()}: "
+                                         f"{dtype_str}")
 
                         if not return_node.empty():
                             desc_node = return_node.element(DescriptionNode)
@@ -497,13 +500,14 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln("'''")
         wt.new_line(2)
 
-    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff') -> None:
+    def write(self, filename: str, document: nodes.document,
+              style_config: str = 'ruff') -> None:
         # At first, sort data to avoid generating large diff.
         # Note: Base class must be located above derived class
         sorted_data = sorted_entry_point_nodes(document)
 
-        with Path(f"{filename}.{self.file_format}").open("w",
-                  encoding="utf-8", newline="\n") as file:
+        with Path(f"{filename}.{self.file_format}").open(
+                "w", encoding="utf-8", newline="\n") as file:
             wt = self._writer
             wt.reset()
 
