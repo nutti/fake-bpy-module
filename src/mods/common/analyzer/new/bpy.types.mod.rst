@@ -76,7 +76,7 @@
 
    .. method:: __delitem__(key)
 
-      :type key: int | slice
+      :type key: int
       :mod-option arg key: skip-refine
 
    .. method:: __iter__()
