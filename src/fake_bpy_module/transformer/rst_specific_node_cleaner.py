@@ -25,21 +25,12 @@ class RstSpecificNodeCleaner(TransformerBase):
 
         # Make CodeDocumentNode from RST specific nodes.
         for node in document.children[:]:
-            if isinstance(node, (
-                    nodes.title,
-                    nodes.paragraph,
-                    nodes.bullet_list,
-                    nodes.enumerated_list,
-                    nodes.definition_list,
-                    nodes.block_quote,
-                    nodes.line_block,
-                    nodes.literal_block,
-                    nodes.section,
-                    nodes.field_list,
-                    nodes.note,
-                    nodes.warning,
-                    nodes.target,
-                    CodeNode)):
+            if isinstance(
+                    node, nodes.title | nodes.paragraph | nodes.bullet_list |
+                    nodes.enumerated_list | nodes.definition_list |
+                    nodes.block_quote | nodes.line_block | nodes.literal_block|
+                    nodes.section | nodes.field_list | nodes.note |
+                    nodes.warning | nodes.target | CodeNode):
                 code_doc_node = CodeDocumentNode()
                 self._replace(node, code_doc_node)
                 append_child(code_doc_node, node)

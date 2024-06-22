@@ -1,28 +1,29 @@
 # coding: UTF-8
 
-import glob
 import argparse
-from typing import List, Tuple
-import os
+import glob
+from pathlib import Path
 
 import fake_bpy_module as fbm
 
 INPUT_DIR: str = "."
-MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
+MOD_FILES_DIR: str = Path(Path(__file__).resolve()).parent
 
 
-def generate(target_files: List[str], mod_files: List[str]):
+def generate(target_files: list[str], mod_files: list[str]) -> None:
     documents = fbm.analyze(target_files)
     documents = fbm.transform(documents, mod_files)
     fbm.generate(documents)
 
 
-def parse_options():
+def parse_options() -> None:    # noqa: PLR0912, C901
     # pylint: disable=W0603
-    global INPUT_DIR  # pylint: disable=W0602
-    usage = f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] " \
-            "[-T <target>] [-t <target_version>] [-d] [-f <style_format>] " \
-            "[-m <mod_version>]"
+    global INPUT_DIR    # noqa: PLW0603 # pylint: disable=W0602
+    usage = (
+        f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] "
+        "[-T <target>] [-t <target_version>] [-d] [-f <style_format>] "
+        "[-m <mod_version>]"
+    )
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-i", dest="input_dir", type=str, help="Input directory"
@@ -107,7 +108,7 @@ def parse_options():
                     f"{fbm.support.SUPPORTED_MOD_UPBGE_VERSION})")
 
     if args.output_log_level:
-        ARG_TO_LOG_LEVEL = {
+        ARG_TO_LOG_LEVEL = {  # noqa: N806
             "debug": fbm.utils.LOG_LEVEL_DEBUG,
             "info": fbm.utils.LOG_LEVEL_INFO,
             "notice": fbm.utils.LOG_LEVEL_NOTICE,
@@ -117,7 +118,7 @@ def parse_options():
         fbm.utils.LOG_LEVEL = ARG_TO_LOG_LEVEL[args.output_log_level]
 
 
-def collect_files() -> Tuple[str, str]:
+def collect_files() -> tuple[str, str]:
     # Collect all rst files.
     rst_files = glob.glob(f"{INPUT_DIR}/**/*.rst", recursive=True)
 
@@ -151,7 +152,7 @@ def collect_files() -> Tuple[str, str]:
     return rst_files, mod_files
 
 
-def main():
+def main() -> None:
     parse_options()
     rst_files, mod_files = collect_files()
     generate(rst_files, mod_files)
