@@ -1,11 +1,12 @@
-import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from docutils import nodes
 from docutils.core import publish_doctree
 from fake_bpy_module import config  # pylint: disable=E0401
-from fake_bpy_module.analyzer.analyzer import BaseAnalyzer  # pylint: disable=E0401
+from fake_bpy_module.analyzer.analyzer import (
+    BaseAnalyzer,  # pylint: disable=E0401
+)
 from fake_bpy_module.generator.code_writer import (  # pylint: disable=E0401
     CodeWriter,
     CodeWriterIndent,
@@ -17,8 +18,12 @@ from fake_bpy_module.generator.writers import (  # pylint: disable=E0401
     PyInterfaceWriter,
     sorted_entry_point_nodes,
 )
-from fake_bpy_module.transformer.transformer import Transformer  # pylint: disable=E0401
-from fake_bpy_module.transformer.utils import ModuleStructure  # pylint: disable=E0401
+from fake_bpy_module.transformer.transformer import (
+    Transformer,  # pylint: disable=E0401
+)
+from fake_bpy_module.transformer.utils import (
+    ModuleStructure,  # pylint: disable=E0401
+)
 from fake_bpy_module.utils import append_child  # pylint: disable=E0401
 
 from . import common
@@ -223,19 +228,21 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         expect_analyzed_files = ["basic.xml"]
         expect_sorted_files = ["basic_sorted.xml"]
         rst_files = [f"{self.data_dir}/input/basic/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/basic/{f}" for f in expect_analyzed_files]
-        expect_sorted_files = [f"{self.data_dir}/expect/basic/{f}" for f in expect_sorted_files]
+        expect_analyzed_files = [f"{self.data_dir}/expect/basic/{f}"
+                                 for f in expect_analyzed_files]
+        expect_sorted_files = [f"{self.data_dir}/expect/basic/{f}"
+                               for f in expect_sorted_files]
 
         # Analyze
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Sort
-        for doc, expect in zip(documents, expect_sorted_files):
+        for doc, expect in zip(documents, expect_sorted_files, strict=True):
             sorted_nodes = sorted_entry_point_nodes(doc)
             sorted_document: nodes.document = publish_doctree("")
             for node in sorted_nodes:
@@ -247,9 +254,12 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         rst_files = ["high_priority_class.rst"]
         expect_analyzed_files = ["high_priority_class.xml"]
         expect_sorted_files = ["high_priority_class_sorted.xml"]
-        rst_files = [f"{self.data_dir}/input/high_priority_class/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/high_priority_class/{f}"
-                                 for f in expect_analyzed_files]
+        rst_files = [f"{self.data_dir}/input/high_priority_class/{f}"
+                     for f in rst_files]
+        expect_analyzed_files = [
+            f"{self.data_dir}/expect/high_priority_class/{f}"
+            for f in expect_analyzed_files
+        ]
         expect_sorted_files = [f"{self.data_dir}/expect/high_priority_class/{f}"
                                for f in expect_sorted_files]
 
@@ -258,11 +268,11 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Sort
-        for doc, expect in zip(documents, expect_sorted_files):
+        for doc, expect in zip(documents, expect_sorted_files, strict=True):
             sorted_nodes = sorted_entry_point_nodes(doc)
             sorted_document: nodes.document = publish_doctree("")
             for node in sorted_nodes:
@@ -274,22 +284,29 @@ class SortedEntryPointNodesTest(common.FakeBpyModuleTestBase):
         rst_files = ["base_class_dependency.rst"]
         expect_analyzed_files = ["base_class_dependency.xml"]
         expect_sorted_files = ["base_class_dependency_sorted.xml"]
-        rst_files = [f"{self.data_dir}/input/base_class_dependency/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/base_class_dependency/{f}"
-                                 for f in expect_analyzed_files]
-        expect_sorted_files = [f"{self.data_dir}/expect/base_class_dependency/{f}"
-                               for f in expect_sorted_files]
+        rst_files = [
+            f"{self.data_dir}/input/base_class_dependency/{f}"
+            for f in rst_files
+        ]
+        expect_analyzed_files = [
+            f"{self.data_dir}/expect/base_class_dependency/{f}"
+            for f in expect_analyzed_files
+        ]
+        expect_sorted_files = [
+            f"{self.data_dir}/expect/base_class_dependency/{f}"
+            for f in expect_sorted_files
+        ]
 
         # Analyze
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Sort
-        for doc, expect in zip(documents, expect_sorted_files):
+        for doc, expect in zip(documents, expect_sorted_files, strict=True):
             sorted_nodes = sorted_entry_point_nodes(doc)
             sorted_document: nodes.document = publish_doctree("")
             for node in sorted_nodes:
@@ -330,7 +347,8 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         expect_analyzed_files = ["class.xml"]
         expect_generated_files = [f"class.{self.file_extension}"]
         rst_files = [f"{self.data_dir}/input/class/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/class/{f}" for f in expect_analyzed_files]
+        expect_analyzed_files = [f"{self.data_dir}/expect/class/{f}"
+                                 for f in expect_analyzed_files]
         expect_generated_files = [f"{self.data_dir}/expect/class/{f}"
                                   for f in expect_generated_files]
 
@@ -339,12 +357,14 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -373,12 +393,14 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -397,7 +419,8 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         expect_analyzed_files = ["data.xml"]
         expect_generated_files = [f"data.{self.file_extension}"]
         rst_files = [f"{self.data_dir}/input/data/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/data/{f}" for f in expect_analyzed_files]
+        expect_analyzed_files = [f"{self.data_dir}/expect/data/{f}"
+                                 for f in expect_analyzed_files]
         expect_generated_files = [f"{self.data_dir}/expect/data/{f}"
                                   for f in expect_generated_files]
 
@@ -406,12 +429,13 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -430,7 +454,8 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         expect_analyzed_files = ["dependencies.xml"]
         expect_transformed_files = ["dependencies_transformed.xml"]
         expect_generated_files = [f"dependencies.{self.file_extension}"]
-        rst_files = [f"{self.data_dir}/input/dependencies/{f}" for f in rst_files]
+        rst_files = [f"{self.data_dir}/input/dependencies/{f}"
+                     for f in rst_files]
         expect_analyzed_files = [f"{self.data_dir}/expect/dependencies/{f}"
                                  for f in expect_analyzed_files]
         expect_transformed_files = [f"{self.data_dir}/expect/dependencies/{f}"
@@ -443,7 +468,8 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Transform
@@ -465,12 +491,14 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = transformer.transform(documents)
 
         self.assertEqual(len(documents), len(expect_transformed_files))
-        for doc, expect in zip(documents, expect_transformed_files):
+        for doc, expect in zip(documents, expect_transformed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -508,7 +536,7 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Transform
@@ -530,12 +558,14 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = transformer.transform(documents)
 
         self.assertEqual(len(documents), len(expect_transformed_files))
-        for doc, expect in zip(documents, expect_transformed_files):
+        for doc, expect in zip(documents, expect_transformed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -564,12 +594,13 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = self.writer_class()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"
@@ -628,7 +659,9 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
         super().setUp()
 
         self.output_dir = "fake_bpy_module_test_tmp"
-        self.output_file_path = f"{self.output_dir}/code_document_node_translator_test_output"
+        self.output_file_path = (
+            f"{self.output_dir}/code_document_node_translator_test_output"
+        )
         Path(self.output_dir).mkdir(parents=True, exist_ok=False)
 
     def tearDown(self) -> None:
@@ -647,7 +680,8 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         expect_generated_files = ["basic.py"]
         rst_files = [f"{self.data_dir}/input/basic/{f}" for f in rst_files]
-        expect_analyzed_files = [f"{self.data_dir}/expect/basic/{f}" for f in expect_analyzed_files]
+        expect_analyzed_files = [f"{self.data_dir}/expect/basic/{f}"
+                                 for f in expect_analyzed_files]
         expect_transformed_files = [f"{self.data_dir}/expect/basic/{f}"
                                     for f in expect_transformed_files]
         expect_generated_files = [f"{self.data_dir}/expect/basic/{f}"
@@ -658,7 +692,7 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_analyzed_files))
-        for doc, expect in zip(documents, expect_analyzed_files):
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Transform
@@ -669,12 +703,14 @@ class CodeDocumentNodeTranslatorTest(common.FakeBpyModuleTestBase):
         documents = transformer.transform(documents)
 
         self.assertEqual(len(documents), len(expect_transformed_files))
-        for doc, expect in zip(documents, expect_transformed_files):
+        for doc, expect in zip(documents, expect_transformed_files,
+                               strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         # Generate
         writer = PyCodeWriter()
-        for doc, expect_file_path in zip(documents, expect_generated_files):
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
             writer.write(self.output_file_path, doc)
 
             actual_file_path = f"{self.output_file_path}.{writer.file_format}"

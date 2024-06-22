@@ -112,20 +112,22 @@ class ModuleNameFixtureTest(TransformerTestBase):
         expect_transformed_files = []
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["module_name_fixture"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_bge_no_module(self) -> None:
@@ -134,7 +136,8 @@ class ModuleNameFixtureTest(TransformerTestBase):
         expect_transformed_files = ["bge.types.NoModule_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         config.set_target("upbge")
@@ -142,14 +145,15 @@ class ModuleNameFixtureTest(TransformerTestBase):
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["module_name_fixture"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -166,20 +170,22 @@ class RstSpecificNodeCleanerTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["rst_specific_node_cleaner"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -225,20 +231,22 @@ class BpyContextVariableConverterTest(TransformerTestBase):
         ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["bpy_context_variable_converter"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -253,89 +261,105 @@ class BpyModuleTweakerTest(TransformerTestBase):
     def test_make_bpy_prop_functions_arguments_kwonlyargs(self) -> None:
         rst_files = ["make_bpy_prop_functions_arguments_kwonlyargs.rst"]
         expect_files = ["make_bpy_prop_functions_arguments_kwonlyargs.xml"]
-        expect_transformed_files = ["make_bpy_prop_functions_arguments_kwonlyargs_transformed.xml"]
+        expect_transformed_files = [
+            "make_bpy_prop_functions_arguments_kwonlyargs_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["bpy_module_tweaker"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_add_bpy_app_handlers_functions_data_types(self) -> None:
         rst_files = ["add_bpy_app_handlers_functions_data_types.rst"]
         expect_files = ["add_bpy_app_handlers_functions_data_types.xml"]
-        expect_transformed_files = ["add_bpy_app_handlers_functions_data_types_transformed.xml"]
+        expect_transformed_files = [
+            "add_bpy_app_handlers_functions_data_types_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["bpy_module_tweaker"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_add_bpy_ops_override_parameters_transformed(self) -> None:
         rst_files = ["add_bpy_ops_override_parameters.rst"]
         expect_files = ["add_bpy_ops_override_parameters.xml"]
-        expect_transformed_files = ["add_bpy_ops_override_parameters_transformed.xml"]
+        expect_transformed_files = [
+            "add_bpy_ops_override_parameters_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["bpy_module_tweaker"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_rebase_bpy_types_class_base_class(self) -> None:
         rst_files = ["rebase_bpy_types_class_base_class.rst"]
         expect_files = ["rebase_bpy_types_class_base_class.xml"]
-        expect_transformed_files = ["rebase_bpy_types_class_base_class_transformed.xml"]
+        expect_transformed_files = [
+            "rebase_bpy_types_class_base_class_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["bpy_module_tweaker"])
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -352,7 +376,8 @@ class CannonicalDataTypeRewriterTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
@@ -377,7 +402,7 @@ class CannonicalDataTypeRewriterTest(TransformerTestBase):
         module_b_structure.add_child(module_structure)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["cannonical_data_type_rewriter"], {
@@ -388,7 +413,8 @@ class CannonicalDataTypeRewriterTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -405,13 +431,14 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = ["merge_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -421,7 +448,8 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_remove_trivial_nodes(self) -> None:
@@ -430,13 +458,14 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = ["remove_trivial_nodes_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -446,7 +475,8 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_remove_empty_nodes(self) -> None:
@@ -455,13 +485,14 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         expect_transformed_files = ["remove_empty_nodes_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -471,7 +502,8 @@ class CodeDocumentRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -493,7 +525,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
@@ -529,7 +562,7 @@ class DataTypeRefinerTest(TransformerTestBase):
         entry_points.append(entry_point)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["data_type_refiner"], {
@@ -541,7 +574,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_various_data_type(self) -> None:
@@ -550,7 +584,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = ["various_data_type_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
@@ -576,7 +611,7 @@ class DataTypeRefinerTest(TransformerTestBase):
         entry_points.append(entry_point)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["data_type_refiner"], {
@@ -587,7 +622,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_special_data_type(self) -> None:
@@ -596,7 +632,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = ["special_data_type_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
@@ -608,7 +645,7 @@ class DataTypeRefinerTest(TransformerTestBase):
         entry_points.append(entry_point)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["data_type_refiner"], {
@@ -619,29 +656,35 @@ class DataTypeRefinerTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_option(self) -> None:
         rst_files = ["option_bpy.rst", "option_non_bpy.rst"]
         expect_files = ["option_bpy.xml", "option_non_bpy.xml"]
-        expect_transformed_files = ["option_bpy_transformed.xml", "option_non_bpy_transformed.xml"]
+        expect_transformed_files = [
+            "option_bpy_transformed.xml",
+            "option_non_bpy_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["data_type_refiner"], {})
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_description_dependency(self) -> None:
@@ -650,20 +693,22 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = ["description_dependency_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["data_type_refiner"], {})
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -685,20 +730,22 @@ class DefaultValueFillerTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["default_value_filler"], {})
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -715,7 +762,8 @@ class DependencyBuilderTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
@@ -740,7 +788,7 @@ class DependencyBuilderTest(TransformerTestBase):
         module_b_structure.add_child(module_structure)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer(["dependency_builder"], {
@@ -751,7 +799,8 @@ class DependencyBuilderTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -768,13 +817,14 @@ class DuplicatedFunctionArgumentsRemoverTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -783,7 +833,8 @@ class DuplicatedFunctionArgumentsRemoverTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -800,13 +851,14 @@ class FirstTitleRemoverTest(TransformerTestBase):
         expect_transformed_files = ["basic_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -815,7 +867,8 @@ class FirstTitleRemoverTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_multiple_titles(self) -> None:
@@ -824,13 +877,14 @@ class FirstTitleRemoverTest(TransformerTestBase):
         expect_transformed_files = ["multiple_titles_transformed.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
-        expect_transformed_files = [f"{self.data_dir}/expect/{f}" for f in expect_transformed_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
         self.assertEqual(len(documents), len(expect_files))
-        for doc, expect in zip(documents, expect_files):
+        for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
@@ -839,7 +893,8 @@ class FirstTitleRemoverTest(TransformerTestBase):
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
-        for trans, expect in zip(transformed, expect_transformed_files):
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
@@ -857,23 +912,26 @@ class ModApplierTest(TransformerTestBase):
         expect_files = ["new_data.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
-        expect_mod_files = [f"{self.data_dir}/expect/{f}" for f in expect_mod_files]
+        expect_mod_files = [f"{self.data_dir}/expect/{f}"
+                            for f in expect_mod_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
-        transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
+        transformer = Transformer(["mod_applier"],
+                                  {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
         self.assertEqual(len(transformer.get_transformers()), 1)
         mod_documents = transformer.get_transformers()[0].get_mod_documents()
 
         self.assertEqual(len(mod_documents), len(expect_mod_files))
-        for mod_doc, expect_file in zip(mod_documents, expect_mod_files):
+        for mod_doc, expect_file in zip(mod_documents, expect_mod_files,
+                                        strict=True):
             self.compare_with_file_contents(mod_doc.pformat(), expect_file)
 
         self.assertEqual(len(transformed), len(rst_files))
-        for doc, expect_file in zip(transformed, expect_files):
+        for doc, expect_file in zip(transformed, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect_file)
 
     def test_new_function(self) -> None:
@@ -883,23 +941,26 @@ class ModApplierTest(TransformerTestBase):
         expect_files = ["new_function.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
-        expect_mod_files = [f"{self.data_dir}/expect/{f}" for f in expect_mod_files]
+        expect_mod_files = [f"{self.data_dir}/expect/{f}"
+                            for f in expect_mod_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
-        transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
+        transformer = Transformer(["mod_applier"],
+                                  {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
         self.assertEqual(len(transformer.get_transformers()), 1)
         mod_documents = transformer.get_transformers()[0].get_mod_documents()
 
         self.assertEqual(len(mod_documents), len(expect_mod_files))
-        for mod_doc, expect_file in zip(mod_documents, expect_mod_files):
+        for mod_doc, expect_file in zip(mod_documents, expect_mod_files,
+                                        strict=True):
             self.compare_with_file_contents(mod_doc.pformat(), expect_file)
 
         self.assertEqual(len(transformed), len(rst_files))
-        for doc, expect_file in zip(transformed, expect_files):
+        for doc, expect_file in zip(transformed, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect_file)
 
     def test_new_class(self) -> None:
@@ -909,23 +970,26 @@ class ModApplierTest(TransformerTestBase):
         expect_files = ["new_class.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
-        expect_mod_files = [f"{self.data_dir}/expect/{f}" for f in expect_mod_files]
+        expect_mod_files = [f"{self.data_dir}/expect/{f}"
+                            for f in expect_mod_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
-        transformer = Transformer(["mod_applier"], {"mod_applier": {"mod_files": mod_files}})
+        transformer = Transformer(["mod_applier"],
+                                  {"mod_applier": {"mod_files": mod_files}})
         transformed = transformer.transform(documents)
         self.assertEqual(len(transformer.get_transformers()), 1)
         mod_documents = transformer.get_transformers()[0].get_mod_documents()
 
         self.assertEqual(len(mod_documents), len(expect_mod_files))
-        for mod_doc, expect_file in zip(mod_documents, expect_mod_files):
+        for mod_doc, expect_file in zip(mod_documents, expect_mod_files,
+                                        strict=True):
             self.compare_with_file_contents(mod_doc.pformat(), expect_file)
 
         self.assertEqual(len(transformed), len(rst_files))
-        for doc, expect_file in zip(transformed, expect_files):
+        for doc, expect_file in zip(transformed, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect_file)
 
     def test_append_function(self) -> None:
@@ -935,7 +999,8 @@ class ModApplierTest(TransformerTestBase):
         expect_files = ["append_function.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
-        expect_mod_files = [f"{self.data_dir}/expect/{f}" for f in expect_mod_files]
+        expect_mod_files = [f"{self.data_dir}/expect/{f}"
+                            for f in expect_mod_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
 
         analyzer = BaseAnalyzer()
