@@ -2,6 +2,12 @@
 
 .. module:: bpy.types
 
+.. class:: Object
+
+   .. attribute:: data
+
+      :type: :class:`bpy.types.Mesh`, :class:`bpy.types.Curve`, :class:`bpy.types.SurfaceCurve`, :class:`bpy.types.MetaBall`, :class:`bpy.types.TextCurve`, :class:`bpy.types.Curves`, :class:`bpy.types.PointCloud`, :class:`bpy.types.Volume`, :class:`bpy.types.PointCloud`, :class:`bpy.types.GreasePencil`, :class:`bpy.types.GreasePencilv3`, :class:`bpy.types.Armature`, :class:`bpy.types.Lattice`, :class:`bpy.types.Light`, :class:`bpy.types.LightProbe`, :class:`bpy.types.Camera`, :class:`bpy.types.Speaker`
+
 .. class:: bpy_prop_collection
 
    .. method:: values()
