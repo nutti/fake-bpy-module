@@ -15,9 +15,8 @@ REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
 def analyze(rst_files: list[str]) -> list[nodes.document]:
     rst_files = [f.replace("\\", "/") for f in rst_files]
     analyzer = BaseAnalyzer()
-    documents = analyzer.analyze(rst_files)
 
-    return documents
+    return analyzer.analyze(rst_files)
 
 
 class BaseAnalyzer:

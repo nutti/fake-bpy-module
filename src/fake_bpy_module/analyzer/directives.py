@@ -131,7 +131,7 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
     if isinstance(expr, ast.UnaryOp):
         if isinstance(expr.op, ast.USub):
             operand = parse_func_arg_default_value(expr.operand)
-            if isinstance(operand, (float, int)):
+            if isinstance(operand, float | int):
                 return -operand     # pylint: disable=E1130
             if isinstance(operand, str):
                 return "None"
@@ -272,8 +272,8 @@ class ClassDirective(rst.Directive):
         class_name = self.arguments[0]
 
         # Ex: GPUBatch(type, buf, elem=None): -> GPUBatch
-        # TODO: Need to parse class name with arguments to create __init__ method.
-        #       Like __init__(type, buf, elem=None).
+        # TODO: Need to parse class name with arguments to create
+        #       __init__ method like __init__(type, buf, elem=None).
         #       We should consider Color(rgb) which will be added by mod file.
         if m := self._CLASS_NAME_WITH_ARGS_REGEX.match(class_name):
             class_name = m.group(1)
@@ -355,7 +355,8 @@ class DataDirective(rst.Directive):
                 if fname_node.astext() == "type":
                     dtype = parse_data_type(fbody_node)
                     dtype_list_node.append_child(dtype)
-                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                        fname_node.astext()):
                     for dtype_node in dtype_list_node.findall(DataTypeNode):
                         dtype_node.attributes[m.group(1)] = fbody_node.astext()
 
@@ -453,7 +454,8 @@ class FunctionDirective(rst.Directive):
                         elif m.group(1) == "rtype":
                             dtype = parse_data_type(fbody_node)
                             func_ret_node.element(DataTypeListNode).append_child(dtype)
-                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                            fname_node.astext()):
                         if m.group(2) == "arg":
                             arg_name = m.group(3)
                             arg_node: ArgumentNode = None
@@ -464,13 +466,16 @@ class FunctionDirective(rst.Directive):
                                     break
                             if arg_node:
                                 for dtype_node in arg_node.findall(DataTypeNode):
-                                    dtype_node.attributes[m.group(1)] = fbody_node.astext()
+                                    dtype_node.attributes[m.group(1)] = \
+                                        fbody_node.astext()
                         elif m.group(2) == "rtype":
                             func_ret_node = func_node.element(FunctionReturnNode)
                             for dtype_node in func_ret_node.findall(DataTypeNode):
-                                dtype_node.attributes[m.group(1)] = fbody_node.astext()
+                                dtype_node.attributes[m.group(1)] = \
+                                    fbody_node.astext()
                         elif m.group(2) == "function":
-                            func_node.attributes[m.group(1)] = fbody_node.astext()
+                            func_node.attributes[m.group(1)] = \
+                                fbody_node.astext()
 
         return func_nodes
 
@@ -552,7 +557,8 @@ class BaseClassDirective(rst.Directive):
                 if self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
                     for base_class_node in base_class_list_node.children:
                         for dtype_node in base_class_node.findall(DataTypeNode):
-                            dtype_node.attributes["mod-option"] = fbody_node.astext()
+                            dtype_node.attributes["mod-option"] = \
+                                fbody_node.astext()
 
         return [base_class_list_node]
 

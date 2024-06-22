@@ -1,10 +1,14 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from fake_bpy_module import config  # pylint: disable=E0401
 from fake_bpy_module.analyzer.analyzer import analyze  # pylint: disable=E0401
-from fake_bpy_module.generator.generator import generate  # pylint: disable=E0401
-from fake_bpy_module.transformer.transformer import transform  # pylint: disable=E0401
+from fake_bpy_module.generator.generator import (
+    generate,  # pylint: disable=E0401
+)
+from fake_bpy_module.transformer.transformer import (
+    transform,  # pylint: disable=E0401
+)
 
 from . import common
 
@@ -39,7 +43,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
         config.set_mod_version("2.80")
 
     def __is_py_typed_exist(self, filepath: str) -> bool:
-        if not Path(filepath).is_file:
+        if not Path(filepath).is_file():
             return False
         return Path(filepath).stat().st_size == 0
 
@@ -68,9 +72,11 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
                     expect_contents = f.read()
                 with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
-                self.log(f"============= Expect: {expect_file_path} =============")
+                self.log(
+                    f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)
-                self.log(f"============= Actual: {actual_file_path} =============")
+                self.log(
+                    f"============= Actual: {actual_file_path} =============")
                 self.log(actual_contents)
                 self.assertEqual(expect_contents, actual_contents)
 
@@ -105,9 +111,11 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
                     expect_contents = f.read()
                 with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
-                self.log(f"============= Expect: {expect_file_path} =============")
+                self.log(
+                    f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)
-                self.log(f"============= Actual: {actual_file_path} =============")
+                self.log(
+                    f"============= Actual: {actual_file_path} =============")
                 self.log(actual_contents)
                 self.assertEqual(expect_contents, actual_contents)
 
@@ -138,9 +146,11 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
                     expect_contents = f.read()
                 with Path(expect_file_path).open("r", encoding="utf-8") as f:
                     actual_contents = f.read()
-                self.log(f"============= Expect: {expect_file_path} =============")
+                self.log(
+                    f"============= Expect: {expect_file_path} =============")
                 self.log(expect_contents)
-                self.log(f"============= Actual: {actual_file_path} =============")
+                self.log(
+                    f"============= Actual: {actual_file_path} =============")
                 self.log(actual_contents)
                 self.assertEqual(expect_contents, actual_contents)
 

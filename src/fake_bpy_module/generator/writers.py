@@ -31,7 +31,11 @@ from fake_bpy_module.analyzer.nodes import (
     NameNode,
     NodeBase,
 )
-from fake_bpy_module.utils import find_children, get_first_child, remove_unencodable
+from fake_bpy_module.utils import (
+    find_children,
+    get_first_child,
+    remove_unencodable,
+)
 
 from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
@@ -46,7 +50,8 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     class_nodes = find_children(document, ClassNode)
     for class_node in class_nodes:
         class_name = class_node.element(NameNode).astext()
-        if class_name in ("bpy_prop_collection", "bpy_prop_array", "bpy_struct"):
+        if class_name in ("bpy_prop_collection",
+                          "bpy_prop_array", "bpy_struct"):
             all_high_priority_class_nodes.append(class_node)
         else:
             all_class_nodes.append(class_node)
@@ -108,7 +113,8 @@ class BaseWriter(metaclass=abc.ABCMeta):
         self.file_format = ""
 
     @abc.abstractmethod
-    def write(self, filename: str, document: nodes.document, style_config: str = 'ruff') -> None:
+    def write(self, filename: str, document: nodes.document,
+              style_config: str = 'ruff') -> None:
         raise NotImplementedError()
 
 
@@ -129,7 +135,8 @@ class PyCodeWriterBase(BaseWriter):
     # pylint: disable=R0912
     def _write_function_code(self, func_node: FunctionNode) -> None:    # noqa: PLR0912, PLR0915, C901
         func_name = func_node.element(NameNode).astext()
-        arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
+        arg_nodes = find_children(
+            func_node.element(ArgumentListNode), ArgumentNode)
         return_node = func_node.element(FunctionReturnNode)
 
         wt = self._writer
@@ -162,7 +169,8 @@ class PyCodeWriterBase(BaseWriter):
                         break
 
                 if not default_value_node.empty():
-                    wt.add(f"{arg_name}: {dtype_str}={default_value_node.astext()}")
+                    wt.add(f"{arg_name}: {dtype_str}="
+                           f"{default_value_node.astext()}")
                 else:
                     wt.add(f"{arg_name}: {dtype_str}")
             else:
@@ -212,7 +220,8 @@ class PyCodeWriterBase(BaseWriter):
                     desc_node = arg_node.element(DescriptionNode)
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     if not desc_node.empty():
-                        wt.addln(f":param {name_node.astext()}: {desc_node.astext()}")
+                        wt.addln(f":param {name_node.astext()}: "
+                                 f"{desc_node.astext()}")
                     if not dtype_list_node.empty():
                         dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                         dtype_str = make_union(dtype_nodes)
@@ -229,7 +238,8 @@ class PyCodeWriterBase(BaseWriter):
                     if not desc_node.empty():
                         wt.addln(f":return: {desc_node.astext()}")
                     if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        dtype_nodes = find_children(dtype_list_node,
+                                                    DataTypeNode)
                         dtype = make_union(dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:

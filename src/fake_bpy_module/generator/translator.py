@@ -18,7 +18,8 @@ from .code_writer import (
 
 
 class Status:
-    def __init__(self, status: str | None = None, parameters = None) -> None:
+    def __init__(self, status: str | None = None,
+                 parameters: dict | None = None) -> None:
         self.kind = status
         self.parameters = parameters
 
@@ -27,7 +28,8 @@ class Status:
 class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
     INDENT = "    "
 
-    def __init__(self, document: nodes.document, doc_writer: CodeWriter) -> None:
+    def __init__(self, document: nodes.document,
+                 doc_writer: CodeWriter) -> None:
         super().__init__(document)
 
         self.doc_writer: CodeWriter = doc_writer
@@ -68,7 +70,8 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         new_line_num = 0
         if len(self.status_stack) >= 1:
             status = self.status_stack[-1]
-            if status.kind in ('BULLET_LIST', 'ENUMERATED_LIST', 'NOTE', 'WARNING', 'BLOCK_QUOTE'):
+            if status.kind in ('BULLET_LIST', 'ENUMERATED_LIST', 'NOTE',
+                               'WARNING', 'BLOCK_QUOTE'):
                 new_line_num = 1
         else:
             new_line_num = 2
@@ -111,7 +114,8 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
 
     def visit_enumerated_list(self, _: nodes.enumerated_list) -> None:
         level = self.get_list_level()
-        self.status_stack.append(Status('ENUMERATED_LIST', {"number": 0, "level": level}))
+        self.status_stack.append(
+            Status('ENUMERATED_LIST',{"number": 0, "level": level}))
 
     def depart_enumerated_list(self, _: nodes.enumerated_list) -> None:
         status = self.status_stack.pop()
@@ -187,7 +191,8 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         status = self.status_stack[-1]
         assert status.kind == 'DEFINITION_LIST'
 
-    def depart_definition_list_item(self, _: nodes.definition_list_item) -> None:
+    def depart_definition_list_item(self,
+                                    _: nodes.definition_list_item) -> None:
         status = self.status_stack[-1]
         assert status.kind == 'DEFINITION_LIST'
 
