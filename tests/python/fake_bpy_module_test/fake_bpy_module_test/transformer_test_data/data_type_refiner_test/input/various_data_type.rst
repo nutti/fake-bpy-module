@@ -87,6 +87,10 @@
 
    :type: boolean array of 3 items
 
+.. function:: function_1(arg_boolean_array_of)
+
+   :type arg_boolean_array_of: boolean array of 3 items
+
 .. data:: data_boolean
 
    :type: boolean
