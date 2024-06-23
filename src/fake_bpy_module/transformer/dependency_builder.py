@@ -49,7 +49,7 @@ class Dependency:
 
 class DependencyBuilder(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
@@ -66,7 +66,8 @@ class DependencyBuilder(TransformerBase):
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
 
-        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2)):
+        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2,
+                                         strict=False)):
             if m1 != m2:
                 match_level = i
                 break
@@ -97,14 +98,14 @@ class DependencyBuilder(TransformerBase):
             #   * data_type_1: bpy.types.Mesh
             #   * data_type_2: bpy.ops.automerge()
             #       => bpy.types
-            elif rest_level_1 >= 1 and rest_level_2 >= 1:
+            elif rest_level_1 >= 1 and rest_level_2 >= 1:  # noqa: SIM114
                 module_path = ".".join(mod_names_1)
             # [Case 4] Match partially (Upper level)
             #               => Need to import top level
             #   * data_type_1: mathutils.Vector
             #   * data_type_2: mathutils.noise.cell
             #       => mathutils
-            elif rest_level_1 == 0 and rest_level_2 >= 1:
+            elif rest_level_1 == 0 and rest_level_2 >= 1:  # noqa: SIM114
                 module_path = ".".join(mod_names_1)
             # [Case 5] Match partially (Lower level)
             #               => Need to import top level
@@ -122,7 +123,8 @@ class DependencyBuilder(TransformerBase):
                         module_structure: ModuleStructure,
                         data_type_1: str, data_type_2: str) -> None:
 
-        mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
+        mod = self._get_import_module_path(
+            module_structure, data_type_1, data_type_2)
         base = get_base_name(data_type_1)
         if mod is None:
             return
@@ -137,12 +139,12 @@ class DependencyBuilder(TransformerBase):
             target_dep.mod_name = mod
             target_dep.add_type(base)
             dependencies.append(target_dep)
-        else:
-            if base not in target_dep.type_lists:
-                target_dep.add_type(base)
+        elif base not in target_dep.type_lists:
+            target_dep.add_type(base)
 
     def _build_dependencies(
-            self, document: nodes.document, package_structure: ModuleStructure) -> None:
+            self, document: nodes.document,
+            package_structure: ModuleStructure) -> None:
 
         dependencies: list[Dependency] = []
         module_node = get_first_child(document, ModuleNode)
@@ -188,7 +190,7 @@ class DependencyBuilder(TransformerBase):
     def name(cls: type['DependencyBuilder']) -> str:
         return "dependency_builder"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         if self._package_structure is None:
             structure = build_module_structure(self.documents)
         else:

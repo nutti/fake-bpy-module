@@ -16,7 +16,7 @@ from .utils import build_module_structure, get_base_name, get_module_name
 
 class CannonicalDataTypeRewriter(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
 
         self._package_structure = None
@@ -47,7 +47,8 @@ class CannonicalDataTypeRewriter(TransformerBase):
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
 
-        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2)):
+        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2,
+                                         strict=False)):
             if m1 != m2:
                 match_level = i
                 break
@@ -77,13 +78,13 @@ class CannonicalDataTypeRewriter(TransformerBase):
             #   * data_type: bpy.types.Mesh
             #   * target_module: bpy.ops
             #       => bpy.types.Mesh
-            elif rest_level_1 >= 1 and rest_level_2 >= 1:
+            elif rest_level_1 >= 1 and rest_level_2 >= 1:  # noqa: SIM114
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 4] Match partially (Upper level) => Use data_type
             #   * data_type: mathutils.Vector
             #   * target_module: mathutils.noise
             #       => mathutils.Vector
-            elif rest_level_1 == 0 and rest_level_2 >= 1:
+            elif rest_level_1 == 0 and rest_level_2 >= 1:  # noqa: SIM114
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 5] Match partially (Lower level) => Use data_type
             #   * data_type: mathutils.noise.cell
@@ -141,7 +142,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
     def name(cls: type['CannonicalDataTypeRewriter']) -> str:
         return "cannonical_data_type_rewriter"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         if self._package_structure is None:
             self._package_structure = build_module_structure(self.documents)
 

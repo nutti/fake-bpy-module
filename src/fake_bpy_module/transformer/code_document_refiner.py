@@ -20,7 +20,8 @@ class CodeDocumentRefiner(TransformerBase):
         para_nodes = find_children(new_doc_node, nodes.paragraph)
         nodes_to_remove: list[nodes.Node] = []
         for node in para_nodes:
-            if node.astext() in ("Inherited Functions", "Inherited Properties", "References"):
+            if node.astext() in ("Inherited Functions", "Inherited Properties",
+                                 "References"):
                 index = node.parent.children.index(node)
                 next_node = node.parent.children[index+1]
                 nodes_to_remove.append(node)
@@ -38,6 +39,6 @@ class CodeDocumentRefiner(TransformerBase):
     def name(cls: type['CodeDocumentRefiner']) -> str:
         return "code_document_refiner"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

@@ -15,7 +15,7 @@ from .transformer_base import TransformerBase
 
 class DefaultValueFiller(TransformerBase):
 
-    def _fill(self, document: nodes.document) -> None:  # noqa: C901
+    def _fill(self, document: nodes.document) -> None:
         func_nodes = document.findall(FunctionNode)
         for func_node in func_nodes:
             arg_list_node = func_node.element(ArgumentListNode)
@@ -40,7 +40,7 @@ class DefaultValueFiller(TransformerBase):
                     dtype = dtype_node.to_string()
 
                     # Built-in data type.
-                    BUILTIN_DTYPE_DEFAULT_VALUE_MAP = {
+                    BUILTIN_DTYPE_DEFAULT_VALUE_MAP = {  # noqa: N806
                         "bool": "False",
                         "str": '""',
                         "bytes": "0",
@@ -56,7 +56,7 @@ class DefaultValueFiller(TransformerBase):
                         continue
 
                     # Modifier data type.
-                    MODIFIER_DTYPE_DEFAULT_VALUE_MAP = {
+                    MODIFIER_DTYPE_DEFAULT_VALUE_MAP = {  # noqa: N806
                         "list": "[]",
                         "dict": "{}",
                         "set": "()",
@@ -82,6 +82,6 @@ class DefaultValueFiller(TransformerBase):
     def name(cls: type['DefaultValueFiller']) -> str:
         return "default_value_filler"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._fill(document)

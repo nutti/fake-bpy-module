@@ -78,12 +78,14 @@ ignore = [
     "TD003",
     "FIX002",
     "PLR2004",
+    "SIM102",
 ]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 30
+max-complexity = 100
 
 [tool.ruff.lint.pylint]
-max-branches = 30
-max-statements = 100
-max-returns = 10
+max-args = 10
+max-branches = 100
+max-statements = 200
+max-returns = 70

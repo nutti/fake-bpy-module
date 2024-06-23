@@ -1,12 +1,12 @@
 import io
 import subprocess
-from typing import Self
+from typing import ClassVar, Self
 
 from yapf.yapflib.yapf_api import FormatCode
 
 
 class CodeWriterIndent:
-    indent_stack: list[int] = [0]
+    indent_stack: ClassVar[list[int]] = [0]
 
     def __init__(self, indent: int = 0,
                  append_current_indent: bool = False) -> None:
@@ -93,7 +93,7 @@ class CodeWriter:
         elif style_config == "ruff":
             try:
                 self._code_data = io.StringIO(subprocess.check_output(
-                    [
+                    [  # noqa: S607, S603
                         "ruff",
                         "format",
                         "--isolated",
@@ -107,7 +107,7 @@ class CodeWriter:
                 print(self._code_data.getvalue())
                 print("=====================")
                 print(e.stderr)
-                raise e
+                raise
         elif style_config == "none":
             pass
         else:

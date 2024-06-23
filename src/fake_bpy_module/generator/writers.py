@@ -79,14 +79,14 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
             dtype_nodes = find_children(dtype_list_node, DataTypeNode)
             dtypes = [dt.astext().replace("`", "") for dt in dtype_nodes]
 
-            for dtype in dtypes:
-                if dtype in class_name_to_node:
-                    dst_names.append(dtype)
+            dst_names = [dtype for dtype in dtypes
+                         if dtype in class_name_to_node]
         graph[src_name] = dst_names
 
     sorter = graphlib.TopologicalSorter(graph)
     sorted_class_names = list(sorter.static_order())
-    sorted_class_nodes = [class_name_to_node[name] for name in sorted_class_names]
+    sorted_class_nodes = [class_name_to_node[name]
+                          for name in sorted_class_names]
 
     # Sort function data
     sorted_function_nodes = sorted(
@@ -115,7 +115,7 @@ class BaseWriter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def write(self, filename: str, document: nodes.document,
               style_config: str = 'ruff') -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class PyCodeWriterBase(BaseWriter):
@@ -173,11 +173,10 @@ class PyCodeWriterBase(BaseWriter):
                            f"{default_value_node.astext()}")
                 else:
                     wt.add(f"{arg_name}: {dtype_str}")
+            elif not default_value_node.empty():
+                wt.add(f"{arg_name}={default_value_node.astext()}")
             else:
-                if not default_value_node.empty():
-                    wt.add(f"{arg_name}={default_value_node.astext()}")
-                else:
-                    wt.add(f"{arg_name}")
+                wt.add(f"{arg_name}")
 
             if i != len(arg_nodes) - 1:
                 wt.add(", ")
@@ -207,7 +206,7 @@ class PyCodeWriterBase(BaseWriter):
             if (
                 not desc_node.empty()
                 or any(
-                    not n.element(DescriptionNode).empty() != ""
+                    n.element(DescriptionNode).empty() == ""
                     or not n.element(DataTypeListNode).empty()
                     for n in arg_nodes
                 )
@@ -223,12 +222,14 @@ class PyCodeWriterBase(BaseWriter):
                         wt.addln(f":param {name_node.astext()}: "
                                  f"{desc_node.astext()}")
                     if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        dtype_nodes = find_children(dtype_list_node,
+                                                    DataTypeNode)
                         dtype_str = make_union(dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
-                            if "never none" not in dtype_node.attributes["option"]:
+                            if ("never none" not in
+                                    dtype_node.attributes["option"]):
                                 dtype_str = f"{dtype_str} | None"
                                 break
                         wt.addln(f":type {name_node.astext()}: {dtype_str}")
@@ -260,13 +261,16 @@ class PyCodeWriterBase(BaseWriter):
         base_class_list_node = class_node.element(BaseClassListNode)
         name_node = class_node.element(NameNode)
         desc_node = class_node.element(DescriptionNode)
-        attr_nodes = find_children(class_node.element(AttributeListNode), AttributeNode)
-        method_nodes = find_children(class_node.element(FunctionListNode), FunctionNode)
+        attr_nodes = find_children(class_node.element(AttributeListNode),
+                                   AttributeNode)
+        method_nodes = find_children(class_node.element(FunctionListNode),
+                                     FunctionNode)
 
         if base_class_list_node.empty():
             wt.addln(f"class {name_node.astext()}:")
         else:
-            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            base_class_nodes = find_children(base_class_list_node,
+                                             BaseClassNode)
             dtypes = []
             for base_class_node in base_class_nodes:
                 dtype_list_node = base_class_node.element(DataTypeListNode)
@@ -302,7 +306,8 @@ class PyCodeWriterBase(BaseWriter):
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 desc_node = attr_node.element(DescriptionNode)
                 if "deprecated" in attr_node.attributes:
-                    desc_node.insert(0, nodes.Text(attr_node.attributes["deprecated"]))
+                    desc_node.insert(
+                        0, nodes.Text(attr_node.attributes["deprecated"]))
 
                 dtype_str = None
                 if not dtype_list_node.empty():
@@ -312,7 +317,8 @@ class PyCodeWriterBase(BaseWriter):
                         if "option" not in dtype_node.attributes:
                             continue
                         if ("accept none" in dtype_node.attributes["option"] or
-                                "never none" not in dtype_node.attributes["option"]):
+                                "never none" not in
+                                    dtype_node.attributes["option"]):
                             dtype_str = f"{dtype_str} | None"
                             break
 
@@ -340,7 +346,7 @@ class PyCodeWriterBase(BaseWriter):
                 arg_list_node = method_node.element(ArgumentListNode)
                 name_node = method_node.element(NameNode)
 
-                if "option" in method_node.attributes:
+                if "option" in method_node.attributes: 
                     if method_node.attributes["option"] == "overload":
                         wt.addln("@typing.overload")
                 if func_type in ("function", "method"):
@@ -363,7 +369,8 @@ class PyCodeWriterBase(BaseWriter):
                         wt.addln("@staticmethod")
                         wt.add(f"def {name_node.astext()}(")
                 else:
-                    raise NotImplementedError(f"func_type={func_type} is not supported")
+                    raise NotImplementedError(
+                        f"func_type={func_type} is not supported")
 
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
                 start_kwarg = False
@@ -372,7 +379,9 @@ class PyCodeWriterBase(BaseWriter):
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     default_value_node = arg_node.element(DefaultValueNode)
 
-                    is_kwonlyarg = arg_node.attributes["argument_type"] == "kwonlyarg"
+                    is_kwonlyarg = (
+                        arg_node.attributes["argument_type"] == "kwonlyarg"
+                    )
                     if not start_kwarg and is_kwonlyarg:
                         wt.add("*, ")
                         start_kwarg = True
@@ -383,12 +392,14 @@ class PyCodeWriterBase(BaseWriter):
                         arg_name = f"**{arg_name}"
 
                     if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        dtype_nodes = find_children(dtype_list_node,
+                                                    DataTypeNode)
                         dtype_str = make_union(dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
                                 continue
-                            if "never none" not in dtype_node.attributes["option"]:
+                            if ("never none" not in
+                                    dtype_node.attributes["option"]):
                                 dtype_str = f"{dtype_str} | None"
                                 break
 
@@ -397,12 +408,11 @@ class PyCodeWriterBase(BaseWriter):
                                    f"{default_value_node.astext()}")
                         else:
                             wt.add(f"{arg_name}: {dtype_str}")
+                    elif not default_value_node.empty():
+                        wt.add(f"{arg_name}="
+                               f"{default_value_node.astext()}")
                     else:
-                        if not default_value_node.empty():
-                            wt.add(f"{arg_name}="
-                                   f"{default_value_node.astext()}")
-                        else:
-                            wt.add(arg_name)
+                        wt.add(arg_name)
 
                     if i != len(arg_nodes) - 1:
                         wt.add(", ")
@@ -413,7 +423,8 @@ class PyCodeWriterBase(BaseWriter):
                 else:
                     dtype_list_node = return_node.element(DataTypeListNode)
                     if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                        dtype_nodes = find_children(dtype_list_node,
+                                                    DataTypeNode)
                         dtype = make_union(dtype_nodes)
                         for dtype_node in dtype_nodes:
                             if "option" not in dtype_node.attributes:
@@ -450,7 +461,8 @@ class PyCodeWriterBase(BaseWriter):
                                 for dtype_node in dtype_nodes:
                                     if "option" not in dtype_node.attributes:
                                         continue
-                                    if "never none" not in dtype_node.attributes["option"]:
+                                    if ("never none" not in
+                                            dtype_node.attributes["option"]):
                                         dtype_str = f"{dtype_str} | None"
                                         break
                                 wt.addln(f":type {name_node.astext()}: "
@@ -458,17 +470,20 @@ class PyCodeWriterBase(BaseWriter):
 
                         if not return_node.empty():
                             desc_node = return_node.element(DescriptionNode)
-                            dtype_list_node = return_node.element(DataTypeListNode)
+                            dtype_list_node = return_node.element(
+                                DataTypeListNode)
 
                             wt.addln(f":return: {desc_node.astext()}")
 
                             if not dtype_list_node.empty():
-                                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                                dtype_nodes = find_children(dtype_list_node,
+                                                            DataTypeNode)
                                 dtype = make_union(dtype_nodes)
                                 for dtype_node in dtype_nodes:
                                     if "option" not in dtype_node.attributes:
                                         continue
-                                    if "accept none" in dtype_node.attributes["option"]:
+                                    if ("accept none" in
+                                            dtype_node.attributes["option"]):
                                         dtype = f"{dtype} | None"
                                         break
                                 wt.addln(f":rtype: {dtype}")
@@ -628,7 +643,8 @@ class JsonWriter(BaseWriter):
             "options": self._clean_node_attributes(func_node.attributes),
         }
 
-        arg_nodes = find_children(func_node.element(ArgumentListNode), ArgumentNode)
+        arg_nodes = find_children(func_node.element(ArgumentListNode),
+                                  ArgumentNode)
         for arg_node in arg_nodes:
             arg_data = {
                 "name": arg_node.element(NameNode).astext(),
@@ -636,11 +652,13 @@ class JsonWriter(BaseWriter):
                 "data_types": [],
                 "default_value": arg_node.element(DefaultValueNode).astext()
             }
-            dtype_nodes = find_children(arg_node.element(DataTypeListNode), DataTypeNode)
+            dtype_nodes = find_children(arg_node.element(DataTypeListNode),
+                                        DataTypeNode)
             for dtype_node in dtype_nodes:
                 dtype_data = {
                     "data_type": dtype_node.to_string(),
-                    "options": self._clean_node_attributes(dtype_node.attributes),
+                    "options": self._clean_node_attributes(
+                        dtype_node.attributes),
                 }
                 arg_data["data_types"].append(dtype_data)
             func_data["arguments"].append(arg_data)
@@ -650,7 +668,8 @@ class JsonWriter(BaseWriter):
             "description": ret_node.element(DescriptionNode).astext(),
             "data_types": [],
         }
-        dtype_nodes = find_children(ret_node.element(DataTypeListNode), DataTypeNode)
+        dtype_nodes = find_children(ret_node.element(DataTypeListNode),
+                                    DataTypeNode)
         for dtype_node in dtype_nodes:
             dtype_data = {
                 "data_type": dtype_node.to_string(),
@@ -669,7 +688,8 @@ class JsonWriter(BaseWriter):
             "options": self._clean_node_attributes(data_node.attributes),
         }
 
-        dtype_nodes = find_children(data_node.element(DataTypeListNode), DataTypeNode)
+        dtype_nodes = find_children(data_node.element(DataTypeListNode),
+                                    DataTypeNode)
         for dtype_node in dtype_nodes:
             dtype_data = {
                 "data_type": dtype_node.to_string(),
@@ -690,27 +710,32 @@ class JsonWriter(BaseWriter):
             "options": self._clean_node_attributes(class_node.attributes),
         }
 
-        base_class_nodes = find_children(class_node.element(BaseClassListNode), BaseClassNode)
+        base_class_nodes = find_children(class_node.element(BaseClassListNode),
+                                         BaseClassNode)
         for base_class_node in base_class_nodes:
             base_class_data = {
                 "data_types": [],
             }
-            dtype_nodes = find_children(base_class_node.element(DataTypeListNode), DataTypeNode)
+            dtype_nodes = find_children(
+                base_class_node.element(DataTypeListNode), DataTypeNode)
             for dtype_node in dtype_nodes:
                 dtype_data = {
                     "data_type": dtype_node.to_string(),
-                    "options": self._clean_node_attributes(dtype_node.attributes),
+                    "options": self._clean_node_attributes(
+                        dtype_node.attributes),
                 }
                 base_class_data["data_types"].append(dtype_data)
             class_data["base_classes"].append(base_class_data)
 
-        attr_nodes = find_children(class_node.element(AttributeListNode), AttributeNode)
+        attr_nodes = find_children(class_node.element(AttributeListNode),
+                                   AttributeNode)
         for attr_node in attr_nodes:
             attr_data = self._create_constant_json_data(attr_node)
             del attr_data["type"]
             class_data["attributes"].append(attr_data)
 
-        method_nodes = find_children(class_node.element(FunctionListNode), FunctionNode)
+        method_nodes = find_children(class_node.element(FunctionListNode),
+                                     FunctionNode)
         for method_node in method_nodes:
             method_data = self._create_function_json_data(method_node)
             del method_data["type"]
@@ -718,7 +743,8 @@ class JsonWriter(BaseWriter):
 
         return class_data
 
-    def write(self, filename: str, document: nodes.document, style_config: str = 'none') -> None:
+    def write(self, filename: str, document: nodes.document,
+              style_config: str = 'none') -> None:  # noqa: ARG002
         sorted_data = sorted_entry_point_nodes(document)
 
         json_data = []
@@ -778,5 +804,6 @@ class JsonWriter(BaseWriter):
             elif isinstance(node, DataNode):
                 json_data.append(self._create_constant_json_data(node))
 
-        with Path(f"{filename}.{self.file_format}").open("w", newline="\n", encoding="utf-8") as f:
+        with Path(f"{filename}.{self.file_format}").open(
+                "w", newline="\n", encoding="utf-8") as f:
             json.dump(json_data, f, indent=4)

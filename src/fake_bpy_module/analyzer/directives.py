@@ -236,7 +236,7 @@ class ModuleDirective(rst.Directive):
             if config.get_target_version() == "2.90":
                 if module_name.startswith("bpy.types."):
                     module_name = module_name[:module_name.rfind(".")]
-            elif config.get_target_version() in [  # noqa: SIM102
+            elif config.get_target_version() in [
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
                     "4.0", "4.1",

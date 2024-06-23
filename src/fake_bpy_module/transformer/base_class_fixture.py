@@ -25,7 +25,8 @@ class BaseClassFixture(TransformerBase):
             class_name = class_node.element(NameNode).astext()
 
             base_class_list_node = class_node.element(BaseClassListNode)
-            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            base_class_nodes = find_children(base_class_list_node,
+                                             BaseClassNode)
             for base_class_node in base_class_nodes:
                 dtype_list_node = base_class_node.element(DataTypeListNode)
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
@@ -60,7 +61,7 @@ class BaseClassFixture(TransformerBase):
     def name(cls: type['BaseClassFixture']) -> str:
         return "base_class_fixture"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)
             self._remove_self_parent_class(document)

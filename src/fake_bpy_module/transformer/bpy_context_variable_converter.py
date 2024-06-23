@@ -26,7 +26,7 @@ class BpyContextVariableConverter(TransformerBase):
     def name(cls: type['BpyContextVariableConverter']) -> str:
         return "bpy_context_variable_converter"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:
         bpy_module_document: nodes.document = None
         bpy_context_module_document: nodes.document = None
         bpy_context_class_node: ClassNode = None
