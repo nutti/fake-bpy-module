@@ -19,3 +19,5 @@ max-bool-expr=20
 
 ignore-paths=tests/python/fake_bpy_module_test/fake_bpy_module_test/generator_test_data/*,
              tests/python/fake_bpy_module_test/fake_bpy_module_test/integration_test_data/*,
+
+init-hook='import sys; sys.path.append("./src")'
