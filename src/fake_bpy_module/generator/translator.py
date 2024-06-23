@@ -115,7 +115,7 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
     def visit_enumerated_list(self, _: nodes.enumerated_list) -> None:
         level = self.get_list_level()
         self.status_stack.append(
-            Status('ENUMERATED_LIST',{"number": 0, "level": level}))
+            Status('ENUMERATED_LIST', {"number": 0, "level": level}))
 
     def depart_enumerated_list(self, _: nodes.enumerated_list) -> None:
         status = self.status_stack.pop()
@@ -251,14 +251,14 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
-    def depart_RefRef(self, _: RefRef) -> None: # noqa: N802
+    def depart_RefRef(self, _: RefRef) -> None:     # noqa: N802
         pass
 
     def visit_ClassRef(self, node: ClassRef) -> None:   # noqa: N802
         self.doc_writer.add(node.to_string())
         raise nodes.SkipChildren
 
-    def depart_ClassRef(self, _: ClassRef) -> None: # noqa: N802
+    def depart_ClassRef(self, _: ClassRef) -> None:     # noqa: N802
         pass
 
     def visit_FunctionRef(self, node: FunctionRef) -> None:     # noqa: N802

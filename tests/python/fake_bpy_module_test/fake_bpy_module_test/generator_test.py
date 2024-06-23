@@ -105,8 +105,8 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         shutil.rmtree(self.output_dir)
 
     def test_normal(self) -> None:
-        with Path(self.output_file_path).open("w", newline="\n",
-                  encoding="utf-8") as f:
+        with Path(self.output_file_path).open(
+                "w", newline="\n", encoding="utf-8") as f:
             writer = CodeWriter()
 
             writer.addln("import module_1")
@@ -129,8 +129,8 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.assertEqual(expect_contents, actual_contents)
 
     def test_with_code_indent(self) -> None:
-        with Path(self.output_file_path).open("w", newline="\n",
-                  encoding="utf-8") as f:
+        with Path(self.output_file_path).open(
+                "w", newline="\n", encoding="utf-8") as f:
             writer = CodeWriter()
 
             writer.addln("import module_1")
@@ -158,8 +158,8 @@ class CodeWriterTest(common.FakeBpyModuleTestBase):
         self.assertEqual(expect_contents, actual_contents)
 
     def test_with_reset(self) -> None:
-        with Path(self.output_file_path).open("w", newline="\n",
-                  encoding="utf-8") as f:
+        with Path(self.output_file_path).open(
+                "w", newline="\n", encoding="utf-8") as f:
             writer = CodeWriter()
 
             writer.addln("import fake")

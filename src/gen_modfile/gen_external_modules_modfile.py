@@ -119,7 +119,7 @@ def import_modules(module_name_list: List[str]) -> List:
 
 
 # pylint: disable=C0209
-def analyze_function(module_name: str, function: tuple, is_method: bool=False) -> Dict:
+def analyze_function(module_name: str, function: tuple, is_method: bool = False) -> Dict:
     function_def = {
         "name": function[0],
         "description": None,

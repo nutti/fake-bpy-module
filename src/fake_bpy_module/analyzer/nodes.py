@@ -37,10 +37,12 @@ class UniqueElementNode(NodeBase):
             new_obj.elements[type(child)] = child
         return new_obj
 
+    # pylint: disable=W0223
     @abc.abstractmethod
     def remove(self, item: nodes.Node) -> None:
         raise ValueError("Don't call remove directly, and use replace instead.")
 
+    # pylint: disable=W0223
     @abc.abstractmethod
     def insert(self, index: int, item: nodes.Node) -> None:
         raise ValueError("Don't call insert directly, and use replace instead.")

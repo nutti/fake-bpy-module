@@ -40,7 +40,7 @@ REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+)
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
 REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default (.+)$")  # noqa: E501 # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*$")
-REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$") # pylint: disable=C0301
+REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$")     # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_SET_IN_RNA = re.compile(r"^enum set in `(.*)`(, \(.+\))*$")  # noqa: E501 # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")  # noqa: E501 # pylint: disable=C0301
 REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF = re.compile(r"^boolean array of ([0-9]+) items(, .+)*$")  # noqa: E501 # pylint: disable=C0301
@@ -149,7 +149,7 @@ class DataTypeRefiner(TransformerBase):
             uniq_module_names: set[str], module_name: str,
             variable_kind: str,
             additional_info: dict[str, Any] | None = None
-            ) -> list[DataTypeNode]:
+        ) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip().strip(",")
 
@@ -498,7 +498,7 @@ class DataTypeRefiner(TransformerBase):
             is_pointer_prop: bool = False,
             description_str: str | None = None,
             additional_info: dict[str, Any] | None = None
-            ) -> tuple[list[str], str]:
+        ) -> tuple[list[str], str]:
         if module_name.startswith("bpy."):
             option_results = []
 

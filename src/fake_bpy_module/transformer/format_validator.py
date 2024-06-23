@@ -191,14 +191,13 @@ class FormatValidator(TransformerBase):
     def _check_code_document_node(
             self, code_document_node: CodeDocumentNode) -> None:
         for child in code_document_node.children:
-            assert not isinstance(child, ModuleNode | FunctionListNode |
-                                  FunctionNode | FunctionReturnNode |
-                                  ArgumentListNode | ArgumentNode |
-                                  AttributeListNode | AttributeNode |
-                                  BaseClassListNode | BaseClassNode | NameNode |
-                                  DescriptionNode | DataTypeListNode |
-                                  DataTypeNode | DefaultValueNode),
-            f"{code_document_node.pformat()}"
+            assert not isinstance(
+                child, ModuleNode | FunctionListNode | FunctionNode |
+                FunctionReturnNode | ArgumentListNode | ArgumentNode |
+                AttributeListNode | AttributeNode | BaseClassListNode |
+                BaseClassNode | NameNode | DescriptionNode | DataTypeListNode |
+                DataTypeNode | DefaultValueNode
+                ), f"{code_document_node.pformat()}"
 
     def _check_filename_node(
             self, source_filename_node: SourceFilenameNode) -> None:
