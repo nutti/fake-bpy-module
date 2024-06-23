@@ -229,7 +229,9 @@ class DataTypeRefiner(TransformerBase):
             return [make_data_type_node("bool")]
         # Ex: boolean array of 3 items, (optional)
         if REGEX_MATCH_DATA_TYPE_BOOLEAN_ARRAY_OF.match(dtype_str):
-            return [make_data_type_node("list[bool]")]
+            if variable_kind == 'FUNC_ARG':
+                return [make_data_type_node("collections.abc.Iterable[bool]")]
+            return [make_data_type_node("`bpy.types.bpy_prop_array`[bool]")]
 
         if dtype_str == "boolean":
             return [make_data_type_node("bool")]

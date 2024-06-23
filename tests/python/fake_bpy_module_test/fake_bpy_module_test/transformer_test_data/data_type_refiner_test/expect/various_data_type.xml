@@ -170,6 +170,22 @@
         <data-type-list>
             <data-type>
                 boolean array of 3 items
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_boolean_array_of
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        boolean array of 3 items
+        <return>
+            <description>
+            <data-type-list>
     <data>
         <name>
             data_boolean
