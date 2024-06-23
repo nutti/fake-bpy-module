@@ -20,12 +20,12 @@
 
    .. method:: foreach_get(seq)
 
-      :type seq: collections.abc.MutableSequence[GenericType1]
+      :type seq: collections.abc.MutableSequence[GenericType1] | typing_extensions.Buffer
       :mod-option arg seq: skip-refine
 
    .. method:: foreach_set(seq)
 
-      :type seq: typing.Sequence[GenericType1]
+      :type seq: collections.abc.Sequence[GenericType1] | typing_extensions.Buffer
       :mod-option arg seq: skip-refine
 
    .. method:: __getitem__(key)
