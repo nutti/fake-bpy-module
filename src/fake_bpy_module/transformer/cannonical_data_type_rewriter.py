@@ -34,7 +34,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         return ensured
 
-    def _get_generation_data_type(self, data_type: str,     # noqa: PLR0912
+    def _get_generation_data_type(self, data_type: str,
                                   target_module: str) -> str:
         mod_names_full_1 = get_module_name(data_type, self._package_structure)
         mod_names_full_2 = target_module

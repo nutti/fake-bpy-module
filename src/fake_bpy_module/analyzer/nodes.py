@@ -1,5 +1,5 @@
 import abc
-from typing import Self, TypeVar
+from typing import Self, TypeVar, Any
 
 from docutils import nodes
 
@@ -18,7 +18,7 @@ class NodeBase(nodes.Element):
 class UniqueElementNode(NodeBase):
     # pylint: disable=W1113
     def __init__(self, rawsource: str = "", *children: nodes.Node,
-                 **attributes) -> None:
+                 **attributes: Any) -> None:
         super().__init__(rawsource, *children, **attributes)
 
         self.elements = {}
@@ -189,7 +189,7 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(cls: type[Self], rawsource: str = "",
-                        *children: nodes.Node, **attributes) -> type[Self]:
+                        *children: nodes.Node, **attributes: ) -> type[Self]:
         node = FunctionReturnNode(rawsource, *children, **attributes)
 
         node.append_child(DescriptionNode())

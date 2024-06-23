@@ -55,8 +55,9 @@ class DependencyBuilder(TransformerBase):
         if "package_structure" in kwargs:
             self._package_structure = kwargs["package_structure"]
 
-    def _get_import_module_path(self, module_structure: ModuleStructure,    # noqa: PLR0912
-                                data_type_1: str, data_type_2: str) -> str | None:
+    def _get_import_module_path(
+            self, module_structure: ModuleStructure,
+            data_type_1: str, data_type_2: str) -> str | None:
         mod_names_full_1 = get_module_name(data_type_1, module_structure)
         mod_names_full_2 = get_module_name(data_type_2, module_structure)
         if mod_names_full_1 is None or mod_names_full_2 is None:

@@ -79,3 +79,11 @@ ignore = [
     "FIX002",
     "PLR2004",
 ]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 30
+
+[tool.ruff.lint.pylint]
+max-branches = 30
+max-statements = 100
+max-returns = 10

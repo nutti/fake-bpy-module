@@ -59,7 +59,7 @@ def append_child(node: nodes.Node, item: nodes.Node) -> nodes.Node:
 
 
 # pylint: disable=R0912,R0915
-def split_string_by_comma(line: str) -> list:   # noqa: C901
+def split_string_by_comma(line: str) -> list:
     level = 0
     splited = []
     current = ""

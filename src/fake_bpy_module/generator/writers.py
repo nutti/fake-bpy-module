@@ -133,7 +133,7 @@ class PyCodeWriterBase(BaseWriter):
         self.file_format = "py"
 
     # pylint: disable=R0912
-    def _write_function_code(self, func_node: FunctionNode) -> None:    # noqa: PLR0912, PLR0915, C901
+    def _write_function_code(self, func_node: FunctionNode) -> None:
         func_name = func_node.element(NameNode).astext()
         arg_nodes = find_children(
             func_node.element(ArgumentListNode), ArgumentNode)
@@ -254,7 +254,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
-    def _write_class_code(self, class_node: ClassNode) -> None:     # noqa: PLR0912, PLR0915, C901
+    def _write_class_code(self, class_node: ClassNode) -> None:
         wt = self._writer
 
         base_class_list_node = class_node.element(BaseClassListNode)

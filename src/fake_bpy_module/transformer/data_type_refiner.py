@@ -659,7 +659,7 @@ class DataTypeRefiner(TransformerBase):
 
         return []
 
-    def _refine(self, document: nodes.document) -> None:    # noqa: PLR0915, C901
+    def _refine(self, document: nodes.document) -> None:
         def refine(dtype_list_node: DataTypeListNode, module_name: str,
                    variable_kind: str, description_str: str | None = None,
                    additional_info: dict[str, typing.Any] = None) -> None:

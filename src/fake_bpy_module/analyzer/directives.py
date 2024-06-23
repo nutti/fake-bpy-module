@@ -236,7 +236,7 @@ class ModuleDirective(rst.Directive):
             if config.get_target_version() == "2.90":
                 if module_name.startswith("bpy.types."):
                     module_name = module_name[:module_name.rfind(".")]
-            elif config.get_target_version() in [
+            elif config.get_target_version() in [  # noqa: SIM102
                     "2.91", "2.92", "2.93",
                     "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
                     "4.0", "4.1",
@@ -260,7 +260,8 @@ class ClassDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    _CLASS_NAME_WITH_ARGS_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
+    _CLASS_NAME_WITH_ARGS_REGEX = re.compile(
+        r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
     _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)")
 
     def run(self) -> list[ClassNode]:
@@ -465,12 +466,15 @@ class FunctionDirective(rst.Directive):
                                     arg_node = n.parent
                                     break
                             if arg_node:
-                                for dtype_node in arg_node.findall(DataTypeNode):
+                                for dtype_node in arg_node.findall(
+                                        DataTypeNode):
                                     dtype_node.attributes[m.group(1)] = \
                                         fbody_node.astext()
                         elif m.group(2) == "rtype":
-                            func_ret_node = func_node.element(FunctionReturnNode)
-                            for dtype_node in func_ret_node.findall(DataTypeNode):
+                            func_ret_node = func_node.element(
+                                FunctionReturnNode)
+                            for dtype_node in func_ret_node.findall(
+                                    DataTypeNode):
                                 dtype_node.attributes[m.group(1)] = \
                                     fbody_node.astext()
                         elif m.group(2) == "function":

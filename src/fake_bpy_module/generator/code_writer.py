@@ -13,7 +13,7 @@ class CodeWriterIndent:
         self._indent: int = indent
         self._append_current_indent = append_current_indent
 
-    def __enter__(self) -> "CodeWriterIndent":
+    def __enter__(self) -> type[Self]:
         cls = self.__class__
         cls.add_indent(self._indent, self._append_current_indent)
 
