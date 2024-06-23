@@ -642,8 +642,8 @@ class DataTypeRefiner(TransformerBase):
             output_log(LOG_LEVEL_DEBUG, f"Split data type refining: {splist}")
 
             dtypes = []
-            for raw_sp in splist:
-                sp = raw_sp.strip()
+            for sp in splist:
+                s = sp.strip()
                 result = self._get_refined_data_type_fast(
                     s, uniq_full_names, uniq_module_names, module_name,
                     variable_kind, additional_info)
