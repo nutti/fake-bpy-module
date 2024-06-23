@@ -55,6 +55,6 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
     def name(cls: type['DuplicatedFunctionArgumentsRemover']) -> str:
         return "duplicated_function_arguments_remover"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

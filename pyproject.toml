@@ -79,6 +79,7 @@ ignore = [
     "FIX002",
     "PLR2004",
     "SIM102",
+    "INP001",
 ]
 
 [tool.ruff.lint.mccabe]
