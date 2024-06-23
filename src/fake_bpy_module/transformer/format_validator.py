@@ -1,5 +1,6 @@
-from docutils import nodes
 from typing import Self
+
+from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
@@ -192,11 +193,11 @@ class FormatValidator(TransformerBase):
             self, code_document_node: CodeDocumentNode) -> None:
         for child in code_document_node.children:
             assert not isinstance(
-                child, ModuleNode | FunctionListNode | FunctionNode |
-                FunctionReturnNode | ArgumentListNode | ArgumentNode |
-                AttributeListNode | AttributeNode | BaseClassListNode |
-                BaseClassNode | NameNode | DescriptionNode | DataTypeListNode |
-                DataTypeNode | DefaultValueNode
+                    child, ModuleNode | FunctionListNode | FunctionNode |
+                    FunctionReturnNode | ArgumentListNode | ArgumentNode |
+                    AttributeListNode | AttributeNode | BaseClassListNode |
+                    BaseClassNode | NameNode | DescriptionNode | DataTypeListNode |
+                    DataTypeNode | DefaultValueNode
                 ), f"{code_document_node.pformat()}"
 
     def _check_filename_node(

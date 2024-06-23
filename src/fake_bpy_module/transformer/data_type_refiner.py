@@ -145,11 +145,11 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=R0911,R0912,R0913
     def _get_refined_data_type_fast(
-            self, dtype_str: str, uniq_full_names: set[str],
-            uniq_module_names: set[str], module_name: str,
-            variable_kind: str,
-            additional_info: dict[str, Any] | None = None
-        ) -> list[DataTypeNode]:
+                self, dtype_str: str, uniq_full_names: set[str],
+                uniq_module_names: set[str], module_name: str,
+                variable_kind: str,
+                additional_info: dict[str, Any] | None = None
+            ) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip().strip(",")
 
@@ -494,11 +494,11 @@ class DataTypeRefiner(TransformerBase):
         return None
 
     def _get_data_type_options(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            is_pointer_prop: bool = False,
-            description_str: str | None = None,
-            additional_info: dict[str, Any] | None = None
-        ) -> tuple[list[str], str]:
+                self, dtype_str: str, module_name: str, variable_kind: str,
+                is_pointer_prop: bool = False,
+                description_str: str | None = None,
+                additional_info: dict[str, Any] | None = None
+            ) -> tuple[list[str], str]:
         if module_name.startswith("bpy."):
             option_results = []
 
@@ -564,10 +564,10 @@ class DataTypeRefiner(TransformerBase):
         return ["never none"], dtype_str
 
     def _get_refined_data_type(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            is_pointer_prop: bool = False,
-            description_str: str | None = None,
-            additional_info: dict[str, Any] | None = None
+                self, dtype_str: str, module_name: str, variable_kind: str,
+                is_pointer_prop: bool = False,
+                description_str: str | None = None,
+                additional_info: dict[str, Any] | None = None
             ) -> list[DataTypeNode]:
 
         assert variable_kind in (
@@ -600,8 +600,8 @@ class DataTypeRefiner(TransformerBase):
         return result
 
     def _get_refined_data_type_internal(
-            self, dtype_str: str, module_name: str, variable_kind: str,
-            additional_info: dict[str, Any] | None = None
+                self, dtype_str: str, module_name: str, variable_kind: str,
+                additional_info: dict[str, Any] | None = None
             ) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip()
@@ -653,8 +653,8 @@ class DataTypeRefiner(TransformerBase):
         return []
 
     def _parse_from_description(
-            self, module_name: str, description_str: str = None,
-            additional_info: dict[str, Any] | None = None
+                self, module_name: str, description_str: str | None = None,
+                additional_info: dict[str, Any] | None = None
             ) -> list[DataTypeNode]:
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
