@@ -19,19 +19,20 @@
 #     first_import_module_name:
 #       Module name to import first.
 #       This is used for finding blender's 'modules' directory.
-#       (ex. addon_utils)
+#       [Ex] addon_utils
 #
 #     output_dir:
 #       Generated definitions are output to files which will be located to
 #       specified directory.
-#       (ex. gen_modules_modfile.generated)
+#       [Ex] gen_modules_modfile.generated
 #
 #     output_format:
 #       Output format. Supported formats are "rst" and "json".
 #
 ##############################################################################
 
-# ruff: noqa: UP032
+# ruff: noqa: UP006, UP032, UP035, PTH103, PTH113, PTH118, PTH120,
+# ruff: noqa: PTH123, SIM115
 
 import argparse
 import importlib
@@ -118,7 +119,7 @@ def import_modules(module_name_list: List[str]) -> List:
 
 
 # pylint: disable=C0209
-def analyze_function(module_name: str, function, is_method=False) -> Dict:
+def analyze_function(module_name: str, function: tuple, is_method: bool=False) -> Dict:
     function_def = {
         "name": function[0],
         "description": None,
@@ -159,7 +160,7 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
 
 
 # pylint: disable=C0209
-def analyze_class(module_name: str, class_) -> Dict:
+def analyze_class(module_name: str, class_: tuple) -> Dict:
     class_def = {
         "name": class_[0],
         "description": None,
@@ -220,7 +221,7 @@ def analyze_class(module_name: str, class_) -> Dict:
     return class_def
 
 
-def analyze_module(module_name: str, module) -> Dict:
+def analyze_module(module_name: str, module: object) -> Dict:
     result = {
         "classes": [],
         "functions": [],
@@ -377,7 +378,7 @@ def write_to_modfile(info: Dict, config: 'GenerationConfig') -> None:
 
 
 # pylint: disable=C0209
-def get_alias_to_bpy_types(results):
+def get_alias_to_bpy_types(results: dict) -> dict:
     bpy_types = dir(bpy.types)
 
     alias = {
@@ -386,7 +387,7 @@ def get_alias_to_bpy_types(results):
         "constants": [],
     }
 
-    for mod_name in results.keys():
+    for mod_name in results:
         for c in results[mod_name]["classes"]:
             if c["name"] in bpy_types:
                 constant_def = {
@@ -411,9 +412,11 @@ def parse_options() -> 'GenerationConfig':
         index = len(argv)
     argv = argv[index:]
 
-    usage = "Usage: blender -noaudio --factory-startup --background " \
-            "--python {} -- [-m <first_import_module_name>] [-a] " \
-            "[-o <output_dir>]".format(__file__)
+    usage = (
+        "Usage: blender -noaudio --factory-startup --background "
+        "--python {} -- [-m <first_import_module_name>] [-a] "
+        "[-o <output_dir>]".format(__file__)
+    )
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-m", dest="first_import_module_name", type=str,

@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Self
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -274,16 +277,16 @@ class ModApplier(TransformerBase):
                 for mod_base_class_node in mod_base_class_nodes:
                     base_class_list_node.append_child(mod_base_class_node)
 
-    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
         self.mod_files = kwargs["mod_files"]
         self.mod_documents = []
 
     @classmethod
-    def name(cls: type['ModApplier']) -> str:
+    def name(cls: type[Self]) -> str:
         return "mod_applier"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         self.mod_documents = []
 
         if self.mod_files is None:
@@ -299,7 +302,7 @@ class ModApplier(TransformerBase):
             module_name_to_document[module_name_node.astext()] = document
 
         for file in self.mod_files:
-            with open(file, "r", encoding="utf-8") as f:
+            with Path(file).open("r", encoding="utf-8") as f:
                 contents = f.read()
 
             settings_overrides = {

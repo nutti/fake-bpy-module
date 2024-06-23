@@ -1,9 +1,14 @@
 from pathlib import Path
+from typing import Self
 
 from docutils import nodes
 
 from fake_bpy_module import config
-from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode, SourceFilenameNode
+from fake_bpy_module.analyzer.nodes import (
+    ModuleNode,
+    NameNode,
+    SourceFilenameNode,
+)
 from fake_bpy_module.utils import get_first_child
 
 from .transformer_base import TransformerBase
@@ -29,10 +34,10 @@ class ModuleNameFixture(TransformerBase):
         return True
 
     @classmethod
-    def name(cls: type['ModuleNameFixture']) -> str:
+    def name(cls: type[Self]) -> str:
         return "module_name_fixture"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents[:]:
             if self._no_module(document):
                 self.documents.remove(document)

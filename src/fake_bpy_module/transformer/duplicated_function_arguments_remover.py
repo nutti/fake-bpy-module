@@ -1,3 +1,5 @@
+from typing import Self
+
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -52,7 +54,7 @@ class DuplicatedFunctionArgumentsRemover(TransformerBase):
             self._remove_duplicated_arguments(func_node)
 
     @classmethod
-    def name(cls: type['DuplicatedFunctionArgumentsRemover']) -> str:
+    def name(cls: type[Self]) -> str:
         return "duplicated_function_arguments_remover"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

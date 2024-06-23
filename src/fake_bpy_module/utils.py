@@ -26,23 +26,18 @@ def check_os() -> str:
 
 
 def output_log(level: int, message: str) -> None:
-    LOG_LEVEL_LABEL: list[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]
+    LOG_LEVEL_LABEL: list[str] = ["DEBUG", "INFO", "NOTICE", "WARN", "ERR"]  # noqa: N806
     if level >= LOG_LEVEL:
         print(f"[{LOG_LEVEL_LABEL[level]}] {message}")
 
 
 def remove_unencodable(str_: str) -> str:
-    s = str_.replace("\xb2", "")
-    s = s.replace("\u2013", "")
-    s = s.replace("\u2019", "")
-    return s
+    return str_.replace("\xb2", "").replace("\u2013", "").replace("\u2019", "")
 
 
 def find_children(node: nodes.Node, node_type: type[T]) -> list[T]:
-    result: list[T] = []
-    for child in node.children:
-        if isinstance(child, node_type):
-            result.append(child)
+    result: list[T] = [child for child in node.children if isinstance(child, node_type)]
+
     return result
 
 
@@ -102,6 +97,4 @@ def split_string_by_comma(line: str) -> list:
     if current != "":
         splited.append(current)
 
-    splited = [s.strip() for s in splited]
-
-    return splited
+    return [s.strip() for s in splited]

@@ -1,4 +1,5 @@
 from threading import Lock
+from typing import Self
 
 from .utils import check_os
 
@@ -20,13 +21,13 @@ class Configuration:
         raise NotImplementedError("Not allowed to call constructor")
 
     @classmethod
-    def __internal_new(cls: type['Configuration']) -> 'Configuration':
+    def __internal_new(cls: type[Self]) -> type[Self]:
         inst = super().__new__(cls)
 
         return inst
 
     @classmethod
-    def get_instance(cls) -> 'Configuration':
+    def get_instance(cls: type[Self]) -> type[Self]:
         if not cls.__inst:
             with cls.__lock:
                 if not cls.__inst:

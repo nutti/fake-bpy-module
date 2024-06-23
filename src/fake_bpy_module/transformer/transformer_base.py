@@ -1,19 +1,21 @@
+from typing import Self
+
 from docutils import nodes
 
 
 class TransformerBase:
 
     # pylint: disable=W0613
-    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:  # noqa: ARG002
         self.documents: list[nodes.document] = documents
         self.outputs: dict = {}
 
     @classmethod
-    def name(cls: type['TransformerBase']) -> str:
+    def name(cls: type[Self]) -> str:
         raise NotImplementedError("Subclass must implement this method")
 
     def get_outputs(self) -> dict:
         return self.outputs
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:
         raise NotImplementedError("Subclass must implement this method")

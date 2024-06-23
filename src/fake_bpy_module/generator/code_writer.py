@@ -1,5 +1,6 @@
 import io
 import subprocess
+from types import TracebackType
 from typing import ClassVar, Self
 
 from yapf.yapflib.yapf_api import FormatCode
@@ -19,7 +20,9 @@ class CodeWriterIndent:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None,
+                 exc_val: BaseException | None,
+                 exc_tb: TracebackType | None) -> None:
         cls = self.__class__
         cls.remove_indent()
 

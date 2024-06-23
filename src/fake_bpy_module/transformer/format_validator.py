@@ -1,4 +1,5 @@
 from docutils import nodes
+from typing import Self
 
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
@@ -226,7 +227,7 @@ class FormatValidator(TransformerBase):
         self._check_document(document)
 
     @classmethod
-    def name(cls: type['FormatValidator']) -> str:
+    def name(cls: type[Self]) -> str:
         return "format_validator"
 
     def apply(self, **kwargs) -> None:

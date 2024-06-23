@@ -1,4 +1,6 @@
-from docutils import nodes
+from typing import Self
+
+from docutils import nodes  # noqa: TCH002
 
 from fake_bpy_module.analyzer.nodes import (
     AttributeListNode,
@@ -23,10 +25,10 @@ from .transformer_base import TransformerBase
 
 class BpyContextVariableConverter(TransformerBase):
     @classmethod
-    def name(cls: type['BpyContextVariableConverter']) -> str:
+    def name(cls: type[Self]) -> str:
         return "bpy_context_variable_converter"
 
-    def apply(self, **kwargs: dict) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         bpy_module_document: nodes.document = None
         bpy_context_module_document: nodes.document = None
         bpy_context_class_node: ClassNode = None

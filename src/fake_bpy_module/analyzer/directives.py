@@ -1,5 +1,6 @@
 import ast
 import re
+from typing import ClassVar
 
 from docutils import nodes
 from docutils.parsers import rst
@@ -489,7 +490,7 @@ class DocumentDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list[nodes.paragraph]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -503,7 +504,7 @@ class LiteralIncludeDirective(rst.Directive):
     required_arguments = 1
     final_argument_whitespace = True
     has_content = True
-    option_spec = {
+    option_spec: ClassVar = {
         "lines": rst.directives.unchanged
     }
 
@@ -542,7 +543,7 @@ class BaseClassDirective(rst.Directive):
 
     _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+base-class")
 
-    def run(self):
+    def run(self) -> list[BaseClassListNode]:
         base_classes: str = self.arguments[0]
         base_class_list_node: BaseClassListNode = BaseClassListNode()
 

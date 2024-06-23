@@ -1,4 +1,5 @@
 import re
+from typing import Self
 
 from docutils import nodes
 
@@ -58,7 +59,7 @@ class BaseClassFixture(TransformerBase):
                 break
 
     @classmethod
-    def name(cls: type['BaseClassFixture']) -> str:
+    def name(cls: type[Self]) -> str:
         return "base_class_fixture"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

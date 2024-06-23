@@ -1,4 +1,5 @@
 import re
+from typing import Self
 
 from docutils import nodes
 
@@ -161,7 +162,7 @@ class BpyModuleTweaker(TransformerBase):
         self._rebase_bpy_types_class_base_class(document)
 
     @classmethod
-    def name(cls: type['BpyModuleTweaker']) -> str:
+    def name(cls: type[Self]) -> str:
         return "bpy_module_tweaker"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
