@@ -193,12 +193,12 @@ class FormatValidator(TransformerBase):
             self, code_document_node: CodeDocumentNode) -> None:
         for child in code_document_node.children:
             assert not isinstance(
-                    child, ModuleNode | FunctionListNode | FunctionNode |
-                    FunctionReturnNode | ArgumentListNode | ArgumentNode |
-                    AttributeListNode | AttributeNode | BaseClassListNode |
-                    BaseClassNode | NameNode | DescriptionNode | DataTypeListNode |
-                    DataTypeNode | DefaultValueNode
-                ), f"{code_document_node.pformat()}"
+                child, ModuleNode | FunctionListNode | FunctionNode |
+                FunctionReturnNode | ArgumentListNode | ArgumentNode |
+                AttributeListNode | AttributeNode | BaseClassListNode |
+                BaseClassNode | NameNode | DescriptionNode | DataTypeListNode |
+                DataTypeNode | DefaultValueNode
+            ), f"{code_document_node.pformat()}"
 
     def _check_filename_node(
             self, source_filename_node: SourceFilenameNode) -> None:
@@ -230,6 +230,6 @@ class FormatValidator(TransformerBase):
     def name(cls: type[Self]) -> str:
         return "format_validator"
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

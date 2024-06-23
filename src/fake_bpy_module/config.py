@@ -22,9 +22,7 @@ class Configuration:
 
     @classmethod
     def __internal_new(cls: type[Self]) -> type[Self]:
-        inst = super().__new__(cls)
-
-        return inst
+        return super().__new__(cls)
 
     @classmethod
     def get_instance(cls: type[Self]) -> type[Self]:

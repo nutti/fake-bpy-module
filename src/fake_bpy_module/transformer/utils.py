@@ -1,3 +1,5 @@
+from typing import Self
+
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode
@@ -7,7 +9,7 @@ from fake_bpy_module.utils import get_first_child
 class ModuleStructure:
     def __init__(self) -> None:
         self._name: str = None
-        self._children: list['ModuleStructure'] = []
+        self._children: list[Self] = []
 
     @property
     def name(self) -> str:

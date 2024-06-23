@@ -45,7 +45,7 @@ class GenerationInfo:
 
 class TargetFileCombiner(TransformerBase):
 
-    def __init__(self, documents: list[nodes.document], **kwargs) -> None:
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:

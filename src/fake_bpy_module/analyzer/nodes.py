@@ -9,6 +9,8 @@ from .roles import ClassRef
 
 T = TypeVar("T", bound=nodes.Node)
 
+# pylint: disable: W0223
+
 
 class NodeBase(nodes.Element):
     def append_child(self, item: nodes.Node) -> None:
@@ -37,10 +39,12 @@ class UniqueElementNode(NodeBase):
             new_obj.elements[type(child)] = child
         return new_obj
 
-    def remove(self, item: nodes.Node) -> None:  # noqa: ARG002
+    @abc.abstractmethod
+    def remove(self, item: nodes.Node) -> None:
         raise ValueError("Don't call remove directly, and use replace instead.")
 
-    def insert(self, index: int, item: nodes.Node) -> None:  # noqa: ARG002
+    @abc.abstractmethod
+    def insert(self, index: int, item: nodes.Node) -> None:
         raise ValueError("Don't call insert directly, and use replace instead.")
 
     def replace_node(self, item: nodes.Node) -> None:
