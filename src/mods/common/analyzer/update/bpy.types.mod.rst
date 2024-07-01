@@ -29,14 +29,14 @@
 
       :type attr: str
       :mod-option arg attr: skip-refine
-      :type seq: collections.abc.MutableSequence[bool] | collections.abc.MutableSequence[int] | collections.abc.MutableSequence[float]
+      :type seq: collections.abc.MutableSequence[bool] | collections.abc.MutableSequence[int] | collections.abc.MutableSequence[float] | typing_extensions.Buffer
       :mod-option arg seq: skip-refine
 
    .. method:: foreach_set(attr, seq)
 
       :type attr: str
       :mod-option arg attr: skip-refine
-      :type seq: collections.abc.Sequence[bool] | collections.abc.Sequence[int] | collections.abc.Sequence[float]
+      :type seq: collections.abc.Sequence[bool] | collections.abc.Sequence[int] | collections.abc.Sequence[float] | typing_extensions.Buffer
       :mod-option arg seq: skip-refine
 
 .. class:: FreestyleLineStyle

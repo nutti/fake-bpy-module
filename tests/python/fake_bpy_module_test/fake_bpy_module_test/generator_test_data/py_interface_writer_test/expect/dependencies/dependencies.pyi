@@ -1,5 +1,6 @@
 import typing
 import collections.abc
+import typing_extensions
 import module_2
 
 GenericType1 = typing.TypeVar("GenericType1")
