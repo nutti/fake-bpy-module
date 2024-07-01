@@ -176,7 +176,7 @@ python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/ge
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-python gen.py -i <input-dir> -o <output-dir> -f <format> -T <target> -t <target-version> -m <mod-version>
+python gen.py -i <input-dir> -o <output-dir> -f <format> -T <target> -t <target-version> -m <mod-version> -l <log-level>
 ```
 <!-- markdownlint-enable MD013 -->
 
@@ -185,8 +185,6 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -T <target> -t <target-
   `${BLENDER_SRC}/doc/python_api/sphinx-in`.
 * `-o <output-dir>`: Specify output directory. (The directory where generated
   files will be located)
-* `-d`: Dump internal data structures to `<output-dir>` as the files name with
-  suffix `-dump.json`
 * `-f <format>`: Format the generated code by `<format>` convention.
   * `none`: Don't format generated code.
   * `yapf`: Format generated code with yapf.
@@ -196,6 +194,7 @@ python gen.py -i <input-dir> -o <output-dir> -f <format> -T <target> -t <target-
 * `-m <mod-version>`: Modify APIs by using patch files located in `mods` directory.
   * If you specify `2.80`, all patch files under `mods/2.80` will be used.
   * Files located in `mods/common` directories will be used at any time.
+* `-l <log-level>`: Specify log level (`debug`, `info`, `notice`, `warn`, `err`).
 
 ## Case 3: Do Case 2 inside Docker
 
