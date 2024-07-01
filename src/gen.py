@@ -21,8 +21,8 @@ def parse_options():
     # pylint: disable=W0603
     global INPUT_DIR  # pylint: disable=W0602
     usage = f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] " \
-            "[-T <target>] [-t <target_version>] [-d] [-f <style_format>] " \
-            "[-m <mod_version>]"
+            "[-T <target>] [-t <target_version>] [-f <style_format>] " \
+            "[-m <mod_version>] [-l <log_level>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-i", dest="input_dir", type=str, help="Input directory"
@@ -49,7 +49,7 @@ def parse_options():
     )
     parser.add_argument(
         "-l", dest="output_log_level", type=str,
-        help="Output log level (debug, info, notice, warn, err"
+        help="Output log level (debug, info, notice, warn, err)"
     )
     args = parser.parse_args()
     if args.input_dir:
