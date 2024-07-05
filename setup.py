@@ -14,4 +14,7 @@ else:
 
 setup(
     version=release_version,
+    install_requires=[
+        'typing_extensions>=4.7,<5',
+    ],
 )
