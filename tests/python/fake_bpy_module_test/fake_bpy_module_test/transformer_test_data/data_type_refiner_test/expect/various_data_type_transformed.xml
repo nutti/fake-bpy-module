@@ -171,7 +171,25 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                list[bool]
+                <class-ref>
+                    bpy.types.bpy_prop_array
+                [bool]
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_boolean_array_of
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type option="never none">
+                        collections.abc.Iterable[bool]
+        <return>
+            <description>
+            <data-type-list>
     <data>
         <name>
             data_boolean
