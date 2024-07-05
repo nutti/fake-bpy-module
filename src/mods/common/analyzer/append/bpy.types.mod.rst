@@ -46,7 +46,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: tuple[GenericType1]
+      :rtype: tuple[GenericType1, ...]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -54,7 +54,7 @@
 
       :type key: int | str | slice
       :mod-option arg key: skip-refine
-      :rtype: GenericType1 | tuple[GenericType1]
+      :rtype: GenericType1 | tuple[GenericType1, ...]
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
