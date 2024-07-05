@@ -214,11 +214,6 @@
       :rtype: :class:`Vector`
       :option function: overload
 
-   .. method:: __matmul__(other)
-
-      :type other: :class:`Matrix`, :class:`Vector`
-      :rtype: :class:`Matrix`, :class:`Vector`
-
    .. method:: __radd__(other)
 
       :type other: :class:`Matrix`
@@ -309,11 +304,6 @@
       :type other: :class:`Vector`
       :rtype: :class:`Vector`
       :option function: overload
-
-   .. method:: __matmul__(other)
-
-      :type other: :class:`Vector`, :class:`Quaternion`
-      :rtype: :class:`Vector`, :class:`Quaternion`
 
    .. method:: __radd__(other)
 
@@ -414,11 +404,6 @@
       :type other: :class:`Matrix`
       :rtype: :class:`Vector`
       :option function: overload
-
-   .. method:: __matmul__(other)
-
-      :type other: :class:`Vector`, :class:`Matrix`
-      :rtype: :class:`Vector`, float
 
    .. method:: __radd__(other)
 
