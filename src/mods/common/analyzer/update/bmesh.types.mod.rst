@@ -13,22 +13,22 @@
 
    .. method:: copy_from(other)
 
-      :type other: `BMVert`
+      :type other: :class:`BMVert`
 
 .. class:: BMEdge
 
    .. method:: copy_from(other)
 
-      :type other: `BMEdge`
+      :type other: :class:`BMEdge`
 
 .. class:: BMFace
 
    .. method:: copy_from(other)
 
-      :type other: `BMFace`
+      :type other: :class:`BMFace`
 
 .. class:: BMLoop
 
    .. method:: copy_from(other)
 
-      :type other: `BMLoop`
+      :type other: :class:`BMLoop`
