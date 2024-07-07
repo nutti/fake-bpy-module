@@ -27,11 +27,11 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/nutti/fake-bpy-module"
-Documentation = "https://github.com/nutti/fake-bpy-module/blob/master/README.md"
+Documentation = "https://github.com/nutti/fake-bpy-module/blob/main/README.md"
 Source = "https://github.com/nutti/fake-bpy-module"
 Download = "https://github.com/nutti/fake-bpy-module/releases"
 "Bug Tracker" = "https://github.com/nutti/fake-bpy-module/issues"
-"Release Notes" = "https://github.com/nutti/fake-bpy-module/blob/master/CHANGELOG.md"
+"Release Notes" = "https://github.com/nutti/fake-bpy-module/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 platforms = ["Windows", "Linux", "Mac OS-X"]

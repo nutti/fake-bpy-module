@@ -5,7 +5,7 @@ name: fake-bpy-module CI
 on:   # yamllint disable-line rule:truthy
   push:
     branches:
-      - master
+      - main
       - 'run-ci/**'
   pull_request:
   release:
@@ -180,7 +180,7 @@ jobs:
         with:
           path: dist
 
-      # Publish to TestPyPi on each merge to master
+      # Publish to TestPyPi on each merge to main
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:

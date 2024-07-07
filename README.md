@@ -32,7 +32,7 @@ You can install it as a pip package.
 
 #### Install a latest package
 
-If you install fake-bpy-module for Blender latest build (master branch daily
+If you install fake-bpy-module for Blender latest build (main branch daily
 build powered by [nutti/blender-daily-build](https://github.com/nutti/blender-daily-build)),
 run below command.
 

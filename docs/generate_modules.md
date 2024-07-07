@@ -61,7 +61,7 @@ git clone https://github.com/nutti/fake-bpy-module.git
 
 Or, you can download .zip file from GitHub.
 
-[https://github.com/nutti/fake-bpy-module/archive/master.zip](https://github.com/nutti/fake-bpy-module/archive/master.zip)
+[https://github.com/nutti/fake-bpy-module/archive/main.zip](https://github.com/nutti/fake-bpy-module/archive/main.zip)
 
 ### 4. Run script
 
@@ -155,7 +155,7 @@ git clone https://github.com/nutti/fake-bpy-module.git
 
 Or, you can download .zip file from GitHub.
 
-[https://github.com/nutti/fake-bpy-module/archive/master.zip](https://github.com/nutti/fake-bpy-module/archive/master.zip)
+[https://github.com/nutti/fake-bpy-module/archive/main.zip](https://github.com/nutti/fake-bpy-module/archive/main.zip)
 
 ### 6. Generate mod files
 

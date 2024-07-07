@@ -2,7 +2,7 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20240604...master)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20240604...main)
 
 <!-- markdownlint-disable-next-line MD013 -->
 ## [20240604](https://github.com/nutti/fake-bpy-module/compare/20231118...20240604) - 2024.6.4

@@ -4,7 +4,7 @@
 
 We welcome any contributions to this project.  
 If you want to contribute to this project, please send pull request to
-[**master** branch](https://github.com/nutti/fake-bpy-module/tree/master).  
+[**main** branch](https://github.com/nutti/fake-bpy-module/tree/main).  
 **DO NOT** send pull request to other branches.
 
 ## Support this project
