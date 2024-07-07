@@ -50,13 +50,6 @@
       :mod-option rtype: skip-refine
       :option function: overload
 
-   .. method:: __getitem__(key)
-
-      :type key: int | str | slice
-      :mod-option arg key: skip-refine
-      :rtype: GenericType1 | tuple[GenericType1, ...]
-      :mod-option rtype: skip-refine
-
    .. method:: __setitem__(key, value)
 
       :type key: int
