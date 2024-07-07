@@ -1,25 +1,21 @@
-import os
-import sys
 import argparse
-import unittest
-import glob
+import inspect
 import re
 import shutil
-import inspect
-
-from typing import List
-
+import sys
+import unittest
+from pathlib import Path
 
 TESTS_TEMPLATE_FILE = "template.py.tpl"
 GENERATED_TESTS_DIR = "generated_tests"
 
 
 class ImportModuleTestConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.modules_path = ""
 
 
-def parse_options(config: ImportModuleTestConfig):
+def parse_options(config: ImportModuleTestConfig) -> None:
     usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
@@ -32,31 +28,32 @@ def parse_options(config: ImportModuleTestConfig):
 
 def generate_tests(config: ImportModuleTestConfig) -> list:
     # Search modules to test.
-    files = glob.glob(f"{config.modules_path}/*", recursive=False)
+    files = Path(config.modules_path).glob("*")
     module_names = []
     for f in files:
-        basename = os.path.basename(f)
+        basename = Path(f).name
         if basename == "py.typed":
             continue
-        module_name = os.path.splitext(basename)[0]
-        module_names.append(module_name)
+        path = Path(basename)
+        module_name = path.parent / path.stem
+        module_names.append(str(module_name))
 
     # Load template.
-    script_dir = os.path.dirname(__file__)
-    with open(f"{script_dir}/{TESTS_TEMPLATE_FILE}", "r",
-              encoding="utf-8") as f:
+    script_dir = Path(__file__).parent
+    path = Path(f"{script_dir}/{TESTS_TEMPLATE_FILE}")
+    with path.open("r", encoding="utf-8") as f:
         template_content = f.readlines()
 
     # Generate test codes.
     tests_dir = f"{script_dir}/{GENERATED_TESTS_DIR}"
-    os.makedirs(tests_dir, exist_ok=False)
-    init_file = open(f"{tests_dir}/__init__.py", "w",   # pylint: disable=R1732
+    Path(tests_dir).mkdir(exist_ok=False)
+    init_file = Path(f"{tests_dir}/__init__.py").open("w",   # pylint: disable=R1732  # noqa: SIM115
                      encoding="utf-8")
 
     def replace_template_content(
-            content: List[str], module_name: str) -> List[str]:
+            content: list[str], module_name: str) -> list[str]:
         output = []
-        for line in content:
+        for raw_line in content:
             line = re.sub(
                 r"<%% CLASS_NAME %%>",
                 "{}ImportTest".format(  # pylint: disable=C0209
@@ -66,24 +63,24 @@ def generate_tests(config: ImportModuleTestConfig) -> list:
                         module_name.capitalize()
                     )
                 ),
-                line)
+                raw_line)
             line = re.sub(r"<%% MODULE_NAME %%>", module_name, line)
             output.append(line)
         return output
 
     for mod_name in module_names:
         test_codes = replace_template_content(template_content, mod_name)
-        with open(f"{tests_dir}/{mod_name}_test.py", "w",
-                  encoding="utf-8") as f:
+        path = Path(f"{tests_dir}/{mod_name}_test.py")
+        with path.open("w", encoding="utf-8") as f:
             f.writelines(test_codes)
         init_file.write(f"from . import {mod_name}_test\n")
     init_file.close()
 
     # Load generated modules.
     # After this time, we can delete generated test codes.
-    sys.path.append(os.path.dirname(__file__))
+    sys.path.append(str(Path(__file__).parent))
     # pylint: disable=W0122
-    exec(f"import {GENERATED_TESTS_DIR}")
+    exec(f"import {GENERATED_TESTS_DIR}")  # noqa: S102
 
     # Get test cases.
     generated_tests_package = sys.modules[GENERATED_TESTS_DIR]
@@ -106,19 +103,17 @@ def run_tests(test_cases: list) -> bool:
     suite = unittest.TestSuite()
     for case in test_cases:
         suite.addTest(unittest.makeSuite(case))
-    ret = unittest.TextTestRunner().run(suite).wasSuccessful()
-
-    return ret
+    return unittest.TextTestRunner().run(suite).wasSuccessful()
 
 
-def main():
+def main() -> None:
     # Parse options.
     config = ImportModuleTestConfig()
     parse_options(config)
 
     # Add testee module.
-    path = os.path.abspath(config.modules_path)
-    sys.path.append(path)
+    path = Path(config.modules_path).resolve()
+    sys.path.append(str(path))
 
     # Generate tests.
     test_cases = generate_tests(config)

@@ -1,28 +1,28 @@
 # coding: UTF-8
 
-import glob
 import argparse
-from typing import List, Tuple
-import os
+from pathlib import Path
 
 import fake_bpy_module as fbm
 
 INPUT_DIR: str = "."
-MOD_FILES_DIR: str = os.path.dirname(os.path.abspath(__file__))
+MOD_FILES_DIR: str = Path(Path(__file__).resolve()).parent
 
 
-def generate(target_files: List[str], mod_files: List[str]):
+def generate(target_files: list[str], mod_files: list[str]) -> None:
     documents = fbm.analyze(target_files)
     documents = fbm.transform(documents, mod_files)
     fbm.generate(documents)
 
 
-def parse_options():
+def parse_options() -> None:
     # pylint: disable=W0603
-    global INPUT_DIR  # pylint: disable=W0602
-    usage = f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] " \
-            "[-T <target>] [-t <target_version>] [-f <style_format>] " \
-            "[-m <mod_version>] [-l <log_level>]"
+    global INPUT_DIR    # noqa: PLW0603 # pylint: disable=W0602
+    usage = (
+        f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] "
+        "[-T <target>] [-t <target_version>] [-f <style_format>] "
+        "[-m <mod_version>] [-l <log_level>]"
+    )
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-i", dest="input_dir", type=str, help="Input directory"
@@ -107,7 +107,7 @@ def parse_options():
                     f"{fbm.support.SUPPORTED_MOD_UPBGE_VERSION})")
 
     if args.output_log_level:
-        ARG_TO_LOG_LEVEL = {
+        ARG_TO_LOG_LEVEL = {  # noqa: N806
             "debug": fbm.utils.LOG_LEVEL_DEBUG,
             "info": fbm.utils.LOG_LEVEL_INFO,
             "notice": fbm.utils.LOG_LEVEL_NOTICE,
@@ -117,41 +117,58 @@ def parse_options():
         fbm.utils.LOG_LEVEL = ARG_TO_LOG_LEVEL[args.output_log_level]
 
 
-def collect_files() -> Tuple[str, str]:
+def collect_files() -> tuple[str, str]:
+    mod_version = fbm.config.get_mod_version()
+
     # Collect all rst files.
-    rst_files = glob.glob(f"{INPUT_DIR}/**/*.rst", recursive=True)
+    rst_files = [str(p.absolute()) for p in Path(f"{INPUT_DIR}").rglob("*.rst")]
 
     # Collect all mod files.
-    mod_files = glob.glob(f"{MOD_FILES_DIR}/mods/generated_mods/**/*.mod.rst", recursive=True)
-    mod_files += glob.glob(f"{MOD_FILES_DIR}/mods/common/**/*.mod.rst", recursive=True)
-    if fbm.config.get_target() == "blender" and fbm.config.get_mod_version() in ["2.78", "2.79"]:
-        mod_files += glob.glob(f"{MOD_FILES_DIR}/mods/{fbm.config.get_mod_version()}/**/*.mod.rst",
-                               recursive=True)
+    mod_files = [
+        str(p.absolute())
+        for p in Path(f"{MOD_FILES_DIR}/mods/generated_mods").rglob("*.mod.rst")
+    ]
+    mod_files += [
+        str(p.absolute())
+        for p in Path(f"{MOD_FILES_DIR}/mods/common").rglob("*.mod.rst")
+    ]
+    if fbm.config.get_target() == "blender" and mod_version in ["2.78", "2.79"]:
+        mod_files += [
+            str(p.absolute())
+            for p in Path(f"{MOD_FILES_DIR}/mods/{mod_version}")
+            .rglob("*.mod.rst")
+        ]
     # Remove unnecessary mod files.
     mod_files = set(mod_files)
     if fbm.config.get_target() == "blender":
-        if fbm.config.get_mod_version() not in ["2.78", "2.79"]:
-            mod_files -= set(glob.glob(
-                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/gpu_extras.*.mod.rst"
-            ))
-        if fbm.config.get_mod_version() in ["2.78", "2.79"]:
-            mod_files -= set(glob.glob(
-                f"{MOD_FILES_DIR}/mods/common/**/bpy.app.timers.mod.rst", recursive=True
-            ))
+        if mod_version not in ["2.78", "2.79"]:
+            mod_files -= {
+                str(p.absolute())
+                for p in Path(f"{MOD_FILES_DIR}/mods/generated_mods/"
+                              "gen_modules_modfile").glob("gpu_extras.*.mod.rst")
+            }
+        if mod_version in ["2.78", "2.79"]:
+            mod_files -= {
+                str(p.absolute())
+                for p in Path(f"{MOD_FILES_DIR}/mods/common")
+                .rglob("bpy.app.timers.mod.rst")
+            }
     elif fbm.config.get_target() == "upbge":
-        if fbm.config.get_mod_version() not in ["0.2.5"]:
-            mod_files -= set(glob.glob(
-                f"{MOD_FILES_DIR}/mods/generated_mods/gen_modules_modfile/gpu_extras.*.mod.rst"
-            ))
+        if mod_version not in ["0.2.5"]:
+            mod_files -= {
+                str(p.absolute())
+                for p in Path(f"{MOD_FILES_DIR}/mods/generated_mods/"
+                              "gen_modules_modfile").glob("gpu_extras.*.mod.rst")
+            }
     # TODO: sorted() is needed to solve unexpected errors.
-    #       The error comes from the invalid processes in mod_applier when there are
-    #       more than 2 mod files targeted for the same module.
+    #       The error comes from the invalid processes in mod_applier when there
+    #       are more than 2 mod files targeted for the same module.
     mod_files = sorted(mod_files)
 
     return rst_files, mod_files
 
 
-def main():
+def main() -> None:
     parse_options()
     rst_files, mod_files = collect_files()
     generate(rst_files, mod_files)

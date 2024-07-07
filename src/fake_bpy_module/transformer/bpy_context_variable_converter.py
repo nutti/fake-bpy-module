@@ -1,25 +1,34 @@
-from docutils import nodes
+from typing import Self
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
+from docutils import nodes  # noqa: TCH002
+
+from fake_bpy_module.analyzer.nodes import (
+    AttributeListNode,
+    AttributeNode,
     ClassNode,
     DataNode,
     DataTypeListNode,
-    AttributeListNode,
-    AttributeNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
 )
-from ..utils import append_child, get_first_child, find_children, output_log, LOG_LEVEL_WARN
+from fake_bpy_module.utils import (
+    LOG_LEVEL_WARN,
+    append_child,
+    find_children,
+    get_first_child,
+    output_log,
+)
+
+from .transformer_base import TransformerBase
 
 
 class BpyContextVariableConverter(TransformerBase):
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "bpy_context_variable_converter"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         bpy_module_document: nodes.document = None
         bpy_context_module_document: nodes.document = None
         bpy_context_class_node: ClassNode = None

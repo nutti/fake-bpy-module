@@ -1,29 +1,33 @@
 import re
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    ClassNode,
+from fake_bpy_module.analyzer.nodes import (
     BaseClassListNode,
     BaseClassNode,
+    ClassNode,
     DataTypeListNode,
     DataTypeNode,
     NameNode,
 )
-from ..utils import find_children, split_string_by_comma
+from fake_bpy_module.utils import find_children, split_string_by_comma
+
+from .transformer_base import TransformerBase
 
 
 class BaseClassFixture(TransformerBase):
     _BASE_CLASS_REGEX = re.compile(r"^base (class|classes) --- (.*)")
 
     # Remove same base class with parent class.
-    def _remove_self_parent_class(self, document: nodes.document):
+    def _remove_self_parent_class(self, document: nodes.document) -> None:
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
             class_name = class_node.element(NameNode).astext()
 
             base_class_list_node = class_node.element(BaseClassListNode)
-            base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+            base_class_nodes = find_children(base_class_list_node,
+                                             BaseClassNode)
             for base_class_node in base_class_nodes:
                 dtype_list_node = base_class_node.element(DataTypeListNode)
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
@@ -33,7 +37,7 @@ class BaseClassFixture(TransformerBase):
                 if dtype_list_node.empty():
                     base_class_list_node.remove(base_class_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         paragraphs = document.findall(nodes.paragraph)
         for para in paragraphs:
             m = self._BASE_CLASS_REGEX.match(para.astext())
@@ -55,10 +59,10 @@ class BaseClassFixture(TransformerBase):
                 break
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "base_class_fixture"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)
             self._remove_self_parent_class(document)

@@ -1,15 +1,15 @@
-import os
-import sys
 import argparse
+import sys
 import unittest
+from pathlib import Path
 
 
 class FakeBpyModuleTestConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.modules_path = ""
 
 
-def parse_options(config: FakeBpyModuleTestConfig):
+def parse_options(config: FakeBpyModuleTestConfig) -> None:
     usage = f"Usage: python {__file__} [-p <modules_path>]"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
@@ -20,15 +20,15 @@ def parse_options(config: FakeBpyModuleTestConfig):
         config.modules_path = args.modules_path
 
 
-def main():
+def main() -> None:
     config = FakeBpyModuleTestConfig()
     parse_options(config)
 
-    path = os.path.abspath(config.modules_path)
-    sys.path.append(path)
+    path = Path(config.modules_path).resolve()
+    sys.path.append(str(path))
 
-    sys.path.append(os.path.dirname(__file__))
-    import fake_bpy_module_test     # pylint: disable=C0415
+    sys.path.append(str(Path(__file__).parent))
+    import fake_bpy_module_test     # pylint: disable=C0415  # noqa: I001
 
     test_cases = [
         fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,

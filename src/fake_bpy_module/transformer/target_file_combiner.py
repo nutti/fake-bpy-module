@@ -1,35 +1,38 @@
 import re
-from typing import List, Dict
+from typing import Self
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
+    ChildModuleListNode,
+    ChildModuleNode,
     ModuleNode,
     NameNode,
     TargetFileNode,
-    ChildModuleListNode,
-    ChildModuleNode,
 )
-from ..utils import get_first_child, append_child
+from fake_bpy_module.utils import append_child, get_first_child
+
+from .transformer_base import TransformerBase
 from .utils import ModuleStructure, build_module_structure
 
 
 class GenerationInfoByModule:
-    def __init__(self):
+    def __init__(self) -> None:
         self.target_filename: str = None
-        self.documents: List[nodes.document] = []
-        self.child_modules: List[str] = []
+        self.documents: list[nodes.document] = []
+        self.child_modules: list[str] = []
 
 
 class GenerationInfo:
-    def __init__(self):
+    def __init__(self) -> None:
         # Key: Module name
-        self._info: Dict[str, GenerationInfoByModule] = {}
+        self._info: dict[str, GenerationInfoByModule] = {}
 
     def get(self, module_name: str) -> GenerationInfoByModule:
         if module_name not in self._info:
-            raise RuntimeError("Could not find module in GenerationInfoByModule "
+            raise RuntimeError("Could not find module in "
+                               "GenerationInfoByModule "
                                f"(module: {module_name})")
         return self._info[module_name]
 
@@ -43,18 +46,18 @@ class GenerationInfo:
 
 class TargetFileCombiner(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
             self._package_structure = kwargs["package_structure"]
 
     def _build_generation_info(
-            self, documents: List[nodes.document],
+            self, documents: list[nodes.document],
             module_structure: ModuleStructure) -> GenerationInfoByModule:
         def find_target_file(
                 name: str, structure: ModuleStructure, target: str,
-                module_level: int) -> str:
+                module_level: int) -> str | None:
             for m in structure.children():
                 mod_name = name + m.name
                 if mod_name == target:
@@ -69,7 +72,7 @@ class TargetFileCombiner(TransformerBase):
 
         def build_child_modules(
                 gen_info: GenerationInfo, name: str,
-                structure: ModuleStructure, module_level: int):
+                structure: ModuleStructure, module_level: int) -> None:
             for m in structure.children():
                 mod_name = name + m.name
                 if len(m.children()) == 0:
@@ -107,7 +110,7 @@ class TargetFileCombiner(TransformerBase):
             info.documents.append(document)
 
         # Combine document by the same targets.
-        results: List[nodes.document] = []
+        results: list[nodes.document] = []
         for mod_name in gen_info.modules():
             info = gen_info.get(mod_name)
             new_doc: nodes.document = publish_doctree("")
@@ -141,10 +144,10 @@ class TargetFileCombiner(TransformerBase):
         return results
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "target_file_combiner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         if self._package_structure is None:
             structure = build_module_structure(self.documents)
         else:

@@ -1,36 +1,34 @@
-import os
 import re
-from typing import List
+from pathlib import Path
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
-from . import directives
-from . import readers
-from . import roles
+from fake_bpy_module.utils import LOG_LEVEL_DEBUG, output_log
+
+from . import directives, readers, roles
 from .nodes import SourceFilenameNode
-from ..utils import output_log, LOG_LEVEL_DEBUG
 
 REGEX_SUB_LINE_SPACES = re.compile(r"\s+")
 
 
-def analyze(rst_files: List[str]) -> List[nodes.document]:
+def analyze(rst_files: list[str]) -> list[nodes.document]:
     rst_files = [f.replace("\\", "/") for f in rst_files]
     analyzer = BaseAnalyzer()
-    documents = analyzer.analyze(rst_files)
 
-    return documents
+    return analyzer.analyze(rst_files)
 
 
 class BaseAnalyzer:
-    def __init__(self):
+    def __init__(self) -> None:
         directives.register_directives()
         roles.register_roles()
 
-        self.mod_documents: List[nodes.document] = []
+        self.mod_documents: list[nodes.document] = []
 
     def _analyze_by_file(self, filename: str) -> nodes.document:
         output_log(LOG_LEVEL_DEBUG, f"Analyze file: {filename}")
-        with open(filename, "r", encoding="utf-8") as f:
+        with Path(filename).open("r", encoding="utf-8") as f:
             contents = f.read()
 
         settings_overrides = {
@@ -43,12 +41,12 @@ class BaseAnalyzer:
             contents, settings_overrides=settings_overrides,
             reader=readers.BpyRstDocsReader())
 
-        document.insert(0, SourceFilenameNode(text=os.path.basename(filename)))
+        document.insert(0, SourceFilenameNode(text=Path(filename).name))
 
         return document
 
-    def analyze(self, filenames: list) -> List[nodes.document]:
-        documents: List[nodes.document] = []
+    def analyze(self, filenames: list) -> list[nodes.document]:
+        documents: list[nodes.document] = []
         for f in filenames:
             document = self._analyze_by_file(f)
             documents.append(document)

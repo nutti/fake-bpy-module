@@ -1,22 +1,22 @@
+from typing import Self
+
 from docutils import nodes
 
+from fake_bpy_module.analyzer.nodes import CodeDocumentNode, CodeNode
+from fake_bpy_module.utils import append_child
+
 from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    CodeDocumentNode,
-    CodeNode,
-)
-from ..utils import append_child
 
 
 class RstSpecificNodeCleaner(TransformerBase):
 
-    def _replace(self, from_node: nodes.Node, to_node: nodes.Node):
+    def _replace(self, from_node: nodes.Node, to_node: nodes.Node) -> None:
         parent = from_node.parent
         index = from_node.parent.index(from_node)
         parent.remove(from_node)
         parent.insert(index, to_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         # Move to the upper node under the section node.
         for section_node in document.traverse(nodes.section):
             parent = section_node.parent
@@ -27,29 +27,20 @@ class RstSpecificNodeCleaner(TransformerBase):
 
         # Make CodeDocumentNode from RST specific nodes.
         for node in document.children[:]:
-            if isinstance(node, (
-                    nodes.title,
-                    nodes.paragraph,
-                    nodes.bullet_list,
-                    nodes.enumerated_list,
-                    nodes.definition_list,
-                    nodes.block_quote,
-                    nodes.line_block,
-                    nodes.literal_block,
-                    nodes.section,
-                    nodes.field_list,
-                    nodes.note,
-                    nodes.warning,
-                    nodes.target,
-                    CodeNode)):
+            if isinstance(
+                    node, nodes.title | nodes.paragraph | nodes.bullet_list |
+                    nodes.enumerated_list | nodes.definition_list |
+                    nodes.block_quote | nodes.line_block | nodes.literal_block |
+                    nodes.section | nodes.field_list | nodes.note |
+                    nodes.warning | nodes.target | CodeNode):
                 code_doc_node = CodeDocumentNode()
                 self._replace(node, code_doc_node)
                 append_child(code_doc_node, node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "rst_specific_node_cleaner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

@@ -1,46 +1,53 @@
-from typing import TypeVar, Type
+import abc
+from typing import Self, TypeVar
+
 from docutils import nodes
 
+from fake_bpy_module.utils import append_child
+
 from .roles import ClassRef
-from ..utils import append_child
 
 T = TypeVar("T", bound=nodes.Node)
 
+# pylint: disable: W0223
+
 
 class NodeBase(nodes.Element):
-    def append_child(self, item: nodes.Node):
+    def append_child(self, item: nodes.Node) -> None:
         self.insert(len(self.children), item)
 
 
 class UniqueElementNode(NodeBase):
     # pylint: disable=W1113
     def __init__(self, rawsource: str = "", *children: nodes.Node,
-                 **attributes):
+                 **attributes: dict) -> None:
         super().__init__(rawsource, *children, **attributes)
 
         self.elements = {}
 
-    def append_child(self, item: nodes.Node):
+    def append_child(self, item: nodes.Node) -> None:
         super().insert(len(self.children), item)
         self.elements[type(item)] = item
 
-    def element(self, element_type: Type[T]) -> T:
+    def element(self, element_type: type[T]) -> T:
         return self.elements[element_type]
 
-    def deepcopy(self):
+    def deepcopy(self) -> type[Self]:
         new_obj = super().deepcopy()
         new_obj.elements.clear()
         for child in new_obj.children:
             new_obj.elements[type(child)] = child
         return new_obj
 
-    def remove(self, item):
+    @abc.abstractmethod
+    def remove(self, item: nodes.Node) -> None:
         raise ValueError("Don't call remove directly, and use replace instead.")
 
-    def insert(self, index, item):
+    @abc.abstractmethod
+    def insert(self, index: int, item: nodes.Node) -> None:
         raise ValueError("Don't call insert directly, and use replace instead.")
 
-    def replace_node(self, item: nodes.Node):
+    def replace_node(self, item: nodes.Node) -> None:
         node_type = type(item)
         old = self.elements[node_type]
 
@@ -56,7 +63,7 @@ class ListNode(NodeBase, nodes.Sequential):
 
 
 class TextNode(nodes.TextElement):
-    def add_text(self, text: str):
+    def add_text(self, text: str) -> None:
         self.insert(len(self.children), nodes.Text(text))
 
 
@@ -89,10 +96,10 @@ class DataTypeNode(TextNode, nodes.Part):
     tagname = "data-type"
     child_text_separator = ""
 
-    def astext(self):
+    def astext(self) -> str:
         return "".join(c.astext() for c in self.children)
 
-    def to_string(self):
+    def to_string(self) -> str:
         s = ""
         for c in self.children:
             if isinstance(c, nodes.Text):
@@ -118,8 +125,9 @@ class DataNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "DataNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = DataNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -135,8 +143,9 @@ class AttributeNode(DataNode):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "AttributeNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = AttributeNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -165,8 +174,9 @@ class ArgumentNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ArgumentNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = ArgumentNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -183,8 +193,9 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "FunctionReturnNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = FunctionReturnNode(rawsource, *children, **attributes)
 
         node.append_child(DescriptionNode())
@@ -193,10 +204,7 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
         return node
 
     def empty(self) -> bool:
-        for child in self.children:
-            if not child.empty():
-                return False
-        return True
+        return all(child.empty() for child in self.children)
 
 
 class FunctionNode(UniqueElementNode, nodes.Part):
@@ -205,8 +213,9 @@ class FunctionNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "FunctionNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = FunctionNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -228,8 +237,9 @@ class BaseClassNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "BaseClassNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = BaseClassNode(rawsource, *children, **attributes)
 
         node.append_child(DataTypeListNode())
@@ -243,8 +253,9 @@ class ClassNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ClassNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = ClassNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -262,8 +273,9 @@ class ModuleNode(UniqueElementNode, nodes.Part):
 
     # pylint: disable=W1113
     @classmethod
-    def create_template(cls, rawsource: str = "", *children: nodes.Node,
-                        **attributes) -> "ModuleNode":
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
         node = ModuleNode(rawsource, *children, **attributes)
 
         node.append_child(NameNode())

@@ -41,3 +41,52 @@ platforms = ["Windows", "Linux", "Mac OS-X"]
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 80
+exclude = [
+    "tests/python/fake_bpy_module_test/fake_bpy_module_test/*_test_data/*",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "UP015",
+    "COM812",
+    "ANN101",
+    "PT009",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D107",
+    "Q000",
+    "S101",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "TRY003",
+    "EM101",
+    "EM102",
+    "EM103",
+    "T201",
+    "PT027",
+    "TD002",
+    "TD003",
+    "FIX002",
+    "PLR2004",
+    "SIM102",
+    "INP001",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 100
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-branches = 100
+max-statements = 200
+max-returns = 70

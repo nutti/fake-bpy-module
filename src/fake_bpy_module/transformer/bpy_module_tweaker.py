@@ -1,40 +1,43 @@
 import re
-import typing
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    ClassNode,
-    DataNode,
-    DataTypeListNode,
-    DataTypeNode,
-    ModuleNode,
-    FunctionNode,
-    NameNode,
-    ArgumentNode,
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
-    DefaultValueNode,
+    ArgumentNode,
     AttributeListNode,
     AttributeNode,
     BaseClassListNode,
     BaseClassNode,
+    ClassNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
+    FunctionNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
 )
-
-from ..utils import (
-    find_children,
-    get_first_child,
-    append_child,
-    output_log,
+from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
+    append_child,
+    find_children,
+    get_first_child,
+    output_log,
 )
+
+from .transformer_base import TransformerBase
 
 
 class BpyModuleTweaker(TransformerBase):
 
-    def _make_bpy_prop_functions_arguments_kwonlyargs(self, document: nodes.document):
-        module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
+    def _make_bpy_prop_functions_arguments_kwonlyargs(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
         if module_name != "bpy.props":
             return
 
@@ -45,8 +48,10 @@ class BpyModuleTweaker(TransformerBase):
             for arg_node in arg_nodes:
                 arg_node.attributes["argument_type"] = "kwonlyarg"
 
-    def _add_bpy_app_handlers_functions_data_types(self, document: nodes.document):
-        module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
+    def _add_bpy_app_handlers_functions_data_types(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
         if module_name != "bpy.app.handlers":
             return
 
@@ -59,8 +64,10 @@ class BpyModuleTweaker(TransformerBase):
             data_type_list_node.insert(
                 0, make_data_type_node("list of callable[`bpy.types.Scene`]"))
 
-    def _add_bpy_ops_override_parameters(self, document: nodes.document):
-        module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
+    def _add_bpy_ops_override_parameters(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
         if not module_name.startswith("bpy.ops"):
             return
 
@@ -98,13 +105,15 @@ class BpyModuleTweaker(TransformerBase):
                 make_data_type_node("bool"))
             arg_list_node.insert(2, arg_node)
 
-    def _rebase_bpy_types_class_base_class(self, document: nodes.document):
-        module_name = get_first_child(document, ModuleNode).element(NameNode).astext()
+    def _rebase_bpy_types_class_base_class(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
         if not module_name.startswith("bpy.types"):
             return
 
-        parent_to_child: typing.Dict[str, str] = {}
-        class_name_to_class_node: typing.Dict[str, ClassNode] = {}
+        parent_to_child: dict[str, str] = {}
+        class_name_to_class_node: dict[str, ClassNode] = {}
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
             class_name = class_node.element(NameNode).astext()
@@ -140,7 +149,7 @@ class BpyModuleTweaker(TransformerBase):
                 f"`bpy_prop_collection` of `{child}`, (readonly)"))
             bc_list_node.append_child(bc_node)
 
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
             return
@@ -155,9 +164,9 @@ class BpyModuleTweaker(TransformerBase):
         self._rebase_bpy_types_class_base_class(document)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "bpy_module_tweaker"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

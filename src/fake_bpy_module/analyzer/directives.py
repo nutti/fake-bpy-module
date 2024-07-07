@@ -1,35 +1,34 @@
 import ast
 import re
-from docutils.parsers import rst
+from typing import ClassVar
+
 from docutils import nodes
+from docutils.parsers import rst
+
+from fake_bpy_module import config
+from fake_bpy_module.utils import append_child, split_string_by_comma
 
 from .nodes import (
-    ModuleNode,
-    ClassNode,
+    ArgumentListNode,
+    ArgumentNode,
+    AttributeListNode,
+    AttributeNode,
     BaseClassListNode,
     BaseClassNode,
-    DataNode,
-    AttributeNode,
-    AttributeListNode,
-    FunctionNode,
-    FunctionListNode,
-    ArgumentNode,
-    ArgumentListNode,
-    DefaultValueNode,
-    FunctionReturnNode,
-    NameNode,
-    DescriptionNode,
-    DataTypeNode,
-    DataTypeListNode,
+    ClassNode,
     CodeNode,
+    DataNode,
+    DataTypeListNode,
+    DataTypeNode,
+    DefaultValueNode,
+    DescriptionNode,
+    FunctionListNode,
+    FunctionNode,
+    FunctionReturnNode,
     ModTypeNode,
+    ModuleNode,
+    NameNode,
     make_data_type_node,
-)
-
-from .. import config
-from ..utils import (
-    append_child,
-    split_string_by_comma,
 )
 
 _ARG_REPLACE_1_REGEX = re.compile(r"<class '([a-zA-Z]+?)'>")
@@ -38,7 +37,7 @@ _ARG_REPLACE_3_REGEX = re.compile(r"\\")
 _ARG_LIST_FROM_FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
 
 
-def parse_function_def(content) -> str:
+def parse_function_def(content: str) -> str:
     content = _ARG_REPLACE_1_REGEX.sub("\\1", content)
     content = _ARG_REPLACE_2_REGEX.sub("\\1", content)
     content = _ARG_REPLACE_3_REGEX.sub("", content)
@@ -53,8 +52,8 @@ def parse_function_def(content) -> str:
     #   function_1(arg_1, arg_2, arg_3='NONE', arg_4=True, arg_5): pass
     fixed_params = []
     required_named_argument = False
-    for p in params:
-        p = p.strip()
+    for param in params:
+        p = param.strip()
         sp = p.split("=")
         assert len(sp) in (1, 2), f"{p} has length {len(sp)}"
         if len(sp) == 1:
@@ -84,19 +83,17 @@ def parse_function_def(content) -> str:
             else:
                 fixed_params.append(p)
 
-    content = f"def {name}({', '.join(fixed_params)}): pass"
-
-    return content
+    return f"def {name}({', '.join(fixed_params)}): pass"
 
 
 # pylint: disable=R0911
-def parse_func_arg_default_value(expr: ast.expr):
+def parse_func_arg_default_value(expr: ast.expr) -> str | None:
     if expr is None:
         return None
 
     if isinstance(expr, ast.Constant):
         if isinstance(expr.value, str):
-            return f"\"{expr.value}\""
+            return f'"{expr.value}"'
         if expr.value is None:
             return "None"
         return expr.value
@@ -128,14 +125,14 @@ def parse_func_arg_default_value(expr: ast.expr):
             f"""{{{', '.join(
             f'{parse_func_arg_default_value(k)}'
             f':{parse_func_arg_default_value(v)}'
-            for k, v in zip(expr.keys, expr.values))}}}"""
+            for k, v in zip(expr.keys, expr.values, strict=False))}}}"""
             if len(expr.keys) > 0
             else "{}"
         )
     if isinstance(expr, ast.UnaryOp):
         if isinstance(expr.op, ast.USub):
             operand = parse_func_arg_default_value(expr.operand)
-            if isinstance(operand, (float, int)):
+            if isinstance(operand, float | int):
                 return -operand     # pylint: disable=E1130
             if isinstance(operand, str):
                 return "None"
@@ -227,7 +224,7 @@ class ModuleDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list[ModuleNode]:
         paragraph_node = nodes.paragraph()
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
@@ -264,10 +261,11 @@ class ClassDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    _CLASS_NAME_WITH_ARGS_REGEX = re.compile(r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
+    _CLASS_NAME_WITH_ARGS_REGEX = re.compile(
+        r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
     _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)")
 
-    def run(self):
+    def run(self) -> list[ClassNode]:
         paragraph_node = nodes.paragraph()
         self.state.nested_parse(
             self.content, self.content_offset, paragraph_node)
@@ -276,8 +274,8 @@ class ClassDirective(rst.Directive):
         class_name = self.arguments[0]
 
         # Ex: GPUBatch(type, buf, elem=None): -> GPUBatch
-        # TODO: Need to parse class name with arguments to create __init__ method.
-        #       Like __init__(type, buf, elem=None).
+        # TODO: Need to parse class name with arguments to create
+        #       __init__ method like __init__(type, buf, elem=None).
         #       We should consider Color(rgb) which will be added by mod file.
         if m := self._CLASS_NAME_WITH_ARGS_REGEX.match(class_name):
             class_name = m.group(1)
@@ -326,7 +324,7 @@ class DataDirective(rst.Directive):
     _DATA_NAME_REGEX = re.compile(r"([0-9a-zA-Z_]+)")
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(r"(mod-option|option)\s*(\S*)")
 
-    def run(self):
+    def run(self) -> list[DataNode]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -359,7 +357,8 @@ class DataDirective(rst.Directive):
                 if fname_node.astext() == "type":
                     dtype = parse_data_type(fbody_node)
                     dtype_list_node.append_child(dtype)
-                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
+                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                        fname_node.astext()):
                     for dtype_node in dtype_list_node.findall(DataTypeNode):
                         dtype_node.attributes[m.group(1)] = fbody_node.astext()
 
@@ -381,7 +380,80 @@ class FunctionDirective(rst.Directive):
     _OPTION_MODOPTION_FIELD_REFEX = re.compile(
         r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)")
 
-    def run(self):
+    def _parse_arg_detail(self, arg_list_node: ArgumentListNode,
+                          arg_name: str, detail_type: str,
+                          detail_body: nodes.field_body) -> None:
+        arg_node: ArgumentNode = None
+        for child in arg_list_node.children:
+            n = next(child.findall(NameNode))
+            if n.astext() == arg_name:
+                arg_node = n.parent
+                break
+        if arg_node:
+            if detail_type in ("arg", "param"):
+                arg_node.element(DescriptionNode).add_text(
+                    detail_body.astext())
+            elif detail_type == "type":
+                dtype = parse_data_type(detail_body)
+                arg_node.element(DataTypeListNode).append_child(dtype)
+
+    def _parse_return_detail(self, return_node: FunctionReturnNode,
+                             detail_type: str,
+                             detail_body: nodes.field_body) -> None:
+        if detail_type == "return":
+            return_node.element(DescriptionNode).add_text(
+                detail_body.astext())
+        elif detail_type == "rtype":
+            dtype = parse_data_type(detail_body)
+            return_node.element(DataTypeListNode).append_child(dtype)
+
+    def _parse_arg_option(self, arg_list_node: ArgumentListNode,
+                          arg_name: str, option_type: str,
+                          option_body: nodes.field_body) -> None:
+        arg_node: ArgumentNode = None
+        for child in arg_list_node.children:
+            n = next(child.findall(NameNode))
+            if n.astext() == arg_name:
+                arg_node = n.parent
+                break
+        if arg_node:
+            for dtype_node in arg_node.findall(DataTypeNode):
+                dtype_node.attributes[option_type] = option_body.astext()
+
+    def _parse_return_option(self, return_node: FunctionReturnNode,
+                             option_type: str,
+                             option_body: nodes.field_body) -> None:
+        for dtype_node in return_node.findall(DataTypeNode):
+            dtype_node.attributes[option_type] = option_body.astext()
+
+    def _parse_signature_detail(self, func_node: FunctionNode,
+                                paragraph: nodes.paragraph) -> None:
+        field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
+        for field_list in field_lists:
+            for field in field_list:
+                fname_node, fbody_node = field.children
+                if m := self._ARG_FIELD_REGEX.match(fname_node.astext()):
+                    arg_list_node = func_node.element(ArgumentListNode)
+                    self._parse_arg_detail(arg_list_node, m.group(2),
+                                           m.group(1), fbody_node)
+                elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
+                    func_ret_node = func_node.element(FunctionReturnNode)
+                    self._parse_return_detail(func_ret_node, m.group(1),
+                                              fbody_node)
+                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                        fname_node.astext()):
+                    if m.group(2) == "arg":
+                        arg_list_node = func_node.element(ArgumentListNode)
+                        self._parse_arg_option(arg_list_node, m.group(3),
+                                               m.group(1), fbody_node)
+                    elif m.group(2) == "rtype":
+                        func_ret_node = func_node.element(FunctionReturnNode)
+                        self._parse_return_option(func_ret_node, m.group(1),
+                                                  fbody_node)
+                    elif m.group(2) == "function":
+                        func_node.attributes[m.group(1)] = fbody_node.astext()
+
+    def run(self) -> list[FunctionNode]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -430,51 +502,7 @@ class FunctionDirective(rst.Directive):
 
             func_nodes.append(func_node)
 
-            # Get signature details
-            arg_list_node = func_node.element(ArgumentListNode)
-            field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
-            for field_list in field_lists:
-                for field in field_list:
-                    fname_node, fbody_node = field.children
-                    if m := self._ARG_FIELD_REGEX.match(fname_node.astext()):
-                        arg_name = m.group(2)
-                        arg_node: ArgumentNode = None
-                        for child in arg_list_node.children:
-                            n = next(child.findall(NameNode))
-                            if n.astext() == arg_name:
-                                arg_node = n.parent
-                                break
-                        if arg_node:
-                            if m.group(1) in ("arg", "param"):
-                                arg_node.element(DescriptionNode).add_text(fbody_node.astext())
-                            elif m.group(1) == "type":
-                                dtype = parse_data_type(fbody_node)
-                                arg_node.element(DataTypeListNode).append_child(dtype)
-                    elif m := self._RETURN_FIELD_REGEX.match(fname_node.astext()):
-                        func_ret_node = func_node.element(FunctionReturnNode)
-                        if m.group(1) == "return":
-                            func_ret_node.element(DescriptionNode).add_text(fbody_node.astext())
-                        elif m.group(1) == "rtype":
-                            dtype = parse_data_type(fbody_node)
-                            func_ret_node.element(DataTypeListNode).append_child(dtype)
-                    elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(fname_node.astext()):
-                        if m.group(2) == "arg":
-                            arg_name = m.group(3)
-                            arg_node: ArgumentNode = None
-                            for child in arg_list_node.children:
-                                n = next(child.findall(NameNode))
-                                if n.astext() == arg_name:
-                                    arg_node = n.parent
-                                    break
-                            if arg_node:
-                                for dtype_node in arg_node.findall(DataTypeNode):
-                                    dtype_node.attributes[m.group(1)] = fbody_node.astext()
-                        elif m.group(2) == "rtype":
-                            func_ret_node = func_node.element(FunctionReturnNode)
-                            for dtype_node in func_ret_node.findall(DataTypeNode):
-                                dtype_node.attributes[m.group(1)] = fbody_node.astext()
-                        elif m.group(2) == "function":
-                            func_node.attributes[m.group(1)] = fbody_node.astext()
+            self._parse_signature_detail(func_node, paragraph)
 
         return func_nodes
 
@@ -484,7 +512,7 @@ class DocumentDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list[nodes.paragraph]:
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
@@ -498,11 +526,11 @@ class LiteralIncludeDirective(rst.Directive):
     required_arguments = 1
     final_argument_whitespace = True
     has_content = True
-    option_spec = {
+    option_spec: ClassVar = {
         "lines": rst.directives.unchanged
     }
 
-    def run(self):
+    def run(self) -> list[CodeNode]:
         path: str = self.arguments[0]
         code_node: CodeNode = CodeNode(text=path)
 
@@ -514,7 +542,7 @@ class NopDirective(rst.Directive):
     final_argument_whitespace = True
     has_content = True
 
-    def run(self):
+    def run(self) -> list:
         return []
 
 
@@ -523,7 +551,7 @@ class ModTypeDirective(rst.Directive):
     final_argument_whitespace = False
     has_content = False
 
-    def run(self):
+    def run(self) -> list[ModTypeNode]:
         mod_type: str = self.arguments[0]
         mod_type_node: ModTypeNode = ModTypeNode(text=mod_type)
 
@@ -537,7 +565,7 @@ class BaseClassDirective(rst.Directive):
 
     _MODOPTION_FIELD_REFEX = re.compile(r"mod-option\s+base-class")
 
-    def run(self):
+    def run(self) -> list[BaseClassListNode]:
         base_classes: str = self.arguments[0]
         base_class_list_node: BaseClassListNode = BaseClassListNode()
 
@@ -556,12 +584,13 @@ class BaseClassDirective(rst.Directive):
                 if self._MODOPTION_FIELD_REFEX.match(fname_node.astext()):
                     for base_class_node in base_class_list_node.children:
                         for dtype_node in base_class_node.findall(DataTypeNode):
-                            dtype_node.attributes["mod-option"] = fbody_node.astext()
+                            dtype_node.attributes["mod-option"] = \
+                                fbody_node.astext()
 
         return [base_class_list_node]
 
 
-def register_directives():
+def register_directives() -> None:
     rst.directives.register_directive("module", ModuleDirective)
     rst.directives.register_directive("currentmodule", ModuleDirective)
     rst.directives.register_directive("class", ClassDirective)

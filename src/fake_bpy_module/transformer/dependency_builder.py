@@ -1,27 +1,32 @@
-from typing import List
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
+from fake_bpy_module.analyzer.nodes import (
     ClassNode,
-    FunctionNode,
     DataNode,
     DependencyListNode,
     DependencyNode,
+    FunctionNode,
+    ModuleNode,
+    NameNode,
 )
-from ..analyzer.roles import (
-    ClassRef,
+from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.utils import append_child, find_children, get_first_child
+
+from .transformer_base import TransformerBase
+from .utils import (
+    ModuleStructure,
+    build_module_structure,
+    get_base_name,
+    get_module_name,
 )
-from ..utils import get_first_child, find_children, append_child
-from .utils import ModuleStructure, get_module_name, get_base_name, build_module_structure
 
 
 class Dependency:
-    def __init__(self):
+    def __init__(self) -> None:
         self._mod_name: str = None
-        self._type_lists: List[str] = []
+        self._type_lists: list[str] = []
 
     @property
     def mod_name(self) -> str:
@@ -30,30 +35,31 @@ class Dependency:
         return self._mod_name
 
     @mod_name.setter
-    def mod_name(self, value: str):
+    def mod_name(self, value: str) -> None:
         self._mod_name = value
 
     @property
-    def type_lists(self) -> List[str]:
+    def type_lists(self) -> list[str]:
         if not self._type_lists:
             raise RuntimeError(
                 "At least 1 element must be added to type lists")
         return self._type_lists
 
-    def add_type(self, type_: str):
+    def add_type(self, type_: str) -> None:
         self._type_lists.append(type_)
 
 
 class DependencyBuilder(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
         self._package_structure: ModuleStructure = None
         if "package_structure" in kwargs:
             self._package_structure = kwargs["package_structure"]
 
-    def _get_import_module_path(self, module_structure: ModuleStructure,
-                                data_type_1: str, data_type_2: str):
+    def _get_import_module_path(
+            self, module_structure: ModuleStructure,
+            data_type_1: str, data_type_2: str) -> str | None:
         mod_names_full_1 = get_module_name(data_type_1, module_structure)
         mod_names_full_2 = get_module_name(data_type_2, module_structure)
         if mod_names_full_1 is None or mod_names_full_2 is None:
@@ -62,7 +68,8 @@ class DependencyBuilder(TransformerBase):
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
 
-        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2)):
+        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2,
+                                         strict=False)):
             if m1 != m2:
                 match_level = i
                 break
@@ -73,8 +80,8 @@ class DependencyBuilder(TransformerBase):
                 match_level = len(mod_names_1)
 
         # [Case 1] No match => Need to import top level module
-        #   data_type_1: bpy.types.Mesh
-        #   data_type_2: bgl.glCallLists()
+        #   * data_type_1: bpy.types.Mesh
+        #   * data_type_2: bgl.glCallLists()
         #       => bpy.types
         if match_level == 0:
             module_path = ".".join(mod_names_1)
@@ -83,29 +90,29 @@ class DependencyBuilder(TransformerBase):
             rest_level_2 = len(mod_names_2) - match_level
 
             # [Case 2] Match exactly => No need to import any modules
-            #   data_type_1: bgl.Buffer
-            #   data_type_2: bgl.glCallLists()
+            #   * data_type_1: bgl.Buffer
+            #   * data_type_2: bgl.glCallLists()
             #       => None
             if rest_level_1 == 0 and rest_level_2 == 0:
                 module_path = None
             # [Case 3] Match partially (Same level)
             #               => Need to import top level
-            #   data_type_1: bpy.types.Mesh
-            #   data_type_2: bpy.ops.automerge()
+            #   * data_type_1: bpy.types.Mesh
+            #   * data_type_2: bpy.ops.automerge()
             #       => bpy.types
-            elif rest_level_1 >= 1 and rest_level_2 >= 1:
+            elif rest_level_1 >= 1 and rest_level_2 >= 1:  # noqa: SIM114
                 module_path = ".".join(mod_names_1)
             # [Case 4] Match partially (Upper level)
             #               => Need to import top level
-            #   data_type_1: mathutils.Vector
-            #   data_type_2: mathutils.noise.cell
+            #   * data_type_1: mathutils.Vector
+            #   * data_type_2: mathutils.noise.cell
             #       => mathutils
-            elif rest_level_1 == 0 and rest_level_2 >= 1:
+            elif rest_level_1 == 0 and rest_level_2 >= 1:  # noqa: SIM114
                 module_path = ".".join(mod_names_1)
             # [Case 5] Match partially (Lower level)
             #               => Need to import top level
-            #   data_type_1: mathutils.noise.cell
-            #   data_type_2: mathutils.Vector
+            #   * data_type_1: mathutils.noise.cell
+            #   * data_type_2: mathutils.Vector
             #       => mathutils.noise
             elif rest_level_1 >= 1 and rest_level_2 == 0:
                 module_path = ".".join(mod_names_1)
@@ -114,11 +121,12 @@ class DependencyBuilder(TransformerBase):
 
         return module_path
 
-    def _add_dependency(self, dependencies: List[Dependency],
+    def _add_dependency(self, dependencies: list[Dependency],
                         module_structure: ModuleStructure,
-                        data_type_1: str, data_type_2: str):
+                        data_type_1: str, data_type_2: str) -> None:
 
-        mod = self._get_import_module_path(module_structure, data_type_1, data_type_2)
+        mod = self._get_import_module_path(
+            module_structure, data_type_1, data_type_2)
         base = get_base_name(data_type_1)
         if mod is None:
             return
@@ -133,14 +141,14 @@ class DependencyBuilder(TransformerBase):
             target_dep.mod_name = mod
             target_dep.add_type(base)
             dependencies.append(target_dep)
-        else:
-            if base not in target_dep.type_lists:
-                target_dep.add_type(base)
+        elif base not in target_dep.type_lists:
+            target_dep.add_type(base)
 
     def _build_dependencies(
-            self, document: nodes.document, package_structure: ModuleStructure):
+            self, document: nodes.document,
+            package_structure: ModuleStructure) -> None:
 
-        dependencies: List[Dependency] = []
+        dependencies: list[Dependency] = []
         module_node = get_first_child(document, ModuleNode)
         if module_node is None:
             return
@@ -181,10 +189,10 @@ class DependencyBuilder(TransformerBase):
         append_child(document, dep_list_node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "dependency_builder"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         if self._package_structure is None:
             structure = build_module_structure(self.documents)
         else:

@@ -1,24 +1,24 @@
-from typing import List
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
+from fake_bpy_module.analyzer.nodes import (
+    ClassNode,
+    DataNode,
+    FunctionNode,
     ModuleNode,
     NameNode,
-    ClassNode,
-    FunctionNode,
-    DataNode,
 )
-from ..analyzer.roles import (
-    ClassRef,
-)
-from ..utils import get_first_child, find_children
-from .utils import get_base_name, get_module_name, build_module_structure
+from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.utils import find_children, get_first_child
+
+from .transformer_base import TransformerBase
+from .utils import build_module_structure, get_base_name, get_module_name
 
 
 class CannonicalDataTypeRewriter(TransformerBase):
 
-    def __init__(self, documents: List[nodes.document], **kwargs):
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
 
         self._package_structure = None
@@ -49,7 +49,8 @@ class CannonicalDataTypeRewriter(TransformerBase):
         mod_names_1 = mod_names_full_1.split(".")
         mod_names_2 = mod_names_full_2.split(".")
 
-        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2)):
+        for i, (m1, m2) in enumerate(zip(mod_names_1, mod_names_2,
+                                         strict=False)):
             if m1 != m2:
                 match_level = i
                 break
@@ -60,8 +61,8 @@ class CannonicalDataTypeRewriter(TransformerBase):
                 match_level = len(mod_names_1)
 
         # [Case 1] No match => Use data_type
-        #   data_type: bpy.types.Mesh
-        #   target_module: bgl
+        #   * data_type: bpy.types.Mesh
+        #   * target_module: bgl
         #       => bpy.types.Mesh
         if match_level == 0:
             final_data_type = self._ensure_correct_data_type(data_type)
@@ -70,26 +71,26 @@ class CannonicalDataTypeRewriter(TransformerBase):
             rest_level_2 = len(mod_names_2) - match_level
 
             # [Case 2] Match exactly => Use data_type without module
-            #   data_type: bgl.Buffer
-            #   target_module: bgl
+            #   * data_type: bgl.Buffer
+            #   * target_module: bgl
             #       => Buffer
             if rest_level_1 == 0 and rest_level_2 == 0:
                 final_data_type = get_base_name(data_type)
             # [Case 3] Match partially (Same level) => Use data_type
-            #   data_type: bpy.types.Mesh
-            #   target_module: bpy.ops
+            #   * data_type: bpy.types.Mesh
+            #   * target_module: bpy.ops
             #       => bpy.types.Mesh
-            elif rest_level_1 >= 1 and rest_level_2 >= 1:
+            elif rest_level_1 >= 1 and rest_level_2 >= 1:  # noqa: SIM114
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 4] Match partially (Upper level) => Use data_type
-            #   data_type: mathutils.Vector
-            #   target_module: mathutils.noise
+            #   * data_type: mathutils.Vector
+            #   * target_module: mathutils.noise
             #       => mathutils.Vector
-            elif rest_level_1 == 0 and rest_level_2 >= 1:
+            elif rest_level_1 == 0 and rest_level_2 >= 1:  # noqa: SIM114
                 final_data_type = self._ensure_correct_data_type(data_type)
             # [Case 5] Match partially (Lower level) => Use data_type
-            #   data_type: mathutils.noise.cell
-            #   target_module: mathutils
+            #   * data_type: mathutils.noise.cell
+            #   * target_module: mathutils
             #       => mathutils.noise.cell
             elif rest_level_1 >= 1 and rest_level_2 == 0:
                 final_data_type = self._ensure_correct_data_type(data_type)
@@ -100,15 +101,14 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         return final_data_type
 
-    def _rewrite(self, document: nodes.document):
+    def _rewrite(self, document: nodes.document) -> None:
         def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
             class_name = class_ref.to_string()
             new_class_name = self._get_generation_data_type(
                 class_name, module_name)
-            new_class_ref = ClassRef(text=new_class_name)
-            return new_class_ref
+            return ClassRef(text=new_class_name)
 
-        def replace(from_node: nodes.Node, to_node: nodes.Node):
+        def replace(from_node: nodes.Node, to_node: nodes.Node) -> None:
             parent = from_node.parent
             index = from_node.parent.index(from_node)
             parent.remove(from_node)
@@ -141,10 +141,10 @@ class CannonicalDataTypeRewriter(TransformerBase):
                 replace(class_ref, new_class_ref)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "cannonical_data_type_rewriter"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         if self._package_structure is None:
             self._package_structure = build_module_structure(self.documents)
 

@@ -1,17 +1,15 @@
-from typing import List
+from typing import Self
+
 from docutils import nodes
 
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-)
-from ..utils import get_first_child
+from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode
+from fake_bpy_module.utils import get_first_child
 
 
 class ModuleStructure:
-    def __init__(self):
+    def __init__(self) -> None:
         self._name: str = None
-        self._children: List['ModuleStructure'] = []
+        self._children: list[Self] = []
 
     @property
     def name(self) -> str:
@@ -21,17 +19,18 @@ class ModuleStructure:
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
 
-    def add_child(self, child: 'ModuleStructure'):
+    def add_child(self, child: 'ModuleStructure') -> None:
         self._children.append(child)
 
-    def children(self) -> List['ModuleStructure']:
+    def children(self) -> list['ModuleStructure']:
         return self._children
 
     def to_dict(self) -> dict:
-        def to_dict_internal(c: List[dict], psc: List['ModuleStructure']):
+        def to_dict_internal(c: list[dict],
+                             psc: list['ModuleStructure']) -> None:
             for p in psc:
                 nd = {"name": p.name, "children": []}
                 to_dict_internal(nd["children"], p.children())
@@ -43,8 +42,9 @@ class ModuleStructure:
         return result
 
 
-def build_module_structure(documents: List[nodes.document]) -> 'ModuleStructure':
-    def build(mod_name: str, structure_: ModuleStructure):
+def build_module_structure(
+        documents: list[nodes.document]) -> 'ModuleStructure':
+    def build(mod_name: str, structure_: ModuleStructure) -> None:
         sp = mod_name.split(".")
         for i in structure_.children():
             if i.name == sp[0]:
@@ -74,7 +74,7 @@ def build_module_structure(documents: List[nodes.document]) -> 'ModuleStructure'
     return structure
 
 
-def get_base_name(data_type: str) -> str:
+def get_base_name(data_type: str) -> str | None:
     if data_type is None:
         return None
 
@@ -82,15 +82,16 @@ def get_base_name(data_type: str) -> str:
     return sp[-1]
 
 
-def get_module_name(data_type: str, module_structure: ModuleStructure) -> str:
+def get_module_name(data_type: str,
+                    module_structure: ModuleStructure) -> str | None:
     if data_type is None:
         return None
 
     module_names = data_type.split(".")[:-1]
 
     def search(
-            mod_names, structure: ModuleStructure, dtype: str,
-            is_first_level: bool = False):
+            mod_names: list[str], structure: ModuleStructure, dtype: str,
+            is_first_level: bool = False) -> str:
         if len(mod_names) == 0:
             return dtype
         for s in structure.children():

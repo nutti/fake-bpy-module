@@ -1,7 +1,5 @@
-from typing import List
 from docutils import nodes
 
-from .transformer_base import TransformerBase
 from .base_class_fixture import BaseClassFixture
 from .bpy_context_variable_converter import BpyContextVariableConverter
 from .bpy_module_tweaker import BpyModuleTweaker
@@ -10,7 +8,10 @@ from .code_document_refiner import CodeDocumentRefiner
 from .data_type_refiner import DataTypeRefiner
 from .default_value_filler import DefaultValueFiller
 from .dependency_builder import DependencyBuilder
-from .duplicated_function_arguments_remover import DuplicatedFunctionArgumentsRemover
+from .duplicated_function_arguments_remover import (
+    DuplicatedFunctionArgumentsRemover,
+)
+from .first_title_remover import FirstTitleRemover
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
@@ -18,10 +19,11 @@ from .module_name_fixture import ModuleNameFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
 from .same_module_merger import SameModuleMerger
 from .target_file_combiner import TargetFileCombiner
-from .first_title_remover import FirstTitleRemover
+from .transformer_base import TransformerBase
 
 
-def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nodes.document]:
+def transform(documents: list[nodes.document],
+              mod_files: list[str]) -> list[nodes.document]:
     t = Transformer([
         # Must before base_class_fixture
         "module_name_fixture",
@@ -53,24 +55,24 @@ def transform(documents: List[nodes.document], mod_files: List[str]) -> List[nod
             "mod_files": mod_files
         }
     })
-    documents = t.transform(documents)
 
-    return documents
+    return t.transform(documents)
 
 
 class Transformer:
-    def __init__(self, transform_kinds: List[str], parameters: dict = None):
-        self.transform_kinds: List[str] = transform_kinds
+    def __init__(self, transform_kinds: list[str],
+                 parameters: dict | None = None) -> None:
+        self.transform_kinds: list[str] = transform_kinds
         self.init_parameters: dict = {}
         if parameters is not None:
             self.init_parameters = parameters
-        self.transformers: List[TransformerBase] = []
+        self.transformers: list[TransformerBase] = []
 
-    def get_transformers(self) -> List[TransformerBase]:
+    def get_transformers(self) -> list[TransformerBase]:
         return self.transformers
 
-    def transform(self, documents: List[nodes.document],
-                  parameters: dict = None):
+    def transform(self, documents: list[nodes.document],
+                  parameters: dict | None = None) -> list[nodes.document]:
         transformer_specs = {
             BaseClassFixture.name(): {
                 "class": BaseClassFixture,

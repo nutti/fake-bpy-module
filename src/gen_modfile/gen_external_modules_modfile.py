@@ -19,28 +19,31 @@
 #     first_import_module_name:
 #       Module name to import first.
 #       This is used for finding blender's 'modules' directory.
-#       (ex. addon_utils)
+#       [Ex] addon_utils
 #
 #     output_dir:
 #       Generated definitions are output to files which will be located to
 #       specified directory.
-#       (ex. gen_modules_modfile.generated)
+#       [Ex] gen_modules_modfile.generated
 #
 #     output_format:
 #       Output format. Supported formats are "rst" and "json".
 #
 ##############################################################################
 
-import sys
+# ruff: noqa: UP006, UP032, UP035, PTH103, PTH113, PTH118, PTH120,
+# ruff: noqa: PTH123, SIM115
+
+import argparse
+import importlib
 import inspect
+import json
 import os
 import re
-import importlib
-import json
-import argparse
-from typing import List, Dict
-import bpy      # pylint: disable=E0401
+import sys
+from typing import Dict, List, TextIO
 
+import bpy  # pylint: disable=E0401
 
 EXCLUDE_MODULE_LIST = {
     "bl_i18n_utils.settings_user",
@@ -72,7 +75,7 @@ IGNORE_DOC_REGEX_LIST = {
 CLASS_DEFAULT_VALUE_REGEX = re.compile(r"<(.+)[^<]*>")
 
 
-def separator():
+def separator() -> str:
     if os.name == "nt":
         return "\\"
     return "/"
@@ -116,7 +119,8 @@ def import_modules(module_name_list: List[str]) -> List:
 
 
 # pylint: disable=C0209
-def analyze_function(module_name: str, function, is_method=False) -> Dict:
+def analyze_function(module_name: str, function: tuple,
+                     is_method: bool = False) -> Dict:
     function_def = {
         "name": function[0],
         "description": None,
@@ -143,7 +147,8 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
                 if v.default == inspect.Parameter.empty:
                     function_def["parameters"].append(k)
                 else:
-                    function_def["parameters"].append(CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v)))
+                    function_def["parameters"].append(
+                        CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v)))
         except ValueError:
             function_def["parameters"] = []
     else:
@@ -157,7 +162,7 @@ def analyze_function(module_name: str, function, is_method=False) -> Dict:
 
 
 # pylint: disable=C0209
-def analyze_class(module_name: str, class_) -> Dict:
+def analyze_class(module_name: str, class_: tuple) -> Dict:
     class_def = {
         "name": class_[0],
         "description": None,
@@ -218,7 +223,7 @@ def analyze_class(module_name: str, class_) -> Dict:
     return class_def
 
 
-def analyze_module(module_name: str, module) -> Dict:
+def analyze_module(module_name: str, module: object) -> Dict:
     result = {
         "classes": [],
         "functions": [],
@@ -273,7 +278,7 @@ def analyze(modules: List) -> Dict:
     return results
 
 
-def write_description(f, description: str, indent: str):
+def write_description(f: TextIO, description: str, indent: str) -> None:
     lines = description.split("\n")
     for line in lines:
         f.write("{}{}\n".format(indent, line))
@@ -281,7 +286,7 @@ def write_description(f, description: str, indent: str):
 
 
 # pylint: disable=C0209
-def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
     os.makedirs(config.output_dir, exist_ok=True)
     for module, d in data.items():
         for info in d["new"]:
@@ -302,13 +307,15 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                         f.write("   .. attribute:: {}\n\n".format(
                             attr_info["name"]))
                         if attr_info["description"] is not None:
-                            write_description(f, attr_info["description"], "      ")
+                            write_description(f, attr_info["description"],
+                                              "      ")
                     for func_info in class_info["methods"]:
                         f.write("   .. method:: {}({})\n\n".format(
                             func_info["name"],
                             ", ".join(func_info["parameters"])))
                         if func_info["description"] is not None:
-                            write_description(f, func_info["description"], "      ")
+                            write_description(f, func_info["description"],
+                                              "      ")
             elif info["type"] == "function":
                 func_info = info
                 mod_filename = "{}/{}.mod.rst".format(config.output_dir, module)
@@ -345,7 +352,7 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
 
 
 # pylint: disable=C0209
-def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_json_modfile(data: Dict, config: 'GenerationConfig') -> None:
     os.makedirs(config.output_dir, exist_ok=True)
     for module, d in data.items():
         mod_filename = "{}/{}.json".format(config.output_dir, module)
@@ -353,7 +360,7 @@ def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
             json.dump(d, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 
-def write_to_modfile(info: Dict, config: 'GenerationConfig'):
+def write_to_modfile(info: Dict, config: 'GenerationConfig') -> None:
     data = {}
 
     for module_name, module_info in info.items():
@@ -375,7 +382,7 @@ def write_to_modfile(info: Dict, config: 'GenerationConfig'):
 
 
 # pylint: disable=C0209
-def get_alias_to_bpy_types(results):
+def get_alias_to_bpy_types(results: dict) -> dict:
     bpy_types = dir(bpy.types)
 
     alias = {
@@ -384,7 +391,7 @@ def get_alias_to_bpy_types(results):
         "constants": [],
     }
 
-    for mod_name in results.keys():
+    for mod_name in results:
         for c in results[mod_name]["classes"]:
             if c["name"] in bpy_types:
                 constant_def = {
@@ -392,7 +399,8 @@ def get_alias_to_bpy_types(results):
                     "description": None,
                     "name": c["name"],
                     "module": "bpy.types",
-                    "data_type": ":class:`{}.{}`".format(c["module"], c["name"]),
+                    "data_type": ":class:`{}.{}`".format(
+                        c["module"], c["name"]),
                 }
                 alias["constants"].append(constant_def)
 
@@ -405,13 +413,15 @@ def parse_options() -> 'GenerationConfig':
     argv = sys.argv
     try:
         index = argv.index("--") + 1
-    except:     # noqa # pylint: disable=W0702
+    except:     # noqa: E722 # pylint: disable=W0702
         index = len(argv)
     argv = argv[index:]
 
-    usage = "Usage: blender -noaudio --factory-startup --background " \
-            "--python {} -- [-m <first_import_module_name>] [-a] " \
-            "[-o <output_dir>]".format(__file__)
+    usage = (
+        "Usage: blender -noaudio --factory-startup --background "
+        "--python {} -- [-m <first_import_module_name>] [-a] "
+        "[-o <output_dir>]".format(__file__)
+    )
     parser = argparse.ArgumentParser(usage)
     parser.add_argument(
         "-m", dest="first_import_module_name", type=str,
@@ -442,7 +452,7 @@ def parse_options() -> 'GenerationConfig':
     return config
 
 
-def main():
+def main() -> None:
     config = parse_options()
 
     # Get modules to import.

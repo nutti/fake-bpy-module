@@ -40,7 +40,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.11"
           cache: "pip"
           cache-dependency-path: 'src/requirements.txt'
 
@@ -51,6 +51,25 @@ jobs:
 
       - name: pylint test
         run: bash tests/lint/pylint/run.sh .
+
+  ruff:
+    name: ruff
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install required pip packages
+        run: pip3 install ruff==0.4.5
+
+      - name: ruff format check
+        run: ruff check --output-format=github .
 
   markdownlint:
     name: markdownlint

@@ -1,18 +1,17 @@
-from typing import List
+from typing import Self
+
 from docutils import nodes
 from docutils.core import publish_doctree
 
+from fake_bpy_module.analyzer.nodes import ModuleNode, NameNode
+from fake_bpy_module.utils import append_child, get_first_child
+
 from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    ModuleNode,
-    NameNode,
-)
-from ..utils import get_first_child, append_child
 
 
 class SameModuleMerger(TransformerBase):
 
-    def _merge(self, documents: List[nodes.document]) -> List[nodes.document]:
+    def _merge(self, documents: list[nodes.document]) -> list[nodes.document]:
         module_to_documents = {}
         for document in documents:
             module_node = get_first_child(document, ModuleNode)
@@ -25,7 +24,7 @@ class SameModuleMerger(TransformerBase):
             module_to_documents[module_name].append(document)
 
         # Combine document by the same module document.
-        results: List[nodes.document] = []
+        results: list[nodes.document] = []
         for module_name, docs in module_to_documents.items():
             new_doc: nodes.document = publish_doctree("")
             for doc in docs:
@@ -43,10 +42,10 @@ class SameModuleMerger(TransformerBase):
         return results
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "same_module_merger"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         new_documents = self._merge(self.documents)
 
         self.documents.clear()

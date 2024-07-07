@@ -3,7 +3,9 @@
 disable=
     C0111,
     C0302,
+    W0223,
     W0511,
+    E0110,
 
 variable-rgx=[a-zA-Z_][a-zA-Z0-9_]{0,40}$
 argument-rgx=[a-z_][a-z0-9_]{0,40}$
@@ -19,3 +21,5 @@ max-bool-expr=20
 
 ignore-paths=tests/python/fake_bpy_module_test/fake_bpy_module_test/generator_test_data/*,
              tests/python/fake_bpy_module_test/fake_bpy_module_test/integration_test_data/*,
+
+init-hook='import sys; sys.path.append("./src")'

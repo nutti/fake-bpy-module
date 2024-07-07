@@ -102,8 +102,8 @@ python_bin=$(command -v "${PYTHON_BIN}")
 
 # check if python version meets our requirements
 IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
-if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 8 ]]; then
-    echo "Error: Unsupported Python version \"${python_version[0]}.${python_version[1]}\". Requiring Python 3.8 or higher."
+if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 11 ]]; then
+    echo "Error: Unsupported Python version \"${python_version[0]}.${python_version[1]}\". Requiring Python 3.11 or higher."
     exit 1
 fi
 

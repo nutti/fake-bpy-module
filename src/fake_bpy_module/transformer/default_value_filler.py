@@ -1,20 +1,23 @@
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    FunctionNode,
+from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
     DataTypeListNode,
     DataTypeNode,
     DefaultValueNode,
+    FunctionNode,
 )
-from ..utils import find_children
+from fake_bpy_module.utils import find_children
+
+from .transformer_base import TransformerBase
 
 
 class DefaultValueFiller(TransformerBase):
 
-    def _fill(self, document: nodes.document):
+    def _fill(self, document: nodes.document) -> None:
         func_nodes = document.findall(FunctionNode)
         for func_node in func_nodes:
             arg_list_node = func_node.element(ArgumentListNode)
@@ -39,9 +42,9 @@ class DefaultValueFiller(TransformerBase):
                     dtype = dtype_node.to_string()
 
                     # Built-in data type.
-                    BUILTIN_DTYPE_DEFAULT_VALUE_MAP = {
+                    BUILTIN_DTYPE_DEFAULT_VALUE_MAP = {  # noqa: N806
                         "bool": "False",
-                        "str": "\"\"",
+                        "str": '""',
                         "bytes": "0",
                         "float": "0.0",
                         "int": "0",
@@ -55,7 +58,7 @@ class DefaultValueFiller(TransformerBase):
                         continue
 
                     # Modifier data type.
-                    MODIFIER_DTYPE_DEFAULT_VALUE_MAP = {
+                    DEFAULT_VALUE_MAP = {  # noqa: N806
                         "list": "[]",
                         "dict": "{}",
                         "set": "()",
@@ -67,7 +70,7 @@ class DefaultValueFiller(TransformerBase):
                         "collections.abc.Sequence": "[]",
                     }
                     found_type = False
-                    for mod_dtype, default_value in MODIFIER_DTYPE_DEFAULT_VALUE_MAP.items():
+                    for mod_dtype, default_value in DEFAULT_VALUE_MAP.items():
                         if dtype.startswith(mod_dtype):
                             default_value_node.add_text(default_value)
                             found_type = True
@@ -78,9 +81,9 @@ class DefaultValueFiller(TransformerBase):
                     default_value_node.add_text("None")
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "default_value_filler"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._fill(document)

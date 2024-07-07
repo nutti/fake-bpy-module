@@ -1,15 +1,15 @@
-from typing import List
+from typing import Self
+
 from docutils import nodes
 
+from fake_bpy_module.analyzer.nodes import CodeDocumentNode
+from fake_bpy_module.utils import append_child, find_children
+
 from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    CodeDocumentNode,
-)
-from ..utils import find_children, append_child
 
 
 class CodeDocumentRefiner(TransformerBase):
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         # Merge CodeDocumentNode.
         doc_nodes = find_children(document, CodeDocumentNode)
         new_doc_node = CodeDocumentNode()
@@ -20,9 +20,10 @@ class CodeDocumentRefiner(TransformerBase):
 
         # Remove trivial nodes.
         para_nodes = find_children(new_doc_node, nodes.paragraph)
-        nodes_to_remove: List[nodes.Node] = []
+        nodes_to_remove: list[nodes.Node] = []
         for node in para_nodes:
-            if node.astext() in ("Inherited Functions", "Inherited Properties", "References"):
+            if node.astext() in ("Inherited Functions", "Inherited Properties",
+                                 "References"):
                 index = node.parent.children.index(node)
                 next_node = node.parent.children[index+1]
                 nodes_to_remove.append(node)
@@ -37,9 +38,9 @@ class CodeDocumentRefiner(TransformerBase):
             append_child(document, new_doc_node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "code_document_refiner"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

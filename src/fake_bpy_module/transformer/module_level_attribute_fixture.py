@@ -1,16 +1,15 @@
+from typing import Self
+
 from docutils import nodes
 
-from .transformer_base import TransformerBase
-from ..analyzer.nodes import (
-    AttributeNode,
-    DataNode,
-)
+from fake_bpy_module.analyzer.nodes import AttributeNode, DataNode
+from fake_bpy_module.utils import append_child, find_children
 
-from ..utils import append_child, find_children
+from .transformer_base import TransformerBase
 
 
 class ModuleLevelAttributeFixture(TransformerBase):
-    def _apply(self, document: nodes.document):
+    def _apply(self, document: nodes.document) -> None:
         attribute_nodes = find_children(document, AttributeNode)
 
         nodes_to_remove = []
@@ -29,9 +28,9 @@ class ModuleLevelAttributeFixture(TransformerBase):
             append_child(document, node)
 
     @classmethod
-    def name(cls) -> str:
+    def name(cls: type[Self]) -> str:
         return "module_level_attribute_fixture"
 
-    def apply(self, **kwargs):
+    def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
         for document in self.documents:
             self._apply(document)

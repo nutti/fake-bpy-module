@@ -27,9 +27,9 @@
 ##############################################################################
 
 import argparse
-import re
-from typing import List, Dict
 import json
+import re
+from pathlib import Path
 
 
 class GenerationConfig:
@@ -64,7 +64,7 @@ def get_const_name(line: str) -> str:
     return None
 
 
-def get_function_info(line: str) -> Dict:
+def get_function_info(line: str) -> dict:
     regex = r"^BGL_Wrap\(([A-Za-z0-9]+),([A-Za-z]+),(\([A-Za-z0-9,]+\))\);$"
     pattern = re.compile(regex)
     match = re.match(pattern, line)
@@ -81,14 +81,13 @@ def get_function_info(line: str) -> Dict:
     return None
 
 
-def create_constant_def(const_name: str) -> Dict:
-    constant_def = {
+def create_constant_def(const_name: str) -> dict:
+    return {
         "name": const_name,
         "type": "constant",
         "module": "bgl",
         "data_type": "float",
     }
-    return constant_def
 
 
 def gltype_to_pytype(gltype: str) -> str:
@@ -126,7 +125,7 @@ def gltype_to_pytype(gltype: str) -> str:
 
 
 def create_function_def(
-        func_name: str, return_type: str, arg_types: List[str]) -> Dict:
+        func_name: str, return_type: str, arg_types: list[str]) -> dict:
     function_def = {
         "name": func_name,
         "type": "function",
@@ -149,9 +148,9 @@ def create_function_def(
     return function_def
 
 
-def analyze(config: 'GenerationConfig') -> Dict:
+def analyze(config: 'GenerationConfig') -> dict:
     func_info = {}
-    with open(config.bgl_c_file, "r", encoding="utf-8") as f:
+    with Path(config.bgl_c_file).open("r", encoding="utf-8") as f:
         data = f.read()
         regex = r"BGL_Wrap\([A-Za-z0-9]+,\s+[A-Za-z]+,\s+\([A-Za-z0-9, ]+\)\);"
         matched = re.findall(regex, data)
@@ -165,7 +164,7 @@ def analyze(config: 'GenerationConfig') -> Dict:
     # read and query function and constant list.
     func_lists = []
     const_lists = []
-    with open(config.bgl_c_file, "r", encoding="utf-8") as f:
+    with Path(config.bgl_c_file).open("r", encoding="utf-8") as f:
         line = f.readline()
         while line:
             func_name = get_function_name(line)
@@ -213,8 +212,8 @@ def parse_options() -> 'GenerationConfig':
     return config
 
 
-def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
-    with open(config.output_file, "w", encoding="utf-8") as f:
+def write_to_rst_modfile(data: dict, config: 'GenerationConfig') -> None:
+    with Path(config.output_file).open("w", encoding="utf-8") as f:
         f.write(".. mod-type:: new\n\n")
         f.write(".. module:: bgl\n\n")
         for info in data["new"]:
@@ -223,11 +222,13 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                 f.write(f".. function:: {func_info['name']}"
                         f"({', '.join(func_info['parameters'])})\n\n")
                 for param_info in func_info["parameter_details"]:
-                    f.write(f"   :type {param_info['name']}: {param_info['data_type']}\n")
+                    f.write(f"   :type {param_info['name']}: "
+                            f"{param_info['data_type']}\n")
                 if func_info["return"]["data_type"] == "":
                     f.write("\n")
                 else:
-                    f.write(f"   :rtype: {func_info['return']['data_type']}\n\n")
+                    f.write(f"   :rtype: "
+                            f"{func_info['return']['data_type']}\n\n")
             elif info["type"] == "constant":
                 constant_info = info
                 f.write(f".. data:: {constant_info['name']}\n\n")
@@ -235,19 +236,19 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig'):
                     f.write(f"   :type: {constant_info['data_type']}\n\n")
 
 
-def write_to_json_modfile(data: Dict, config: 'GenerationConfig'):
-    with open(config.output_file, "w", encoding="utf-8") as f:
+def write_to_json_modfile(data: dict, config: 'GenerationConfig') -> None:
+    with Path(config.output_file).open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, sort_keys=True, separators=(",", ": "))
 
 
-def write_to_modfile(data: Dict, config: 'GenerationConfig'):
+def write_to_modfile(data: dict, config: 'GenerationConfig') -> None:
     if config.output_format == "rst":
         write_to_rst_modfile(data, config)
     elif config.output_format == "json":
         write_to_json_modfile(data, config)
 
 
-def main():
+def main() -> None:
     config = parse_options()
 
     # Analyze bgl.cc.
