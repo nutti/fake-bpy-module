@@ -78,6 +78,29 @@
 
       :type key: int
       :rtype: float
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[float, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int
+      :type value: float
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: collections.abc.Iterable[float]
+      :mod-option arg value: skip-refine
+      :option function: overload
 
 .. class:: Euler
 
@@ -95,6 +118,29 @@
 
       :type key: int
       :rtype: float
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[float, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int
+      :type value: float
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: collections.abc.Iterable[float]
+      :mod-option arg value: skip-refine
+      :option function: overload
 
 .. class:: Matrix
 
@@ -112,6 +158,30 @@
 
       :type key: int
       :rtype: :class:`Vector`
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[:class:`Vector`, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int
+      :type value: :class:`Vector` | collections.abc.Iterable[float]
+      :mod-option arg value: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: collections.abc.Iterable[:class:`Vector` | collections.abc.Iterable[float]]
+      :mod-option arg value: skip-refine
+      :option function: overload
 
    .. method:: __len__()
 
@@ -189,12 +259,29 @@
 
       :type key: int
       :rtype: float
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[float, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
 
    .. method:: __setitem__(key, value)
 
       :type key: int
       :type value: float
-      :rtype: float
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: collections.abc.Iterable[float]
+      :mod-option arg value: skip-refine
+      :option function: overload
 
    .. method:: __add__(other)
 
@@ -268,12 +355,29 @@
 
       :type key: int
       :rtype: float
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[float, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
 
    .. method:: __setitem__(key, value)
 
       :type key: int
       :type value: float
-      :rtype: float
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :type value: collections.abc.Iterable[float]
+      :mod-option arg value: skip-refine
+      :option function: overload
 
    .. method:: __neg__()
 
