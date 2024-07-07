@@ -10,7 +10,7 @@
 
    .. method:: __get__(instance, owner)
 
-      :rtype: bpy_prop_array[GenericType1]
+      :rtype: :class:`bpy_prop_array`\ [GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __set__(instance, value)

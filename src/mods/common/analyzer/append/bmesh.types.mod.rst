@@ -17,7 +17,7 @@
 
    .. method:: __iter__()
 
-      :rtype: BMIter[GenericType1]
+      :rtype: :class:`BMIter`\ [GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -35,7 +35,7 @@
 
    .. method:: __iter__()
 
-      :rtype: BMIter[BMVert]
+      :rtype: :class:`BMIter`\ [:class:`BMVert`]
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -53,7 +53,7 @@
 
    .. method:: __iter__()
 
-      :rtype: BMIter[BMEdge]
+      :rtype: :class:`BMIter`\ [:class:`BMEdge`]
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -71,7 +71,7 @@
 
    .. method:: __iter__()
 
-      :rtype: BMIter[BMFace]
+      :rtype: :class:`BMIter`\ [:class:`BMFace`]
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -87,7 +87,7 @@
 
    .. method:: __iter__()
 
-      :rtype: BMIter[GenericType1]
+      :rtype: :class:`BMIter`\ [GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
@@ -99,89 +99,89 @@
 
    .. method:: get()
 
-      :rtype: BMLayerItem | GenericType2
+      :rtype: :class:`BMLayerItem` | GenericType2
       :mod-option rtype: skip-refine
 
 .. class:: BMVert
 
    .. method:: __getitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :rtype: typing.Any
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :type value: typing.Any
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
 
 .. class:: BMEdge
 
    .. method:: __getitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :rtype: typing.Any
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :type value: typing.Any
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
 
 .. class:: BMFace
 
    .. method:: __getitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :rtype: typing.Any
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :type value: typing.Any
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
 
 .. class:: BMLoop
 
    .. method:: __getitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :rtype: typing.Any
       :mod-option rtype: skip-refine
 
    .. method:: __setitem__(key, value)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
       :type value: typing.Any
       :mod-option arg value: skip-refine
 
    .. method:: __delitem__(key)
 
-      :type key: BMLayerItem
+      :type key: :class:`BMLayerItem`
       :mod-option arg key: skip-refine
