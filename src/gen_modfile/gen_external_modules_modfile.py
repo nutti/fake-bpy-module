@@ -143,12 +143,26 @@ def analyze_function(module_name: str, function: tuple,
         try:
             function_def["parameters"] = []
             params = inspect.signature(function[1]).parameters
+            start_kwonlyarg = False
             for k, v in params.items():
+                param_type = str(v.kind)
+
+                if not start_kwonlyarg and param_type == 'KEYWORD_ONLY':
+                    function_def["parameters"].append("*")
+                    start_kwonlyarg = True
+
+                arg_str = ""
                 if v.default == inspect.Parameter.empty:
-                    function_def["parameters"].append(k)
+                    arg_str = k
                 else:
-                    function_def["parameters"].append(
-                        CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v)))
+                    arg_str = CLASS_DEFAULT_VALUE_REGEX.sub("None", str(v))
+                if param_type == 'VAR_POSITIONAL':
+                    arg_str = "*{}".format(arg_str)
+                elif param_type == 'VAR_KEYWORD':
+                    arg_str = "**{}".format(arg_str)
+
+                function_def["parameters"].append(arg_str)
+
         except ValueError:
             function_def["parameters"] = []
     else:

@@ -58,7 +58,10 @@ def parse_function_def(content: str) -> str:
         assert len(sp) in (1, 2), f"{p} has length {len(sp)}"
         if len(sp) == 1:
             if required_named_argument:
-                fixed_params.append(f"{p}=None")
+                if p in ("*", "**kwargs"):
+                    fixed_params.append(p)
+                else:
+                    fixed_params.append(f"{p}=None")
             else:
                 fixed_params.append(p)
         elif len(sp) == 2:
