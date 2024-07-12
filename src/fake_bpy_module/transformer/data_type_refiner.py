@@ -420,8 +420,7 @@ class DataTypeRefiner(TransformerBase):
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
                 return [
-                    make_data_type_node(f"list[`{s}`]"),
-                    make_data_type_node("`bmesh.types.BMElemSeq`")
+                    make_data_type_node(f"`bmesh.types.BMElemSeq`[`{s}`]")
                 ]
         # [Ex] tuple of mathutils.Vector's
         if m := REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE.match(dtype_str):
