@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        basic.rst
+        function_argument.rst
     <module>
         <name>
             module_1
@@ -37,12 +37,6 @@
                 <data-type-list>
                     <data-type>
                         function_1 arg_3 type
-            <argument argument_type="arg">
-                <name>
-                    arg_1
-                <description>
-                <default-value>
-                <data-type-list>
         <return>
             <description>
             <data-type-list>
@@ -67,12 +61,6 @@
                         <data-type-list>
                             <data-type>
                                 method_1 arg_1 type
-                    <argument argument_type="arg">
-                        <name>
-                            arg_1
-                        <description>
-                        <default-value>
-                        <data-type-list>
                 <return>
                     <description>
                     <data-type-list>

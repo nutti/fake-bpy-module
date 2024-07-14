@@ -814,18 +814,29 @@ class DependencyBuilderTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
-class DuplicatedFunctionArgumentsRemoverTest(TransformerTestBase):
+class DuplicationRemoverTest(TransformerTestBase):
 
-    name = "DuplicatedFunctionArgumentsRemoverTest"
+    name = "DuplicationRemoverTest"
     module_name = __module__
     data_dir = Path(
         f"{Path(__file__).parent}/transformer_test_data/"
-        "duplicated_function_arguments_remover").resolve()
+        "duplication_remover").resolve()
 
     def test_basic(self) -> None:
-        rst_files = ["basic.rst"]
-        expect_files = ["basic.xml"]
-        expect_transformed_files = ["basic_transformed.xml"]
+        rst_files = [
+            "function_argument.rst", "class_attribute.rst",
+            "class.rst", "function.rst", "data.rst"
+        ]
+        expect_files = [
+            "function_argument.xml", "class_attribute.xml",
+            "class.xml", "function.xml", "data.xml"
+        ]
+        expect_transformed_files = [
+            "function_argument_transformed.xml",
+            "class_attribute_transformed.xml",
+            "class_transformed.xml", "function_transformed.xml",
+            "data_transformed.xml"
+        ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}"
@@ -839,7 +850,7 @@ class DuplicatedFunctionArgumentsRemoverTest(TransformerTestBase):
             self.compare_with_file_contents(doc.pformat(), expect)
 
         transformer = Transformer([
-            "duplicated_function_arguments_remover",
+            "duplication_remover",
         ])
         transformed = transformer.transform(documents)
 

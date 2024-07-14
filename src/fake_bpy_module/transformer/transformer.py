@@ -8,9 +8,7 @@ from .code_document_refiner import CodeDocumentRefiner
 from .data_type_refiner import DataTypeRefiner
 from .default_value_filler import DefaultValueFiller
 from .dependency_builder import DependencyBuilder
-from .duplicated_function_arguments_remover import (
-    DuplicatedFunctionArgumentsRemover,
-)
+from .duplication_remover import DuplicationRemover
 from .first_title_remover import FirstTitleRemover
 from .format_validator import FormatValidator
 from .mod_applier import ModApplier
@@ -43,9 +41,9 @@ def transform(documents: list[nodes.document],
         # Must after mod_applier
         "target_file_combiner",
         "data_type_refiner",
-        "duplicated_function_arguments_remover",
 
         # Must after data_type_refiner
+        "duplication_remover",
         "default_value_filler",
         "cannonical_data_type_rewriter",
         "dependency_builder",
@@ -104,8 +102,8 @@ class Transformer:
             DependencyBuilder.name(): {
                 "class": DependencyBuilder,
             },
-            DuplicatedFunctionArgumentsRemover.name(): {
-                "class": DuplicatedFunctionArgumentsRemover,
+            DuplicationRemover.name(): {
+                "class": DuplicationRemover,
             },
             CannonicalDataTypeRewriter.name(): {
                 "class": CannonicalDataTypeRewriter,

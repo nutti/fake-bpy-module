@@ -1,0 +1,14 @@
+<document source="<string>">
+    <source-filename>
+        data.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            data_1
+        <description>
+        <data-type-list>
+            <data-type>
+                int
