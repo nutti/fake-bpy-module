@@ -118,9 +118,21 @@ def import_modules(module_name_list: List[str]) -> List:
     return imported_modules
 
 
+def get_method_type(class_: object, function: object) -> str:
+    if not hasattr(function, "__name__"):
+        return "method"
+
+    func = class_.__dict__.get(function.__name__)
+    if isinstance(func, staticmethod):
+        return "staticmethod"
+    if isinstance(func, classmethod):
+        return "classmethod"
+    return "method"
+
+
 # pylint: disable=C0209
 def analyze_function(module_name: str, function: tuple,
-                     is_method: bool = False) -> Dict:
+                     is_method: bool = False, class_: object = None) -> Dict:
     function_def = {
         "name": function[0],
         "description": None,
@@ -129,7 +141,10 @@ def analyze_function(module_name: str, function: tuple,
             "type": "return",
         }
     }
-    if not is_method:
+
+    if is_method:
+        function_def["type"] = get_method_type(class_, function[1])
+    else:
         function_def["module"] = module_name
 
         function_full_name = "{}.{}".format(module_name, function_def["name"])
@@ -170,7 +185,10 @@ def analyze_function(module_name: str, function: tuple,
 
     if len(function_def["parameters"]) >= 1:
         if function_def["parameters"][0] == "self":
-            function_def["parameters"].remove("self")
+            if function_def["type"] == "method":
+                function_def["parameters"].remove("self")
+            else:
+                function_def["parameters"][0] = "self_"
 
     return function_def
 
@@ -212,7 +230,7 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
 
         # Get all class method definitions.
         if callable(x[1]):
-            func_def = analyze_function(module_name, x, True)
+            func_def = analyze_function(module_name, x, True, class_[1])
 
             function_full_name = "{}.{}.{}".format(
                 module_name, class_def["name"], func_def["name"])
@@ -324,7 +342,8 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
                             write_description(f, attr_info["description"],
                                               "      ")
                     for func_info in class_info["methods"]:
-                        f.write("   .. method:: {}({})\n\n".format(
+                        f.write("   .. {}:: {}({})\n\n".format(
+                            func_info["type"],
                             func_info["name"],
                             ", ".join(func_info["parameters"])))
                         if func_info["description"] is not None:
