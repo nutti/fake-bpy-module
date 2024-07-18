@@ -193,6 +193,17 @@ def analyze_function(module_name: str, function: tuple,
     return function_def
 
 
+def is_inherited_method(class_: type, method_name: str) -> bool:
+    method = getattr(class_, method_name)
+    if not hasattr(method, "__qualname__"):
+        return False
+
+    class_name = class_.__name__
+    qual_name = method.__qualname__
+
+    return not qual_name.startswith("{}.".format(class_name))
+
+
 # pylint: disable=C0209
 def analyze_class(module_name: str, class_: tuple) -> Dict:
     class_def = {
@@ -218,8 +229,11 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
             continue
         if c.__module__ == "builtins":
             continue
-        class_def["base_classes"].append(
-            "{}.{}".format(c.__module__, c.__name__))
+        if c.__module__ == "bpy_types" and c.__name__ != "_GenericUI":
+            class_def["base_classes"].append("bpy.types.{}".format(c.__name__))
+        else:
+            class_def["base_classes"].append(
+                "{}.{}".format(c.__module__, c.__name__))
         # This avoids "E0240: Inconsistent method resolution order" error on
         # pylint_cycles.sh
         class_def["base_classes"].reverse()
@@ -230,6 +244,9 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
 
         # Get all class method definitions.
         if callable(x[1]):
+            if is_inherited_method(class_[1], x[0]):
+                continue        # Skip inherited methods.
+
             func_def = analyze_function(module_name, x, True, class_[1])
 
             function_full_name = "{}.{}.{}".format(
@@ -275,16 +292,6 @@ def analyze_module(module_name: str, module: object) -> Dict:
         if module_name == "bpy_types":
             if class_def["name"] != "_GenericUI":
                 continue
-
-        # To avoid circular dependency, we remove classes whose base class is
-        # defined in bpy.types module.
-        has_bpy_types_base_class = False
-        for bc in class_def["base_classes"]:
-            if bc.find("bpy.types.") != -1:
-                has_bpy_types_base_class = True
-                break
-        if has_bpy_types_base_class:
-            continue
 
         result["classes"].append(class_def)
 
