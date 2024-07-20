@@ -562,7 +562,7 @@ class DataTypeRefiner(TransformerBase):
 
         if description_str is not None:
             if m := _REGEX_DATA_TYPE_OPTION_OPTIONAL.search(description_str):
-                return [""], dtype_str
+                return ["optional"], dtype_str
 
         return ["never none"], dtype_str
 

@@ -38,6 +38,7 @@ class DefaultValueFiller(TransformerBase):
                     # "optional" is not found.
                     continue
 
+                found_default_value = False
                 for dtype_node in dtype_nodes:
                     dtype = dtype_node.to_string()
 
@@ -55,7 +56,8 @@ class DefaultValueFiller(TransformerBase):
                     }
                     if dtype in BUILTIN_DTYPE_DEFAULT_VALUE_MAP:
                         default_value_node.add_text(BUILTIN_DTYPE_DEFAULT_VALUE_MAP[dtype])
-                        continue
+                        found_default_value = True
+                        break
 
                     # Modifier data type.
                     DEFAULT_VALUE_MAP = {  # noqa: N806
@@ -76,9 +78,12 @@ class DefaultValueFiller(TransformerBase):
                             found_type = True
                             break
                     if found_type:
-                        continue
+                        found_default_value = True
+                        break
 
-                    default_value_node.add_text("None")
+                if len(dtype_nodes) >= 1:
+                    if not found_default_value:
+                        default_value_node.add_text("None")
 
     @classmethod
     def name(cls: type[Self]) -> str:

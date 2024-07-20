@@ -43,7 +43,7 @@
                     function_2 arg_accept_none_1 description (optional)
                 <default-value>
                 <data-type-list>
-                    <data-type option="">
+                    <data-type option="optional">
                         int
             <argument argument_type="arg">
                 <name>
@@ -52,7 +52,7 @@
                     Optional function_2 arg_accept_none_2 description
                 <default-value>
                 <data-type-list>
-                    <data-type option="">
+                    <data-type option="optional">
                         int
             <argument argument_type="arg">
                 <name>
@@ -61,7 +61,7 @@
                     function_2 optional arg_accept_none_3 description
                 <default-value>
                 <data-type-list>
-                    <data-type option="">
+                    <data-type option="optional">
                         int
         <return>
             <description>
