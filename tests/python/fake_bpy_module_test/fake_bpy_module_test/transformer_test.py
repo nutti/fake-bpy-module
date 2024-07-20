@@ -1224,6 +1224,39 @@ class SameModuleMergerTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
 
+class SelfRewriterTest(TransformerTestBase):
+
+    name = "SelfRewriterTest"
+    module_name = __module__
+    data_dir = Path(
+        f"{Path(__file__).parent}/transformer_test_data/"
+        "self_rewriter_test").resolve()
+
+    def test_basic(self) -> None:
+        rst_files = ["basic.rst"]
+        expect_files = ["basic.xml"]
+        expect_transformed_files = ["basic_transformed.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["self_rewriter"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
+
 class TargetFileCombinerTest(TransformerTestBase):
 
     name = "TargetFileCombinerTest"

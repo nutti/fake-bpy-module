@@ -39,6 +39,15 @@
       :type seq: collections.abc.Sequence[bool] | collections.abc.Sequence[int] | collections.abc.Sequence[float] | typing_extensions.Buffer
       :mod-option arg seq: skip-refine
 
+.. class:: Depsgraph
+
+   .. method:: id_eval_get(id)
+
+      :type id: GenericType1 | None
+      :mod-option arg id: skip-refine
+      :rtype: GenericType1
+      :mod-option rtype: skip-refine
+
 .. class:: FreestyleLineStyle
 
    .. attribute:: node_tree

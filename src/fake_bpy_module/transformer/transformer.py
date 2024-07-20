@@ -16,6 +16,7 @@ from .module_level_attribute_fixture import ModuleLevelAttributeFixture
 from .module_name_fixture import ModuleNameFixture
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
 from .same_module_merger import SameModuleMerger
+from .self_rewriter import SelfRewriter
 from .target_file_combiner import TargetFileCombiner
 from .transformer_base import TransformerBase
 
@@ -46,6 +47,7 @@ def transform(documents: list[nodes.document],
         "duplication_remover",
         "default_value_filler",
         "cannonical_data_type_rewriter",
+        "self_rewriter",
         "dependency_builder",
         "code_document_refiner",
     ], {
@@ -113,6 +115,9 @@ class Transformer:
             },
             SameModuleMerger.name(): {
                 "class": SameModuleMerger,
+            },
+            SelfRewriter.name(): {
+                "class": SelfRewriter,
             },
             TargetFileCombiner.name(): {
                 "class": TargetFileCombiner,
