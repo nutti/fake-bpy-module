@@ -233,9 +233,8 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
             continue
 
         # Skip parent classes which are not directly inherited.
-        fullname = "{}{}".format(c.__module__.replace("bpy_types", "bpy.types"),
-                                 c.__name__)
-        if fullname in base_class_fullnames:
+        fullname = "{}{}".format(c.__module__, c.__name__)
+        if fullname not in base_class_fullnames:
             continue
 
         if c.__module__ == "bpy_types" and c.__name__ != "_GenericUI":
