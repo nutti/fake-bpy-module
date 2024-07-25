@@ -74,3 +74,43 @@
         <return>
             <description>
             <data-type-list>
+    <function function_type="function">
+        <name>
+            function_3
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                <default-value>
+                <data-type-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+                <description>
+                <default-value>
+                    ""
+                <data-type-list>
+            <argument argument_type="kwonlyarg">
+                <name>
+                    arg_3
+                <description>
+                <default-value>
+                <data-type-list>
+            <argument argument_type="kwonlyarg">
+                <name>
+                    arg_4
+                <description>
+                <default-value>
+                    123
+                <data-type-list>
+            <argument argument_type="kwarg">
+                <name>
+                    kwargs
+                <description>
+                <default-value>
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>
