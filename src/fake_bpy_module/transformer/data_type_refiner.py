@@ -204,14 +204,32 @@ class DataTypeRefiner(TransformerBase):
                     make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
-            return [make_data_type_node("str")]
+            if "[]" in dtype_str:
+                return [make_data_type_node("str")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("[")[1].split("]")[0].split(",")
+            )
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
         # [Ex] enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
         if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
-            return [make_data_type_node("str")]
+            if "[]" in dtype_str:
+                return [make_data_type_node("str")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("[")[1].split("]")[0].split(",")
+            )
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
         # [Ex] enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
-            return [make_data_type_node("set[str]")]
+            if "{}" in dtype_str:
+                return [make_data_type_node("set[str]")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("{")[1].split("}")[0].split(",")
+            )
+            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
 
         # [Ex] enum set in `rna_enum_operator_return_items`
         if REGEX_MATCH_DATA_TYPE_SET_IN_RNA.match(dtype_str):
