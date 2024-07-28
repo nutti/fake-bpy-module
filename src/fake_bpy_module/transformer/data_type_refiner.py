@@ -145,7 +145,7 @@ class DataTypeRefiner(TransformerBase):
         return None
 
     # pylint: disable=R0911,R0912,R0913
-    def _get_refined_data_type_fast(
+    def _get_refined_data_type_fast(  # noqa: C901, PLR0911, PLR0912
         self, dtype_str: str, uniq_full_names: set[str],
         uniq_module_names: set[str], module_name: str,
         variable_kind: str,
