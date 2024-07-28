@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 from typing import Any, Self
 
 from docutils import nodes
@@ -40,6 +41,7 @@ REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+)
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
 REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default (.+)$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*$")
+REGEX_MATCH_DATA_TYPE_ENUM_IN_RNA = re.compile(r"^enum in `(.*)`(, \(.+\))*$")
 REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$")
 REGEX_MATCH_DATA_TYPE_SET_IN_RNA = re.compile(r"^enum set in `(.*)`(, \(.+\))*$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")  # noqa: E501
@@ -68,12 +70,26 @@ REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
 REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")     # noqa: E501
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
-# pylint: enable=line-too-long
 
 _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|\s|\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
+
+BPY_TYPES_ENUM_ITEMS_DIR = Path(__file__).parents[3] / "gen_module-tmp/sphinx-in/bpy_types_enum_items"  # noqa: E501
+# pylint: enable=line-too-long
+
+
+def get_rna_enum_items(dtype_str: str) -> str:
+    rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
+    rna_enum_path = BPY_TYPES_ENUM_ITEMS_DIR / f"{rna_enum_name}.rst"
+    print(dtype_str, rna_enum_path)
+    content = rna_enum_path.read_text()
+    return ', '.join(
+        f'"{v.split(":")[1]}"'
+        for v in content.splitlines()
+        if v.startswith(":")
+    )
 
 
 class EntryPoint:
@@ -221,6 +237,10 @@ class DataTypeRefiner(TransformerBase):
             )
             return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
+        if REGEX_MATCH_DATA_TYPE_ENUM_IN_RNA.match(dtype_str):
+            enum_values = get_rna_enum_items(dtype_str)
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
+
         # [Ex] enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
             if "{}" in dtype_str:
@@ -233,7 +253,8 @@ class DataTypeRefiner(TransformerBase):
 
         # [Ex] enum set in `rna_enum_operator_return_items`
         if REGEX_MATCH_DATA_TYPE_SET_IN_RNA.match(dtype_str):
-            return [make_data_type_node("set[str]")]
+            enum_values = get_rna_enum_items(dtype_str)
+            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
 
         # [Ex] enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
