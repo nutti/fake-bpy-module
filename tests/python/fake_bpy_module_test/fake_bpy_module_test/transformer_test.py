@@ -595,7 +595,8 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_transformed_files = [f"{self.data_dir}/expect/{f}"
                                     for f in expect_transformed_files]
 
-        rna_enum_file = Path(__file__).parents[4] / "gen_module-tmp/sphinx-in/bpy_types_enum_items/.rst"  # noqa: E501
+        rna_enum_file = (Path(__file__).parents[4]
+            / "gen_module-tmp/sphinx-in/bpy_types_enum_items/.rst")
         rna_enum_file.parent.mkdir(parents=True, exist_ok=True)
         rna_enum_file.write_text("""\
 .. _rna_enum:
