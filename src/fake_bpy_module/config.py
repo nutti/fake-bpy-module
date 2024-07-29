@@ -5,6 +5,7 @@ from .utils import check_os
 
 
 class Configuration:
+    input_dir = "."
     output_dir: str = "./out"
     os: str = check_os()
     style_format: str = "ruff"
@@ -32,6 +33,11 @@ class Configuration:
                     cls.__inst = cls.__internal_new()
 
         return cls.__inst
+
+
+def set_input_dir(input_dir: str) -> None:
+    inst = Configuration.get_instance()
+    inst.input_dir = input_dir
 
 
 def set_output_dir(output_dir: str) -> None:
@@ -67,6 +73,11 @@ def set_mod_version(mod_version: str) -> None:
 def set_output_format(output_format: str) -> None:
     inst = Configuration.get_instance()
     inst.output_format = output_format
+
+
+def get_input_dir() -> str:
+    inst = Configuration.get_instance()
+    return inst.input_dir
 
 
 def get_output_dir() -> str:

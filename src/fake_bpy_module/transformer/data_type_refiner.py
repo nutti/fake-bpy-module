@@ -4,6 +4,7 @@ from typing import Any, Self
 
 from docutils import nodes
 
+from fake_bpy_module import config
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
@@ -70,20 +71,19 @@ REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
 REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")     # noqa: E501
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
+# pylint: enable=line-too-long
 
 _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|\s|\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
-BPY_TYPES_ENUM_ITEMS_DIR = Path(__file__).parents[3] / "gen_module-tmp/sphinx-in/bpy_types_enum_items"  # noqa: E501
-# pylint: enable=line-too-long
-
 
 def get_rna_enum_items(dtype_str: str) -> str:
     rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
-    rna_enum_path = BPY_TYPES_ENUM_ITEMS_DIR / f"{rna_enum_name}.rst"
-    print(dtype_str, rna_enum_path)
+    rna_enum_path = (Path(config.get_input_dir())
+                     / "bpy_types_enum_items"
+                     / f"{rna_enum_name}.rst")
     content = rna_enum_path.read_text()
     return ', '.join(
         f'"{v.split(":")[1]}"'

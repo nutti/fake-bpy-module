@@ -5,7 +5,6 @@ from pathlib import Path
 
 import fake_bpy_module as fbm
 
-INPUT_DIR: str = "."
 MOD_FILES_DIR: str = Path(Path(__file__).resolve()).parent
 
 
@@ -16,8 +15,6 @@ def generate(target_files: list[str], mod_files: list[str]) -> None:
 
 
 def parse_options() -> None:
-    # pylint: disable=W0603
-    global INPUT_DIR    # noqa: PLW0603 # pylint: disable=W0602
     usage = (
         f"Usage: python {__file__} [-i <input_dir>] [-o <output_dir>] "
         "[-T <target>] [-t <target_version>] [-f <style_format>] "
@@ -53,7 +50,7 @@ def parse_options() -> None:
     )
     args = parser.parse_args()
     if args.input_dir:
-        INPUT_DIR = args.input_dir
+        fbm.config.set_input_dir(args.input_dir)
     if args.output_dir:
         fbm.config.set_output_dir(args.output_dir)
 
@@ -119,9 +116,10 @@ def parse_options() -> None:
 
 def collect_files() -> tuple[str, str]:
     mod_version = fbm.config.get_mod_version()
+    input_dir = fbm.config.get_input_dir()
 
     # Collect all rst files.
-    rst_files = [str(p.absolute()) for p in Path(f"{INPUT_DIR}").rglob("*.rst")]
+    rst_files = [str(p.absolute()) for p in Path(f"{input_dir}").rglob("*.rst")]
 
     # Collect all mod files.
     mod_files = [

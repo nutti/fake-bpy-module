@@ -28,6 +28,7 @@ class TransformerTestBase(common.FakeBpyModuleTestBase):
     def __setup_config(self) -> None:
         config.set_target("blender")
         config.set_target_version("2.80")
+        config.set_input_dir("./tests/gen_module-tmp/sphinx-in")
 
     def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
         with Path(expect_file).open("r", encoding="utf-8") as f:
@@ -594,22 +595,6 @@ class DataTypeRefinerTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}"
                                     for f in expect_transformed_files]
-
-        rna_enum_file = (Path(__file__).parents[4]
-                         / "gen_module-tmp/sphinx-in/bpy_types_enum_items/.rst")
-        rna_enum_file.parent.mkdir(parents=True, exist_ok=True)
-        rna_enum_file.write_text("""\
-.. _rna_enum:
-
-
-####################################
-
-:ONE: One.
-
-   One
-:TWO: Two.
-
-   Two""")
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
