@@ -21,7 +21,6 @@ class BaseClass1:
         :return: method_1 return description
         :rtype: int
         """
-        pass
 
 
 def function_1(arg_1: float, arg_2: bool):
@@ -32,8 +31,6 @@ def function_1(arg_1: float, arg_2: bool):
     :param arg_2: function_1 arg_2 description
     :type arg_2: bool
     """
-
-    pass
 
 
 DATA_1: str = None

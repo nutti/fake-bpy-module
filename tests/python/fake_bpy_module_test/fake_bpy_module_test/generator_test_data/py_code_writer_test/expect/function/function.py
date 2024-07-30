@@ -19,8 +19,6 @@ def function_1(arg_1: float, arg_2: str = "test", arg_3: int = 1234) -> str:
     :rtype: str
     """
 
-    pass
-
 
 def function_2() -> str | None:
     """
@@ -28,5 +26,3 @@ def function_2() -> str | None:
     :return: function_2 return description
     :rtype: str | None
     """
-
-    pass

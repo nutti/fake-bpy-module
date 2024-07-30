@@ -19,5 +19,3 @@ def function_1(arg_1: int, arg_2: module_1.ClassA) -> module_1.submodule_1.BaseC
     :return: method_1 return description
     :rtype: module_1.submodule_1.BaseClass1
     """
-
-    pass

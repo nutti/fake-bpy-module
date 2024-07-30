@@ -27,4 +27,3 @@ class ClassA(module_1.submodule_1.BaseClass1):
         :return: method_1 return description
         :rtype: int
         """
-        pass
