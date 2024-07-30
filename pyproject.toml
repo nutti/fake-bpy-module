@@ -80,6 +80,12 @@ ignore = [
     "PLR2004",
     "SIM102",
     "INP001",
+    # flake8-pyi
+    "PYI011",
+    "PYI014",
+    "PYI018",
+    "PYI021",
+    "PYI054",
 ]
 
 [tool.ruff.lint.mccabe]
