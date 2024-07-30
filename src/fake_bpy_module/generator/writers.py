@@ -488,7 +488,9 @@ class PyCodeWriterBase(BaseWriter):
                         wt.addln(self.ellipsis_strings["method"])
                     wt.new_line()
 
-            if len(attr_nodes) == 0 and len(method_nodes) == 0:
+            if (len(attr_nodes) == 0
+                and len(method_nodes) == 0
+                and desc_node.empty()):
                 wt.addln(self.ellipsis_strings["class"])
                 wt.new_line(2)
 
