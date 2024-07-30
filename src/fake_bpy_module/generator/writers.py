@@ -105,7 +105,11 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
 
 
 def make_union(dtype_nodes: list[DataTypeNode]) -> str:
-    return ' | '.join(sorted({n.to_string() for n in set(dtype_nodes)}))
+    types = {n.to_string() for n in set(dtype_nodes)}
+    # Only keep float as according to flake8-pyi PIY041
+    if "int" in types and "float" in types:
+        types.remove("int")
+    return ' | '.join(sorted(types))
 
 
 class BaseWriter(metaclass=abc.ABCMeta):
