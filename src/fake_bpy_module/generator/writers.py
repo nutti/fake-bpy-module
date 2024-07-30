@@ -259,8 +259,8 @@ class PyCodeWriterBase(BaseWriter):
                                 break
                         wt.addln(f":rtype: {dtype}")
                 wt.addln("'''")
-                wt.new_line(1)
-            wt.addln(self.ellipsis_strings["function"])
+            else:
+                wt.addln(self.ellipsis_strings["function"])
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
@@ -484,8 +484,8 @@ class PyCodeWriterBase(BaseWriter):
                                         break
                                 wt.addln(f":rtype: {dtype}")
                         wt.addln("'''")
-
-                    wt.addln(self.ellipsis_strings["method"])
+                    else:
+                        wt.addln(self.ellipsis_strings["method"])
                     wt.new_line()
 
             if len(attr_nodes) == 0 and len(method_nodes) == 0:

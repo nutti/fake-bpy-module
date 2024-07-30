@@ -21,4 +21,3 @@ class Class123:
         :return: method_1 return description
         :rtype: int
         """
-        pass

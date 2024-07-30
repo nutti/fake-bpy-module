@@ -30,7 +30,6 @@ class ClassA:
         :return: method_1 return description
         :rtype: str
         """
-        ...
 
     @classmethod
     def classmethod_1(cls, arg_1: float, arg_2: int = 123) -> str:
@@ -43,7 +42,6 @@ class ClassA:
         :return: classmethod_1 return description
         :rtype: str
         """
-        ...
 
     @staticmethod
     def staticmethod_1(arg_1: float, arg_2: tuple = (0, 0)) -> str:
@@ -56,7 +54,6 @@ class ClassA:
         :return: staticmethod_1 return description
         :rtype: str
         """
-        ...
 
     @typing.overload
     def function_1(self, arg_1: float, arg_2: int) -> str | None:
@@ -69,4 +66,3 @@ class ClassA:
         :return: function_1 return description
         :rtype: str | None
         """
-        ...
