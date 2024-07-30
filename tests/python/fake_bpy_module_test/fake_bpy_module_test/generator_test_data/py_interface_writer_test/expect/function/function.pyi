@@ -2,8 +2,8 @@ import typing
 import collections.abc
 import typing_extensions
 
-GenericType1 = typing.TypeVar("GenericType1")
-GenericType2 = typing.TypeVar("GenericType2")
+_GenericType1 = typing.TypeVar("_GenericType1")
+_GenericType2 = typing.TypeVar("_GenericType2")
 
 def function_1(arg_1: float, arg_2: str = "test", arg_3: int = 1234) -> str:
     """function_1 description
