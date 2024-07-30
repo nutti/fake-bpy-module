@@ -4,7 +4,7 @@
 
 .. class:: BMElemSeq
 
-   .. base-class:: typing.Generic[GenericType1]
+   .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine
 
@@ -12,7 +12,7 @@
 
       :type key: int
       :mod-option arg key: skip-refine
-      :rtype: GenericType1
+      :rtype: _GenericType1
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -20,13 +20,13 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: tuple[GenericType1, ...]
+      :rtype: tuple[_GenericType1, ...]
       :mod-option rtype: skip-refine
       :option function: overload
 
    .. method:: __iter__()
 
-      :rtype: :class:`BMIter`\ [GenericType1]
+      :rtype: :class:`BMIter`\ [_GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __len__()
@@ -117,25 +117,25 @@
 
 .. class:: BMIter
 
-   .. base-class:: typing.Generic[GenericType1]
+   .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine
 
    .. method:: __iter__()
 
-      :rtype: :class:`BMIter`\ [GenericType1]
+      :rtype: :class:`BMIter`\ [_GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: __next__()
 
-      :rtype: GenericType1
+      :rtype: _GenericType1
       :mod-option rtype: skip-refine
 
 .. class:: BMLayerCollection
 
    .. method:: get()
 
-      :rtype: :class:`BMLayerItem` | GenericType2
+      :rtype: :class:`BMLayerItem` | _GenericType2
       :mod-option rtype: skip-refine
 
 .. class:: BMVert

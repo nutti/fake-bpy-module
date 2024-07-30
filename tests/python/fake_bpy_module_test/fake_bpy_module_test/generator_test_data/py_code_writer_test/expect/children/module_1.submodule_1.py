@@ -2,5 +2,5 @@ import typing
 import collections.abc
 import typing_extensions
 
-GenericType1 = typing.TypeVar("GenericType1")
-GenericType2 = typing.TypeVar("GenericType2")
+_GenericType1 = typing.TypeVar("_GenericType1")
+_GenericType2 = typing.TypeVar("_GenericType2")
