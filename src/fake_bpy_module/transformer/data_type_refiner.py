@@ -14,6 +14,7 @@ from fake_bpy_module.analyzer.nodes import (
     DataNode,
     DataTypeListNode,
     DataTypeNode,
+    DefaultValueNode,
     DescriptionNode,
     FunctionListNode,
     FunctionNode,
@@ -502,7 +503,18 @@ class DataTypeRefiner(TransformerBase):
         description_str: str | None = None,
         additional_info: dict[str, Any] | None = None
     ) -> tuple[list[str], str]:
-        if module_name.startswith("bpy."):
+
+        def may_have_rna_based_options(module_name: str) -> bool:
+            if module_name.startswith("bpy."):
+                if module_name == "bpy.utils":
+                    return False
+                if module_name == "bpy.path":
+                    return False
+                return True
+
+            return False
+
+        if may_have_rna_based_options(module_name):
             option_results = []
 
             # If not pointer property, should not accept None.
@@ -551,8 +563,6 @@ class DataTypeRefiner(TransformerBase):
 
             return option_results, dtype_str
 
-        # From this, we assumed non-bpy module.
-
         if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
             stripped = _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.sub("", dtype_str)
             output_log(LOG_LEVEL_DEBUG,
@@ -562,15 +572,21 @@ class DataTypeRefiner(TransformerBase):
 
         if description_str is not None:
             if m := _REGEX_DATA_TYPE_OPTION_OPTIONAL.search(description_str):
+                # If default value is not None, data type does not need
+                # optional.
+                if additional_info["default_value"] not in ("", "None"):
+                    return ["optional", "never none"], dtype_str
                 return ["optional"], dtype_str
 
         return ["never none"], dtype_str
 
+    # pylint: disable=W0102
     def _get_refined_data_type(
         self, dtype_str: str, module_name: str, variable_kind: str,
         is_pointer_prop: bool = False,
         description_str: str | None = None,
-        additional_info: dict[str, Any] | None = None
+        additional_info: dict[str, Any] | None = None,
+        original_options: list[str] = []  # noqa: B006
     ) -> list[DataTypeNode]:
 
         assert variable_kind in (
@@ -587,7 +603,8 @@ class DataTypeRefiner(TransformerBase):
 
         # Add options.
         for r in result:
-            option_results = options.copy()
+            option_results = original_options.copy()
+            option_results.extend(options.copy())
             if "option" in r.attributes:
                 option_results.extend(r.attributes["option"].split(","))
             # list object will not be None.
@@ -714,11 +731,15 @@ class DataTypeRefiner(TransformerBase):
                             is_pointer_prop = False
                             break
 
+                options = []
+                if "option" in dtype_node.attributes:
+                    options = dtype_node.attributes["option"].split(",")
                 new_dtype_nodes.extend(self._get_refined_data_type(
                     dtype_node.astext(), module_name, variable_kind,
                     is_pointer_prop=is_pointer_prop,
                     description_str=description_str,
-                    additional_info=additional_info))
+                    additional_info=additional_info,
+                    original_options=options))
                 dtype_list_node.remove(dtype_node)
 
             for node in new_dtype_nodes:
@@ -740,11 +761,13 @@ class DataTypeRefiner(TransformerBase):
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
                 for arg_node in arg_nodes:
                     description = arg_node.element(DescriptionNode).astext()
+                    default_value_node = arg_node.element(DefaultValueNode)
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     refine(dtype_list_node, module_name, 'FUNC_ARG',
                            description_str=description,
                            additional_info={
-                               "self_class": f"{module_name}.{class_name}"
+                               "self_class": f"{module_name}.{class_name}",
+                               "default_value": default_value_node.astext(),
                            })
 
                 return_node = func_node.element(FunctionReturnNode)
@@ -780,9 +803,13 @@ class DataTypeRefiner(TransformerBase):
             arg_nodes = find_children(arg_list_node, ArgumentNode)
             for arg_node in arg_nodes:
                 description = arg_node.element(DescriptionNode).astext()
+                default_value_node = arg_node.element(DefaultValueNode)
                 dtype_list_node = arg_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'FUNC_ARG',
-                       description_str=description)
+                       description_str=description,
+                       additional_info={
+                           "default_value": default_value_node.astext(),
+                       })
 
             return_node = func_node.element(FunctionReturnNode)
             dtype_list_node = return_node.element(DataTypeListNode)

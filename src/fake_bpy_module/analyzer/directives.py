@@ -6,7 +6,11 @@ from docutils import nodes
 from docutils.parsers import rst
 
 from fake_bpy_module import config
-from fake_bpy_module.utils import append_child, split_string_by_comma
+from fake_bpy_module.utils import (
+    append_child,
+    find_children,
+    split_string_by_comma,
+)
 
 from .nodes import (
     ArgumentListNode,
@@ -389,10 +393,10 @@ class FunctionDirective(rst.Directive):
                           arg_name: str, detail_type: str,
                           detail_body: nodes.field_body) -> None:
         arg_node: ArgumentNode = None
-        for child in arg_list_node.children:
-            n = next(child.findall(NameNode))
-            if n.astext() == arg_name:
-                arg_node = n.parent
+        arg_nodes = find_children(arg_list_node, ArgumentNode)
+        for node in arg_nodes:
+            if node.element(NameNode).astext() == arg_name:
+                arg_node = node
                 break
         if arg_node:
             if detail_type in ("arg", "param"):

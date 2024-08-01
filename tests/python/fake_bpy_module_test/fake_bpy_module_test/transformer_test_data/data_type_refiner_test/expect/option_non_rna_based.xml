@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        option_non_bpy.rst
+        option_non_rna_based.rst
     <module>
         <name>
             module_1
@@ -63,6 +63,26 @@
                 <data-type-list>
                     <data-type>
                         int
+            <argument argument_type="arg">
+                <name>
+                    arg_accept_none_4
+                <description>
+                    Optional function_2 arg_accept_none_4 description
+                <default-value>
+                    None
+                <data-type-list>
+                    <data-type>
+                        int
+            <argument argument_type="arg">
+                <name>
+                    arg_never_none
+                <description>
+                    Optional function_2 arg_never_none description
+                <default-value>
+                    ""
+                <data-type-list>
+                    <data-type>
+                        str
         <return>
             <description>
             <data-type-list>

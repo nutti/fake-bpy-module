@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        option_bpy.rst
+        option_rna_based.rst
     <module>
         <name>
             bpy.type
@@ -17,8 +17,8 @@
                     function_1 arg_optional description
                 <default-value>
                 <data-type-list>
-                    <data-type option="optional">
-                        int
+                    <data-type>
+                        int (optional)
             <argument argument_type="arg">
                 <name>
                     arg_readonly
@@ -26,8 +26,8 @@
                     function_1 arg_readonly description
                 <default-value>
                 <data-type-list>
-                    <data-type option="never none,readonly">
-                        int
+                    <data-type>
+                        int (readonly)
             <argument argument_type="arg">
                 <name>
                     arg_never_none
@@ -35,8 +35,8 @@
                     function_1 arg_never_none description
                 <default-value>
                 <data-type-list>
-                    <data-type option="never none">
-                        int
+                    <data-type>
+                        int (never none)
         <return>
             <description>
             <data-type-list>
@@ -52,8 +52,8 @@
                     function_2 arg_1 description
                 <default-value>
                 <data-type-list>
-                    <data-type option="never none,optional,readonly">
-                        int
+                    <data-type>
+                        int (optional, readonly, never none)
         <return>
             <description>
             <data-type-list>
@@ -68,7 +68,7 @@
                     active_attr
                 <description>
                 <data-type-list>
-                    <data-type option="accept none">
+                    <data-type>
                         int
         <function-list>
     <data>
@@ -76,5 +76,5 @@
             active_data
         <description>
         <data-type-list>
-            <data-type option="accept none">
+            <data-type>
                 int

@@ -669,11 +669,11 @@ class DataTypeRefinerTest(TransformerTestBase):
             self.compare_with_file_contents(trans.pformat(), expect)
 
     def test_option(self) -> None:
-        rst_files = ["option_bpy.rst", "option_non_bpy.rst"]
-        expect_files = ["option_bpy.xml", "option_non_bpy.xml"]
+        rst_files = ["option_rna_based.rst", "option_non_rna_based.rst"]
+        expect_files = ["option_rna_based.xml", "option_non_rna_based.xml"]
         expect_transformed_files = [
-            "option_bpy_transformed.xml",
-            "option_non_bpy_transformed.xml"
+            "option_rna_based_transformed.xml",
+            "option_non_rna_based_transformed.xml"
         ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]

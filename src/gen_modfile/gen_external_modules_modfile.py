@@ -364,6 +364,16 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
                         if func_info["description"] is not None:
                             write_description(f, func_info["description"],
                                               "      ")
+                        if len(func_info["parameters"]) >= 1:
+                            for param in func_info["parameters"]:
+                                sp = param.split("=")
+                                if sp[0].startswith("*"):
+                                    continue
+                                if len(sp) >= 2 and sp[1] == "None":
+                                    continue
+                                f.write("      :option arg {}".format(sp[0]))
+                                f.write(": never none\n")
+                        f.write("\n")
             elif info["type"] == "function":
                 func_info = info
                 mod_filename = "{}/{}.mod.rst".format(config.output_dir, module)
@@ -377,7 +387,16 @@ def write_to_rst_modfile(data: Dict, config: 'GenerationConfig') -> None:
                     func_info["name"], ", ".join(func_info["parameters"])))
                 if func_info["description"] is not None:
                     write_description(f, func_info["description"], "   ")
-                    f.write("\n")
+                if len(func_info["parameters"]) >= 1:
+                    for param in func_info["parameters"]:
+                        sp = param.split("=")
+                        if sp[0].startswith("*"):
+                            continue
+                        if len(sp) >= 2 and sp[1] == "None":
+                            continue
+                        f.write("   :option arg {}: ".format(sp[0]))
+                        f.write("never none\n")
+                f.write("\n")
                 f.close()
             elif info["type"] == "constant":
                 constant_info = info
