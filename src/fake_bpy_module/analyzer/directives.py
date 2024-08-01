@@ -161,7 +161,25 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
                           for arg in expr.args])
         return f"{func}({args})"
     if isinstance(expr, ast.Attribute):
-        return "None"   # TODO: Should be "expr.attr"
+        # Support multi-level modules like sys.float_info.max.
+        ids = []
+
+        # Get all module ids.
+        e = expr
+        while hasattr(e, "value"):
+            if hasattr(e.value, "attr"):
+                ids.append(e.value.attr)
+                e = e.value
+            elif hasattr(e.value, "id"):
+                ids.append(e.value.id)
+                e = e.value
+            else:
+                raise NotImplementedError(f"{type(expr)} is not supported.")
+        # ids will be ["float_info", "sys"] here.
+        # So, reversing the order is needed.
+        ids.reverse()
+        ids.append(expr.attr)
+        return ".".join(ids)
     raise NotImplementedError(
         f"{type(expr)} is not supported as a default value")
 
