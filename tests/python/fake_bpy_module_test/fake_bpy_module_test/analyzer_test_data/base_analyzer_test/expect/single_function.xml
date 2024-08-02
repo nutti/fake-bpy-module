@@ -40,6 +40,16 @@
                 <data-type-list>
                     <data-type>
                         function_1 arg_3 type
+            <argument argument_type="arg">
+                <name>
+                    arg_4
+                <description>
+                    function_1 arg_4 description
+                <default-value>
+                    sys.float_info.max
+                <data-type-list>
+                    <data-type>
+                        function_1 arg_4 type
         <return>
             <description>
                 function_1 return description
