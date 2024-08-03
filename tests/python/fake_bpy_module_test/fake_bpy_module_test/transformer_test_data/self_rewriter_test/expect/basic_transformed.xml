@@ -17,7 +17,7 @@
                 <description>
                 <data-type-list>
                     <data-type>
-                        typing.Self
+                        typing_extensions.Self
             <attribute>
                 <name>
                     attr_2
@@ -39,7 +39,7 @@
                         <default-value>
                         <data-type-list>
                             <data-type>
-                                typing.Self
+                                typing_extensions.Self
                     <argument argument_type="arg">
                         <name>
                             arg_2
@@ -53,7 +53,7 @@
                     <description>
                     <data-type-list>
                         <data-type>
-                            typing.Self
+                            typing_extensions.Self
     <class>
         <name>
             ClassB
