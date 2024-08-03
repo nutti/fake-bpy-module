@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Self
 
 from docutils import nodes
+from docutils.core import publish_doctree
 
 from fake_bpy_module import config
 from fake_bpy_module.analyzer.nodes import (
@@ -85,10 +86,10 @@ def get_rna_enum_items(dtype_str: str) -> str:
                      / "bpy_types_enum_items"
                      / f"{rna_enum_name}.rst")
     content = rna_enum_path.read_text()
-    return ', '.join(
-        f'"{v.split(":")[1]}"'
-        for v in content.splitlines()
-        if v.startswith(":")
+    doctree = publish_doctree(content).asdom()
+    return ", ".join(
+        repr(e.firstChild.nodeValue)
+        for e in doctree.getElementsByTagName("field_name")
     )
 
 
