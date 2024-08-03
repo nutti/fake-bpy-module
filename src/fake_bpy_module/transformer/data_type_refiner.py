@@ -220,7 +220,7 @@ class DataTypeRefiner(TransformerBase):
                     make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
-            if "[]" in dtype_str:
+            if "[]" in dtype_str or "['DEFAULT']" in dtype_str:
                 return [make_data_type_node("str")]
             enum_values = ",".join(
                 v.strip()
@@ -229,7 +229,7 @@ class DataTypeRefiner(TransformerBase):
             return [make_data_type_node(f"typing.Literal[{enum_values}]")]
         # [Ex] enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
         if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
-            if "[]" in dtype_str:
+            if "[]" in dtype_str or "['DEFAULT']" in dtype_str:
                 return [make_data_type_node("str")]
             enum_values = ",".join(
                 v.strip()
