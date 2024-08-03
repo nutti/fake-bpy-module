@@ -28,7 +28,9 @@ class TransformerTestBase(common.FakeBpyModuleTestBase):
     def __setup_config(self) -> None:
         config.set_target("blender")
         config.set_target_version("2.80")
-        config.set_input_dir("./tests/gen_module-tmp/sphinx-in")
+        config.set_input_dir("./tests/python/fake_bpy_module_test/"
+                             "fake_bpy_module_test/transformer_test_data/"
+                             "data_type_refiner_test")
 
     def compare_with_file_contents(self, actual: str, expect_file: str) -> None:
         with Path(expect_file).open("r", encoding="utf-8") as f:
