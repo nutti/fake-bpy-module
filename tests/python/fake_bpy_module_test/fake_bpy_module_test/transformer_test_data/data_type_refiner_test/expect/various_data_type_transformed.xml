@@ -143,14 +143,14 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                set[typing.Literal["ONE", "TWO"]]
+                set[typing.Literal['ONE', 'TWO']]
     <data>
         <name>
             data_enum_in_rna
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Literal["ONE", "TWO"]
+                typing.Literal['ONE', 'TWO']
     <data>
         <name>
             data_enumerated_constant
