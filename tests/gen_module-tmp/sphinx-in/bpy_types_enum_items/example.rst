@@ -1,11 +1,11 @@
-.. _rna_enum:
+.. _rna_enum_example:
 
-
+Example
 ####################################
 
 :ONE: One.
 
-   One
+   Item one
 :TWO: Two.
 
-   Two
+   Item two

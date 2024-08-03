@@ -69,11 +69,11 @@
 
 .. data:: data_enum_set_in_rna
 
-   :type: enum set in :ref:`rna_enum`
+   :type: enum set in :ref:`rna_enum_example`
 
 .. data:: data_enum_in_rna
 
-   :type: enum in :ref:`rna_enum`
+   :type: enum in :ref:`rna_enum_example`
 
 .. data:: data_enumerated_constant
 

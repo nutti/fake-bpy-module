@@ -139,7 +139,7 @@
             <data-type>
                 enum set in 
                 <ref-ref>
-                    rna_enum
+                    rna_enum_example
     <data>
         <name>
             data_enum_in_rna
@@ -148,7 +148,7 @@
             <data-type>
                 enum in 
                 <ref-ref>
-                    rna_enum
+                    rna_enum_example
     <data>
         <name>
             data_enumerated_constant
