@@ -43,7 +43,6 @@ REGEX_MATCH_DATA_TYPE_WITH_DEFAULT = re.compile(r"(.*), default ([0-9a-zA-Z\"]+)
 REGEX_MATCH_DATA_TYPE_SPACE = re.compile(r"^\s*$")
 REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT = re.compile(r"^enum in \[(.*)\], default (.+)$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_ENUM_IN = re.compile(r"^enum in \[(.*)\](, \(.+\))*$")
-REGEX_MATCH_DATA_TYPE_ENUM_IN_RNA = re.compile(r"^enum in `(.*)`(, \(.+\))*$")
 REGEX_MATCH_DATA_TYPE_SET_IN = re.compile(r"^enum set in \{(.*)\}(, \(.+\))*$")
 REGEX_MATCH_DATA_TYPE_SET_IN_RNA = re.compile(r"^enum set in `(.*)`(, \(.+\))*$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_BOOLEAN_DEFAULT = re.compile(r"^boolean, default (False|True)$")  # noqa: E501
@@ -238,10 +237,6 @@ class DataTypeRefiner(TransformerBase):
             )
             return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
-        if REGEX_MATCH_DATA_TYPE_ENUM_IN_RNA.match(dtype_str):
-            enum_values = get_rna_enum_items(dtype_str)
-            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
-
         # [Ex] enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
             if "{}" in dtype_str:
@@ -259,7 +254,8 @@ class DataTypeRefiner(TransformerBase):
 
         # [Ex] enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
-            return [make_data_type_node("str")]
+            enum_values = get_rna_enum_items(dtype_str)
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
         # [Ex] Enumerated constant
         if dtype_str == "Enumerated constant":
