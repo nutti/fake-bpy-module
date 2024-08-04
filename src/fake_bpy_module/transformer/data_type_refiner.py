@@ -1,8 +1,11 @@
 import re
+from pathlib import Path
 from typing import Any, Self
 
 from docutils import nodes
+from docutils.core import publish_doctree
 
+from fake_bpy_module import config
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
@@ -77,6 +80,19 @@ _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|\s|\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
 
+def get_rna_enum_items(dtype_str: str) -> str:
+    rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
+    rna_enum_path = (Path(config.get_input_dir())
+                     / "bpy_types_enum_items"
+                     / f"{rna_enum_name}.rst")
+    content = rna_enum_path.read_text()
+    doctree = publish_doctree(content).asdom()
+    return ", ".join(
+        repr(e.firstChild.nodeValue)
+        for e in doctree.getElementsByTagName("field_name")
+    )
+
+
 class EntryPoint:
     def __init__(self, module: str, name: str, type_: str) -> None:
         self.module: str = module
@@ -146,7 +162,7 @@ class DataTypeRefiner(TransformerBase):
         return None
 
     # pylint: disable=R0911,R0912,R0913
-    def _get_refined_data_type_fast(
+    def _get_refined_data_type_fast(  # noqa: C901, PLR0911, PLR0912
         self, dtype_str: str, uniq_full_names: set[str],
         uniq_module_names: set[str], module_name: str,
         variable_kind: str,
@@ -205,22 +221,42 @@ class DataTypeRefiner(TransformerBase):
                     make_data_type_node(f"`{s}`")]
 
         if REGEX_MATCH_DATA_TYPE_ENUM_IN_DEFAULT.match(dtype_str):
-            return [make_data_type_node("str")]
+            if "[]" in dtype_str or "['DEFAULT']" in dtype_str:
+                return [make_data_type_node("str")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("[")[1].split("]")[0].split(",")
+            )
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
         # [Ex] enum in ['POINT', 'EDGE', 'FACE', 'CORNER', 'CURVE', 'INSTANCE']
         if REGEX_MATCH_DATA_TYPE_ENUM_IN.match(dtype_str):
-            return [make_data_type_node("str")]
+            if "[]" in dtype_str or "['DEFAULT']" in dtype_str:
+                return [make_data_type_node("str")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("[")[1].split("]")[0].split(",")
+            )
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
         # [Ex] enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
-            return [make_data_type_node("set[str]")]
+            if "{}" in dtype_str:
+                return [make_data_type_node("set[str]")]
+            enum_values = ",".join(
+                v.strip()
+                for v in dtype_str.split("{")[1].split("}")[0].split(",")
+            )
+            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
 
         # [Ex] enum set in `rna_enum_operator_return_items`
         if REGEX_MATCH_DATA_TYPE_SET_IN_RNA.match(dtype_str):
-            return [make_data_type_node("set[str]")]
+            enum_values = get_rna_enum_items(dtype_str)
+            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
 
         # [Ex] enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
-            return [make_data_type_node("str")]
+            enum_values = get_rna_enum_items(dtype_str)
+            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
 
         # [Ex] Enumerated constant
         if dtype_str == "Enumerated constant":

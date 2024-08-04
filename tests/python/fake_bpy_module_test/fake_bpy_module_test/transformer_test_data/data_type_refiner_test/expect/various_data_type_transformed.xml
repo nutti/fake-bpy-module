@@ -122,35 +122,35 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                str
+                typing.Literal['ONE','TWO']
     <data>
         <name>
             data_enum_in
         <description>
         <data-type-list>
             <data-type option="never none">
-                str
+                typing.Literal['ONE','TWO']
     <data>
         <name>
             data_set_in
         <description>
         <data-type-list>
             <data-type option="never none">
-                set[str]
+                set[typing.Literal['ONE','TWO']]
     <data>
         <name>
             data_enum_set_in_rna
         <description>
         <data-type-list>
             <data-type option="never none">
-                set[str]
+                set[typing.Literal['ONE', 'TWO']]
     <data>
         <name>
             data_enum_in_rna
         <description>
         <data-type-list>
             <data-type option="never none">
-                str
+                typing.Literal['ONE', 'TWO']
     <data>
         <name>
             data_enumerated_constant
