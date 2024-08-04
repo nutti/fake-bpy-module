@@ -2,8 +2,8 @@ import typing
 import collections.abc
 import typing_extensions
 
-GenericType1 = typing.TypeVar("GenericType1")
-GenericType2 = typing.TypeVar("GenericType2")
+_GenericType1 = typing.TypeVar("_GenericType1")
+_GenericType2 = typing.TypeVar("_GenericType2")
 
 class ClassExp:
     """ClassExp description"""
@@ -28,7 +28,6 @@ class ClassExp:
         :return: method_with_keyword_only_argument return description
         :rtype: int
         """
-        ...
 
 def function_with_type_hint(arg_1: float, arg_2: bool) -> int:
     """function_with_type_hint description
@@ -40,5 +39,3 @@ def function_with_type_hint(arg_1: float, arg_2: bool) -> int:
     :return: function_with_type_hint return description
     :rtype: int
     """
-
-    ...
