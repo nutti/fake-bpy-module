@@ -39,7 +39,7 @@ class SelfRewriter(TransformerBase):
             dtype = dtype_node.to_string()
             if dtype == class_name:
                 new_dtype_node = DataTypeNode()
-                new_dtype_node.append(nodes.Text("typing.Self"))
+                new_dtype_node.append(nodes.Text("typing_extensions.Self"))
                 self._replace(dtype_node, new_dtype_node)
 
     def _rewrite_same_class_to_self(self, document: nodes.document) -> None:
