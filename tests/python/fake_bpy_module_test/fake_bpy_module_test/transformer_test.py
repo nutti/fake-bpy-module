@@ -266,6 +266,34 @@ class BpyModuleTweakerTest(TransformerTestBase):
         f"{Path(__file__).parent}/transformer_test_data/"
         "bpy_module_tweaker").resolve()
 
+    def test_make_bpy_types_classes_methods_arguments_kwonlyargs(self) -> None:
+        rst_files = ["make_bpy_types_classes_methods_arguments_kwonlyargs.rst"]
+        expect_files = [
+            "make_bpy_types_classes_methods_arguments_kwonlyargs.xml"
+        ]
+        expect_transformed_files = [
+            "make_bpy_types_classes_methods_arguments_kwonlyargs_transformed.xml"
+        ]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["bpy_module_tweaker"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
     def test_make_bpy_prop_functions_arguments_kwonlyargs(self) -> None:
         rst_files = ["make_bpy_prop_functions_arguments_kwonlyargs.rst"]
         expect_files = ["make_bpy_prop_functions_arguments_kwonlyargs.xml"]

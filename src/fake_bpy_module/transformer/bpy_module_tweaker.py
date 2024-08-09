@@ -15,6 +15,7 @@ from fake_bpy_module.analyzer.nodes import (
     DataTypeListNode,
     DataTypeNode,
     DefaultValueNode,
+    FunctionListNode,
     FunctionNode,
     ModuleNode,
     NameNode,
@@ -33,6 +34,32 @@ from .transformer_base import TransformerBase
 
 
 class BpyModuleTweaker(TransformerBase):
+
+    def _make_bpy_types_classes_methods_arguments_kwonlyargs(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
+        if module_name != "bpy.types":
+            return
+
+        class_nodes = find_children(document, ClassNode)
+        for class_node in class_nodes:
+            class_name = class_node.element(NameNode).astext()
+            if class_name != "UILayout":
+                continue
+
+            func_list_node = class_node.element(FunctionListNode)
+            func_nodes = find_children(func_list_node, FunctionNode)
+            for func_node in func_nodes:
+                arg_list_node = func_node.element(ArgumentListNode)
+                arg_nodes = find_children(arg_list_node, ArgumentNode)
+                start_kwonlyarg = False
+                for arg_node in arg_nodes:
+                    default_value_node = arg_node.element(DefaultValueNode)
+                    if not default_value_node.empty():
+                        start_kwonlyarg = True
+                    if start_kwonlyarg:
+                        arg_node.attributes["argument_type"] = "kwonlyarg"
 
     def _make_bpy_prop_functions_arguments_kwonlyargs(
             self, document: nodes.document) -> None:
@@ -158,6 +185,7 @@ class BpyModuleTweaker(TransformerBase):
         if not name_node.astext().startswith("bpy"):
             return
 
+        self._make_bpy_types_classes_methods_arguments_kwonlyargs(document)
         self._make_bpy_prop_functions_arguments_kwonlyargs(document)
         self._add_bpy_app_handlers_functions_data_types(document)
         self._add_bpy_ops_override_parameters(document)

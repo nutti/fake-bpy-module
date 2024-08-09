@@ -1,0 +1,60 @@
+<document source="<string>">
+    <source-filename>
+        make_bpy_types_classes_methods_arguments_kwonlyargs.rst
+    <module>
+        <name>
+            bpy.types
+        <description>
+    <class>
+        <name>
+            UILayout
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                int
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            method_1 arg_2 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                bool
+                    <argument argument_type="kwonlyarg">
+                        <name>
+                            arg_3
+                        <description>
+                            method_1 arg_3 description
+                        <default-value>
+                            "test"
+                        <data-type-list>
+                            <data-type>
+                                str
+                    <argument argument_type="kwonlyarg">
+                        <name>
+                            arg_4
+                        <description>
+                            method_1 arg_4 description
+                        <default-value>
+                            123
+                        <data-type-list>
+                            <data-type>
+                                int
+                <return>
+                    <description>
+                    <data-type-list>
