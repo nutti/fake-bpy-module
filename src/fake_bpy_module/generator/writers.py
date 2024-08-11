@@ -30,6 +30,7 @@ from fake_bpy_module.analyzer.nodes import (
     FunctionReturnNode,
     NameNode,
     NodeBase,
+    TypeNode,
 )
 from fake_bpy_module.utils import (
     find_children,
@@ -45,6 +46,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     all_class_nodes: list[ClassNode] = []
     all_function_nodes: list[FunctionNode] = []
     all_data_nodes: list[DataNode] = []
+    all_type_nodes: list[TypeNode] = []
     all_high_priority_class_nodes: list[ClassNode] = []
 
     class_nodes = find_children(document, ClassNode)
@@ -57,6 +59,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
             all_class_nodes.append(class_node)
     all_function_nodes.extend(find_children(document, FunctionNode))
     all_data_nodes.extend(find_children(document, DataNode))
+    all_type_nodes.extend(find_children(document, TypeNode))
 
     all_class_nodes = all_high_priority_class_nodes \
         + sorted(all_class_nodes, key=lambda n: n.element(NameNode).astext())
@@ -96,10 +99,15 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     sorted_constant_nodes = sorted(
         all_data_nodes, key=lambda n: n.element(NameNode).astext())
 
+    # Sort type data
+    sorted_type_nodes = sorted(
+        all_type_nodes, key=lambda n: n.element(NameNode).astext())
+
     # Merge
     sorted_nodes = sorted_class_nodes
     sorted_nodes.extend(sorted_function_nodes)
     sorted_nodes.extend(sorted_constant_nodes)
+    sorted_nodes.extend(sorted_type_nodes)
 
     return sorted_nodes
 
@@ -528,6 +536,22 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln("'''")
         wt.new_line(2)
 
+    def _write_type_code(self, type_node: TypeNode) -> None:
+        wt = self._writer
+
+        name_node = type_node.element(NameNode)
+        dtype_list_node = type_node.element(DataTypeListNode)
+        desc_node = type_node.element(DescriptionNode)
+
+        if not dtype_list_node.empty():
+            dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+            dtype = make_union(dtype_nodes)
+            wt.addln(f"type {name_node.astext()} = {dtype}")
+        if not desc_node.empty():
+            wt.addln(f"''' {remove_unencodable(desc_node.astext())}")
+            wt.addln("'''")
+        wt.new_line(2)
+
     def write(self, filename: str, document: nodes.document,
               style_config: str = 'ruff') -> None:
         # At first, sort data to avoid generating large diff.
@@ -588,6 +612,8 @@ class PyCodeWriterBase(BaseWriter):
                     self._write_class_code(node)
                 elif isinstance(node, DataNode):
                     self._write_constant_code(node)
+                elif isinstance(node, TypeNode):
+                    self._write_type_code(node)
 
             wt.format(style_config, self.file_format)
             wt.write(file)
@@ -703,6 +729,26 @@ class JsonWriter(BaseWriter):
 
         return data_data
 
+    def _create_type_json_data(self, type_node: TypeNode) -> dict:
+        data_data = {
+            "type": "type",
+            "name": type_node.element(NameNode).astext(),
+            "description": type_node.element(DescriptionNode).astext(),
+            "data_types": [],
+            "options": self._clean_node_attributes(type_node.attributes),
+        }
+
+        dtype_nodes = find_children(type_node.element(DataTypeListNode),
+                                    DataTypeNode)
+        for dtype_node in dtype_nodes:
+            dtype_data = {
+                "data_type": dtype_node.to_string(),
+                "options": self._clean_node_attributes(dtype_node.attributes),
+            }
+            data_data["data_types"].append(dtype_data)
+
+        return data_data
+
     def _create_class_json_data(self, class_node: ClassNode) -> dict:
         class_data = {
             "type": "class",
@@ -807,6 +853,8 @@ class JsonWriter(BaseWriter):
                 json_data.append(self._create_function_json_data(node))
             elif isinstance(node, DataNode):
                 json_data.append(self._create_constant_json_data(node))
+            elif isinstance(node, TypeNode):
+                json_data.append(self._create_type_json_data(node))
 
         with Path(f"{filename}.{self.file_format}").open(
                 "w", newline="\n", encoding="utf-8") as f:

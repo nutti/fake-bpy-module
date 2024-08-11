@@ -24,12 +24,14 @@ from fake_bpy_module.analyzer.nodes import (
     FunctionReturnNode,
     ModuleNode,
     NameNode,
+    TypeNode,
     make_data_type_node,
 )
 from fake_bpy_module.analyzer.roles import ClassRef
 from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
+    append_child,
     find_children,
     get_first_child,
     output_log,
@@ -80,17 +82,31 @@ _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
 
-def get_rna_enum_items(dtype_str: str) -> str:
+def snake_to_camel(name: str) -> str:
+    return "".join(w.title() for w in name.split("_"))
+
+
+def get_rna_enum_items(document: nodes.document, dtype_str: str) -> str:
     rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
     rna_enum_path = (Path(config.get_input_dir())
                      / "bpy_types_enum_items"
                      / f"{rna_enum_name}.rst")
+
     content = rna_enum_path.read_text(encoding="utf-8")
+    enum_literal_type = snake_to_camel(rna_enum_name)
     doctree = publish_doctree(content).asdom()
-    return ", ".join(
+    enum_items = ", ".join(
         repr(e.firstChild.nodeValue)
         for e in doctree.getElementsByTagName("field_name")
     )
+    type_node = TypeNode.create_template()
+    type_node.element(NameNode).add_text(enum_literal_type)
+    dtype = make_data_type_node(f"typing.Literal[{enum_items}]")
+    dtype.attributes["mod-option"] = "skip-refine"
+    type_node.element(DataTypeListNode).append_child(dtype)
+    append_child(document, type_node)
+
+    return enum_literal_type
 
 
 class EntryPoint:
@@ -163,7 +179,8 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=R0911,R0912,R0913
     def _get_refined_data_type_fast(  # noqa: C901, PLR0911, PLR0912
-        self, dtype_str: str, uniq_full_names: set[str],
+        self, document: nodes.document, dtype_str: str,
+        uniq_full_names: set[str],
         uniq_module_names: set[str], module_name: str,
         variable_kind: str,
         additional_info: dict[str, Any] | None = None
@@ -250,13 +267,13 @@ class DataTypeRefiner(TransformerBase):
 
         # [Ex] enum set in `rna_enum_operator_return_items`
         if REGEX_MATCH_DATA_TYPE_SET_IN_RNA.match(dtype_str):
-            enum_values = get_rna_enum_items(dtype_str)
-            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
+            enum_literal_type = get_rna_enum_items(document, dtype_str)
+            return [make_data_type_node(f"set[{enum_literal_type}]")]
 
         # [Ex] enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
-            enum_values = get_rna_enum_items(dtype_str)
-            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
+            enum_literal_type = get_rna_enum_items(document, dtype_str)
+            return [make_data_type_node(enum_literal_type)]
 
         # [Ex] Enumerated constant
         if dtype_str == "Enumerated constant":
@@ -628,7 +645,8 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=W0102
     def _get_refined_data_type(
-        self, dtype_str: str, module_name: str, variable_kind: str,
+        self, document: nodes.document, dtype_str: str, module_name: str,
+        variable_kind: str,
         is_pointer_prop: bool = False,
         description_str: str | None = None,
         additional_info: dict[str, Any] | None = None,
@@ -644,7 +662,7 @@ class DataTypeRefiner(TransformerBase):
             description_str=description_str, additional_info=additional_info)
 
         result = self._get_refined_data_type_internal(
-            dtype_str_changed, module_name, variable_kind,
+            document, dtype_str_changed, module_name, variable_kind,
             additional_info=additional_info)
 
         # Add options.
@@ -671,8 +689,8 @@ class DataTypeRefiner(TransformerBase):
         return result
 
     def _get_refined_data_type_internal(
-        self, dtype_str: str, module_name: str, variable_kind: str,
-        additional_info: dict[str, Any] | None = None
+        self, document: nodes.document, dtype_str: str, module_name: str,
+        variable_kind: str, additional_info: dict[str, Any] | None = None
     ) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip()
@@ -690,7 +708,7 @@ class DataTypeRefiner(TransformerBase):
             dtypes: list[DataTypeNode] = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
-                    s.strip(), uniq_full_names, uniq_module_names,
+                    document, s.strip(), uniq_full_names, uniq_module_names,
                     module_name, variable_kind, additional_info)
                 if d is not None:
                     dtypes.extend(d)
@@ -699,8 +717,8 @@ class DataTypeRefiner(TransformerBase):
                     f"tuple[{', '.join([d.astext() for d in dtypes])}]")]
 
         result = self._get_refined_data_type_fast(
-            dtype_str, uniq_full_names, uniq_module_names, module_name,
-            variable_kind, additional_info)
+            document, dtype_str, uniq_full_names, uniq_module_names,
+            module_name, variable_kind, additional_info)
         if result is not None:
             return result
 
@@ -716,8 +734,8 @@ class DataTypeRefiner(TransformerBase):
             for sp in splist:
                 s = sp.strip()
                 result = self._get_refined_data_type_fast(
-                    s, uniq_full_names, uniq_module_names, module_name,
-                    variable_kind, additional_info)
+                    document, s, uniq_full_names, uniq_module_names,
+                    module_name, variable_kind, additional_info)
                 if result is not None:
                     dtypes.extend(result)
             return dtypes
@@ -784,6 +802,7 @@ class DataTypeRefiner(TransformerBase):
                 if "option" in dtype_node.attributes:
                     options = dtype_node.attributes["option"].split(",")
                 new_dtype_nodes.extend(self._get_refined_data_type(
+                    document,
                     dtype_node.astext(), module_name, variable_kind,
                     is_pointer_prop=is_pointer_prop,
                     description_str=description_str,
