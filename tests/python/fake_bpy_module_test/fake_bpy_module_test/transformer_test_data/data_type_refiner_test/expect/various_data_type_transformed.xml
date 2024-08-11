@@ -143,14 +143,14 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                set[typing.Literal['ONE', 'TWO']]
+                set[Example]
     <data>
         <name>
             data_enum_in_rna
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Literal['ONE', 'TWO']
+                Example
     <data>
         <name>
             data_enumerated_constant
@@ -614,3 +614,17 @@
                 <class-ref>
                     module_1.ClassA
                 ]
+    <type>
+        <name>
+            Example
+        <description>
+        <data-type-list>
+            <data-type mod-option="skip-refine">
+                typing.Literal['ONE', 'TWO']
+    <type>
+        <name>
+            Example
+        <description>
+        <data-type-list>
+            <data-type mod-option="skip-refine">
+                typing.Literal['ONE', 'TWO']
