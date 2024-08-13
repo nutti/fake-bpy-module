@@ -1,0 +1,35 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /root
+
+RUN env
+RUN apt-get update -y
+RUN apt-get install -y \
+            git \
+            python3.8 \
+            python3.8-distutils \
+            python3-sphinx \
+            curl \
+            unzip \
+            blender \
+            pandoc \
+            wget \
+            zip
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3.8 get-pip.py && \
+    rm -f get-pip.py
+
+RUN rm -f /usr/bin/python && ln -s /usr/bin/python3.8 /usr/bin/python
+RUN rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3.8 /usr/bin/pip
+
+RUN pip install pathlib
+
+RUN git clone https://github.com/upbge/upbge.git
+
+RUN git clone https://github.com/nutti/fake-bge-module.git
+RUN pip install -r fake-bge-module/src/requirements.txt
+RUN bash fake-bge-module/tools/utils/download_bge.sh all bge-bin
+RUN rm -rf fake-bge-module

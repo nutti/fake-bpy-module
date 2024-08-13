@@ -58,7 +58,7 @@
                 <name>
                     arg_accept_none_3
                 <description>
-                    function_2 optional arg_accept_none_3 description
+                    An optional function_2 arg_accept_none_3 description
                 <default-value>
                 <data-type-list>
                     <data-type option="optional">
@@ -81,7 +81,7 @@
                 <default-value>
                     ""
                 <data-type-list>
-                    <data-type option="optional,never none">
+                    <data-type option="never none,optional">
                         str
         <return>
             <description>

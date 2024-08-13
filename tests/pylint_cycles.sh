@@ -174,6 +174,9 @@ function workaround_quirks() {
             # bpy.types.XXX related Cycle add-on classes are not provided by fake-module
             echo "Fixing cycles class: \".bpy.types.CYCLES_MT_[a-z]*_presets\""
             sed -i 's/bpy.types.\(CYCLES_MT_[a-z]*_presets\)/\1/' intern/cycles/blender/addon/ui.py
+
+            echo "Fixing pylint bug: https://github.com/pylint-dev/pylint/issues/3105"
+            sed -i 's/for \(.*\?\) in self\.devices:/for \1 in [self.devices]:/' intern/cycles/blender/addon/properties.py
         fi
     fi
 }

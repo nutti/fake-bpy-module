@@ -148,50 +148,78 @@ if [[ ! -d "${tmp_dir}/sphinx-in.orig" && "${mod_version}" != "not-specified" ]]
     for patch_file in $(find "${SCRIPT_DIR}/patches/${target}/${mod_version}/sphinx-in" -name "*.patch"); do
         patch -u -p2 -d "${tmp_dir}/sphinx-in" < "${patch_file}"
     done
+fi
 
-    # Fix invalid rst format.
-    echo "Fix invalid rst format ..."
-    if [ "${target}" = "blender" ]; then
-        if [ "${git_ref}" = "v3.5.0" ]; then
-            # :file:`XXX` -> :file: `XXX`
-            echo "  Fix: ':file:\`' -> ':file: \`"
-            # shellcheck disable=SC2044
-            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-                search_str=":file:\`"
-                replace_str=":file: \`"
-                if grep -q "${search_str}" "${rst_file}"; then
-                    echo "    ${rst_file}"
-                    sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
-                fi
-            done
-        elif [ "${git_ref}" = "v2.90.0" ]; then
-            #       .. note:: Takes ``O(len(nodetree.links))`` time.
-            #       (readonly)
-            # ->
-            #       .. note:: Takes ``O(len(nodetree.links))`` time.
-            #
-            #       (readonly)
-            echo "  Fix: Invalid (readonly) position"
-            # shellcheck disable=SC2044
-            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-                if ! perl -ne 'BEGIN{$/="";}{exit(1) if /(..note::.*?)\n(\s*\(readonly\))/;}' "${rst_file}"; then
-                    echo "    ${rst_file}"
-                    perl -i -pe 'BEGIN{$/="";}{s/(..note::.*?)\n(\s*\(readonly\))/$1\n\n$2/g;}' "${rst_file}"
-                fi
-            done
-        elif [ "${git_ref}" = "v2.78c" ] || [ "${git_ref}" = "v2.79b" ]; then
-            # .. code-block:: none -> .. code-block:: python
-            echo "  Fix: Invalid code-block argument"
-            # shellcheck disable=SC2044
-            for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-                search_str=".. code-block:: none"
-                replace_str=".. code-block:: python"
-                if grep -q "${search_str}" "${rst_file}"; then
-                    echo "    ${rst_file}"
-                    sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
-                fi
-            done
-        fi
+# Fix invalid rst format.
+echo "Fixing invalid rst format ..."
+if [ "${target}" = "blender" ]; then
+    if [ "${git_ref}" = "v3.5.0" ]; then
+        # :file:`XXX` -> :file: `XXX`
+        echo "  Fix: ':file:\`' -> ':file: \`"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            search_str=":file:\`"
+            replace_str=":file: \`"
+            if grep -q "${search_str}" "${rst_file}"; then
+                echo "    ${rst_file}"
+                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+            fi
+        done
+    elif [ "${git_ref}" = "v2.90.0" ]; then
+        #       .. note:: Takes ``O(len(nodetree.links))`` time.
+        #       (readonly)
+        # ->
+        #       .. note:: Takes ``O(len(nodetree.links))`` time.
+        #
+        #       (readonly)
+        echo "  Fix: Invalid (readonly) position"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            if ! perl -ne 'BEGIN{$/="";}{exit(1) if /(..note::.*?)\n(\s*\(readonly\))/;}' "${rst_file}"; then
+                echo "    ${rst_file}"
+                perl -i -pe 'BEGIN{$/="";}{s/(..note::.*?)\n(\s*\(readonly\))/$1\n\n$2/g;}' "${rst_file}"
+            fi
+        done
+    elif [ "${git_ref}" = "v2.78c" ] || [ "${git_ref}" = "v2.79b" ]; then
+        # .. code-block:: none -> .. code-block:: python
+        echo "  Fix: Invalid code-block argument"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            search_str=".. code-block:: none"
+            replace_str=".. code-block:: python"
+            if grep -q "${search_str}" "${rst_file}"; then
+                echo "    ${rst_file}"
+                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+            fi
+        done
+    fi
+elif [ "${target}" = "upbge" ]; then
+    if [ "${git_ref}" = "v0.2.5" ] || [ "${git_ref}" = "master" ]; then
+        # .. code-block:: none -> .. code-block:: python
+        echo "  Fix: Invalid code-block argument"
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            search_str=".. code-block:: none"
+            replace_str=".. code-block:: python"
+            if grep -q "${search_str}" "${rst_file}"; then
+                echo "    ${rst_file}"
+                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+            fi
+        done
+    fi
+
+    if [ "${git_ref}" = "v0.2.5" ]; then
+        echo "  Fix: Inconsistent title levels."
+        # shellcheck disable=SC2044
+        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+            rst_file_basename=$(basename "${rst_file}")
+            if [ "${rst_file_basename}" = "bge.texture.rst" ]; then
+                search_str="+++++++++++++*"
+                replace_str=""
+                echo "    ${rst_file}"
+                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+            fi
+        done
     fi
 fi
 

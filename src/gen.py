@@ -117,6 +117,7 @@ def parse_options() -> None:
 def collect_files() -> tuple[str, str]:
     mod_version = fbm.config.get_mod_version()
     input_dir = fbm.config.get_input_dir()
+    target = fbm.config.get_target()
 
     # Collect all rst files.
     rst_files = [str(p.absolute()) for p in Path(f"{input_dir}").rglob("*.rst")]
@@ -130,15 +131,15 @@ def collect_files() -> tuple[str, str]:
         str(p.absolute())
         for p in Path(f"{MOD_FILES_DIR}/mods/common").rglob("*.mod.rst")
     ]
-    if fbm.config.get_target() == "blender" and mod_version in ["2.78", "2.79"]:
+    if target == "blender" and mod_version in ["2.78", "2.79"]:
         mod_files += [
             str(p.absolute())
-            for p in Path(f"{MOD_FILES_DIR}/mods/{mod_version}")
+            for p in Path(f"{MOD_FILES_DIR}/mods/{target}/{mod_version}")
             .rglob("*.mod.rst")
         ]
     # Remove unnecessary mod files.
     mod_files = set(mod_files)
-    if fbm.config.get_target() == "blender":
+    if target == "blender":
         if mod_version not in ["2.78", "2.79"]:
             mod_files -= {
                 str(p.absolute())
@@ -157,6 +158,12 @@ def collect_files() -> tuple[str, str]:
                 str(p.absolute())
                 for p in Path(f"{MOD_FILES_DIR}/mods/generated_mods/"
                               "gen_modules_modfile").glob("gpu_extras.*.mod.rst")
+            }
+        if mod_version in ["0.2.5"]:
+            mod_files -= {
+                str(p.absolute())
+                for p in Path(f"{MOD_FILES_DIR}/mods/common")
+                .rglob("bpy.app.timers.mod.rst")
             }
     # TODO: sorted() is needed to solve unexpected errors.
     #       The error comes from the invalid processes in mod_applier when there

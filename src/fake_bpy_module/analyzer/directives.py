@@ -271,6 +271,10 @@ class ModuleDirective(rst.Directive):
                     "latest"]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
+        elif config.get_target() == "upbge":
+            if config.get_target_version() in ["latest"]:
+                if module_name == "bpy.data":
+                    module_name = "bpy"
         module_node.element(NameNode).add_text(module_name)
 
         # Get all descriptions.

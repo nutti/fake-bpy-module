@@ -76,7 +76,7 @@ REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 
 _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
-_REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|\s|\()[oO]ptional(\s|\))")
+_REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
 
@@ -599,22 +599,32 @@ class DataTypeRefiner(TransformerBase):
 
             return option_results, dtype_str
 
+        is_never_none = True
+        is_optional = False
+
         if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
             stripped = _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.sub("", dtype_str)
             output_log(LOG_LEVEL_DEBUG,
                        f"Data type is stripped: {dtype_str} -> {stripped}")
-
-            return [""], stripped
+            dtype_str = stripped
+            is_never_none = False
 
         if description_str is not None:
             if m := _REGEX_DATA_TYPE_OPTION_OPTIONAL.search(description_str):
                 # If default value is not None, data type does not need
                 # optional.
-                if additional_info["default_value"] not in ("", "None"):
-                    return ["optional", "never none"], dtype_str
-                return ["optional"], dtype_str
+                is_never_none = (
+                    additional_info["default_value"] not in ("", "None")
+                )
+                is_optional = True
 
-        return ["never none"], dtype_str
+        options = []
+        if is_never_none:
+            options.append("never none")
+        if is_optional:
+            options.append("optional")
+
+        return sorted(options), dtype_str
 
     # pylint: disable=W0102
     def _get_refined_data_type(
@@ -648,6 +658,9 @@ class DataTypeRefiner(TransformerBase):
                     "never none" not in option_results):
                 if _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION.match(r.to_string()):
                     option_results.append("never none")
+            # If data type is bpy.types.Context, it will be never None.
+            if r.to_string() == "bpy.types.Context":
+                option_results.append("never none")
             r.attributes["option"] = ",".join(option_results)
 
         output_log(

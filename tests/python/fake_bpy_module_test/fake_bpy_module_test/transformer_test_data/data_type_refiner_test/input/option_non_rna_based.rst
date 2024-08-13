@@ -13,7 +13,7 @@
    :type arg_accept_none_1: int
    :arg arg_accept_none_2: Optional function_2 arg_accept_none_2 description
    :type arg_accept_none_2: int
-   :arg arg_accept_none_3: function_2 optional arg_accept_none_3 description
+   :arg arg_accept_none_3: An optional function_2 arg_accept_none_3 description
    :type arg_accept_none_3: int
    :arg arg_accept_none_4: Optional function_2 arg_accept_none_4 description
    :type arg_accept_none_4: int

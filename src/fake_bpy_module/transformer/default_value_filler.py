@@ -32,7 +32,8 @@ class DefaultValueFiller(TransformerBase):
                 for dtype_node in dtype_nodes:
                     if "option" not in dtype_node.attributes:
                         continue
-                    if "optional" in dtype_node.attributes["option"]:
+                    options = dtype_node.attributes["option"].split(",")
+                    if "optional" in options:
                         break
                 else:
                     # "optional" is not found.

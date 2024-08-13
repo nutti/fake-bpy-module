@@ -6,7 +6,7 @@
 
    .. attribute:: layout
 
-      :type: :class:`bpy.types.UILayout`
+      :type: :class:`bpy.types.UILayout` (never None)
 
 .. class:: Menu
 
