@@ -18,16 +18,18 @@ from fake_bpy_module.analyzer.nodes import (
     DataTypeListNode,
     DataTypeNode,
     DefaultValueNode,
+    DependencyListNode,
+    DependencyNode,
     DescriptionNode,
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
     ModuleNode,
     NameNode,
-    TypeNode,
     make_data_type_node,
 )
 from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.generator.code_writer import CodeWriter
 from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
@@ -88,25 +90,42 @@ def snake_to_camel(name: str) -> str:
 
 def get_rna_enum_items(document: nodes.document, dtype_str: str) -> str:
     rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
-    rna_enum_path = (Path(config.get_input_dir())
-                     / "bpy_types_enum_items"
-                     / f"{rna_enum_name}.rst")
 
-    content = rna_enum_path.read_text(encoding="utf-8")
-    enum_literal_type = snake_to_camel(rna_enum_name)
-    doctree = publish_doctree(content).asdom()
-    enum_items = ", ".join(
-        repr(e.firstChild.nodeValue)
-        for e in doctree.getElementsByTagName("field_name")
-    )
-    type_node = TypeNode.create_template()
-    type_node.element(NameNode).add_text(enum_literal_type)
-    dtype = make_data_type_node(f"typing.Literal[{enum_items}]")
-    dtype.attributes["mod-option"] = "skip-refine"
-    type_node.element(DataTypeListNode).append_child(dtype)
-    append_child(document, type_node)
+    if get_first_child(document, DependencyListNode) is None:
+        dep_list_node = DependencyListNode()
+        dep_node = DependencyNode(text="bpy.typing")
+        dep_list_node.append_child(dep_node)
+        append_child(document, dep_list_node)
 
-    return enum_literal_type
+    return "bpy.typing." + snake_to_camel(rna_enum_name)
+
+
+def generate_rna_enum_items() -> str:
+    rna_enum_dir = Path(config.get_input_dir()) / "bpy_types_enum_items"
+    bpy_typing_path = (Path(config.get_output_dir())
+                       / "bpy"
+                       / "typing"
+                       / "__init__.pyi")
+    bpy_typing_path.parent.mkdir(parents=True, exist_ok=True)
+
+    writer = CodeWriter()
+    writer.addln("import typing")
+
+    for rna_enum_path in rna_enum_dir.glob("*.rst"):
+        enum_literal_type = snake_to_camel(rna_enum_path.stem)
+        doctree = publish_doctree(rna_enum_path.read_text()).asdom()
+        enum_items = ", ".join(
+            repr(e.firstChild.nodeValue)
+            for e in doctree.getElementsByTagName("field_name")
+        )
+        if enum_items == "":
+            continue
+        writer.addln(f"type {enum_literal_type} = typing.Literal[{enum_items}]")
+
+    writer.format(config.get_style_format(), "pyi")
+
+    with bpy_typing_path.open("w", encoding="utf-8") as f:
+        writer.write(f)
 
 
 class EntryPoint:
@@ -128,6 +147,8 @@ class DataTypeRefiner(TransformerBase):
             self._entry_points = kwargs["entry_points"]
 
         self._entry_points_cache: dict[str, set] = {}
+
+        generate_rna_enum_items()
 
     def _build_entry_points(
             self, documents: list[nodes.document]) -> list[EntryPoint]:

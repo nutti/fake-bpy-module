@@ -267,24 +267,6 @@ class ClassNode(UniqueElementNode, nodes.Part):
         return node
 
 
-class TypeNode(UniqueElementNode, nodes.Part):
-    tagname = "type"
-    child_text_separator = ""
-
-    # pylint: disable=W1113
-    @classmethod
-    def create_template(
-            cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = TypeNode(rawsource, *children, **attributes)
-
-        node.append_child(NameNode())
-        node.append_child(DescriptionNode())
-        node.append_child(DataTypeListNode())
-
-        return node
-
-
 class ModuleNode(UniqueElementNode, nodes.Part):
     tagname = "module"
     child_text_separator = ""

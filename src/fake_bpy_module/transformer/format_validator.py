@@ -22,7 +22,6 @@ from fake_bpy_module.analyzer.nodes import (
     ModuleNode,
     NameNode,
     SourceFilenameNode,
-    TypeNode,
 )
 from fake_bpy_module.analyzer.roles import ClassRef, ModuleRef, RefRef
 
@@ -187,14 +186,6 @@ class FormatValidator(TransformerBase):
         self._check_node(children[1], DescriptionNode)
         self._check_node(children[2], DataTypeListNode)
 
-    def _check_type_node(self, type_node: TypeNode) -> None:
-        self._check_num_children(type_node, 3)
-
-        children = type_node.children
-        self._check_node(children[0], NameNode)
-        self._check_node(children[1], DescriptionNode)
-        self._check_node(children[2], BaseClassListNode)
-
     def _check_paragraph_node(self, paragraph_node: nodes.paragraph) -> None:
         self._check_num_children(paragraph_node, 0)
 
@@ -224,8 +215,6 @@ class FormatValidator(TransformerBase):
                 self._check_function_node(child)
             elif isinstance(child, DataNode):
                 self._check_data_node(child)
-            elif isinstance(child, TypeNode):
-                self._check_type_node(child)
             elif isinstance(child, CodeDocumentNode):
                 self._check_code_document_node(child)
             elif isinstance(child, SourceFilenameNode):
