@@ -196,4 +196,3 @@ fi
 
 # clean up
 cd "${CURRENT_DIR}"
-rm -rf "${tmp_dir}"

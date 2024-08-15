@@ -131,6 +131,9 @@ jobs:
           name: fake_bpy_modules_latest_raw_${{ needs.set_versions.outputs.file_version }}
           path: "raw_modules/fake_bpy_module*"
 
+      - name: Run Ruff flake8-pyi checks
+        run: ruff check tools/pip_package/tmp-latest --select=PYI --ignore=PYI011,PYI014,PYI018,PYI021,PYI054
+
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
 
