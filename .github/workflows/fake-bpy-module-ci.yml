@@ -135,7 +135,7 @@ jobs:
           path: "raw_modules/fake_bpy_module*"
 
       - name: Run Ruff flake8-pyi checks
-        run: ruff check tools/pip_package/tmp-${{ matrix.blender_version }} --select=PYI --ignore=PYI011,PYI014,PYI018,PYI021,PYI054
+        run: ruff check tools/pip_package/tmp-${{ matrix.blender_version }} --select=PYI --statistics
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
