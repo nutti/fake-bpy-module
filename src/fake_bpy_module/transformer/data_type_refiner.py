@@ -85,7 +85,7 @@ def get_rna_enum_items(dtype_str: str) -> str:
     rna_enum_path = (Path(config.get_input_dir())
                      / "bpy_types_enum_items"
                      / f"{rna_enum_name}.rst")
-    content = rna_enum_path.read_text()
+    content = rna_enum_path.read_text(encoding="utf-8")
     doctree = publish_doctree(content).asdom()
     return ", ".join(
         repr(e.firstChild.nodeValue)
