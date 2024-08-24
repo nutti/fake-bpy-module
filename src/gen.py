@@ -114,7 +114,7 @@ def parse_options() -> None:
         fbm.utils.LOG_LEVEL = ARG_TO_LOG_LEVEL[args.output_log_level]
 
 
-def collect_files() -> tuple[str, str]:
+def collect_files() -> tuple[list[str], list[str]]:
     mod_version = fbm.config.get_mod_version()
     input_dir = fbm.config.get_input_dir()
     target = fbm.config.get_target()
