@@ -266,9 +266,9 @@ else
     ${python_bin} ${python_args} "${SCRIPT_DIR}/gen.py" -i "${tmp_dir}/sphinx-in" -o "${output_dir}" -f "${format}" -T "${target}" -t "${target_version}" -l "${output_log_level}" -m "${mod_version}"
 fi
 
-# echo "Cleaning up ..."
-# cd "${current_dir}"
-# if [ "${env_temporary_dir}" == "not-specified" ]; then
-#     rm -rf "${tmp_dir}"
-#     rm -rf "${generated_mod_dir}"
-# fi
+echo "Cleaning up ..."
+cd "${current_dir}"
+if [ "${env_temporary_dir}" == "not-specified" ]; then
+    rm -rf "${tmp_dir}"
+    rm -rf "${generated_mod_dir}"
+fi
