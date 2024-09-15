@@ -13,8 +13,8 @@ EXTRACT_DIR="extracted_modules"
 
 # Find and unzip the correct file
 ZIP_PATH=$(find . -name "${ZIP_FILE}" -print -quit)
-if [ -z "$ZIP_PATH" ]; then
-    echo "No matching zip file found for Blender version $BLENDER_VERSION"
+if [ -z "${ZIP_PATH}" ]; then
+    echo "No matching zip file found for Blender version ${BLENDER_VERSION}"
     exit 1
 fi
 
