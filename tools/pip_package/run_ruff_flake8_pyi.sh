@@ -25,4 +25,4 @@ unzip -q "$ZIP_PATH" -d "$EXTRACT_DIR"
 ruff check "$EXTRACT_DIR" --select=PYI --ignore=PYI011,PYI014,PYI018,PYI021,PYI054
 
 # Clean up
-rm -rf "$EXTRACT_DIR"
+rm -rf "${EXTRACT_DIR}"
