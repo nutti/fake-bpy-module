@@ -18,8 +18,8 @@ if [ -z "${ZIP_PATH}" ]; then
     exit 1
 fi
 
-mkdir -p "$EXTRACT_DIR"
-unzip -q "$ZIP_PATH" -d "$EXTRACT_DIR"
+mkdir -p "${EXTRACT_DIR}"
+unzip -q "${ZIP_PATH}" -d "{$EXTRACT_DIR}"
 
 # Run Ruff flake8-pyi checks
 ruff check "$EXTRACT_DIR" --select=PYI --ignore=PYI011,PYI014,PYI018,PYI021,PYI054
