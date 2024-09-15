@@ -143,14 +143,14 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                set[typing.Literal['ONE', 'TWO']]
+                set[bpy.typing.Example]
     <data>
         <name>
             data_enum_in_rna
         <description>
         <data-type-list>
             <data-type option="never none">
-                typing.Literal['ONE', 'TWO']
+                bpy.typing.Example
     <data>
         <name>
             data_enumerated_constant
@@ -614,3 +614,6 @@
                 <class-ref>
                     module_1.ClassA
                 ]
+    <dependency-list>
+        <dependency>
+            bpy.typing

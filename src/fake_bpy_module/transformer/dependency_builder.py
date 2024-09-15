@@ -181,12 +181,14 @@ class DependencyBuilder(TransformerBase):
                     dependencies, package_structure, class_ref.to_string(),
                     f"{module_name}.{data_name}")
 
-        dep_list_node = DependencyListNode()
+        dep_list_node = get_first_child(document, DependencyListNode)
+        if dep_list_node is None:
+            dep_list_node = DependencyListNode()
+            append_child(document, dep_list_node)
         for dep in dependencies:
             assert dep.mod_name[0] != "."
             dep_node = DependencyNode(text=dep.mod_name)
             dep_list_node.append_child(dep_node)
-        append_child(document, dep_list_node)
 
     @classmethod
     def name(cls: type[Self]) -> str:

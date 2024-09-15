@@ -13,8 +13,8 @@ You can choose the method to generate modules.
 
 ### Python Version
 
-The generating script can be run on Python >= 3.11.
-Check your Python version is >= 3.11.
+The generating script can be run on Python >= 3.12.
+Check your Python version is >= 3.12.
 
 ### Install requirement packages
 
@@ -93,7 +93,7 @@ environment variable.
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-PYTHON_BIN=/path/to/python3.11 bash gen_module.sh <source-dir> <blender-dir> <target> <branch/tag/commit> <target-version> <output-dir> [<mod-version>]
+PYTHON_BIN=/path/to/python3.12 bash gen_module.sh <source-dir> <blender-dir> <target> <branch/tag/commit> <target-version> <output-dir> [<mod-version>]
 ```
 <!-- markdownlint-enable MD013 -->
 
