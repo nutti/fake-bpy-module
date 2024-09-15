@@ -6,7 +6,7 @@
 
    .. method:: get(key, default=None)
 
-      :type default: GenericType2
+      :type default: _GenericType2
       :mod-option arg default: skip-refine
 
 .. class:: BMVert

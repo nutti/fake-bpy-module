@@ -2,8 +2,8 @@ import typing
 import collections.abc
 import typing_extensions
 
-GenericType1 = typing.TypeVar("GenericType1")
-GenericType2 = typing.TypeVar("GenericType2")
+_GenericType1 = typing.TypeVar("_GenericType1")
+_GenericType2 = typing.TypeVar("_GenericType2")
 
 class Class123:
     """Class123 description"""
@@ -20,4 +20,3 @@ class Class123:
         :return: method_1 return description
         :rtype: int
         """
-        ...

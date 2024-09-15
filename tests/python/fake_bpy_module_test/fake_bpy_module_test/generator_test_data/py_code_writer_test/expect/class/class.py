@@ -2,8 +2,8 @@ import typing
 import collections.abc
 import typing_extensions
 
-GenericType1 = typing.TypeVar("GenericType1")
-GenericType2 = typing.TypeVar("GenericType2")
+_GenericType1 = typing.TypeVar("_GenericType1")
+_GenericType2 = typing.TypeVar("_GenericType2")
 
 
 class ClassA:
@@ -31,7 +31,6 @@ class ClassA:
         :return: method_1 return description
         :rtype: str
         """
-        pass
 
     @classmethod
     def classmethod_1(cls, arg_1: float, arg_2: int = 123) -> str:
@@ -44,7 +43,6 @@ class ClassA:
         :return: classmethod_1 return description
         :rtype: str
         """
-        pass
 
     @staticmethod
     def staticmethod_1(arg_1: float, arg_2: tuple = (0, 0)) -> str:
@@ -57,7 +55,6 @@ class ClassA:
         :return: staticmethod_1 return description
         :rtype: str
         """
-        pass
 
     @typing.overload
     def function_1(self, arg_1: float, arg_2: int) -> str | None:
@@ -70,4 +67,3 @@ class ClassA:
         :return: function_1 return description
         :rtype: str | None
         """
-        pass

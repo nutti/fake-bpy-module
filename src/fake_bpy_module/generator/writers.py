@@ -105,7 +105,11 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
 
 
 def make_union(dtype_nodes: list[DataTypeNode]) -> str:
-    return ' | '.join(sorted({n.to_string() for n in set(dtype_nodes)}))
+    types = {n.to_string() for n in set(dtype_nodes)}
+    # Only keep float as according to flake8-pyi PIY041
+    if "int" in types and "float" in types:
+        types.remove("int")
+    return ' | '.join(sorted(types))
 
 
 class BaseWriter(metaclass=abc.ABCMeta):
@@ -259,8 +263,8 @@ class PyCodeWriterBase(BaseWriter):
                                 break
                         wt.addln(f":rtype: {dtype}")
                 wt.addln("'''")
-                wt.new_line(1)
-            wt.addln(self.ellipsis_strings["function"])
+            else:
+                wt.addln(self.ellipsis_strings["function"])
             wt.new_line(2)
 
     # pylint: disable=R0914,R0915
@@ -484,11 +488,13 @@ class PyCodeWriterBase(BaseWriter):
                                         break
                                 wt.addln(f":rtype: {dtype}")
                         wt.addln("'''")
-
-                    wt.addln(self.ellipsis_strings["method"])
+                    else:
+                        wt.addln(self.ellipsis_strings["method"])
                     wt.new_line()
 
-            if len(attr_nodes) == 0 and len(method_nodes) == 0:
+            if (len(attr_nodes) == 0
+                    and len(method_nodes) == 0
+                    and desc_node.empty()):
                 wt.addln(self.ellipsis_strings["class"])
                 wt.new_line(2)
 
@@ -572,8 +578,8 @@ class PyCodeWriterBase(BaseWriter):
 
             # for generic type
             wt.new_line()
-            wt.addln('GenericType1 = typing.TypeVar("GenericType1")')
-            wt.addln('GenericType2 = typing.TypeVar("GenericType2")')
+            wt.addln('_GenericType1 = typing.TypeVar("_GenericType1")')
+            wt.addln('_GenericType2 = typing.TypeVar("_GenericType2")')
 
             for node in sorted_data:
                 if isinstance(node, FunctionNode):
@@ -789,8 +795,8 @@ class JsonWriter(BaseWriter):
         json_data.append({
             "type": "code",
             "contents": [
-                'GenericType1 = typing.TypeVar("GenericType1")',
-                'GenericType2 = typing.TypeVar("GenericType2")',
+                '_GenericType1 = typing.TypeVar("_GenericType1")',
+                '_GenericType2 = typing.TypeVar("_GenericType2")',
             ]
         })
 
