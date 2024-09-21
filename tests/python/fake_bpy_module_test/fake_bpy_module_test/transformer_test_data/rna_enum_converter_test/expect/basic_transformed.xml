@@ -1,0 +1,26 @@
+<document ids="basic rna-enum-basic" names="basic rna_enum_basic" source="<string>" title="Basic">
+    <source-filename>
+        basic.rst
+    <module>
+        <name>
+            bpy.typing
+        <description>
+    <enum>
+        <name>
+            Basic
+        <description>
+        <enum-item-list>
+            <enum-item>
+                <name>
+                    BASIC_ONE
+                <description>
+                    One.
+                    
+                    Description.
+            <enum-item>
+                <name>
+                    BASIC_TWO
+                <description>
+                    Two.
+                    
+                    Description.

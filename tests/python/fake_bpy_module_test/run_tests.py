@@ -53,6 +53,7 @@ def main() -> None:
         fake_bpy_module_test.transformer_test.ModApplierTest,
         fake_bpy_module_test.transformer_test.ModuleLevelAttributeFixtureTest,
         fake_bpy_module_test.transformer_test.ModuleNameFixtureTest,
+        fake_bpy_module_test.transformer_test.RnaEnumConverterTest,
         fake_bpy_module_test.transformer_test.RstSpecificNodeCleanerTest,
         fake_bpy_module_test.transformer_test.SameModuleMergerTest,
         fake_bpy_module_test.transformer_test.SelfRewriterTest,

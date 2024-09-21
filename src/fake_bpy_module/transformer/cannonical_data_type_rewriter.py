@@ -9,7 +9,7 @@ from fake_bpy_module.analyzer.nodes import (
     ModuleNode,
     NameNode,
 )
-from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.analyzer.roles import ClassRef, EnumRef
 from fake_bpy_module.utils import find_children, get_first_child
 
 from .transformer_base import TransformerBase
@@ -102,11 +102,18 @@ class CannonicalDataTypeRewriter(TransformerBase):
         return final_data_type
 
     def _rewrite(self, document: nodes.document) -> None:
-        def rewrite(class_ref: ClassRef, module_name: str) -> ClassRef:
+        def rewrite_class_ref(
+                class_ref: ClassRef, module_name: str) -> ClassRef:
             class_name = class_ref.to_string()
             new_class_name = self._get_generation_data_type(
                 class_name, module_name)
             return ClassRef(text=new_class_name)
+
+        def rewrite_enum_ref(enum_ref: EnumRef, module_name: str) -> EnumRef:
+            enum_name = enum_ref.to_string()
+            new_enum_name = self._get_generation_data_type(
+                enum_name, module_name)
+            return EnumRef(text=new_enum_name)
 
         def replace(from_node: nodes.Node, to_node: nodes.Node) -> None:
             parent = from_node.parent
@@ -123,22 +130,34 @@ class CannonicalDataTypeRewriter(TransformerBase):
         for class_node in class_nodes:
             class_refs = class_node.traverse(ClassRef)
             for class_ref in class_refs:
-                new_class_ref = rewrite(class_ref, module_name)
+                new_class_ref = rewrite_class_ref(class_ref, module_name)
                 replace(class_ref, new_class_ref)
+            enum_refs = class_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                new_enum_ref = rewrite_enum_ref(enum_ref, module_name)
+                replace(enum_ref, new_enum_ref)
 
         func_nodes = find_children(document, FunctionNode)
         for func_node in func_nodes:
             class_refs = func_node.traverse(ClassRef)
             for class_ref in class_refs:
-                new_class_ref = rewrite(class_ref, module_name)
+                new_class_ref = rewrite_class_ref(class_ref, module_name)
                 replace(class_ref, new_class_ref)
+            enum_refs = func_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                new_enum_ref = rewrite_enum_ref(enum_ref, module_name)
+                replace(enum_ref, new_enum_ref)
 
         data_nodes = find_children(document, DataNode)
         for data_node in data_nodes:
             class_refs = data_node.traverse(ClassRef)
             for class_ref in class_refs:
-                new_class_ref = rewrite(class_ref, module_name)
+                new_class_ref = rewrite_class_ref(class_ref, module_name)
                 replace(class_ref, new_class_ref)
+            enum_refs = data_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                new_enum_ref = rewrite_enum_ref(enum_ref, module_name)
+                replace(enum_ref, new_enum_ref)
 
     @classmethod
     def name(cls: type[Self]) -> str:

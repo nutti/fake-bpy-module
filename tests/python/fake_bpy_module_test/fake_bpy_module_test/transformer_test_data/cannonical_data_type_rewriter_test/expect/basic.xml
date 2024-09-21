@@ -13,6 +13,14 @@
             <data-type>
                 <class-ref>
                     module_1.submodule_2.RefinedClassB
+    <data>
+        <name>
+            data_2
+        <description>
+        <data-type-list>
+            <data-type>
+                <enum-ref>
+                    module_1.submodule_2.RefinedEnumB
     <function function_type="function">
         <name>
             function_1
@@ -33,6 +41,26 @@
                 <data-type>
                     <class-ref>
                         module_1.submodule_2.RefinedClassC
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        <enum-ref>
+                            module_1.submodule_1.RefinedEnumA
+        <return>
+            <description>
+            <data-type-list>
+                <data-type>
+                    <enum-ref>
+                        module_1.submodule_2.RefinedEnumC
     <class>
         <name>
             ClassA
@@ -73,3 +101,43 @@
                         <data-type>
                             <class-ref>
                                 module_2.submodule_3.RefinedClassG
+    <class>
+        <name>
+            ClassB
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            module_1.submodule_2.RefinedClassD
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                <data-type-list>
+                    <data-type>
+                        <enum-ref>
+                            module_3.RefinedEnumE
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                <enum-ref>
+                                    module_3.submodule_4.RefinedEnumF
+                <return>
+                    <description>
+                    <data-type-list>
+                        <data-type>
+                            <enum-ref>
+                                module_3.submodule_4.RefinedEnumG

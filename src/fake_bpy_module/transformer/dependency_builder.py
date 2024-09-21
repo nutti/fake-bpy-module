@@ -11,7 +11,7 @@ from fake_bpy_module.analyzer.nodes import (
     ModuleNode,
     NameNode,
 )
-from fake_bpy_module.analyzer.roles import ClassRef
+from fake_bpy_module.analyzer.roles import ClassRef, EnumRef
 from fake_bpy_module.utils import append_child, find_children, get_first_child
 
 from .transformer_base import TransformerBase
@@ -162,6 +162,11 @@ class DependencyBuilder(TransformerBase):
                 self._add_dependency(
                     dependencies, package_structure, class_ref.to_string(),
                     f"{module_name}.{class_name}")
+            enum_refs = class_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                self._add_dependency(
+                    dependencies, package_structure, enum_ref.to_string(),
+                    f"{module_name}.{class_name}")
 
         func_nodes = find_children(document, FunctionNode)
         for func_node in func_nodes:
@@ -171,6 +176,11 @@ class DependencyBuilder(TransformerBase):
                 self._add_dependency(
                     dependencies, package_structure, class_ref.to_string(),
                     f"{module_name}.{func_name}")
+            enum_refs = func_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                self._add_dependency(
+                    dependencies, package_structure, enum_ref.to_string(),
+                    f"{module_name}.{func_name}")
 
         data_nodes = find_children(document, DataNode)
         for data_node in data_nodes:
@@ -179,6 +189,11 @@ class DependencyBuilder(TransformerBase):
             for class_ref in class_refs:
                 self._add_dependency(
                     dependencies, package_structure, class_ref.to_string(),
+                    f"{module_name}.{data_name}")
+            enum_refs = data_node.traverse(EnumRef)
+            for enum_ref in enum_refs:
+                self._add_dependency(
+                    dependencies, package_structure, enum_ref.to_string(),
                     f"{module_name}.{data_name}")
 
         dep_list_node = get_first_child(document, DependencyListNode)

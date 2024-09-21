@@ -1,0 +1,23 @@
+<document ids="basic rna-enum-basic" names="basic rna_enum_basic" source="<string>" title="Basic">
+    <source-filename>
+        basic.rst
+    <title>
+        Basic
+    <docinfo>
+        <field classes="basic-one">
+            <field_name>
+                BASIC_ONE
+            <field_body>
+                <paragraph>
+                    One.
+                <paragraph>
+                    Description.
+        <field classes="basic-two">
+            <field_name>
+                BASIC_TWO
+            <field_body>
+                <paragraph>
+                    Two.
+                <paragraph>
+                    Description.
+    <target refid="rna-enum-basic">

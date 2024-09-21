@@ -1,0 +1,18 @@
+<document source="<string>">
+    <source-filename>
+        single_enum.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <enum>
+        <name>
+            EnumA
+        <description>
+            EnumA description
+        <enum-item-list>
+            <enum-item>
+                <name>
+                    ENUM_ITEM_1
+                <description>
+                    ENUM_ITEM_1 description

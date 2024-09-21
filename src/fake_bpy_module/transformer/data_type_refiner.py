@@ -1,11 +1,8 @@
 import re
-from pathlib import Path
 from typing import Any, Self
 
 from docutils import nodes
-from docutils.core import publish_doctree
 
-from fake_bpy_module import config
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
@@ -18,9 +15,8 @@ from fake_bpy_module.analyzer.nodes import (
     DataTypeListNode,
     DataTypeNode,
     DefaultValueNode,
-    DependencyListNode,
-    DependencyNode,
     DescriptionNode,
+    EnumNode,
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
@@ -28,8 +24,7 @@ from fake_bpy_module.analyzer.nodes import (
     NameNode,
     make_data_type_node,
 )
-from fake_bpy_module.analyzer.roles import ClassRef
-from fake_bpy_module.generator.code_writer import CodeWriter
+from fake_bpy_module.analyzer.roles import ClassRef, EnumRef
 from fake_bpy_module.utils import (
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_WARN,
@@ -88,44 +83,9 @@ def snake_to_camel(name: str) -> str:
     return "".join(w.title() for w in name.split("_"))
 
 
-def get_rna_enum_items(document: nodes.document, dtype_str: str) -> str:
+def get_rna_enum_name(dtype_str: str) -> str:
     rna_enum_name = dtype_str.split("`")[1][len("rna_enum_"):]
-
-    if get_first_child(document, DependencyListNode) is None:
-        dep_list_node = DependencyListNode()
-        dep_node = DependencyNode(text="bpy.typing")
-        dep_list_node.append_child(dep_node)
-        append_child(document, dep_list_node)
-
-    return "bpy.typing." + snake_to_camel(rna_enum_name)
-
-
-def generate_rna_enum_items() -> str:
-    rna_enum_dir = Path(config.get_input_dir()) / "bpy_types_enum_items"
-    bpy_typing_path = (Path(config.get_output_dir())
-                       / "bpy"
-                       / "typing"
-                       / "__init__.pyi")
-    bpy_typing_path.parent.mkdir(parents=True, exist_ok=True)
-
-    writer = CodeWriter()
-    writer.addln("import typing")
-
-    for rna_enum_path in rna_enum_dir.glob("*.rst"):
-        enum_literal_type = snake_to_camel(rna_enum_path.stem)
-        doctree = publish_doctree(rna_enum_path.read_text()).asdom()
-        enum_items = ", ".join(
-            repr(e.firstChild.nodeValue)
-            for e in doctree.getElementsByTagName("field_name")
-        )
-        if enum_items == "":
-            continue
-        writer.addln(f"type {enum_literal_type} = typing.Literal[{enum_items}]")
-
-    writer.format(config.get_style_format(), "pyi")
-
-    with bpy_typing_path.open("w", encoding="utf-8") as f:
-        writer.write(f)
+    return snake_to_camel(rna_enum_name)
 
 
 class EntryPoint:
@@ -147,8 +107,6 @@ class DataTypeRefiner(TransformerBase):
             self._entry_points = kwargs["entry_points"]
 
         self._entry_points_cache: dict[str, set] = {}
-
-        generate_rna_enum_items()
 
     def _build_entry_points(
             self, documents: list[nodes.document]) -> list[EntryPoint]:
@@ -179,6 +137,12 @@ class DataTypeRefiner(TransformerBase):
                 entry = EntryPoint(module_name, data_name, "constant")
                 entry_points.append(entry)
 
+            enum_nodes = find_children(document, EnumNode)
+            for enum_node in enum_nodes:
+                enum_name = enum_node.element(NameNode).astext()
+                entry = EntryPoint(module_name, enum_name, "enum")
+                entry_points.append(entry)
+
         return entry_points
 
     def _parse_custom_data_type(
@@ -200,8 +164,7 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=R0911,R0912,R0913
     def _get_refined_data_type_fast(  # noqa: C901, PLR0911, PLR0912
-        self, document: nodes.document, dtype_str: str,
-        uniq_full_names: set[str],
+        self, dtype_str: str, uniq_full_names: set[str],
         uniq_module_names: set[str], module_name: str,
         variable_kind: str,
         additional_info: dict[str, Any] | None = None
@@ -288,13 +251,21 @@ class DataTypeRefiner(TransformerBase):
 
         # [Ex] enum set in `rna_enum_operator_return_items`
         if REGEX_MATCH_DATA_TYPE_SET_IN_RNA.match(dtype_str):
-            enum_literal_type = get_rna_enum_items(document, dtype_str)
-            return [make_data_type_node(f"set[{enum_literal_type}]")]
+            enum_literal_type = get_rna_enum_name(dtype_str)
+            dtype_node = DataTypeNode()
+            append_child(dtype_node, nodes.Text("set["))
+            append_child(dtype_node,
+                         EnumRef(text=f"bpy.typing.{enum_literal_type}"))
+            append_child(dtype_node, nodes.Text("]"))
+            return [dtype_node]
 
         # [Ex] enum in :ref:`rna_enum_object_modifier_type_items`, (optional)
         if dtype_str.startswith("enum in `rna"):
-            enum_literal_type = get_rna_enum_items(document, dtype_str)
-            return [make_data_type_node(enum_literal_type)]
+            enum_literal_type = get_rna_enum_name(dtype_str)
+            dtype_node = DataTypeNode()
+            append_child(dtype_node,
+                         EnumRef(text=f"bpy.typing.{enum_literal_type}"))
+            return [dtype_node]
 
         # [Ex] Enumerated constant
         if dtype_str == "Enumerated constant":
@@ -666,7 +637,7 @@ class DataTypeRefiner(TransformerBase):
 
     # pylint: disable=W0102
     def _get_refined_data_type(
-        self, document: nodes.document, dtype_str: str, module_name: str,
+        self, dtype_str: str, module_name: str,
         variable_kind: str,
         is_pointer_prop: bool = False,
         description_str: str | None = None,
@@ -683,7 +654,7 @@ class DataTypeRefiner(TransformerBase):
             description_str=description_str, additional_info=additional_info)
 
         result = self._get_refined_data_type_internal(
-            document, dtype_str_changed, module_name, variable_kind,
+            dtype_str_changed, module_name, variable_kind,
             additional_info=additional_info)
 
         # Add options.
@@ -710,7 +681,7 @@ class DataTypeRefiner(TransformerBase):
         return result
 
     def _get_refined_data_type_internal(
-        self, document: nodes.document, dtype_str: str, module_name: str,
+        self, dtype_str: str, module_name: str,
         variable_kind: str, additional_info: dict[str, Any] | None = None
     ) -> list[DataTypeNode]:
 
@@ -729,7 +700,7 @@ class DataTypeRefiner(TransformerBase):
             dtypes: list[DataTypeNode] = []
             for s in sp:
                 d = self._get_refined_data_type_fast(
-                    document, s.strip(), uniq_full_names, uniq_module_names,
+                    s.strip(), uniq_full_names, uniq_module_names,
                     module_name, variable_kind, additional_info)
                 if d is not None:
                     dtypes.extend(d)
@@ -738,7 +709,7 @@ class DataTypeRefiner(TransformerBase):
                     f"tuple[{', '.join([d.astext() for d in dtypes])}]")]
 
         result = self._get_refined_data_type_fast(
-            document, dtype_str, uniq_full_names, uniq_module_names,
+            dtype_str, uniq_full_names, uniq_module_names,
             module_name, variable_kind, additional_info)
         if result is not None:
             return result
@@ -755,7 +726,7 @@ class DataTypeRefiner(TransformerBase):
             for sp in splist:
                 s = sp.strip()
                 result = self._get_refined_data_type_fast(
-                    document, s, uniq_full_names, uniq_module_names,
+                    s, uniq_full_names, uniq_module_names,
                     module_name, variable_kind, additional_info)
                 if result is not None:
                     dtypes.extend(result)
@@ -823,7 +794,6 @@ class DataTypeRefiner(TransformerBase):
                 if "option" in dtype_node.attributes:
                     options = dtype_node.attributes["option"].split(",")
                 new_dtype_nodes.extend(self._get_refined_data_type(
-                    document,
                     dtype_node.astext(), module_name, variable_kind,
                     is_pointer_prop=is_pointer_prop,
                     description_str=description_str,

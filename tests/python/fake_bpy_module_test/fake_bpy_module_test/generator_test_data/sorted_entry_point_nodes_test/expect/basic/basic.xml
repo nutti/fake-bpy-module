@@ -45,3 +45,13 @@
         <return>
             <description>
             <data-type-list>
+    <enum>
+        <name>
+            EnumA
+        <description>
+        <enum-item-list>
+    <enum>
+        <name>
+            EnumB
+        <description>
+        <enum-item-list>

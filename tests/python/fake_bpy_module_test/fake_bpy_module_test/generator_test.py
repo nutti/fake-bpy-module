@@ -449,6 +449,41 @@ class WriterTestBase(common.FakeBpyModuleTestBase):
             self.log(actual_contents)
             self.assertEqual(expect_contents, actual_contents)
 
+    def test_enum(self) -> None:
+        rst_files = ["enum.rst"]
+        expect_analyzed_files = ["enum.xml"]
+        expect_generated_files = [f"enum.{self.file_extension}"]
+        rst_files = [f"{self.data_dir}/input/enum/{f}" for f in rst_files]
+        expect_analyzed_files = [f"{self.data_dir}/expect/enum/{f}"
+                                 for f in expect_analyzed_files]
+        expect_generated_files = [f"{self.data_dir}/expect/enum/{f}"
+                                  for f in expect_generated_files]
+
+        # Analyze
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_analyzed_files))
+        for doc, expect in zip(documents, expect_analyzed_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        # Generate
+        writer = self.writer_class()
+        for doc, expect_file_path in zip(documents, expect_generated_files,
+                                         strict=True):
+            writer.write(self.output_file_path, doc)
+
+            actual_file_path = f"{self.output_file_path}.{writer.file_format}"
+            with Path(actual_file_path).open("r", encoding="utf-8") as f:
+                expect_contents = f.read()
+            with Path(expect_file_path).open("r", encoding="utf-8") as f:
+                actual_contents = f.read()
+            self.log(f"============= Expect: {expect_file_path} =============")
+            self.log(expect_contents)
+            self.log(f"============= Actual: {actual_file_path} =============")
+            self.log(actual_contents)
+            self.assertEqual(expect_contents, actual_contents)
+
     def test_dependencies(self) -> None:
         rst_files = ["dependencies.rst"]
         expect_analyzed_files = ["dependencies.xml"]

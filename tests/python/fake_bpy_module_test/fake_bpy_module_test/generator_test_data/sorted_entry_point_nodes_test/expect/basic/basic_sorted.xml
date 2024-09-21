@@ -1,4 +1,14 @@
 <document source="<string>">
+    <enum>
+        <name>
+            EnumA
+        <description>
+        <enum-item-list>
+    <enum>
+        <name>
+            EnumB
+        <description>
+        <enum-item-list>
     <class>
         <name>
             ClassA

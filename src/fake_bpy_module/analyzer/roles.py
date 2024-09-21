@@ -36,6 +36,10 @@ class DataRef(PythonAPIRef):
     tagname = "data-ref"
 
 
+class EnumRef(PythonAPIRef):
+    tagname = "enum-ref"
+
+
 class ConstRef(PythonAPIRef):
     tagname = "const-ref"
 
@@ -61,6 +65,7 @@ def register_roles() -> None:
     roles.register_local_role("func", roles.GenericRole("func", FunctionRef))
     roles.register_local_role("mod", roles.GenericRole("mod", ModuleRef))
     roles.register_local_role("data", roles.GenericRole("data", DataRef))
+    roles.register_local_role("enum", roles.GenericRole("enum", EnumRef))
     roles.register_local_role("const", roles.GenericRole("const", ConstRef))
     roles.register_local_role("ref", roles.GenericRole("ref", RefRef))
 

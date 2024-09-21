@@ -147,6 +147,32 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
+    def test_single_enum(self) -> None:
+        rst_files = ["single_enum.rst"]
+        expect_files = ["single_enum.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+    def test_multiple_enums(self) -> None:
+        rst_files = ["multiple_enums.rst"]
+        expect_files = ["multiple_enums.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
     def test_noisy_1(self) -> None:
         rst_files = ["noisy_1.rst"]
         expect_files = ["noisy_1.xml"]

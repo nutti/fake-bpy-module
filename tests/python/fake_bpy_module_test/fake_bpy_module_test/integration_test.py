@@ -87,6 +87,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             f"{self.data_dir}/input/multiple/module_1.rst",
             f"{self.data_dir}/input/multiple/module_1.submodule_1.rst",
             f"{self.data_dir}/input/multiple/module_2.rst",
+            f"{self.data_dir}/input/multiple/rna_enum_enum1.rst",
         ]
 
         ext_patterns = ["py", "pyi"]

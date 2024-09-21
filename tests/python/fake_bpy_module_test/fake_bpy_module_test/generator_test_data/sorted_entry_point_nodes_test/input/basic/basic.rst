@@ -11,3 +11,7 @@
 .. function:: function_2()
 
 .. function:: function_1()
+
+.. enum:: EnumA
+
+.. enum:: EnumB

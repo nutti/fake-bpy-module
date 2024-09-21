@@ -1,0 +1,23 @@
+<document source="<string>">
+    <source-filename>
+        multiple_enums.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <enum>
+        <name>
+            EnumA
+        <description>
+            EnumA description
+        <enum-item-list>
+    <enum>
+        <name>
+            EnumB
+        <description>
+        <enum-item-list>
+            <enum-item>
+                <name>
+                    ENUM_ITEM_1
+                <description>
+                    ENUM_ITEM_1 description

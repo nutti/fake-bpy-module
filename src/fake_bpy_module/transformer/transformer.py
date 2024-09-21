@@ -14,6 +14,7 @@ from .format_validator import FormatValidator
 from .mod_applier import ModApplier
 from .module_level_attribute_fixture import ModuleLevelAttributeFixture
 from .module_name_fixture import ModuleNameFixture
+from .rna_enum_converter import RnaEnumConverter
 from .rst_specific_node_cleaner import RstSpecificNodeCleaner
 from .same_module_merger import SameModuleMerger
 from .self_rewriter import SelfRewriter
@@ -25,6 +26,7 @@ def transform(documents: list[nodes.document],
               mod_files: list[str]) -> list[nodes.document]:
     t = Transformer([
         # Must before base_class_fixture
+        "rna_enum_converter",
         "module_name_fixture",
         "first_title_remover",
         "rst_specific_node_cleaner",
@@ -88,6 +90,9 @@ class Transformer:
             },
             BpyModuleTweaker.name(): {
                 "class": BpyModuleTweaker,
+            },
+            RnaEnumConverter.name(): {
+                "class": RnaEnumConverter,
             },
             ModApplier.name(): {
                 "class": ModApplier,

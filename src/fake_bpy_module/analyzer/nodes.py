@@ -5,7 +5,7 @@ from docutils import nodes
 
 from fake_bpy_module.utils import append_child
 
-from .roles import ClassRef
+from .roles import ClassRef, EnumRef
 
 T = TypeVar("T", bound=nodes.Node)
 
@@ -104,7 +104,7 @@ class DataTypeNode(TextNode, nodes.Part):
         for c in self.children:
             if isinstance(c, nodes.Text):
                 s += c.astext()
-            elif isinstance(c, ClassRef):
+            elif isinstance(c, ClassRef | EnumRef):
                 s += c.to_string()
             else:
                 raise NotImplementedError(f"{type(c)} is not supported")
@@ -287,6 +287,46 @@ class ModuleNode(UniqueElementNode, nodes.Part):
 class CodeNode(TextNode, nodes.Part):
     tagname = "code"
     child_text_separator = ""
+
+
+class EnumItemNode(UniqueElementNode, nodes.Part):
+    tagname = "enum-item"
+    child_text_separator = ""
+
+    # pylint: disable=W1113
+    @classmethod
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
+        node = EnumItemNode(rawsource, *children, **attributes)
+
+        node.append_child(NameNode())
+        node.append_child(DescriptionNode())
+
+        return node
+
+
+class EnumItemListNode(ListNode):
+    tagname = "enum-item-list"
+    child_text_separator = ""
+
+
+class EnumNode(UniqueElementNode, nodes.Part):
+    tagname = "enum"
+    child_text_separator = ""
+
+    # pylint: disable=W1113
+    @classmethod
+    def create_template(
+            cls: type[Self], rawsource: str = "",
+            *children: nodes.Node, **attributes: dict) -> type[Self]:
+        node = EnumNode(rawsource, *children, **attributes)
+
+        node.append_child(NameNode())
+        node.append_child(DescriptionNode())
+        node.append_child(EnumItemListNode())
+
+        return node
 
 
 class ModTypeNode(TextNode, nodes.Part):

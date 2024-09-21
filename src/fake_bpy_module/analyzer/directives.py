@@ -26,6 +26,9 @@ from .nodes import (
     DataTypeNode,
     DefaultValueNode,
     DescriptionNode,
+    EnumItemListNode,
+    EnumItemNode,
+    EnumNode,
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
@@ -538,6 +541,43 @@ class FunctionDirective(rst.Directive):
         return func_nodes
 
 
+# This directive is only used for test.
+class EnumDirective(rst.Directive):
+    required_arguments = 1
+    final_argument_whitespace = True
+    has_content = True
+
+    def run(self) -> list[DataNode]:
+        paragraph: nodes.paragraph = nodes.paragraph()
+        self.state.nested_parse(self.content, self.content_offset, paragraph)
+
+        node = EnumNode.create_template()
+
+        # Parse enum name.
+        enum_name = self.arguments[0]
+        node.element(NameNode).add_text(enum_name)
+
+        # Get all descriptions.
+        desc_str = ""
+        for child in paragraph.children:
+            if isinstance(child, nodes.paragraph):
+                desc_str += child.astext()
+        node.element(DescriptionNode).add_text(desc_str)
+
+        # Get all field values.
+        enum_item_list_node = node.element(EnumItemListNode)
+        field_lists: nodes.field_list = paragraph.findall(nodes.field_list)
+        for field_list in field_lists:
+            for field in field_list:
+                fname_node, fbody_node = field.children
+                enum_item_node = EnumItemNode.create_template()
+                enum_item_node.element(NameNode).add_text(fname_node.astext())
+                enum_item_node.element(DescriptionNode).add_text(fbody_node.astext())
+                append_child(enum_item_list_node, enum_item_node)
+
+        return [node]
+
+
 class DocumentDirective(rst.Directive):
     optional_arguments = 1
     final_argument_whitespace = True
@@ -634,6 +674,7 @@ def register_directives() -> None:
     rst.directives.register_directive("property", AttributeDirective)
     rst.directives.register_directive("data", DataDirective)
     rst.directives.register_directive("DATA", DataDirective)
+    rst.directives.register_directive("enum", EnumDirective)
 
     rst.directives.register_directive(
         "literalinclude", LiteralIncludeDirective)

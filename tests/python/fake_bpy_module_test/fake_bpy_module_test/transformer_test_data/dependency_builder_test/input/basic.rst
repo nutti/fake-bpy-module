@@ -24,3 +24,17 @@
 
       :type arg_1: :class:`module_2.submodule_3.RefinedClassF`
       :rtype: :class:`module_2.submodule_3.RefinedClassG`
+
+.. class:: ClassB
+
+   .. base-class:: `module_1.submodule_2.RefinedClassD`
+
+   .. attribute:: attr_1
+
+      :type: :enum:`module_3.RefinedEnumE`
+
+   .. method:: method_1(arg_1)
+
+      :type arg_1: :enum:`module_3.submodule_4.RefinedEnumF`
+      :rtype: :enum:`module_3.submodule_4.RefinedEnumG`
+

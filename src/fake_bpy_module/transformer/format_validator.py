@@ -16,6 +16,9 @@ from fake_bpy_module.analyzer.nodes import (
     DataTypeNode,
     DefaultValueNode,
     DescriptionNode,
+    EnumItemListNode,
+    EnumItemNode,
+    EnumNode,
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
@@ -52,6 +55,9 @@ class FormatValidator(TransformerBase):
             DataTypeListNode: self._check_data_type_list_node,
             DataTypeNode: self._check_data_type_node,
             DefaultValueNode: self._check_default_value_node,
+            EnumNode: self._check_enum_node,
+            EnumItemListNode: self._check_enum_item_list_node,
+            EnumItemNode: self._check_enum_item_node,
             ModuleRef: self._check_module_ref_node,
             ClassRef: self._check_class_ref_node,
             RefRef: self._check_ref_ref_node,
@@ -186,6 +192,26 @@ class FormatValidator(TransformerBase):
         self._check_node(children[1], DescriptionNode)
         self._check_node(children[2], DataTypeListNode)
 
+    def _check_enum_node(self, enum_node: EnumNode) -> None:
+        self._check_num_children(enum_node, 3)
+
+        children = enum_node.children
+        self._check_node(children[0], NameNode)
+        self._check_node(children[1], DescriptionNode)
+        self._check_node(children[2], EnumItemListNode)
+
+    def _check_enum_item_list_node(
+            self, enum_item_list_node: EnumItemListNode) -> None:
+        for enum_item_node in enum_item_list_node.children:
+            self._check_node(enum_item_node, EnumItemNode)
+
+    def _check_enum_item_node(self, enum_item_node: EnumItemNode) -> None:
+        self._check_num_children(enum_item_node, 2)
+
+        children = enum_item_node.children
+        self._check_node(children[0], NameNode)
+        self._check_node(children[1], DescriptionNode)
+
     def _check_paragraph_node(self, paragraph_node: nodes.paragraph) -> None:
         self._check_num_children(paragraph_node, 0)
 
@@ -215,6 +241,8 @@ class FormatValidator(TransformerBase):
                 self._check_function_node(child)
             elif isinstance(child, DataNode):
                 self._check_data_node(child)
+            elif isinstance(child, EnumNode):
+                self._check_enum_node(child)
             elif isinstance(child, CodeDocumentNode):
                 self._check_code_document_node(child)
             elif isinstance(child, SourceFilenameNode):

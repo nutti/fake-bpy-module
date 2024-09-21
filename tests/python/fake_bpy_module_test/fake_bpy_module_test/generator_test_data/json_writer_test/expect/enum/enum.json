@@ -1,0 +1,42 @@
+[
+    {
+        "type": "code-document",
+        "contents": ""
+    },
+    {
+        "type": "external-depended-modules",
+        "contents": [
+            "typing",
+            "collections.abc",
+            "typing_extensions"
+        ]
+    },
+    {
+        "type": "internal-depended-modules",
+        "contents": []
+    },
+    {
+        "type": "child-modules",
+        "contents": []
+    },
+    {
+        "type": "code",
+        "contents": [
+            "_GenericType1 = typing.TypeVar(\"_GenericType1\")",
+            "_GenericType2 = typing.TypeVar(\"_GenericType2\")"
+        ]
+    },
+    {
+        "type": "enum",
+        "name": "EnumA",
+        "description": "EnumA description",
+        "enum_items": [
+            {
+                "name": "ENUM_ITEM_1",
+                "description": "ENUM_ITEM_1 description",
+                "options": {}
+            }
+        ],
+        "options": {}
+    }
+]

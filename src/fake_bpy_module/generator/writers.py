@@ -25,6 +25,9 @@ from fake_bpy_module.analyzer.nodes import (
     DependencyListNode,
     DependencyNode,
     DescriptionNode,
+    EnumItemListNode,
+    EnumItemNode,
+    EnumNode,
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
@@ -45,6 +48,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     all_class_nodes: list[ClassNode] = []
     all_function_nodes: list[FunctionNode] = []
     all_data_nodes: list[DataNode] = []
+    all_enum_nodes: list[EnumNode] = []
     all_high_priority_class_nodes: list[ClassNode] = []
 
     class_nodes = find_children(document, ClassNode)
@@ -57,6 +61,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
             all_class_nodes.append(class_node)
     all_function_nodes.extend(find_children(document, FunctionNode))
     all_data_nodes.extend(find_children(document, DataNode))
+    all_enum_nodes.extend(find_children(document, EnumNode))
 
     all_class_nodes = all_high_priority_class_nodes \
         + sorted(all_class_nodes, key=lambda n: n.element(NameNode).astext())
@@ -96,8 +101,13 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     sorted_constant_nodes = sorted(
         all_data_nodes, key=lambda n: n.element(NameNode).astext())
 
+    # Sort enum data
+    sorted_enum_nodes = sorted(
+        all_enum_nodes, key=lambda n: n.element(NameNode).astext())
+
     # Merge
-    sorted_nodes = sorted_class_nodes
+    sorted_nodes = sorted_enum_nodes
+    sorted_nodes.extend(sorted_class_nodes)
     sorted_nodes.extend(sorted_function_nodes)
     sorted_nodes.extend(sorted_constant_nodes)
 
@@ -528,6 +538,27 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln("'''")
         wt.new_line(2)
 
+    def _write_enum_code(self, enum_node: EnumNode) -> None:
+        wt = self._writer
+
+        enum_name = enum_node.element(NameNode).astext()
+        enum_item_list_node = enum_node.element(EnumItemListNode)
+        enum_item_nodes = find_children(enum_item_list_node, EnumItemNode)
+
+        enum_item_strs = []
+        for enum_item_node in enum_item_nodes:
+            enum_item_name = enum_item_node.element(NameNode).astext()
+            enum_item_desc = enum_item_node.element(DescriptionNode).astext()
+            enum_item_desc = enum_item_desc.replace("\n", "")
+            if len(enum_item_desc) != 0:
+                enum_item_strs.append(f"'{enum_item_name}',"
+                                      f"  # {enum_item_desc}")
+            else:
+                enum_item_strs.append(f"'{enum_item_name}',")
+
+        wt.addln(f"type {enum_name} = typing.Literal[\n"
+                 f"{'\n'.join(enum_item_strs)}\n]")
+
     def write(self, filename: str, document: nodes.document,
               style_config: str = 'ruff') -> None:
         # At first, sort data to avoid generating large diff.
@@ -588,6 +619,8 @@ class PyCodeWriterBase(BaseWriter):
                     self._write_class_code(node)
                 elif isinstance(node, DataNode):
                     self._write_constant_code(node)
+                elif isinstance(node, EnumNode):
+                    self._write_enum_code(node)
 
             wt.format(style_config, self.file_format)
             wt.write(file)
@@ -703,6 +736,28 @@ class JsonWriter(BaseWriter):
 
         return data_data
 
+    def _create_enum_json_data(self, enum_node: EnumNode) -> dict:
+        enum_data = {
+            "type": "enum",
+            "name": enum_node.element(NameNode).astext(),
+            "description": enum_node.element(DescriptionNode).astext(),
+            "enum_items": [],
+            "options": self._clean_node_attributes(enum_node.attributes),
+        }
+
+        enum_item_nodes = find_children(enum_node.element(EnumItemListNode),
+                                        EnumItemNode)
+        for enum_item_node in enum_item_nodes:
+            enum_item_data = {
+                "name": enum_item_node.element(NameNode).astext(),
+                "description": enum_item_node.element(DescriptionNode).astext(),
+                "options": self._clean_node_attributes(
+                    enum_item_node.attributes),
+            }
+            enum_data["enum_items"].append(enum_item_data)
+
+        return enum_data
+
     def _create_class_json_data(self, class_node: ClassNode) -> dict:
         class_data = {
             "type": "class",
@@ -807,6 +862,8 @@ class JsonWriter(BaseWriter):
                 json_data.append(self._create_function_json_data(node))
             elif isinstance(node, DataNode):
                 json_data.append(self._create_constant_json_data(node))
+            elif isinstance(node, EnumNode):
+                json_data.append(self._create_enum_json_data(node))
 
         with Path(f"{filename}.{self.file_format}").open(
                 "w", newline="\n", encoding="utf-8") as f:
