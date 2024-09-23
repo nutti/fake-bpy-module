@@ -627,6 +627,13 @@ class DataTypeRefiner(TransformerBase):
                 )
                 is_optional = True
 
+        # If default value is None, data type must accept None.
+        if is_never_none:
+            if additional_info is not None:
+                if "default_value" in additional_info:
+                    if additional_info["default_value"] == "None":
+                        is_never_none = False
+
         options = []
         if is_never_none:
             options.append("never none")

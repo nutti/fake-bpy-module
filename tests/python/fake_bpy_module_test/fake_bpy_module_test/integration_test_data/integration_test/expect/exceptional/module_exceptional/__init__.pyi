@@ -12,7 +12,7 @@ class ClassExp:
     """
 
     def method_with_keyword_only_argument(
-        self, arg_1: float, arg_2: float = 5.0, arg_3: int = None
+        self, arg_1: float, arg_2: float = 5.0, arg_3: int | None = None
     ) -> int:
         """method_with_keyword_only_argument description
 
@@ -21,7 +21,7 @@ class ClassExp:
         :param arg_2: method_with_keyword_only_argument arg_2 description
         :type arg_2: float
         :param arg_3: method_with_keyword_only_argument arg_3 description
-        :type arg_3: int
+        :type arg_3: int | None
         :return: method_with_keyword_only_argument return description
         :rtype: int
         """

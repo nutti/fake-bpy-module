@@ -122,7 +122,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
 
             self.assertFalse(self.__is_py_typed_exist(f"{self.output_dir}/py.typed"))
 
-    def test_eceptional(self) -> None:
+    def test_exceptional(self) -> None:
         rst_files = [
             f"{self.data_dir}/input/exceptional/module_exceptional.rst",
         ]
