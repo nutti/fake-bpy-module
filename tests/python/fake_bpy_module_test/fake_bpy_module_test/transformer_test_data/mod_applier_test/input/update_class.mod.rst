@@ -4,6 +4,8 @@
 
 .. class:: ClassA
 
+   :generic-types: _GenericType1
+
    .. base-class:: BaseClass
 
    .. attribute:: attr_1
@@ -23,3 +25,4 @@
 
       :arg arg_1: updated method_2 arg_1 description
       :type arg_1: updated method_2 arg_1 type
+      :generic-types: _GenericType2

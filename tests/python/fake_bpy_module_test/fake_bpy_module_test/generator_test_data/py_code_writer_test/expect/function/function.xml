@@ -57,3 +57,14 @@
             <data-type-list>
                 <data-type option="accept none">
                     str
+    <function function_type="function" generic-types="_GenericType1">
+        <name>
+            function_3
+        <description>
+        <argument-list>
+        <return>
+            <description>
+                function_3 return description
+            <data-type-list>
+                <data-type>
+                    _GenericType1

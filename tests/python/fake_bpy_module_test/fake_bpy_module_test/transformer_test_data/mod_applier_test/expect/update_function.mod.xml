@@ -17,7 +17,7 @@
             <data-type-list>
                 <data-type>
                     updated function_1 return type
-    <function function_type="function">
+    <function function_type="function" generic-types="_GenericType1">
         <name>
             function_2
         <description>

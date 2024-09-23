@@ -13,3 +13,4 @@
 
    :arg arg_1: updated function_2 arg_1 description
    :type arg_1: updated function_2 arg_1 type
+   :generic-types: _GenericType1

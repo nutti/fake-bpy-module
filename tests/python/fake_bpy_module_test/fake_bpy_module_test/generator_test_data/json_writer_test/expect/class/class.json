@@ -21,10 +21,7 @@
     },
     {
         "type": "code",
-        "contents": [
-            "_GenericType1 = typing.TypeVar(\"_GenericType1\")",
-            "_GenericType2 = typing.TypeVar(\"_GenericType2\")"
-        ]
+        "contents": []
     },
     {
         "type": "class",
@@ -221,5 +218,70 @@
             }
         ],
         "options": {}
+    },
+    {
+        "type": "class",
+        "name": "ClassB",
+        "description": "ClassB description",
+        "base_classes": [],
+        "attributes": [
+            {
+                "name": "attr_1",
+                "description": "attr_1 description",
+                "data_types": [
+                    {
+                        "data_type": "_GenericType1",
+                        "options": {}
+                    }
+                ],
+                "options": {}
+            }
+        ],
+        "methods": [
+            {
+                "name": "method_1",
+                "description": "method_1 description",
+                "arguments": [
+                    {
+                        "name": "arg_1",
+                        "description": "method_1 arg_1 description",
+                        "data_types": [
+                            {
+                                "data_type": "_GenericType1",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    },
+                    {
+                        "name": "arg_2",
+                        "description": "method_1 arg_2 description",
+                        "data_types": [
+                            {
+                                "data_type": "_GenericType2",
+                                "options": {}
+                            }
+                        ],
+                        "default_value": ""
+                    }
+                ],
+                "return": {
+                    "description": "method_1 return description",
+                    "data_types": [
+                        {
+                            "data_type": "_GenericType2",
+                            "options": {}
+                        }
+                    ]
+                },
+                "options": {
+                    "function_type": "method",
+                    "generic-types": "_GenericType2"
+                }
+            }
+        ],
+        "options": {
+            "generic-types": "_GenericType1"
+        }
     }
 ]

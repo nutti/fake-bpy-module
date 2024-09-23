@@ -106,7 +106,7 @@
                 <return>
                     <description>
                     <data-type-list>
-    <class>
+    <class generic-types="_GenericType1">
         <name>
             ClassB
         <description>
@@ -138,7 +138,7 @@
                     <data-type-list>
                         <data-type>
                             method_1 return type
-            <function function_type="classmethod">
+            <function function_type="classmethod" generic-types="_GenericType2">
                 <name>
                     classmethod_1
                 <description>

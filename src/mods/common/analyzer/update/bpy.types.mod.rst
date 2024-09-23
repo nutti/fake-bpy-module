@@ -10,6 +10,8 @@
 
 .. class:: bpy_prop_collection
 
+   :generic-types: _GenericType1
+
    .. method:: values()
 
       :rtype: list[_GenericType1]
@@ -19,6 +21,7 @@
 
       :type default: _GenericType2
       :mod-option arg default: skip-refine
+      :generic-types: _GenericType2
 
    .. method:: items()
 
@@ -47,6 +50,7 @@
       :mod-option arg id: skip-refine
       :rtype: _GenericType1
       :mod-option rtype: skip-refine
+      :generic-types: _GenericType1
 
 .. class:: FreestyleLineStyle
 

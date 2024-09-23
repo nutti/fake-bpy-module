@@ -4,6 +4,8 @@
 
 .. class:: BMElemSeq
 
+   :generic-types: _GenericType1
+
    .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine
@@ -117,6 +119,8 @@
 
 .. class:: BMIter
 
+   :generic-types: _GenericType1
+
    .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine
@@ -132,6 +136,8 @@
       :mod-option rtype: skip-refine
 
 .. class:: BMLayerCollection
+
+   :generic-types: _GenericType2
 
    .. method:: get()
 

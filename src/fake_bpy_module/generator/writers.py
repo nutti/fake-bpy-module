@@ -173,7 +173,11 @@ class PyCodeWriterBase(BaseWriter):
 
         wt = self._writer
 
-        wt.add("def " + func_name + "(")
+        gen_types = ""
+        if "generic-types" in func_node.attributes:
+            gen_types = f"[{func_node.attributes['generic-types']}]"
+        wt.add(f"def {func_name}{gen_types}(")
+
         start_kwarg = False
         for i, arg_node in enumerate(arg_nodes):
             arg_name = arg_node.element(NameNode).astext()
@@ -289,8 +293,12 @@ class PyCodeWriterBase(BaseWriter):
         method_nodes = find_children(class_node.element(FunctionListNode),
                                      FunctionNode)
 
+        gen_types = ""
+        if "generic-types" in class_node.attributes:
+            gen_types = f"[{class_node.attributes['generic-types']}]"
+
         if base_class_list_node.empty():
-            wt.addln(f"class {name_node.astext()}:")
+            wt.addln(f"class {name_node.astext()}{gen_types}:")
         else:
             base_class_nodes = find_children(base_class_list_node,
                                              BaseClassNode)
@@ -316,7 +324,8 @@ class PyCodeWriterBase(BaseWriter):
                 tmp = dtypes[bpy_struct_index]
                 dtypes[bpy_struct_index] = dtypes[bpy_prop_collection_index]
                 dtypes[bpy_prop_collection_index] = tmp
-            wt.addln(f"class {name_node.astext()}({', '.join(dtypes)}):")
+            wt.addln(f"class {name_node.astext()}{gen_types}"
+                     f"({', '.join(dtypes)}):")
 
         with CodeWriterIndent(1):
             if not desc_node.empty():
@@ -368,25 +377,29 @@ class PyCodeWriterBase(BaseWriter):
                 if "option" in method_node.attributes:
                     if method_node.attributes["option"] == "overload":
                         wt.addln("@typing.overload")
+
+                gen_types = ""
+                if "generic-types" in method_node.attributes:
+                    gen_types = f"[{method_node.attributes['generic-types']}]"
                 if func_type in ("function", "method"):
                     if not arg_list_node.empty():
-                        wt.add(f"def {name_node.astext()}(self, ")
+                        wt.add(f"def {name_node.astext()}{gen_types}(self, ")
                     else:
-                        wt.add(f"def {name_node.astext()}(self")
+                        wt.add(f"def {name_node.astext()}{gen_types}(self")
                 elif func_type == "classmethod":
                     if not arg_list_node.empty():
                         wt.addln("@classmethod")
-                        wt.add(f"def {name_node.astext()}(cls, ")
+                        wt.add(f"def {name_node.astext()}{gen_types}(cls, ")
                     else:
                         wt.addln("@classmethod")
-                        wt.add(f"def {name_node.astext()}(cls")
+                        wt.add(f"def {name_node.astext()}{gen_types}(cls")
                 elif func_type == "staticmethod":
                     if not arg_list_node.empty():
                         wt.addln("@staticmethod")
-                        wt.add(f"def {name_node.astext()}(")
+                        wt.add(f"def {name_node.astext()}{gen_types}(")
                     else:
                         wt.addln("@staticmethod")
-                        wt.add(f"def {name_node.astext()}(")
+                        wt.add(f"def {name_node.astext()}{gen_types}(")
                 else:
                     raise NotImplementedError(
                         f"func_type={func_type} is not supported")
@@ -609,8 +622,6 @@ class PyCodeWriterBase(BaseWriter):
 
             # for generic type
             wt.new_line()
-            wt.addln('_GenericType1 = typing.TypeVar("_GenericType1")')
-            wt.addln('_GenericType2 = typing.TypeVar("_GenericType2")')
 
             for node in sorted_data:
                 if isinstance(node, FunctionNode):
@@ -849,10 +860,7 @@ class JsonWriter(BaseWriter):
         # for generic type
         json_data.append({
             "type": "code",
-            "contents": [
-                '_GenericType1 = typing.TypeVar("_GenericType1")',
-                '_GenericType2 = typing.TypeVar("_GenericType2")',
-            ]
+            "contents": []
         })
 
         for node in sorted_data:

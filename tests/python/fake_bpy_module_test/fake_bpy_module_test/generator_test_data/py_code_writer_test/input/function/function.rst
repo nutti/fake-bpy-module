@@ -19,3 +19,9 @@
    :return: function_2 return description
    :rtype: str
    :option rtype: accept none
+
+.. function:: function_3()
+
+   :return: function_3 return description
+   :rtype: _GenericType1
+   :generic-types: _GenericType1

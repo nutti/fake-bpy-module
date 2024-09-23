@@ -30,6 +30,8 @@
 
 .. class:: bpy_prop_collection
 
+   :generic-types: _GenericType1
+
    .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine
@@ -83,6 +85,7 @@
 
       :rtype: _GenericType1 | _GenericType2
       :mod-option rtype: skip-refine
+      :generic-types: _GenericType2
 
 .. class:: bpy_struct
 

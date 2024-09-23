@@ -1,0 +1,54 @@
+<document source="<string>">
+    <source-filename>
+        generic_types.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <class generic-types="_GenericType1">
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+            <function function_type="method" generic-types="_GenericType2">
+                <name>
+                    method_1
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                _GenericType1
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                _GenericType2
+                <return>
+                    <description>
+                    <data-type-list>
+    <function function_type="function" generic-types="_GenericType1">
+        <name>
+            method_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        _GenericType1
+        <return>
+            <description>
+            <data-type-list>

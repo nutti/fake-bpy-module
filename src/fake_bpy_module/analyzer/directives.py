@@ -345,6 +345,15 @@ class ClassDirective(rst.Directive):
             elif isinstance(child, FunctionNode):
                 method_list_node.append_child(child)
 
+        # Get all field values.
+        field_lists: nodes.field_list = paragraph_node.findall(nodes.field_list)
+        for field_list in field_lists:
+            for field in field_list:
+                fname_node, fbody_node = field.children
+                if fname_node.astext() == "generic-types":
+                    class_node.attributes[fname_node.astext()] = \
+                        fbody_node.astext()
+
         return [class_node]
 
 
@@ -411,7 +420,7 @@ class FunctionDirective(rst.Directive):
     _FUNC_DEF_REGEX = re.compile(r"([a-zA-Z0-9_]+)\s*\((.*)\)")
     _ARG_FIELD_REGEX = re.compile(r"(arg|param|type)\s+([0-9a-zA-Z_]+)")
     _RETURN_FIELD_REGEX = re.compile(r"(return|rtype)")
-    _OPTION_MODOPTION_FIELD_REFEX = re.compile(
+    _OPTION_MODOPTION_FIELD_REGEX = re.compile(
         r"(mod-option|option)\s+(arg|rtype|function)\s*(\S*)")
 
     def _parse_arg_detail(self, arg_list_node: ArgumentListNode,
@@ -474,7 +483,7 @@ class FunctionDirective(rst.Directive):
                     func_ret_node = func_node.element(FunctionReturnNode)
                     self._parse_return_detail(func_ret_node, m.group(1),
                                               fbody_node)
-                elif m := self._OPTION_MODOPTION_FIELD_REFEX.match(
+                elif m := self._OPTION_MODOPTION_FIELD_REGEX.match(
                         fname_node.astext()):
                     if m.group(2) == "arg":
                         arg_list_node = func_node.element(ArgumentListNode)
@@ -486,6 +495,9 @@ class FunctionDirective(rst.Directive):
                                                   fbody_node)
                     elif m.group(2) == "function":
                         func_node.attributes[m.group(1)] = fbody_node.astext()
+                elif fname_node.astext() == "generic-types":
+                    func_node.attributes[fname_node.astext()] = \
+                        fbody_node.astext()
 
     def run(self) -> list[FunctionNode]:
         paragraph: nodes.paragraph = nodes.paragraph()

@@ -6,6 +6,8 @@
 
    ClassB description
 
+   :generic-types: _GenericType1
+
    .. base-class:: typing.Generic
 
       :mod-option base-class: skip-refine
@@ -29,6 +31,7 @@
 
       :arg arg_1: classmethod_1 arg_1 description
       :type arg_1: classmethod_1 arg_1 type
+      :generic-types: _GenericType2
 
    .. staticmethod:: staticmethod_1(arg_1, arg_2=(0, 0))
 

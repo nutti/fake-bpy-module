@@ -2,9 +2,6 @@ import typing
 import collections.abc
 import typing_extensions
 
-_GenericType1 = typing.TypeVar("_GenericType1")
-_GenericType2 = typing.TypeVar("_GenericType2")
-
 def function_1(arg_1: float, arg_2: str = "test", arg_3: int = 1234) -> str:
     """function_1 description
 
@@ -23,4 +20,11 @@ def function_2() -> str | None:
 
     :return: function_2 return description
     :rtype: str | None
+    """
+
+def function_3[_GenericType1]() -> _GenericType1:
+    """
+
+    :return: function_3 return description
+    :rtype: _GenericType1
     """

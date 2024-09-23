@@ -61,3 +61,27 @@
       :rtype: str
       :option rtype: accept none
       :option function: overload
+
+.. class:: ClassB
+
+   ClassB description
+
+   :generic-types: _GenericType1
+
+   .. attribute:: attr_1
+
+      attr_1 description
+
+      :type: _GenericType1
+
+   .. method:: method_1(arg_1, arg_2)
+
+      method_1 description
+
+      :arg arg_1: method_1 arg_1 description
+      :type arg_1: _GenericType1
+      :param arg_2: method_1 arg_2 description
+      :type arg_2: _GenericType2
+      :return: method_1 return description
+      :rtype: _GenericType2
+      :generic-types: _GenericType2

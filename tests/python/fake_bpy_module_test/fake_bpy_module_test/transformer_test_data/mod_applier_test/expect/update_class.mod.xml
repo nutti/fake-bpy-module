@@ -5,7 +5,7 @@
         <name>
             module_1
         <description>
-    <class>
+    <class generic-types="_GenericType1">
         <name>
             ClassA
         <description>
@@ -36,7 +36,7 @@
                     <data-type-list>
                         <data-type>
                             updated method_1 return type
-            <function function_type="method">
+            <function function_type="method" generic-types="_GenericType2">
                 <name>
                     method_2
                 <description>

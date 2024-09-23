@@ -5,9 +5,6 @@ import bpy.typing
 import module_1
 import module_1.submodule_1
 
-_GenericType1 = typing.TypeVar("_GenericType1")
-_GenericType2 = typing.TypeVar("_GenericType2")
-
 def function_1(
     arg_1: int, arg_2: module_1.ClassA, arg_3: bpy.typing.Enum1
 ) -> module_1.submodule_1.BaseClass1:

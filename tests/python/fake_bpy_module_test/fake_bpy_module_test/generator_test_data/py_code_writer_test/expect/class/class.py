@@ -2,9 +2,6 @@ import typing
 import collections.abc
 import typing_extensions
 
-_GenericType1 = typing.TypeVar("_GenericType1")
-_GenericType2 = typing.TypeVar("_GenericType2")
-
 
 class ClassA:
     """ClassA description"""
@@ -66,4 +63,27 @@ class ClassA:
         :type arg_2: int
         :return: function_1 return description
         :rtype: str | None
+        """
+
+
+class ClassB[_GenericType1]:
+    """ClassB description"""
+
+    attr_1: _GenericType1 = None
+    """ attr_1 description
+
+    :type: _GenericType1
+    """
+
+    def method_1[_GenericType2](
+        self, arg_1: _GenericType1, arg_2: _GenericType2
+    ) -> _GenericType2:
+        """method_1 description
+
+        :param arg_1: method_1 arg_1 description
+        :type arg_1: _GenericType1
+        :param arg_2: method_1 arg_2 description
+        :type arg_2: _GenericType2
+        :return: method_1 return description
+        :rtype: _GenericType2
         """

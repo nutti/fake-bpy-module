@@ -6,10 +6,6 @@ import module_1.submodule_1
 from . import submodule_1 as submodule_1
 
 
-_GenericType1 = typing.TypeVar("_GenericType1")
-_GenericType2 = typing.TypeVar("_GenericType2")
-
-
 class ClassA(module_1.submodule_1.BaseClass1):
     """ClassA description"""
 

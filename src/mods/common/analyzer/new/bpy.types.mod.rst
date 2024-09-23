@@ -4,6 +4,8 @@
 
 .. class:: bpy_prop_array
 
+   :generic-types: _GenericType1
+
    .. base-class:: typing.Generic[_GenericType1]
 
       :mod-option base-class: skip-refine

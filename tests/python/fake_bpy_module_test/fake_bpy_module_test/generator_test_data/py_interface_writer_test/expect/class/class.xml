@@ -152,3 +152,49 @@
                     <data-type-list>
                         <data-type option="accept none">
                             str
+    <class generic-types="_GenericType1">
+        <name>
+            ClassB
+        <description>
+            ClassB description
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        _GenericType1
+        <function-list>
+            <function function_type="method" generic-types="_GenericType2">
+                <name>
+                    method_1
+                <description>
+                    method_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                _GenericType1
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            method_1 arg_2 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                _GenericType2
+                <return>
+                    <description>
+                        method_1 return description
+                    <data-type-list>
+                        <data-type>
+                            _GenericType2

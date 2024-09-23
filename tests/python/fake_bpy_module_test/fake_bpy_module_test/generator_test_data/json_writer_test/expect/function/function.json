@@ -21,10 +21,7 @@
     },
     {
         "type": "code",
-        "contents": [
-            "_GenericType1 = typing.TypeVar(\"_GenericType1\")",
-            "_GenericType2 = typing.TypeVar(\"_GenericType2\")"
-        ]
+        "contents": []
     },
     {
         "type": "function",
@@ -96,6 +93,25 @@
         },
         "options": {
             "function_type": "function"
+        }
+    },
+    {
+        "type": "function",
+        "name": "function_3",
+        "description": "",
+        "arguments": [],
+        "return": {
+            "description": "function_3 return description",
+            "data_types": [
+                {
+                    "data_type": "_GenericType1",
+                    "options": {}
+                }
+            ]
+        },
+        "options": {
+            "function_type": "function",
+            "generic-types": "_GenericType1"
         }
     }
 ]

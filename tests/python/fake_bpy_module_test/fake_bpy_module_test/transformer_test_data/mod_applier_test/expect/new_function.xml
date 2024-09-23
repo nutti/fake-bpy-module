@@ -106,7 +106,7 @@
                 <return>
                     <description>
                     <data-type-list>
-    <function function_type="function">
+    <function function_type="function" generic-types="_GenericType1">
         <name>
             function_3
         <description>

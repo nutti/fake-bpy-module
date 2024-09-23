@@ -323,3 +323,16 @@ class BaseAnalyzerTest(common.FakeBpyModuleTestBase):
         self.assertEqual(len(documents), len(rst_files))
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
+
+    def test_generic_types(self) -> None:
+        rst_files = ["generic_types.rst"]
+        expect_files = ["generic_types.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(rst_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)

@@ -23,10 +23,7 @@
     },
     {
         "type": "code",
-        "contents": [
-            "_GenericType1 = typing.TypeVar(\"_GenericType1\")",
-            "_GenericType2 = typing.TypeVar(\"_GenericType2\")"
-        ]
+        "contents": []
     },
     {
         "type": "data",

@@ -12,3 +12,4 @@
    :type arg_2: function_3 arg_2 type
    :return: function_3 return description
    :rtype: function_3 return type
+   :generic-types: _GenericType1
