@@ -1,0 +1,22 @@
+<document source="<string>">
+    <mod-type>
+        update
+    <module>
+        <name>
+            module_1
+        <description>
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+        <argument-list>
+            <argument argument_type="kwonlyarg" mod-option="update-argument-type">
+                <name>
+                    arg_1
+                <description>
+                <default-value>
+                    123
+                <data-type-list>
+        <return>
+            <description>
+            <data-type-list>

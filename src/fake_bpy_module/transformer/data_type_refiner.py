@@ -664,20 +664,39 @@ class DataTypeRefiner(TransformerBase):
             dtype_str_changed, module_name, variable_kind,
             additional_info=additional_info)
 
+        def is_cls_attr_in_never_none_blacklist(
+                class_full_name: str, attr_name: str) -> bool:
+            blacklist = (
+                "bpy.types.ID.library"
+            )
+            return f"{class_full_name}.{attr_name}" in blacklist
+
         # Add options.
         for r in result:
             option_results = original_options.copy()
             option_results.extend(options.copy())
             if "option" in r.attributes:
                 option_results.extend(r.attributes["option"].split(","))
+
             # list object will not be None.
             if (variable_kind in ('CLS_ATTR', 'CONST') and
                     "never none" not in option_results):
                 if _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION.match(r.to_string()):
                     option_results.append("never none")
-            # If data type is bpy.types.Context, it will be never None.
+
+            # If data type is bpy.types.Context, it will accept None.
             if r.to_string() == "bpy.types.Context":
-                option_results.append("never none")
+                while "never none" in option_results:
+                    option_results.remove("never none")
+                option_results.append("accept none")
+
+            if variable_kind == 'CLS_ATTR':
+                if is_cls_attr_in_never_none_blacklist(
+                        additional_info["self_class"],
+                        additional_info["data_name"]):
+                    option_results.append("never none")
+
+            option_results = sorted(set(option_results))
             r.attributes["option"] = ",".join(option_results)
 
         output_log(

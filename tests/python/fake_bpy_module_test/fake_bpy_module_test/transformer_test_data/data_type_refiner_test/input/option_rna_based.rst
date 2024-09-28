@@ -1,4 +1,4 @@
-.. module:: bpy.type
+.. module:: bpy.types
 
 .. function:: function_1(arg_optional, arg_readonly, arg_never_none)
 
@@ -17,6 +17,12 @@
 .. class:: ClassA
 
    .. attribute:: active_attr
+
+      :type: int
+
+.. class:: ID
+
+   .. attribute:: library
 
       :type: int
 

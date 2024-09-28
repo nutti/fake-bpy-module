@@ -460,8 +460,11 @@ class FunctionDirective(rst.Directive):
                 arg_node = n.parent
                 break
         if arg_node:
-            for dtype_node in arg_node.findall(DataTypeNode):
-                dtype_node.attributes[option_type] = option_body.astext()
+            if option_body.astext() == "update-argument-type":
+                arg_node.attributes[option_type] = option_body.astext()
+            else:
+                for dtype_node in arg_node.findall(DataTypeNode):
+                    dtype_node.attributes[option_type] = option_body.astext()
 
     def _parse_return_option(self, return_node: FunctionReturnNode,
                              option_type: str,

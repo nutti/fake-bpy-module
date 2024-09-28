@@ -84,6 +84,14 @@ class ModApplier(TransformerBase):
                 arg_name = arg_node.element(NameNode).astext()
 
                 if arg_name == mod_arg_name:
+                    mod_options = []
+                    node_attrs = mod_arg_node.attributes
+                    if "mod-option" in node_attrs:
+                        mod_options = node_attrs["mod-option"].split(",")
+                    if "update-argument-type" in mod_options:
+                        arg_node.attributes["argument_type"] = \
+                            node_attrs["argument_type"]
+
                     mod_desc_node = mod_arg_node.element(DescriptionNode)
                     if not mod_desc_node.empty():
                         arg_node.replace_node(mod_desc_node)

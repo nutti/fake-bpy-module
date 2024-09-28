@@ -14,11 +14,16 @@
 
    .. method:: values()
 
-      :rtype: list[_GenericType1]
+      :rtype: list[_GenericType1 | None]
       :mod-option rtype: skip-refine
+
+   .. method:: find(key)
+
+      :type key: str (never None)
 
    .. method:: get(key, default=None)
 
+      :type key: str (never None)
       :type default: _GenericType2
       :mod-option arg default: skip-refine
       :generic-types: _GenericType2
@@ -147,3 +152,10 @@
    .. attribute:: node_tree
 
       :type: :class:`bpy.types.TextureNodeTree`
+
+.. class:: IDMaterials
+
+   .. method:: pop(*, index=-1)
+
+      :type index: int (never None) 
+      :mod-option arg index: update-argument-type

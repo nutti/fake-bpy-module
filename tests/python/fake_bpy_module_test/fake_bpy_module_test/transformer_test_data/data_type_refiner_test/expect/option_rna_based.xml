@@ -3,7 +3,7 @@
         option_rna_based.rst
     <module>
         <name>
-            bpy.type
+            bpy.types
         <description>
     <function function_type="function">
         <name>
@@ -66,6 +66,20 @@
             <attribute>
                 <name>
                     active_attr
+                <description>
+                <data-type-list>
+                    <data-type>
+                        int
+        <function-list>
+    <class>
+        <name>
+            ID
+        <description>
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    library
                 <description>
                 <data-type-list>
                     <data-type>

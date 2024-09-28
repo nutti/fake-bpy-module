@@ -1,0 +1,109 @@
+<document source="<string>">
+    <source-filename>
+        base.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <data>
+        <name>
+            DATA_1
+        <description>
+            DATA_1 description
+        <data-type-list>
+            <data-type>
+                DATA_1 type
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            function_1 description
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_1 arg_1 description
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        function_1 arg_1 type
+        <return>
+            <description>
+                function_1 return description
+            <data-type-list>
+                <data-type>
+                    function_1 return type
+    <function function_type="function">
+        <name>
+            function_2
+        <description>
+            function_2 description
+        <argument-list>
+            <argument argument_type="kwonlyarg">
+                <name>
+                    arg_1
+                <description>
+                    function_2 arg_1 description
+                <default-value>
+                    123
+                <data-type-list>
+                    <data-type>
+                        function_2 arg_1 type
+        <return>
+            <description>
+            <data-type-list>
+    <class>
+        <name>
+            ClassA
+        <description>
+            ClassA description
+        <base-class-list>
+        <attribute-list>
+            <attribute>
+                <name>
+                    attr_1
+                <description>
+                    attr_1 description
+                <data-type-list>
+                    <data-type>
+                        attr_1 type
+        <function-list>
+            <function function_type="method">
+                <name>
+                    method_1
+                <description>
+                    method_1 description
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                method_1 arg_1 type
+                <return>
+                    <description>
+                        method_1 return description
+                    <data-type-list>
+                        <data-type>
+                            method_1 return type
+            <function function_type="method">
+                <name>
+                    method_2
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            method_2 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                method_2 arg_1 type
+                <return>
+                    <description>
+                    <data-type-list>

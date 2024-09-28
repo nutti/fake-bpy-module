@@ -754,11 +754,21 @@ class DataTypeRefinerTest(TransformerTestBase):
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)
 
+        entry_points = []
+        entry_point = EntryPoint("bpy.types", "Context", "class")
+        entry_points.append(entry_point)
+        entry_point = EntryPoint("bpy.types", "ID", "class")
+        entry_points.append(entry_point)
+
         self.assertEqual(len(documents), len(expect_files))
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-        transformer = Transformer(["data_type_refiner"], {})
+        transformer = Transformer(["data_type_refiner"], {
+            "data_type_refiner": {
+                "entry_points": entry_points,
+            }
+        })
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
@@ -1186,6 +1196,35 @@ class ModApplierTest(TransformerTestBase):
         mod_files = ["update_function.mod.rst"]
         expect_mod_files = ["update_function.mod.xml"]
         expect_files = ["update_function.xml"]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
+        expect_mod_files = [f"{self.data_dir}/expect/{f}"
+                            for f in expect_mod_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        transformer = Transformer(["mod_applier"],
+                                  {"mod_applier": {"mod_files": mod_files}})
+        transformed = transformer.transform(documents)
+        self.assertEqual(len(transformer.get_transformers()), 1)
+        mod_documents = transformer.get_transformers()[0].get_mod_documents()
+
+        self.assertEqual(len(mod_documents), len(expect_mod_files))
+        for mod_doc, expect_file in zip(mod_documents, expect_mod_files,
+                                        strict=True):
+            self.compare_with_file_contents(mod_doc.pformat(), expect_file)
+
+        self.assertEqual(len(transformed), len(rst_files))
+        for doc, expect_file in zip(transformed, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect_file)
+
+    def test_update_function_update_argument_type(self) -> None:
+        rst_files = ["base.rst"]
+        mod_files = ["update_function_update_argument_type.mod.rst"]
+        expect_mod_files = ["update_function_update_argument_type.mod.xml"]
+        expect_files = ["update_function_update_argument_type.xml"]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         mod_files = [f"{self.data_dir}/input/{f}" for f in mod_files]
         expect_mod_files = [f"{self.data_dir}/expect/{f}"
