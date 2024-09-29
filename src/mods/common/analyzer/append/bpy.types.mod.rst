@@ -32,10 +32,6 @@
 
    :generic-types: _GenericType1
 
-   .. base-class:: typing.Generic[_GenericType1]
-
-      :mod-option base-class: skip-refine
-
    .. method:: __getitem__(key)
 
       :type key: int | str
@@ -105,9 +101,7 @@
 
 .. class:: bpy_struct
 
-   .. base-class:: typing.Generic[_GenericType1]
-
-      :mod-option base-class: skip-refine
+   :generic-types: _GenericType1
 
    .. attribute:: bl_rna
 

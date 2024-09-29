@@ -1,8 +1,12 @@
 .. module:: bpy.types
 
-.. class:: Attribute
+.. class:: Attribute1
 
-.. class:: Attributes
+.. class:: Attribute2
+
+.. class:: Attributes1
+
+.. class:: Attributes2
 
 .. class:: ClassA
 
@@ -12,4 +16,11 @@
 
       attr_1 description
 
-      :type: :class:`Attributes` :class:`bpy_prop_collection` of :class:`Attribute`, (readonly)
+      :type: :class:`Attributes1` :class:`bpy_prop_collection` of :class:`Attribute1`, (readonly)
+
+   .. attribute:: attr_2
+
+      attr_2 description
+
+      :type: :class:`Attributes2` :class:`bpy_prop_collection` of :class:`Attribute2`
+

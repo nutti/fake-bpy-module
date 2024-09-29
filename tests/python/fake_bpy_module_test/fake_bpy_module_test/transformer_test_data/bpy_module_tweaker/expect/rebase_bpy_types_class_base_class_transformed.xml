@@ -7,14 +7,21 @@
         <description>
     <class>
         <name>
-            Attribute
+            Attribute1
         <description>
         <base-class-list>
         <attribute-list>
         <function-list>
     <class>
         <name>
-            Attributes
+            Attribute2
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            Attributes1
         <description>
         <base-class-list>
             <base-class>
@@ -24,8 +31,22 @@
                             bpy_prop_collection
                          of 
                         <class-ref>
-                            Attribute
-                        , (readonly)
+                            Attribute1
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            Attributes2
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute2
         <attribute-list>
         <function-list>
     <class>
@@ -43,12 +64,27 @@
                 <data-type-list>
                     <data-type>
                         <class-ref>
-                            Attributes
+                            Attributes1
                          
                         <class-ref>
                             bpy_prop_collection
                          of 
                         <class-ref>
-                            Attribute
+                            Attribute1
                         , (readonly)
+            <attribute>
+                <name>
+                    attr_2
+                <description>
+                    attr_2 description
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            Attributes2
+                         
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute2
         <function-list>

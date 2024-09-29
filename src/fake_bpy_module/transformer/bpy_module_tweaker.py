@@ -155,7 +155,7 @@ class BpyModuleTweaker(TransformerBase):
                     dtype_str = dtype_node.astext()
                     if m := re.match(
                             r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
-                            r"([a-zA-Z0-9]+)`, \(readonly\)$", dtype_str):
+                            r"([a-zA-Z0-9]+)`(, \(readonly\))*$", dtype_str):
                         parent_to_child[m.group(1)] = m.group(2)
 
         for parent, child in parent_to_child.items():
@@ -173,7 +173,7 @@ class BpyModuleTweaker(TransformerBase):
             bc_node = BaseClassNode.create_template()
             dtype_list_node = bc_node.element(DataTypeListNode)
             dtype_list_node.append_child(make_data_type_node(
-                f"`bpy_prop_collection` of `{child}`, (readonly)"))
+                f"`bpy_prop_collection` of `{child}`"))
             bc_list_node.append_child(bc_node)
 
     def _apply(self, document: nodes.document) -> None:

@@ -6,10 +6,6 @@
 
    :generic-types: _GenericType1
 
-   .. base-class:: typing.Generic[_GenericType1]
-
-      :mod-option base-class: skip-refine
-
    .. method:: __getitem__(key)
 
       :type key: int
@@ -120,10 +116,6 @@
 .. class:: BMIter
 
    :generic-types: _GenericType1
-
-   .. base-class:: typing.Generic[_GenericType1]
-
-      :mod-option base-class: skip-refine
 
    .. method:: __iter__()
 

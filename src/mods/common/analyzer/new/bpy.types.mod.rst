@@ -6,10 +6,6 @@
 
    :generic-types: _GenericType1
 
-   .. base-class:: typing.Generic[_GenericType1]
-
-      :mod-option base-class: skip-refine
-
    .. method:: __get__(instance, owner)
 
       :rtype: :class:`bpy_prop_array`\ [_GenericType1]
