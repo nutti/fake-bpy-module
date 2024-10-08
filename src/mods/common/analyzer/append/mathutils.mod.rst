@@ -387,6 +387,13 @@
 
       :type other: float
       :rtype: :class:`Vector`
+      :option function: overload
+
+   .. method:: __mul__(other)
+
+      :type other: :class:`Vector`
+      :rtype: :class:`Vector`
+      :option function: overload
 
    .. method:: __truediv__(other)
 
