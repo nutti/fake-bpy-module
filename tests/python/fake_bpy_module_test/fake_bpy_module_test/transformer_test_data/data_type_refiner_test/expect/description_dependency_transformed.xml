@@ -24,3 +24,33 @@
                         <data-type>
                             <class-ref>
                                 module_1.ClassA
+            <function function_type="method">
+                <name>
+                    method_2
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            Enumerator in `rna_enum_example`.
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                set[
+                                <enum-ref>
+                                    bpy.typing.Example
+                                ]
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            job type in `rna_enum_example`.
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                <enum-ref>
+                                    bpy.typing.Example
+                <return>
+                    <description>
+                    <data-type-list>
