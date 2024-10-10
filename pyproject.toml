@@ -4,7 +4,7 @@ requires = ["setuptools"]
 [project]
 name = "fake-bpy-module"
 description = "Collection of the fake Blender Python API module for the code completion."
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [

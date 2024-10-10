@@ -2,7 +2,31 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20240604...main)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20241010...main)
+
+<!-- markdownlint-disable-next-line MD013 -->
+## [20241010](https://github.com/nutti/fake-bpy-module/compare/20240604...20241010) - 2024.10.10
+
+### Notice
+
+From this version, fake-bpy-module requires Python 3.12.
+
+### Updated Features
+
+* Support fake-bpy-module-4.2
+* Use Python 3.12 syntax for type annotations on the generated modules
+* Support type alias for RNA enums
+
+### Other Updates
+
+* Enable Ruff lint on CI against both generation code and generated code
+* Fix bugs
+
+### Contributors
+
+* [**@JonathanPlasse**](https://github.com/JonathanPlasse)
+* [**@Road-hog123**](https://github.com/Road-hog123)
+* [**@Andrej730**](https://github.com/Andrej730)
 
 <!-- markdownlint-disable-next-line MD013 -->
 ## [20240604](https://github.com/nutti/fake-bpy-module/compare/20231118...20240604) - 2024.6.4
