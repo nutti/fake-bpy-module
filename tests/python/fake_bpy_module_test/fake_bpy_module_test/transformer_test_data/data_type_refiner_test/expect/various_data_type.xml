@@ -488,6 +488,26 @@
                     RefinedClassA
     <data>
         <name>
+            data_bmlayercollection_of_value
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    BMLayerCollection
+                 of float
+    <data>
+        <name>
+            data_bmlayercollection_of_class
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    BMLayerCollection
+                 of 
+                <class-ref>
+                    ClassA
+    <data>
+        <name>
             data_tuple_of_value
         <description>
         <data-type-list>

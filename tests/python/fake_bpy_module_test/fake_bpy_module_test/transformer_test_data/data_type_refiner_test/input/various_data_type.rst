@@ -235,6 +235,14 @@
 
    :type: :class:`BMElemSeq` of :class:`RefinedClassA`
 
+.. data:: data_bmlayercollection_of_value
+
+   :type: :class:`BMLayerCollection` of float
+
+.. data:: data_bmlayercollection_of_class
+
+   :type: :class:`BMLayerCollection` of :class:`ClassA`
+
 .. data:: data_tuple_of_value
 
    :type: tuple of :class:`RefinedClassA`'s

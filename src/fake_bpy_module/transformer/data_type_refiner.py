@@ -64,6 +64,8 @@ REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) o
 REGEX_MATCH_DATA_TYPE_LIST_OF_PARENTHESES_VALUE = re.compile(r"^list of \(([a-zA-Z.,` ]+)\)")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_PAIR_OF_VALUE = re.compile(r"^pair of `([A-Za-z0-9_.]+)`")
 REGEX_MATCH_DATA_TYPE_BMELEMSEQ_OF_VALUE = re.compile(r"`BMElemSeq` of `([a-zA-Z0-9]+)`$")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_BMLAYERCOLLECTION_OF_VALUE = re.compile(r"`BMLayerCollection` of ([a-zA-Z0-9_]+)$")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_BMLAYERCOLLECTION_OF_CLASS = re.compile(r"`BMLayerCollection` of `([a-zA-Z0-9._]+)`$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE = re.compile(r"^tuple of `([a-zA-Z0-9.]+)`('s)*$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|set|tuple)`*\.*$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`$")
@@ -165,7 +167,7 @@ class DataTypeRefiner(TransformerBase):
 
         return None
 
-    # pylint: disable=R0911,R0912,R0913
+    # pylint: disable=R0911,R0912,R0913,R0915
     def _get_refined_data_type_fast(  # noqa: C901, PLR0911, PLR0912
         self, dtype_str: str, uniq_full_names: set[str],
         uniq_module_names: set[str], module_name: str,
@@ -468,9 +470,22 @@ class DataTypeRefiner(TransformerBase):
             s = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
             if s:
-                return [
-                    make_data_type_node(f"`bmesh.types.BMElemSeq`[`{s}`]")
-                ]
+                return [make_data_type_node(f"`bmesh.types.BMElemSeq`[`{s}`]")]
+        # [Ex] BMLayerCollection of float
+        if m := REGEX_MATCH_DATA_TYPE_BMLAYERCOLLECTION_OF_VALUE.match(
+                dtype_str):
+            return [make_data_type_node(
+                f"`bmesh.types.BMLayerCollection`[{m.group(1)}]"
+            )]
+        # [Ex] BMLayerCollection of `mathutils.Vector`
+        if m := REGEX_MATCH_DATA_TYPE_BMLAYERCOLLECTION_OF_CLASS.match(
+                dtype_str):
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return [make_data_type_node(
+                    f"`bmesh.types.BMLayerCollection`[`{s}`]"
+                )]
         # [Ex] tuple of mathutils.Vector's
         if m := REGEX_MATCH_DATA_TYPE_TUPLE_OF_VALUE.match(dtype_str):
             s = self._parse_custom_data_type(
