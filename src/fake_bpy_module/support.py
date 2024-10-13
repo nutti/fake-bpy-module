@@ -20,6 +20,7 @@ SUPPORTED_MOD_BLENDER_VERSION: list[str] = [
 
 SUPPORTED_MOD_UPBGE_VERSION: list[str] = [
     "0.2.5",
+    "0.30", "0.36",
     "latest"
 ]
 
@@ -34,5 +35,6 @@ SUPPORTED_BLENDER_VERSION: list[str] = [
 
 SUPPORTED_UPBGE_VERSION: list[str] = [
     "0.2.5",
+    "0.30", "0.36",
     "latest"
 ]

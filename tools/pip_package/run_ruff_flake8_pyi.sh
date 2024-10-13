@@ -1,14 +1,20 @@
 #!/bin/bash
 set -eEu
 
+declare -A PACKAGE_NAME=(
+    ["blender"]="bpy"
+    ["upbge"]="bge"
+)
+
 # Check if a Blender version argument is provided
-if [ $# -eq 0 ]; then
-    echo "No Blender version provided. Usage: $0 <blender_version>"
+if [ $# -ne 2 ]; then
+    echo "No Blender version provided. Usage: $0 <target> <blender_version>"
     exit 1
 fi
 
-BLENDER_VERSION=$1
-ZIP_FILE="fake_bpy_modules_${BLENDER_VERSION}-*.zip"
+target=$1
+BLENDER_VERSION=$2
+ZIP_FILE="fake_${PACKAGE_NAME[$target]}_modules_${BLENDER_VERSION}-*.zip"
 EXTRACT_DIR="extracted_modules"
 
 # Find and unzip the correct file

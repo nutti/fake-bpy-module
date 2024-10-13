@@ -1,6 +1,6 @@
 ---
 # yamllint disable rule:line-length
-name: fake-bpy-module Latest Build
+name: fake-bge-module Latest Build
 
 on:   # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -17,7 +17,9 @@ jobs:
   set_versions:
     name: Set build versions
     runs-on: ubuntu-latest
-    if: github.repository == 'nutti/fake-bpy-module'
+    if: |
+      github.repository == 'nutti/fake-bge-module' ||
+      github.event_name != 'schedule'
     outputs:
       module_version: ${{ steps.set_module_version.outputs.module_version }}
       file_version: ${{ steps.set_file_version.outputs.file_version }}
@@ -44,7 +46,9 @@ jobs:
   build_modules:
     name: Build modules
     runs-on: ubuntu-22.04
-    if: github.repository == 'nutti/fake-bpy-module'
+    if: |
+      github.repository == 'nutti/fake-bge-module' ||
+      github.event_name != 'schedule'
     needs: [set_versions]
     steps:
       - name: Checkout repo
@@ -64,35 +68,34 @@ jobs:
       - name: Test fake_bpy_module core module
         run: bash tests/run_pre_tests.sh src
 
-      - name: Install Blender binary dependencies
+      - name: Install UPBGE binary dependencies
         run: |
           sudo apt update
           sudo apt install --no-install-recommends -y libglu1-mesa libegl1 libxxf86vm1 libxfixes3 libxi6 libxkbcommon0 libgl1
 
-      - name: Install fake-bpy-module tools
+      - name: Install fake-bge-module tools
         run: sudo apt install --no-install-recommends -y pandoc
 
-      - name: Get Blender artifact URL
-        id: get_blender_artifact_url
-        run: echo ::set-output name=artifact_url::$(bash tools/utils/get_latest_artifacts_url.sh nutti blender-daily-build "Blender daily build")
+      - name: Get UPBGE artifact URL
+        id: get_upbge_artifact_url
+        run: echo ::set-output name=artifact_url::$(bash tools/utils/get_latest_artifacts_url.sh nutti upbge-daily-build "UPBGE daily build")
 
-      - name: Cache Blender binary
-        id: cache-blender-bin
+      - name: Cache UPBGE binary
+        id: cache-upbge-bin
         uses: actions/cache@v3
         with:
-          path: blender-bin/blender-latest-bin
-          key: ${{ runner.os }}-blender-${{ steps.get_blender_artifact_url.outputs.artifact_url }}
+          path: upbge-bin/upbge-latest-bin
+          key: ${{ runner.os }}-upbge-${{ steps.get_upbge_artifact_url.outputs.artifact_url }}
 
-      - name: Download latest Blender files from nutti/blender-daily-build artifacts
-        if: steps.cache-blender-bin.outputs.cache-hit != 'true'
-        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTION_BLENDER_DAILY_BUILD }}
+      - name: Download latest UPBGE files from nutti/upbge-daily-build artifacts
+        if: steps.cache-upbge-bin.outputs.cache-hit != 'true'
+        run: bash tools/utils/download_latest_upbge.sh nutti upbge-daily-build "UPBGE daily build" ./upbge-bin ${{ secrets.TOKEN_FOR_ACTION_UPBGE_DAILY_BUILD }}
 
-        # alternatively to the github checkout, you can also use git.blender.org. See below.
-      - name: Checkout Blender from Github
+      - name: Checkout UPBGE from Github
         uses: actions/checkout@v4
         with:
-          repository: "blender/blender"
-          path: blender
+          repository: "upbge/upbge"
+          path: upbge
 
       - name: Generate pip Packages
         if: contains(github.ref, 'run-ci/')
@@ -101,7 +104,7 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "debug"
           ENABLE_PYTHON_PROFILER: false
-        run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
+        run: bash tools/pip_package/build_pip_package.sh upbge latest ./upbge ./upbge-bin/upbge-latest-bin
 
       - name: Generate pip Packages
         if: contains(github.ref, 'perf/')
@@ -110,7 +113,7 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
           ENABLE_PYTHON_PROFILER: true
-        run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
+        run: bash tools/pip_package/build_pip_package.sh upbge latest ./upbge ./upbge-bin/upbge-latest-bin
 
       - name: Generate pip Packages
         if: "!contains(github.ref, 'run-ci/') && !contains(github.ref, 'perf/')"
@@ -119,28 +122,28 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
           ENABLE_PYTHON_PROFILER: false
-        run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
+        run: bash tools/pip_package/build_pip_package.sh upbge latest ./upbge ./upbge-bin/upbge-latest-bin
 
       - name: Archive pip packages
         uses: actions/upload-artifact@v3
         with:
-          name: fake_bpy_modules_latest_pip_${{ needs.set_versions.outputs.file_version }}
+          name: fake_bge_modules_latest_pip_${{ needs.set_versions.outputs.file_version }}
           path: release
 
       - name: Archive raw modules
         uses: actions/upload-artifact@v3
         with:
-          name: fake_bpy_modules_latest_raw_${{ needs.set_versions.outputs.file_version }}
-          path: "raw_modules/fake_bpy_module*"
+          name: fake_bge_modules_latest_raw_${{ needs.set_versions.outputs.file_version }}
+          path: "raw_modules/fake_bge_module*"
 
       - name: Run Ruff flake8-pyi checks
-        run: bash tools/pip_package/run_ruff_flake8_pyi.sh blender latest
+        run: bash tools/pip_package/run_ruff_flake8_pyi.sh upbge latest
 
       - name: Test Generated Modules
         run: bash tests/run_tests.sh raw_modules
 
       - name: Test generated pip module against Cycles addon
-        run: bash tests/pylint_cycles.sh blender latest ./blender/ ./release/latest/fake_bpy_module_latest-*-py3-none-any.whl
+        run: bash tests/pylint_cycles.sh upbge latest ./upbge/ ./release/latest/fake_bge_module_latest-*-py3-none-any.whl
 
       - name: Collect profiler result
         if: contains(github.ref, 'perf/')
@@ -168,7 +171,7 @@ jobs:
     name: PyPI Release test
     needs: [build_modules]
     if: |
-      github.repository == 'nutti/fake-bpy-module' &&
+      github.repository == 'nutti/fake-bge-module' &&
       github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -183,19 +186,19 @@ jobs:
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/latest/"
+          packages_dir: "dist/fake_bge_modules_latest_pip_*/latest/"
       - name: Publish distribution 📦 to Test PyPI (Non-versioned Package)
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/non-version/"
+          packages_dir: "dist/fake_bge_modules_latest_pip_*/non-version/"
 
   pypi_release:
-    name: PyPI Release fake-bpy-module
+    name: PyPI Release fake-bge-module
     needs: [pypi_release_test]
     if: |
-      github.repository == 'nutti/fake-bpy-module' &&
+      github.repository == 'nutti/fake-bge-module' &&
       github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
@@ -207,9 +210,9 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.pypi_token }}
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/latest/"
+          packages_dir: "dist/fake_bge_modules_latest_pip_*/latest/"
       - name: Publish distribution 📦 to PyPI (Non-versioned Package)
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.pypi_token }}
-          packages_dir: "dist/fake_bpy_modules_latest_pip_*/non-version/"
+          packages_dir: "dist/fake_bge_modules_latest_pip_*/non-version/"

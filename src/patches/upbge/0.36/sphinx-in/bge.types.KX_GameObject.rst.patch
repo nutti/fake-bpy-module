@@ -1,0 +1,11 @@
+--- gen_module-tmp/sphinx-in.orig/bge.types.KX_GameObject.rst	2024-10-12 07:25:06.000000000 +0900
++++ gen_module-tmp/sphinx-in/bge.types.KX_GameObject.rst	2024-10-12 16:36:06.532563100 +0900
+@@ -1112,7 +1112,7 @@ base class --- :class:`~bge.types.SCA_IO
+       :arg dupli: optional argument, duplicate the physics shape.
+       :type dupli: boolean
+       :arg evaluated: optional argument, use evaluated object physics shape (Object with modifiers applied).
+-      :type dupli: boolean
++      :type evaluated: boolean
+ 
+       :return: True if reinstance succeeded, False if it failed.
+       :rtype: boolean

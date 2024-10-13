@@ -1,0 +1,15 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.Bone.rst	2024-10-12 07:22:44.000000000 +0900
++++ gen_module-tmp/sphinx-in/bpy.types.Bone.rst	2024-10-12 16:29:57.288812600 +0900
+@@ -469,9 +469,9 @@ base class --- :class:`bpy_struct`
+          The transformed matrix
+ 
+       :rtype: float multi-dimensional array of 4 * 4 items in [-inf, inf]
+-      This method enables conversions between Local and Pose space for bones in
+-      the middle of updating the armature without having to update dependencies
+-      after each change, by manually carrying updated matrices in a recursive walk.
++         This method enables conversions between Local and Pose space for bones in
++         the middle of updating the armature without having to update dependencies
++         after each change, by manually carrying updated matrices in a recursive walk.
+ 
+       .. literalinclude:: ../examples/bpy.types.Bone.convert_local_to_pose.py
+          :lines: 7-

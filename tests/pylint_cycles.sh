@@ -24,6 +24,7 @@ declare -r SUPPORTED_BLENDER_VERSIONS=(
 )
 declare -r SUPPORTED_UPBGE_VERSIONS=(
     "0.2.5"
+    "0.30" "0.36"
     "latest"
 )
 
@@ -52,6 +53,8 @@ declare -A BLENDER_TAG_NAME=(
 )
 declare -A UPBGE_TAG_NAME=(
     ["v0.2.5"]="v0.2.5"
+    ["v0.30"]="v0.30"
+    ["v0.36"]="v0.36"
     ["vlatest"]="master"
 )
 

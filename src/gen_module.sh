@@ -194,19 +194,17 @@ if [ "${target}" = "blender" ]; then
         done
     fi
 elif [ "${target}" = "upbge" ]; then
-    if [ "${git_ref}" = "v0.2.5" ] || [ "${git_ref}" = "master" ]; then
-        # .. code-block:: none -> .. code-block:: python
-        echo "  Fix: Invalid code-block argument"
-        # shellcheck disable=SC2044
-        for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
-            search_str=".. code-block:: none"
-            replace_str=".. code-block:: python"
-            if grep -q "${search_str}" "${rst_file}"; then
-                echo "    ${rst_file}"
-                sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
-            fi
-        done
-    fi
+    # .. code-block:: none -> .. code-block:: python
+    echo "  Fix: Invalid code-block argument"
+    # shellcheck disable=SC2044
+    for rst_file in $(find "${tmp_dir}/sphinx-in" -name "*.rst"); do
+        search_str=".. code-block:: none"
+        replace_str=".. code-block:: python"
+        if grep -q "${search_str}" "${rst_file}"; then
+            echo "    ${rst_file}"
+            sed -i "s/${search_str}/${replace_str}/g" "${rst_file}"
+        fi
+    done
 
     if [ "${git_ref}" = "v0.2.5" ]; then
         echo "  Fix: Inconsistent title levels."

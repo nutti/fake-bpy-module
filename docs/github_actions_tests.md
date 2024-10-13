@@ -28,7 +28,8 @@ You can run GitHub Actions using the following commands:
 * Lint
   * `bash tools/github_actions_tests/run_github_actions_tests.sh --workflows .github/workflows/lint.yml push`
 * Latest bulid test
-  * `bash tools/github_actions_tests/run_github_actions_tests.sh --workflows .github/workflows/fake-bpy-module-latest-build.yml --job build_modules`
+  * For fake-bpy-module: `bash tools/github_actions_tests/run_github_actions_tests.sh --workflows .github/workflows/fake-bpy-module-latest-build.yml --job build_modules`
+  * For fake-bge-module: `bash tools/github_actions_tests/run_github_actions_tests.sh --workflows .github/workflows/fake-bge-module-latest-build.yml --job build_modules`
 * All push test
   * `bash tools/github_actions_tests/run_github_actions_tests.sh push`
 * Show help

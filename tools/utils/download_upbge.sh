@@ -5,19 +5,26 @@ set -eEu
 
 SUPPORTED_VERSIONS=(
     "0.2.5"
+    "0.30" "0.36"
     "all"
 )
 
 declare -A UPBGE_DOWNLOAD_URL_LINUX=(
     ["v0.2.5"]="https://github.com/UPBGE/upbge/releases/download/v0.2.5/UPBGEv0.2.5b2.79Linux64.tar.xz"
+    ["v0.30"]="https://github.com/UPBGE/upbge/releases/download/v0.30/UPBGE-0.30-linux-x86_64.tar.xz"
+    ["v0.36"]="https://github.com/UPBGE/upbge/releases/download/v0.36.1/upbge-0.36.1-linux-x86_64.tar.xz"
 )
 
 declare -A NEED_MOVE_LINUX=(
     ["v0.2.5"]="UPBGEv0.2.5b2.79Linux64"
+    ["v0.30"]="UPBGE-0.30-linux-x86_64"
+    ["v0.36"]="upbge-0.36.1-linux-x86_64"
 )
 
 declare -A UPBGE_CHECKSUM_URL=(
-    ["v0.2.5"]="https://raw.githubusercontent.com/nutti/fake-bge-module/ci_testing/tools/utils/md5sum/0.2.5.md5"
+    ["v0.2.5"]="https://raw.githubusercontent.com/nutti/fake-bge-module/main/tools/utils/md5sum/upbge/0.2.5.md5"
+    ["v0.30"]="https://github.com/UPBGE/upbge/releases/download/v0.30/UPBGE-0.30-Release.md5"
+    ["v0.36"]="https://github.com/UPBGE/upbge/releases/download/v0.36.1/upbge-0.36.1-Release.md5"
 )
 
 function get_extractor() {
@@ -50,13 +57,17 @@ function verify_download_integrity() {
 
     pushd "${download_dir}" 1> /dev/null
 
-    curl --fail -s "${checksum_url}" -o "${checksum_filename}"
+    curl --fail -L -s "${checksum_url}" -o "${checksum_filename}"
 
     if ! grep -q "${target_filename}" "${checksum_filename}"; then
         echo "Error: Unable to find \"${target_filename}\" in \"${checksum_filename}\""
         cat "${checksum_filename}"
         return 1
     fi
+
+    # Official md5sum files does not follow correct format.
+    # To suppress an error, modify the checksum file.
+    sed -i -E 's/\r//g' "${checksum_filename}"
 
     local checksum
     checksum="$(grep "${target_filename}" "${checksum_filename}")"

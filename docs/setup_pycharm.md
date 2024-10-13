@@ -29,7 +29,7 @@ Launch PyCharm and do all below procedures.
 7. Select the path where generated modules are located, and click *OK*.
 8. Click *OK* repeatedly until *Settings* (Windows) or *Preferences* (macOS)
    window is closed.
-9. Now, you can complete the code related to the Blender Python API.
+9. Now, you can complete the code related to the Blender/UPBGE Python API.
 
 <!-- markdownlint-enable MD007 MD029 MD032 MD033 -->
 
