@@ -359,8 +359,8 @@ class DataTypeRefiner(TransformerBase):
         if m := REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF.match(
                 dtype_str):
             tuple_elems = [
-                f"tuple[{', '.join(['float'] * int(m.group(1)))}]"
-            ] * int(m.group(2))
+                f"tuple[{', '.join(['float'] * int(m.group(2)))}]"
+            ] * int(m.group(1))
             return [
                 make_data_type_node("list[list[float]]"),
                 make_data_type_node(f"tuple[{', '.join(tuple_elems)}]")
