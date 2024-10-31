@@ -113,6 +113,33 @@
       :rtype: int
       :mod-option rtype: skip-refine
 
+.. class:: BMLoopSeq
+
+   .. method:: __getitem__(key)
+
+      :type key: int
+      :mod-option arg key: skip-refine
+      :rtype: :class:`BMLoop`
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: tuple[:class:`BMLoop`, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __iter__()
+
+      :rtype: :class:`BMIter`\ [:class:`BMLoop`]
+      :mod-option rtype: skip-refine
+
+   .. method:: __len__()
+
+      :rtype: int
+      :mod-option rtype: skip-refine
+
 .. class:: BMIter
 
    :generic-types: _GenericType1
@@ -139,10 +166,9 @@
 
 .. class:: BMVert
 
-   :generic-types: _GenericType1
-
    .. method:: __getitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
@@ -150,6 +176,7 @@
 
    .. method:: __setitem__(key, value)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :type value: _GenericType1
@@ -157,15 +184,15 @@
 
    .. method:: __delitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
 
 .. class:: BMEdge
 
-   :generic-types: _GenericType1
-
    .. method:: __getitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
@@ -173,6 +200,7 @@
 
    .. method:: __setitem__(key, value)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :type value: _GenericType1
@@ -180,15 +208,15 @@
 
    .. method:: __delitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
 
 .. class:: BMFace
 
-   :generic-types: _GenericType1
-
    .. method:: __getitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
@@ -196,6 +224,7 @@
 
    .. method:: __setitem__(key, value)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :type value: _GenericType1
@@ -203,15 +232,15 @@
 
    .. method:: __delitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
 
 .. class:: BMLoop
 
-   :generic-types: _GenericType1
-
    .. method:: __getitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
@@ -219,6 +248,7 @@
 
    .. method:: __setitem__(key, value)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
       :type value: _GenericType1
@@ -226,5 +256,6 @@
 
    .. method:: __delitem__(key)
 
+      :generic-types: _GenericType1
       :type key: :class:`BMLayerItem`\ [_GenericType1]
       :mod-option arg key: skip-refine
