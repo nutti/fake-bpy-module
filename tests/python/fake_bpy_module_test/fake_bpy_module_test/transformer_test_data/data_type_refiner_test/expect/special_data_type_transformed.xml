@@ -40,6 +40,16 @@
                     module_1.ClassA
     <data>
         <name>
+            data_pipe
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                str
+            <data-type option="never none">
+                <class-ref>
+                    module_1.ClassA
+    <data>
+        <name>
             data_with_default
         <description>
         <data-type-list>

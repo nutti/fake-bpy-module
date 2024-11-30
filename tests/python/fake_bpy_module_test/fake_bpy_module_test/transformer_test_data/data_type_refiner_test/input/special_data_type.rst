@@ -13,6 +13,10 @@
 
    :type: str or :class:`ClassA`
 
+.. data:: data_pipe
+
+   :type: str | :class:`ClassA`
+
 .. data:: data_with_default
 
    :type: str, default ""

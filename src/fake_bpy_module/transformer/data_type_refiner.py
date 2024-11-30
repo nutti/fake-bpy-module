@@ -83,6 +83,8 @@ _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 
+REGEX_SPLIT_OR = re.compile(r" \| | or |,")
+
 
 def snake_to_camel(name: str) -> str:
     return "".join(w.title() for w in name.split("_"))
@@ -758,11 +760,8 @@ class DataTypeRefiner(TransformerBase):
         if result is not None:
             return result
 
-        if ("," in dtype_str) or (" or " in dtype_str):
-            sp = dtype_str.split(",")
-            splist = []
-            for s in sp:
-                splist.extend(s.split(" or "))
+        if any(keyword in dtype_str for keyword in [" | ", " or ", ","]):
+            splist = REGEX_SPLIT_OR.split(dtype_str)
 
             output_log(LOG_LEVEL_DEBUG, f"Split data type refining: {splist}")
 
