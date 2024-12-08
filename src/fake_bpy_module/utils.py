@@ -56,14 +56,14 @@ def append_child(node: nodes.Node, item: nodes.Node) -> nodes.Node:
 
 
 # pylint: disable=R0912,R0915
-def split_string_by_comma(line: str) -> list:
+def split_string_by(line: str, separator: str) -> list:
     level = 0
     splited = []
     current = ""
     line_to_parse = line
 
     # Handle case "arg1[, arg2]" -> "arg1, arg2"
-    sp = line_to_parse.split("[,")
+    sp = line_to_parse.split(f"[{separator}")
     sub_strings = []
     for i, s in enumerate(sp):
         if i == 0:
@@ -71,7 +71,7 @@ def split_string_by_comma(line: str) -> list:
         else:
             assert s[-1] == "]"
             sub_strings.append(s[:-1])
-    line_to_parse = ",".join(sub_strings)
+    line_to_parse = separator.join(sub_strings)
 
     # Handle case "[arg1]"
     m = _ARG_LIST_WITH_BRACE_REGEX.match(line_to_parse)
@@ -86,7 +86,7 @@ def split_string_by_comma(line: str) -> list:
             if level < 0:
                 raise ValueError(
                     f"Level must be >= 0 but {level} (Line: {line})")
-        if level == 0 and c == ",":
+        if level == 0 and c == separator:
             splited.append(current)
             current = ""
         else:
@@ -100,3 +100,11 @@ def split_string_by_comma(line: str) -> list:
         splited.append(current)
 
     return [s.strip() for s in splited]
+
+
+def split_string_by_comma(line: str) -> list:
+    return split_string_by(line, ",")
+
+
+def split_string_by_bar(line: str) -> list:
+    return split_string_by(line, "|")

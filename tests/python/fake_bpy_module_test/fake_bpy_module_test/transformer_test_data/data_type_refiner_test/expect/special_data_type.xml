@@ -7,6 +7,33 @@
         <description>
     <data>
         <name>
+            data_python_typing_syntax_1
+        <description>
+        <data-type-list>
+            <data-type>
+                dict[str, 
+                <class-ref>
+                    ClassA
+                ]
+    <data>
+        <name>
+            data_python_typing_syntax_2
+        <description>
+        <data-type-list>
+            <data-type>
+                dict[
+                <class-ref>
+                    ClassA
+                , list[int]]
+    <data>
+        <name>
+            data_python_typing_syntax_3
+        <description>
+        <data-type-list>
+            <data-type>
+                list[UnknownType]
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>

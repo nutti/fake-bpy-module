@@ -7,6 +7,39 @@
         <description>
     <data>
         <name>
+            data_python_typing_syntax_1
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                dict[
+                str
+                , 
+                <class-ref>
+                    module_1.ClassA
+                ]
+    <data>
+        <name>
+            data_python_typing_syntax_2
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                dict[
+                <class-ref>
+                    module_1.ClassA
+                , 
+                list[
+                int
+                ]
+                ]
+    <data>
+        <name>
+            data_python_typing_syntax_3
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                list
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>

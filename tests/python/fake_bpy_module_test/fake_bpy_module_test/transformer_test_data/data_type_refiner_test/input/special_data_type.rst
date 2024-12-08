@@ -1,5 +1,16 @@
 .. module:: module_1
 
+.. data:: data_python_typing_syntax_1
+
+   :type: dict[str, :class:`ClassA`]
+
+.. data:: data_python_typing_syntax_2
+
+   :type: dict[:class:`ClassA`, list[int]]
+
+.. data:: data_python_typing_syntax_3
+
+   :type: list[UnknownType]
 
 .. data:: data_parentheses_pair
 

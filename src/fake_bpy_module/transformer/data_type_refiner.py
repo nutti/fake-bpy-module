@@ -32,6 +32,8 @@ from fake_bpy_module.utils import (
     find_children,
     get_first_child,
     output_log,
+    split_string_by_bar,
+    split_string_by_comma,
 )
 
 from .transformer_base import TransformerBase
@@ -208,7 +210,7 @@ class DataTypeRefiner(TransformerBase):
         if dtype_str.startswith("`AnyType`"):
             return [make_data_type_node("typing.Any")]
 
-        if dtype_str in ("any", "Any type."):
+        if dtype_str in ("any", "Any", "Any type."):
             return [make_data_type_node("typing.Any")]
 
         if dtype_str[1:].lower() == "d vector":
@@ -726,7 +728,7 @@ class DataTypeRefiner(TransformerBase):
 
         return result
 
-    def _get_refined_data_type_internal(
+    def _get_refined_data_type_splited(
         self, dtype_str: str, module_name: str,
         variable_kind: str, additional_info: dict[str, Any] | None = None
     ) -> list[DataTypeNode]:
@@ -735,6 +737,32 @@ class DataTypeRefiner(TransformerBase):
 
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
+
+        # Handle Python typing syntax.
+        if m := re.match(r"^(list|dict|tuple)\[(.+)\]$", dtype_str):
+            elements = split_string_by_comma(m.group(2))
+            elm_dtype_nodes: list[list[DataTypeNode]] = []
+            for elm in elements:
+                dtype_nodes = self._get_refined_data_type_internal(
+                    elm, module_name, variable_kind, additional_info)
+                if len(dtype_nodes) >= 1:
+                    elm_dtype_nodes.append(dtype_nodes)
+
+            new_dtype_node = DataTypeNode()
+            if len(elm_dtype_nodes) >= 1:
+                append_child(new_dtype_node, nodes.Text(f"{m.group(1)}["))
+                for i, dtype_nodes in enumerate(elm_dtype_nodes):
+                    for j, dtype_node in enumerate(dtype_nodes):
+                        for child in dtype_node.children:
+                            append_child(new_dtype_node, child)
+                        if j != len(dtype_nodes) - 1:
+                            append_child(new_dtype_node, nodes.Text(" | "))
+                    if i != len(elm_dtype_nodes) - 1:
+                        append_child(new_dtype_node, nodes.Text(", "))
+                append_child(new_dtype_node, nodes.Text("]"))
+            else:
+                append_child(new_dtype_node, nodes.Text(m.group(1)))
+            return [new_dtype_node]
 
         # Ex. string, default "", -> string
         if m := REGEX_MATCH_DATA_TYPE_WITH_DEFAULT.match(dtype_str):
@@ -775,6 +803,25 @@ class DataTypeRefiner(TransformerBase):
                     dtypes.extend(result)
             return dtypes
         return []
+
+    def _get_refined_data_type_internal(
+        self, dtype_str: str, module_name: str,
+        variable_kind: str, additional_info: dict[str, Any] | None = None
+    ) -> list[DataTypeNode]:
+
+        dtype_str = dtype_str.strip()
+
+        dtype_strs_splited = split_string_by_bar(dtype_str)
+        if len(dtype_strs_splited) == 0:
+            return [make_data_type_node("typing.Any")]
+
+        dtype_nodes = []
+        for ds in dtype_strs_splited:
+            dtypes = self._get_refined_data_type_splited(
+                ds, module_name, variable_kind, additional_info)
+            dtype_nodes.extend(dtypes)
+
+        return dtype_nodes
 
     def _parse_from_description(
         self, module_name: str, dtype_nodes: list[DataTypeNode],
