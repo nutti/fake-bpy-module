@@ -178,16 +178,50 @@ class PyCodeWriterBase(BaseWriter):
             gen_types = f"[{func_node.attributes['generic-types']}]"
         wt.add(f"def {func_name}{gen_types}(")
 
-        start_kwarg = False
+        # current_status can be ['NONE', 'POSONLYARG', 'ARG', 'KWONLYARG']
+        current_status = 'NONE'
         for i, arg_node in enumerate(arg_nodes):
             arg_name = arg_node.element(NameNode).astext()
             dtype_list_node = arg_node.element(DataTypeListNode)
             default_value_node = arg_node.element(DefaultValueNode)
 
-            is_kwonlyarg = arg_node.attributes["argument_type"] == "kwonlyarg"
-            if not start_kwarg and is_kwonlyarg:
-                wt.add("*, ")
-                start_kwarg = True
+            arg_type = arg_node.attributes["argument_type"]
+            is_arg = arg_type in ("arg", "kwarg", "vararg")
+            is_posonlyarg = arg_type == "posonlyarg"
+            is_kwonlyarg = arg_type == "kwonlyarg"
+            if current_status == 'NONE':
+                if is_posonlyarg:
+                    current_status = 'POSONLYARG'
+                elif is_arg:
+                    current_status = 'ARG'
+                elif is_kwonlyarg:
+                    current_status = 'KWONLYARG'
+                    wt.add("*, ")
+                else:
+                    raise ValueError("Invalid Current Status: "
+                                     f"{current_status} ({arg_type})")
+            elif current_status == 'POSONLYARG':
+                if is_posonlyarg:
+                    pass    # Do nothing.
+                elif is_arg:
+                    current_status = 'ARG'
+                    wt.add("/, ")
+                elif is_kwonlyarg:
+                    current_status = 'KWONLYARG'
+                    wt.add("/, ")
+                    wt.add("*, ")
+                else:
+                    raise ValueError("Invalid Current Status: "
+                                     f"{current_status} ({arg_type})")
+            elif current_status == 'ARG':
+                if is_arg:
+                    pass    # Do nothing.
+                elif is_kwonlyarg:
+                    current_status = 'KWONLYARG'
+                    wt.add("*, ")
+                else:
+                    raise ValueError("Invalid Current Status: "
+                                     f"{current_status} ({arg_type})")
 
             if arg_node.attributes["argument_type"] == "vararg":
                 arg_name = f"*{arg_name}"

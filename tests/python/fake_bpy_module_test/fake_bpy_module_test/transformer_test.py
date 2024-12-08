@@ -379,6 +379,33 @@ class BpyModuleTweakerTest(TransformerTestBase):
                                  strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
+    def test_add_bpy_ops_override_parameters_transformed_before_v4(
+            self) -> None:
+        rst_files = ["add_bpy_ops_override_parameters.rst"]
+        expect_files = ["add_bpy_ops_override_parameters.xml"]
+        expect_transformed_files = [
+            "add_bpy_ops_override_parameters_transformed_before_v4.xml"
+        ]
+        rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
+        expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
+        expect_transformed_files = [f"{self.data_dir}/expect/{f}"
+                                    for f in expect_transformed_files]
+
+        analyzer = BaseAnalyzer()
+        documents = analyzer.analyze(rst_files)
+
+        self.assertEqual(len(documents), len(expect_files))
+        for doc, expect in zip(documents, expect_files, strict=True):
+            self.compare_with_file_contents(doc.pformat(), expect)
+
+        transformer = Transformer(["bpy_module_tweaker"])
+        transformed = transformer.transform(documents)
+
+        self.assertEqual(len(transformed), len(expect_transformed_files))
+        for trans, expect in zip(transformed, expect_transformed_files,
+                                 strict=True):
+            self.compare_with_file_contents(trans.pformat(), expect)
+
     def test_add_bpy_ops_override_parameters_transformed(self) -> None:
         rst_files = ["add_bpy_ops_override_parameters.rst"]
         expect_files = ["add_bpy_ops_override_parameters.xml"]
@@ -389,6 +416,8 @@ class BpyModuleTweakerTest(TransformerTestBase):
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
         expect_transformed_files = [f"{self.data_dir}/expect/{f}"
                                     for f in expect_transformed_files]
+
+        config.set_target_version("4.0")
 
         analyzer = BaseAnalyzer()
         documents = analyzer.analyze(rst_files)

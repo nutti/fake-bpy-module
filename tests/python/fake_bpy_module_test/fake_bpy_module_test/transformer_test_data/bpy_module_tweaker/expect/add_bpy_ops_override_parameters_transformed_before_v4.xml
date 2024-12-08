@@ -13,6 +13,18 @@
         <argument-list>
             <argument argument_type="posonlyarg">
                 <name>
+                    override_context
+                <description>
+                <default-value>
+                    None
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy.types.Context
+                    <data-type mod-option="skip-refine">
+                        dict[str, typing.Any]
+            <argument argument_type="posonlyarg">
+                <name>
                     execution_context
                 <description>
                 <default-value>
@@ -47,6 +59,18 @@
         <description>
             function_2 description
         <argument-list>
+            <argument argument_type="posonlyarg">
+                <name>
+                    override_context
+                <description>
+                <default-value>
+                    None
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy.types.Context
+                    <data-type mod-option="skip-refine">
+                        dict[str, typing.Any]
             <argument argument_type="posonlyarg">
                 <name>
                     execution_context

@@ -3,6 +3,7 @@ from typing import Self
 
 from docutils import nodes
 
+from fake_bpy_module import config
 from fake_bpy_module.analyzer.nodes import (
     ArgumentListNode,
     ArgumentNode,
@@ -107,30 +108,50 @@ class BpyModuleTweaker(TransformerBase):
             for arg_node in find_children(arg_list_node, ArgumentNode):
                 arg_node.attributes["argument_type"] = "kwonlyarg"
 
-            arg_node = ArgumentNode.create_template(argument_type="arg")
-            arg_node.element(NameNode).add_text("override_context")
-            arg_node.element(DefaultValueNode).add_text("None")
-            arg_node.element(DataTypeListNode).append_child(
-                make_data_type_node("`bpy.types.Context`"))
-            dtype_node = DataTypeNode()
-            append_child(dtype_node, nodes.Text("dict[str, typing.Any]"))
-            dtype_node.attributes["mod-option"] = "skip-refine"
-            arg_node.element(DataTypeListNode).append_child(dtype_node)
-            arg_list_node.insert(0, arg_node)
+            include_override_context = False
+            if config.get_target() == "blender":
+                if config.get_target_version() in (
+                        "2.78", "2.79",
+                        "2.80", "2.81", "2.82", "2.83",
+                        "2.90", "2.91", "2.92", "2.93",
+                        "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"):
+                    include_override_context = True
+            elif config.get_target() == "upbge":
+                if config.get_target_version() in (
+                        "0.2.5",
+                        "0.30", "0.36"):
+                    include_override_context = True
 
-            arg_node = ArgumentNode.create_template(argument_type="arg")
+            insert_index = 0
+            if include_override_context:
+                arg_node = ArgumentNode.create_template(
+                    argument_type="posonlyarg")
+                arg_node.element(NameNode).add_text("override_context")
+                arg_node.element(DefaultValueNode).add_text("None")
+                arg_node.element(DataTypeListNode).append_child(
+                    make_data_type_node("`bpy.types.Context`"))
+                dtype_node = DataTypeNode()
+                append_child(dtype_node, nodes.Text("dict[str, typing.Any]"))
+                dtype_node.attributes["mod-option"] = "skip-refine"
+                arg_node.element(DataTypeListNode).append_child(dtype_node)
+                arg_list_node.insert(insert_index, arg_node)
+                insert_index += 1
+
+            arg_node = ArgumentNode.create_template(argument_type="posonlyarg")
             arg_node.element(NameNode).add_text("execution_context")
             arg_node.element(DefaultValueNode).add_text("None")
             arg_node.element(DataTypeListNode).append_child(
                 make_data_type_node("str, int"))
-            arg_list_node.insert(1, arg_node)
+            arg_list_node.insert(insert_index, arg_node)
+            insert_index += 1
 
-            arg_node = ArgumentNode.create_template(argument_type="arg")
+            arg_node = ArgumentNode.create_template(argument_type="posonlyarg")
             arg_node.element(NameNode).add_text("undo")
             arg_node.element(DefaultValueNode).add_text("None")
             arg_node.element(DataTypeListNode).append_child(
                 make_data_type_node("bool"))
-            arg_list_node.insert(2, arg_node)
+            arg_list_node.insert(insert_index, arg_node)
+            insert_index += 1
 
     def _rebase_bpy_types_class_base_class(
             self, document: nodes.document) -> None:
