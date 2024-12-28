@@ -20,7 +20,7 @@
    :arg arg_never_none: Optional function_2 arg_never_none description
    :type arg_never_none: str
 
-.. function:: function_3(arg_accept_none)
+.. function:: function_3(arg_never_none)
 
-   :arg arg_accept_none: function_3 arg_accept_none description
-   :type arg_accept_none: :class:`bpy.types.Context`
+   :arg arg_never_none: function_3 arg_never_none description
+   :type arg_never_none: :class:`bpy.types.Context`

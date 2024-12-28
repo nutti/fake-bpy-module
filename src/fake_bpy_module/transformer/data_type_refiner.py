@@ -706,11 +706,9 @@ class DataTypeRefiner(TransformerBase):
                 if _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION.match(r.to_string()):
                     option_results.append("never none")
 
-            # If data type is bpy.types.Context, it will accept None.
+            # If data type is bpy.types.Context, it will be never None.
             if r.to_string() == "bpy.types.Context":
-                while "never none" in option_results:
-                    option_results.remove("never none")
-                option_results.append("accept none")
+                option_results.append("never none")
 
             if variable_kind == 'CLS_ATTR':
                 if is_cls_attr_in_never_none_blacklist(
