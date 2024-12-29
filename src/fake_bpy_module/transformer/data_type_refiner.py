@@ -80,10 +80,12 @@ REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 REGEX_MATCH_DESCRIPTION_TYPE_IN = re.compile(r"type in `(.*)`")
 REGEX_MATCH_DESCRIPTION_ENUMERATOR_IN = re.compile(r"^Enumerator in `(.*)`")
 
+# pylint: disable=C0301
 _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
+_REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Sequence|Callable|list|dict|tuple)?\[(.+)\]$")  # noqa: E501
 
 REGEX_SPLIT_OR = re.compile(r" \| | or |,")
 
@@ -209,6 +211,9 @@ class DataTypeRefiner(TransformerBase):
 
         if dtype_str.startswith("`AnyType`"):
             return [make_data_type_node("typing.Any")]
+
+        if dtype_str == "None":
+            return [make_data_type_node("None")]
 
         if dtype_str in ("any", "Any", "Any type."):
             return [make_data_type_node("typing.Any")]
@@ -737,8 +742,11 @@ class DataTypeRefiner(TransformerBase):
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
         # Handle Python typing syntax.
-        if m := re.match(r"^(list|dict|tuple)\[(.+)\]$", dtype_str):
-            elements = split_string_by_comma(m.group(2))
+        if m := _REGEX_DATA_TYPE_MODIFIER_TYPES.match(dtype_str):
+            modifier = m.group(1)
+            if modifier is None:
+                modifier = ""
+            elements = split_string_by_comma(m.group(2), False)
             elm_dtype_nodes: list[list[DataTypeNode]] = []
             for elm in elements:
                 dtype_nodes = self._get_refined_data_type_internal(
@@ -746,9 +754,16 @@ class DataTypeRefiner(TransformerBase):
                 if len(dtype_nodes) >= 1:
                     elm_dtype_nodes.append(dtype_nodes)
 
+            pydoc_to_typing_annotation = {
+                "Sequence": "collections.abc.Sequence",
+                "Callable": "collections.abc.Callable",
+            }
+
+            modifier = pydoc_to_typing_annotation.get(modifier, modifier)
+
             new_dtype_node = DataTypeNode()
             if len(elm_dtype_nodes) >= 1:
-                append_child(new_dtype_node, nodes.Text(f"{m.group(1)}["))
+                append_child(new_dtype_node, nodes.Text(f"{modifier}["))
                 for i, dtype_nodes in enumerate(elm_dtype_nodes):
                     for j, dtype_node in enumerate(dtype_nodes):
                         for child in dtype_node.children:
@@ -759,7 +774,7 @@ class DataTypeRefiner(TransformerBase):
                         append_child(new_dtype_node, nodes.Text(", "))
                 append_child(new_dtype_node, nodes.Text("]"))
             else:
-                append_child(new_dtype_node, nodes.Text(m.group(1)))
+                append_child(new_dtype_node, nodes.Text(modifier))
             return [new_dtype_node]
 
         # Ex. string, default "", -> string

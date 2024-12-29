@@ -40,6 +40,31 @@
                 list
     <data>
         <name>
+            data_python_typing_syntax_4
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                collections.abc.Sequence[
+                int
+                ]
+    <data>
+        <name>
+            data_python_typing_syntax_5
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                collections.abc.Callable[
+                [
+                int
+                , 
+                <class-ref>
+                    module_1.ClassA
+                ]
+                , 
+                None
+                ]
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>

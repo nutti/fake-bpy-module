@@ -12,6 +12,14 @@
 
    :type: list[UnknownType]
 
+.. data:: data_python_typing_syntax_4
+
+   :type: Sequence[int]
+
+.. data:: data_python_typing_syntax_5
+
+   :type: Callable[[int, :class:`ClassA`], None]
+
 .. data:: data_parentheses_pair
 
    :type: (:class:`ClassA`, :class:`module_2.ClassB`) pair

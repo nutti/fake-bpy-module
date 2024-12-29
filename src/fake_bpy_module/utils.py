@@ -56,27 +56,28 @@ def append_child(node: nodes.Node, item: nodes.Node) -> nodes.Node:
 
 
 # pylint: disable=R0912,R0915
-def split_string_by(line: str, separator: str) -> list:
+def split_string_by(line: str, separator: str,
+                    workaround_special_brace_case: bool) -> list:
     level = 0
     splited = []
     current = ""
     line_to_parse = line
 
-    # Handle case "arg1[, arg2]" -> "arg1, arg2"
-    sp = line_to_parse.split(f"[{separator}")
-    sub_strings = []
-    for i, s in enumerate(sp):
-        if i == 0:
-            sub_strings.append(s)
-        else:
-            assert s[-1] == "]"
-            sub_strings.append(s[:-1])
-    line_to_parse = separator.join(sub_strings)
+    if workaround_special_brace_case:
+        # Handle case "arg1[, arg2]" -> "arg1, arg2"
+        sp = line_to_parse.split(f"[{separator}")
+        sub_strings = []
+        for i, s in enumerate(sp):
+            if i == 0:
+                sub_strings.append(s)
+            else:
+                assert s[-1] == "]"
+                sub_strings.append(s[:-1])
+        line_to_parse = separator.join(sub_strings)
 
-    # Handle case "[arg1]"
-    m = _ARG_LIST_WITH_BRACE_REGEX.match(line_to_parse)
-    if m:
-        line_to_parse = f"{m.group(1)}"
+        # Handle case "[arg1]"
+        if m := _ARG_LIST_WITH_BRACE_REGEX.match(line_to_parse):
+            line_to_parse = f"{m.group(1)}"
 
     for c in line_to_parse:
         if c in ("(", "{", "["):
@@ -102,9 +103,11 @@ def split_string_by(line: str, separator: str) -> list:
     return [s.strip() for s in splited]
 
 
-def split_string_by_comma(line: str) -> list:
-    return split_string_by(line, ",")
+def split_string_by_comma(
+        line: str, workaround_special_brace_case: bool = True) -> list:
+    return split_string_by(line, ",", workaround_special_brace_case)
 
 
-def split_string_by_bar(line: str) -> list:
-    return split_string_by(line, "|")
+def split_string_by_bar(
+        line: str, workaround_special_brace_case: bool = True) -> list:
+    return split_string_by(line, "|", workaround_special_brace_case)
