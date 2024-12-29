@@ -6,6 +6,8 @@
 
    .. method:: __init__(rgb=(0.0, 0.0, 0.0))
 
+      :type rgb: Sequence[float]
+
    .. method:: __get__(instance, owner)
 
       :rtype: :class:`Color`
@@ -106,6 +108,9 @@
 
    .. method:: __init__(angles=(0.0, 0.0, 0.0), order='XYZ')
 
+      :type angles: Sequence[float]
+      :type order: str
+
    .. method:: __get__(instance, owner)
 
       :rtype: :class:`Euler`
@@ -145,6 +150,8 @@
 .. class:: Matrix
 
    .. method:: __init__(rows=((1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0), (0.0, 0.0, 0.0, 1.0)))
+
+      :type rows: Sequence[Sequence[float]]
 
    .. method:: __get__(instance, owner)
 
@@ -236,7 +243,10 @@
 
 .. class:: Quaternion
 
-   .. method:: __init__(seq=(1.0, 0.0, 0.0, 0.0))
+   .. method:: __init__(seq=(1.0, 0.0, 0.0, 0.0), angle=0.0)
+
+      :type seq: :class:`Vector`
+      :type angle: float
 
    .. method:: __get__(instance, owner)
 
@@ -328,6 +338,8 @@
 .. class:: Vector
 
    .. method:: __init__(seq=(0.0, 0.0, 0.0))
+
+      :type seq: Sequence[float]
 
    .. method:: __get__(instance, owner)
 
