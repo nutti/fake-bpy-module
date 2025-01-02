@@ -44,6 +44,15 @@
                         <data-type-list>
                             <data-type>
                                 method_2 arg_2 type
+                    <argument argument_type="arg">
+                        <name>
+                            arg_3
+                        <description>
+                            Enumerator in `rna_enum_example`.
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                set[str]
                 <return>
                     <description>
                     <data-type-list>

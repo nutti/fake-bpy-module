@@ -51,6 +51,18 @@
                             <data-type>
                                 <enum-ref>
                                     bpy.typing.Example
+                    <argument argument_type="arg">
+                        <name>
+                            arg_3
+                        <description>
+                            Enumerator in `rna_enum_example`.
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                set[
+                                <enum-ref>
+                                    bpy.typing.Example
+                                ]
                 <return>
                     <description>
                     <data-type-list>

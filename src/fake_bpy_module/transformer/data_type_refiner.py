@@ -861,7 +861,7 @@ class DataTypeRefiner(TransformerBase):
                 REGEX_MATCH_DESCRIPTION_TYPE_IN.search(description_str):
             is_set = False
             for dtype_node in dtype_nodes:
-                if dtype_node.to_string() == "set":
+                if dtype_node.to_string() in ("set", "set[str]"):
                     is_set = True
                     break
 
