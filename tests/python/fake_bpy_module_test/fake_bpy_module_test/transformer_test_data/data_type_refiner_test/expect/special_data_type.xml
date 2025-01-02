@@ -51,6 +51,13 @@
                 ], None]
     <data>
         <name>
+            data_python_typing_syntax_6
+        <description>
+        <data-type-list>
+            <data-type>
+                Callable[[float, int], tuple[float, int]]
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>

@@ -20,6 +20,10 @@
 
    :type: Callable[[int, :class:`ClassA`], None]
 
+.. data:: data_python_typing_syntax_6
+
+   :type: Callable[[float, int], tuple[float, int]]
+
 .. data:: data_parentheses_pair
 
    :type: (:class:`ClassA`, :class:`module_2.ClassB`) pair

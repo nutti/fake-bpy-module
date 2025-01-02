@@ -203,6 +203,9 @@ class DataTypeRefiner(TransformerBase):
             if s:
                 return [make_data_type_node(f"`{s}`")]
 
+        if dtype_str == "...":
+            return [make_data_type_node("...")]
+
         if dtype_str in ("type", "object", "function"):
             return [make_data_type_node("typing.Any")]
 
