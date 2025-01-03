@@ -46,7 +46,7 @@ class RnaEnumConverter(TransformerBase):
         document.append(source_file_node)
 
         module_node = ModuleNode.create_template()
-        module_node.element(NameNode).add_text("bpy.typing_enums")
+        module_node.element(NameNode).add_text("bpy.typing")
         document.append(module_node)
 
         enum_node = EnumNode.create_template()

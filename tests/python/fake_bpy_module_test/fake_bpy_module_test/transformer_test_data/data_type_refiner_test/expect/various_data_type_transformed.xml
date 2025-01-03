@@ -145,7 +145,7 @@
             <data-type option="never none">
                 set[
                 <enum-ref>
-                    bpy.typing_enums.Example
+                    bpy.typing.Example
                 ]
     <data>
         <name>
@@ -154,7 +154,7 @@
         <data-type-list>
             <data-type option="never none">
                 <enum-ref>
-                    bpy.typing_enums.Example
+                    bpy.typing.Example
     <data>
         <name>
             data_enumerated_constant

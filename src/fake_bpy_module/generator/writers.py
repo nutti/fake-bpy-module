@@ -647,7 +647,8 @@ class PyCodeWriterBase(BaseWriter):
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
                 for child in sorted(children):
-                    if child == "typing_enums":
+                    # Skip typing module as it is not available at runtime
+                    if child == "typing":
                         continue
                     wt.addln(f"from . import {child} as {child}")
             if len(children) > 0:
