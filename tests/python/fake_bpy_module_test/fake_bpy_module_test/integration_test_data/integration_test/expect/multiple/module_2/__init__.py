@@ -1,7 +1,7 @@
 import typing
 import collections.abc
 import typing_extensions
-import bpy.typing
+import bpy.typing_enums
 import module_1
 import module_1.submodule_1
 
@@ -9,9 +9,9 @@ import module_1.submodule_1
 def function_1(
     arg_1: int,
     arg_2: module_1.ClassA,
-    arg_3: bpy.typing.Enum1,
-    arg_4: set[bpy.typing.Enum1],
-    arg_5: bpy.typing.Enum1,
+    arg_3: bpy.typing_enums.Enum1,
+    arg_4: set[bpy.typing_enums.Enum1],
+    arg_5: bpy.typing_enums.Enum1,
 ) -> module_1.submodule_1.BaseClass1:
     """function_1 description
 
@@ -20,11 +20,11 @@ def function_1(
     :param arg_2: function_1 arg_2 description
     :type arg_2: module_1.ClassA
     :param arg_3: function_1 arg_3 description
-    :type arg_3: bpy.typing.Enum1
+    :type arg_3: bpy.typing_enums.Enum1
     :param arg_4: Enumerator in `rna_enum_enum1`.
-    :type arg_4: set[bpy.typing.Enum1]
+    :type arg_4: set[bpy.typing_enums.Enum1]
     :param arg_5: job type in `rna_enum_enum1`.
-    :type arg_5: bpy.typing.Enum1
+    :type arg_5: bpy.typing_enums.Enum1
     :return: method_1 return description
     :rtype: module_1.submodule_1.BaseClass1
     """

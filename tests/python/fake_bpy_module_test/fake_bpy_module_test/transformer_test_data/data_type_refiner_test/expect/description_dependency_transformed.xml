@@ -39,7 +39,7 @@
                             <data-type>
                                 set[
                                 <enum-ref>
-                                    bpy.typing.Example
+                                    bpy.typing_enums.Example
                                 ]
                     <argument argument_type="arg">
                         <name>
@@ -50,7 +50,7 @@
                         <data-type-list>
                             <data-type>
                                 <enum-ref>
-                                    bpy.typing.Example
+                                    bpy.typing_enums.Example
                     <argument argument_type="arg">
                         <name>
                             arg_3
@@ -61,7 +61,7 @@
                             <data-type>
                                 set[
                                 <enum-ref>
-                                    bpy.typing.Example
+                                    bpy.typing_enums.Example
                                 ]
                 <return>
                     <description>
