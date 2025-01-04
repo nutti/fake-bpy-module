@@ -648,7 +648,7 @@ class PyCodeWriterBase(BaseWriter):
                 children = [node.astext() for node in child_nodes]
                 for child in sorted(children):
                     # Skip typing module as it is not available at runtime
-                    if child == "typing":
+                    if child == "_typing":
                         continue
                     wt.addln(f"from . import {child} as {child}")
             if len(children) > 0:
