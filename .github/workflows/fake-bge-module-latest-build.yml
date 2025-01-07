@@ -45,7 +45,7 @@ jobs:
 
   build_modules:
     name: Build modules
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: |
       github.repository == 'nutti/fake-bge-module' ||
       github.event_name != 'schedule'
