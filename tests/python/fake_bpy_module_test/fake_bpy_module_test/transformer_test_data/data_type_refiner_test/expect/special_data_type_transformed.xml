@@ -84,6 +84,21 @@
                 ]
     <data>
         <name>
+            data_multiple_lines
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                type[
+                <class-ref>
+                    module_1.ClassA
+                 | 
+                float
+                 | 
+                <class-ref>
+                    module_2.ClassB
+                ]
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>

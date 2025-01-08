@@ -24,6 +24,12 @@
 
    :type: Callable[[float, int], tuple[float, int]]
 
+.. data:: data_multiple_lines
+
+   :type: type[
+      :class:`ClassA` | float |
+      :class:`module_2.ClassB`]
+
 .. data:: data_parentheses_pair
 
    :type: (:class:`ClassA`, :class:`module_2.ClassB`) pair

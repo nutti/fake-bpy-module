@@ -826,6 +826,7 @@ class DataTypeRefiner(TransformerBase):
     ) -> list[DataTypeNode]:
 
         dtype_str = dtype_str.strip()
+        dtype_str = dtype_str.replace("\n", " ")
 
         dtype_strs_splited = split_string_by_bar(dtype_str)
         if len(dtype_strs_splited) == 0:

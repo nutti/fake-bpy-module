@@ -58,6 +58,19 @@
                 Callable[[float, int], tuple[float, int]]
     <data>
         <name>
+            data_multiple_lines
+        <description>
+        <data-type-list>
+            <data-type>
+                type[
+                <class-ref>
+                    ClassA
+                 | float |
+                <class-ref>
+                    module_2.ClassB
+                ]
+    <data>
+        <name>
             data_parentheses_pair
         <description>
         <data-type-list>
