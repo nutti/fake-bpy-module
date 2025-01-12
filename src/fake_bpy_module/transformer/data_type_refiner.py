@@ -73,7 +73,6 @@ REGEX_MATCH_DATA_TYPE_LIST_OR_DICT_OR_SET_OR_TUPLE = re.compile(r"^`*(list|dict|
 REGEX_MATCH_DATA_TYPE_OT = re.compile(r"^`([A-Z]+)_OT_([A-Za-z_]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT = re.compile(r"^`([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)`$")
 REGEX_MATCH_DATA_TYPE_DOT_COMMA = re.compile(r"^`([a-zA-Z0-9_.]+)`(,)*$")
-REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\(([a-zA-Z0-9_.,` ]+)\)$")     # noqa: E501
 REGEX_MATCH_DATA_TYPE_NAME = re.compile(r"^[a-zA-Z0-9_.]+$")
 # pylint: enable=line-too-long
 
@@ -86,6 +85,7 @@ _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 _REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Sequence|Callable|list|dict|tuple|type)?\[(.+)\]$")  # noqa: E501
+_REGEX_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\((.+)\)$")
 
 REGEX_SPLIT_OR = re.compile(r" \| | or |,")
 
@@ -505,23 +505,6 @@ class DataTypeRefiner(TransformerBase):
             if s:
                 return [make_data_type_node(f"tuple[`{s}`, ...]")]
 
-        # [Ex] (Vector, Quaternion, Vector)  # noqa: ERA001
-        if m1 := REGEX_MATCH_DATA_TYPE_START_AND_END_WITH_PARENTHESES.match(
-                dtype_str):
-            splited = m1.group(1).split(",")
-            dtypes = []
-            for raw_sp in splited:
-                sp = raw_sp.strip()
-                if m2 := REGEX_MATCH_DATA_TYPE_DOT_COMMA.match(sp):
-                    s = self._parse_custom_data_type(
-                        m2.group(1), uniq_full_names, uniq_module_names,
-                        module_name)
-                    if s:
-                        dtypes.append(f"`{s}`")
-            if len(dtypes) != 0:
-                elem_str = ", ".join(dtypes)
-                return [make_data_type_node(f"tuple[{elem_str}]")]
-
         if dtype_str == "dict with string keys":
             return [make_data_type_node("dict[str, typing.Any]")]
         if dtype_str == "iterable object":
@@ -744,25 +727,15 @@ class DataTypeRefiner(TransformerBase):
         uniq_full_names = self._entry_points_cache["uniq_full_names"]
         uniq_module_names = self._entry_points_cache["uniq_module_names"]
 
-        # Handle Python typing syntax.
-        if m := _REGEX_DATA_TYPE_MODIFIER_TYPES.match(dtype_str):
-            modifier = m.group(1)
-            if modifier is None:
-                modifier = ""
-            elements = split_string_by_comma(m.group(2), False)
+        def parse_multiple_data_type_elements(
+                elements_str: str, modifier: str) -> list[DataTypeNode]:
+            elements = split_string_by_comma(elements_str, False)
             elm_dtype_nodes: list[list[DataTypeNode]] = []
             for elm in elements:
                 dtype_nodes = self._get_refined_data_type_internal(
                     elm, module_name, variable_kind, additional_info)
                 if len(dtype_nodes) >= 1:
                     elm_dtype_nodes.append(dtype_nodes)
-
-            pydoc_to_typing_annotation = {
-                "Sequence": "collections.abc.Sequence",
-                "Callable": "collections.abc.Callable",
-            }
-
-            modifier = pydoc_to_typing_annotation.get(modifier, modifier)
 
             new_dtype_node = DataTypeNode()
             if len(elm_dtype_nodes) >= 1:
@@ -779,6 +752,25 @@ class DataTypeRefiner(TransformerBase):
             else:
                 append_child(new_dtype_node, nodes.Text(modifier))
             return [new_dtype_node]
+
+        # [Ex] (Vector, Quaternion, Vector)  # noqa: ERA001
+        if m := _REGEX_DATA_TYPE_START_AND_END_WITH_PARENTHESES.match(
+                dtype_str):
+            return parse_multiple_data_type_elements(m.group(1), "tuple")
+
+        # Handle Python typing syntax.
+        if m := _REGEX_DATA_TYPE_MODIFIER_TYPES.match(dtype_str):
+            pydoc_to_typing_annotation = {
+                "Sequence": "collections.abc.Sequence",
+                "Callable": "collections.abc.Callable",
+            }
+
+            modifier = m.group(1)
+            if modifier is None:
+                modifier = ""
+            modifier = pydoc_to_typing_annotation.get(modifier, modifier)
+
+            return parse_multiple_data_type_elements(m.group(2), modifier)
 
         # Ex. string, default "", -> string
         if m := REGEX_MATCH_DATA_TYPE_WITH_DEFAULT.match(dtype_str):
