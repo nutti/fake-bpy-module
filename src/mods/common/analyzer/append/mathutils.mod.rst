@@ -100,7 +100,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :type value: collections.abc.Iterable[float]
+      :type value: collections.abc.Iterable[float] | :class:`Vector`
       :mod-option arg value: skip-refine
       :option function: overload
 
