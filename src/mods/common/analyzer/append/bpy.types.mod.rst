@@ -131,3 +131,21 @@
    .. attribute:: properties
 
       :type: :class:`bpy_prop_collection` of :class:`Property`
+
+.. class:: IDMaterials
+
+   .. method:: __getitem__(key)
+
+      :type key: int | str
+      :mod-option arg key: skip-refine
+      :rtype: :class:`Material` | None
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: list[:class:`Material` | None, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
