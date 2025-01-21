@@ -99,6 +99,77 @@
       :mod-option rtype: skip-refine
       :generic-types: _GenericType2
 
+.. class:: bpy_prop_collection_idprop
+
+   :generic-types: _GenericType1
+
+   .. method:: __getitem__(key)
+
+      :type key: int | str
+      :mod-option arg key: skip-refine
+      :rtype: _GenericType1
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __getitem__(key)
+
+      :type key: slice
+      :mod-option arg key: skip-refine
+      :rtype: list[_GenericType1, ...]
+      :mod-option rtype: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int | str
+      :mod-option arg key: skip-refine
+      :type value: GenericType1 | None
+      :mod-option arg value: skip-refine
+
+   .. method:: __setitem__(key, value)
+
+      :type key: int
+      :mod-option arg key: skip-refine
+      :type value: _GenericType1 | None
+      :mod-option arg value: skip-refine
+      :option function: overload
+
+   .. method:: __setitem__(key, value)
+
+      :type key: str
+      :mod-option arg key: skip-refine
+      :type value: _GenericType1
+      :mod-option arg value: skip-refine
+      :option function: overload
+
+   .. method:: __iter__()
+
+      :rtype: collections.abc.Iterator[_GenericType1]
+      :mod-option rtype: skip-refine
+
+   .. method:: __next__()
+
+      :rtype: _GenericType1
+      :mod-option rtype: skip-refine
+
+   .. method:: __len__()
+
+      :rtype: int
+      :mod-option rtype: skip-refine
+
+   .. method:: __contains__(key)
+
+      :type key: str | tuple[str, ...] | _GenericType1
+      :mod-option arg key: skip-refine
+      :rtype: bool
+      :mod-option rtype: skip-refine
+
+   .. method:: get()
+
+      :rtype: _GenericType1 | _GenericType2
+      :mod-option rtype: skip-refine
+      :generic-types: _GenericType2
+
 .. class:: bpy_struct
 
    :generic-types: _GenericType1
