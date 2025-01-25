@@ -52,7 +52,7 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :type value: GenericType1 | None
+      :type value: _GenericType1 | None
       :mod-option arg value: skip-refine
 
    .. method:: __setitem__(key, value)
@@ -123,7 +123,7 @@
 
       :type key: int | str
       :mod-option arg key: skip-refine
-      :type value: GenericType1 | None
+      :type value: _GenericType1 | None
       :mod-option arg value: skip-refine
 
    .. method:: __setitem__(key, value)
