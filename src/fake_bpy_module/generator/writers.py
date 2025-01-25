@@ -54,7 +54,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     class_nodes = find_children(document, ClassNode)
     for class_node in class_nodes:
         class_name = class_node.element(NameNode).astext()
-        if class_name in ("bpy_prop_collection",
+        if class_name in ("bpy_prop_collection", "bpy_prop_collection_idprop",
                           "bpy_prop_array", "bpy_struct"):
             all_high_priority_class_nodes.append(class_node)
         else:
