@@ -19,11 +19,15 @@
 
    .. method:: find(key)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
 
    .. method:: get(key, default=None)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
       :type default: _GenericType2
       :mod-option arg default: skip-refine
       :generic-types: _GenericType2
@@ -58,11 +62,15 @@
 
    .. method:: find(key)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
 
    .. method:: get(key, default=None)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
       :type default: _GenericType2
       :mod-option arg default: skip-refine
       :generic-types: _GenericType2
