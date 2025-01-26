@@ -19,11 +19,58 @@
 
    .. method:: find(key)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
 
    .. method:: get(key, default=None)
 
-      :type key: str (never None)
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
+      :type default: _GenericType2
+      :mod-option arg default: skip-refine
+      :generic-types: _GenericType2
+
+   .. method:: items()
+
+      :rtype: list[tuple[str, _GenericType1]]
+      :mod-option rtype: skip-refine
+
+   .. method:: foreach_get(attr, seq)
+
+      :type attr: str
+      :mod-option arg attr: skip-refine
+      :type seq: collections.abc.MutableSequence[bool] | collections.abc.MutableSequence[int] | collections.abc.MutableSequence[float] | typing_extensions.Buffer
+      :mod-option arg seq: skip-refine
+
+   .. method:: foreach_set(attr, seq)
+
+      :type attr: str
+      :mod-option arg attr: skip-refine
+      :type seq: collections.abc.Sequence[bool] | collections.abc.Sequence[int] | collections.abc.Sequence[float] | typing_extensions.Buffer
+      :mod-option arg seq: skip-refine
+
+.. class:: bpy_prop_collection_idprop
+
+   :generic-types: _GenericType1
+
+   .. method:: values()
+
+      :rtype: list[_GenericType1 | None]
+      :mod-option rtype: skip-refine
+
+   .. method:: find(key)
+
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
+
+   .. method:: get(key, default=None)
+
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
       :type default: _GenericType2
       :mod-option arg default: skip-refine
       :generic-types: _GenericType2
