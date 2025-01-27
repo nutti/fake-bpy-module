@@ -55,6 +55,11 @@
 
    :generic-types: _GenericType1
 
+   .. method:: add()
+
+      :rtype: _GenericType1
+      :mod-option rtype: skip-refine
+
    .. method:: values()
 
       :rtype: list[_GenericType1 | None]
