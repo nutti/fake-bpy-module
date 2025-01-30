@@ -2,7 +2,28 @@
 
 # Change Log
 
-## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20241010...main)
+## [Unreleased](https://github.com/nutti/fake-bpy-module/compare/20250130...main)
+
+<!-- markdownlint-disable-next-line MD013 -->
+## [20250130](https://github.com/nutti/fake-bpy-module/compare/20241010...20250130) - 2025.1.30
+
+### Notice
+
+From this version, fake-bpy-module supports Python 3.8 to 3.11 again.
+
+### Updated Features
+
+* Support fake-bpy-module-4.3
+
+### Other Updates
+
+* Fix bugs
+
+### Contributors
+
+* [**@JonathanPlasse**](https://github.com/JonathanPlasse)
+* [**@ice3**](https://github.com/ice3)
+* [**@Andrej730**](https://github.com/Andrej730)
 
 <!-- markdownlint-disable-next-line MD013 -->
 ## [20241010](https://github.com/nutti/fake-bpy-module/compare/20240604...20241010) - 2024.10.10
