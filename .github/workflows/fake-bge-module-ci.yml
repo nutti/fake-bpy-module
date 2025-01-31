@@ -118,13 +118,13 @@ jobs:
         run: bash tools/pip_package/build_pip_package.sh upbge ${{ matrix.upbge_version }} ./upbge ./upbge-bin/upbge-v${{ matrix.upbge_version }}-bin ${{ matrix.upbge_version }}
 
       - name: Archive pip packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bge_modules_${{ matrix.upbge_version}}_pip_${{ needs.set_versions.outputs.file_version }}
           path: release
 
       - name: Archive raw modules
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bge_modules_${{ matrix.upbge_version}}_raw_${{ needs.set_versions.outputs.file_version }}
           path: "raw_modules/fake_bge_module*"
@@ -151,7 +151,7 @@ jobs:
 
       - name: Store failure state
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failure_state_${{ matrix.upbge_version}}
           path: /tmp/failure_state_${{ matrix.upbge_version}}
@@ -173,7 +173,7 @@ jobs:
           ]
     steps:
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
@@ -202,7 +202,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
@@ -229,7 +229,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 

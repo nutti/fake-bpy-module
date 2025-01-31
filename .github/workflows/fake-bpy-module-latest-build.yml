@@ -122,13 +122,13 @@ jobs:
         run: bash tools/pip_package/build_pip_package.sh blender latest ./blender ./blender-bin/blender-latest-bin
 
       - name: Archive pip packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bpy_modules_latest_pip_${{ needs.set_versions.outputs.file_version }}
           path: release
 
       - name: Archive raw modules
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bpy_modules_latest_raw_${{ needs.set_versions.outputs.file_version }}
           path: "raw_modules/fake_bpy_module*"
@@ -148,7 +148,7 @@ jobs:
 
       - name: Store profiler result
         if: contains(github.ref, 'perf/')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: profiler_result
           path: /tmp/profiler_result.prof
@@ -159,7 +159,7 @@ jobs:
 
       - name: Store failure state
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failure_state
           path: /tmp/failure_state
@@ -173,7 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
@@ -200,7 +200,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
       - name: Publish distribution 📦 to PyPI (Versioned Package)

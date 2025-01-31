@@ -125,13 +125,13 @@ jobs:
         run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bpy_modules_${{ matrix.blender_version}}_pip_${{ needs.set_versions.outputs.file_version }}
           path: release
 
       - name: Archive raw modules
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fake_bpy_modules_${{ matrix.blender_version}}_raw_${{ needs.set_versions.outputs.file_version }}
           path: "raw_modules/fake_bpy_module*"
@@ -158,7 +158,7 @@ jobs:
 
       - name: Store failure state
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failure_state_${{ matrix.blender_version}}
           path: /tmp/failure_state_${{ matrix.blender_version}}
@@ -183,7 +183,7 @@ jobs:
           ]
     steps:
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
@@ -215,7 +215,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
@@ -245,7 +245,7 @@ jobs:
           ]
     steps:
       - name: Fetch Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
 
