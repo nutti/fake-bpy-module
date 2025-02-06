@@ -606,10 +606,6 @@ class DataTypeRefiner(TransformerBase):
                                f"{dtype_str} -> {stripped}")
                     dtype_str = stripped
 
-            # If readonly is specified, we should add never none as well.
-            if "readonly" in option_results:
-                option_results.append("never none")
-
             option_results = sorted(set(option_results))
 
             # Active object can accept None.
