@@ -127,8 +127,8 @@ class DataNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = DataNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -145,8 +145,8 @@ class AttributeNode(DataNode):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = AttributeNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -176,8 +176,8 @@ class ArgumentNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = ArgumentNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -195,8 +195,8 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = FunctionReturnNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(DescriptionNode())
         node.append_child(DataTypeListNode())
@@ -215,8 +215,8 @@ class FunctionNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = FunctionNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -239,8 +239,8 @@ class BaseClassNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = BaseClassNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(DataTypeListNode())
 
@@ -255,8 +255,8 @@ class ClassNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = ClassNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -275,8 +275,8 @@ class ModuleNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = ModuleNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -297,8 +297,8 @@ class EnumItemNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = EnumItemNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
@@ -319,8 +319,8 @@ class EnumNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls: type[Self], rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> type[Self]:
-        node = EnumNode(rawsource, *children, **attributes)
+            *children: nodes.Node, **attributes: dict) -> Self:
+        node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
         node.append_child(DescriptionNode())
