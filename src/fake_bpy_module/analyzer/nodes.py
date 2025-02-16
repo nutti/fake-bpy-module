@@ -32,7 +32,7 @@ class UniqueElementNode(NodeBase):
     def element(self, element_type: type[T]) -> T:
         return self.elements[element_type]
 
-    def deepcopy(self) -> type[Self]:
+    def deepcopy(self) -> Self:
         new_obj = super().deepcopy()
         new_obj.elements.clear()
         for child in new_obj.children:
