@@ -38,9 +38,11 @@ tmp_dir_path="${SCRIPT_DIR}/${TMP_DIR_NAME}"
 
 invalid_package=0
 failed_test=0
+found_zip=false
 
 # shellcheck disable=SC2044
 for pkg in $(find "${PACKAGES_PATH}" -name "*.zip"); do
+    found_zip=true
     if [[ ${pkg} =~ (fake_(bpy|bge)_modules_([a-z0-9\.]+)-(.*)).zip ]]; then
         pkg_dir_name=${BASH_REMATCH[1]}
         pkg_version=${BASH_REMATCH[4]}
@@ -68,6 +70,11 @@ done
 
 if ((failed_test + invalid_package > 0)); then
     echo "Error: Found ${invalid_package} invalid packages and ${failed_test} failed tests."
+    exit 1
+fi
+
+if ! $found_zip; then
+    echo "Error: Couldn't find .zip files in '${PACKAGES_PATH}' to run the tests. Build .zip file using build_pip_package.sh first."
     exit 1
 fi
 
