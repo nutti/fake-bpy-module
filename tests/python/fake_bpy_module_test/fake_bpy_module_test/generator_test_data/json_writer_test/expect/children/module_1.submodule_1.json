@@ -8,7 +8,8 @@
         "contents": [
             "typing",
             "collections.abc",
-            "typing_extensions"
+            "typing_extensions",
+            "numpy.typing"
         ]
     },
     {

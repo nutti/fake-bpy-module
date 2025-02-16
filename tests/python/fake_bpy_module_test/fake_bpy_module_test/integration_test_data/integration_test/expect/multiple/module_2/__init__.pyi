@@ -1,6 +1,7 @@
 import typing
 import collections.abc
 import typing_extensions
+import numpy.typing as npt
 import bpy._typing.rna_enums
 import module_1
 import module_1.submodule_1
