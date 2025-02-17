@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -206,7 +204,7 @@ class DependencyBuilder(TransformerBase):
             dep_list_node.append_child(dep_node)
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "dependency_builder"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

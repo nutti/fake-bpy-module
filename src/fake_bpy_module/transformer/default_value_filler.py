@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -87,7 +85,7 @@ class DefaultValueFiller(TransformerBase):
                         default_value_node.add_text("None")
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "default_value_filler"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

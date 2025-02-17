@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes  # noqa: TCH002
 
 from fake_bpy_module.analyzer.nodes import (
@@ -25,7 +23,7 @@ from .transformer_base import TransformerBase
 
 class BpyContextVariableConverter(TransformerBase):
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "bpy_context_variable_converter"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -160,7 +158,7 @@ class CannonicalDataTypeRewriter(TransformerBase):
                 replace(enum_ref, new_enum_ref)
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "cannonical_data_type_rewriter"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

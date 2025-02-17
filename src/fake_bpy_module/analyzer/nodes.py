@@ -126,7 +126,7 @@ class DataNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -144,7 +144,7 @@ class AttributeNode(DataNode):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -175,7 +175,7 @@ class ArgumentNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -194,7 +194,7 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -214,7 +214,7 @@ class FunctionNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -238,7 +238,7 @@ class BaseClassNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -254,7 +254,7 @@ class ClassNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -274,7 +274,7 @@ class ModuleNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -296,7 +296,7 @@ class EnumItemNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 
@@ -318,7 +318,7 @@ class EnumNode(UniqueElementNode, nodes.Part):
     # pylint: disable=W1113
     @classmethod
     def create_template(
-            cls: type[Self], rawsource: str = "",
+            cls, rawsource: str = "",
             *children: nodes.Node, **attributes: dict) -> Self:
         node = cls(rawsource, *children, **attributes)
 

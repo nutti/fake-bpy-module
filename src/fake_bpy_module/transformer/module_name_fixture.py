@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Self
 
 from docutils import nodes
 
@@ -34,7 +33,7 @@ class ModuleNameFixture(TransformerBase):
         return True
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "module_name_fixture"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
