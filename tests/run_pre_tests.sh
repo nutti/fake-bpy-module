@@ -3,10 +3,16 @@ set -eEu
 
 if [ $# -ne 1 ]; then
     echo "Usage: run_tests.sh <fake_bpy_module_package_path>"
+    echo "Typical fake_bpy_module_package_path is './src/'."
     exit 1
 fi
 
 PACKAGES_PATH=${1}
+if [ ! -d "${PACKAGES_PATH}/fake_bpy_module" ]; then
+    echo "Error: 'fake_bpy_module' directory is not found in '${PACKAGES_PATH}'."
+    exit 1
+fi
+
 # shellcheck disable=SC2046,SC2155,SC2164
 {
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)

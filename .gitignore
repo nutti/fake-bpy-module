@@ -15,6 +15,7 @@ tools/pip_package/tmp-*
 
 # test logs
 fake_bpy_module_test.log
+import_module_test.log
 
 # ignore artifacts
 release
