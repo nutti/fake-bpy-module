@@ -1,5 +1,5 @@
 import re
-from typing import Any, Self
+from typing import Any
 
 from docutils import nodes
 
@@ -1017,7 +1017,7 @@ class DataTypeRefiner(TransformerBase):
                    additional_info={"data_name": f"{data_name}"})
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "data_type_refiner"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

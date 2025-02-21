@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 
@@ -11,7 +9,7 @@ class TransformerBase:
         self.outputs: dict = {}
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         raise NotImplementedError("Subclass must implement this method")
 
     def get_outputs(self) -> dict:

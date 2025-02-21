@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -24,7 +22,7 @@ def to_camel(name: str) -> str:
 
 class RnaEnumConverter(TransformerBase):
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "rna_enum_converter"
 
     def _apply(self, document: nodes.document) -> None:

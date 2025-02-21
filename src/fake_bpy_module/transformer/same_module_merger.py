@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -42,7 +40,7 @@ class SameModuleMerger(TransformerBase):
         return results
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "same_module_merger"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

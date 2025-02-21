@@ -22,11 +22,11 @@ class Configuration:
         raise NotImplementedError("Not allowed to call constructor")
 
     @classmethod
-    def __internal_new(cls: type[Self]) -> Self:
+    def __internal_new(cls) -> Self:
         return super().__new__(cls)
 
     @classmethod
-    def get_instance(cls: type[Self]) -> Self:
+    def get_instance(cls) -> Self:
         if not cls.__inst:
             with cls.__lock:
                 if not cls.__inst:

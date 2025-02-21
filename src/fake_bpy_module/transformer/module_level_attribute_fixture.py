@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import AttributeNode, DataNode
@@ -28,7 +26,7 @@ class ModuleLevelAttributeFixture(TransformerBase):
             append_child(document, node)
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "module_level_attribute_fixture"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import (
@@ -23,7 +21,7 @@ from .transformer_base import TransformerBase
 class SelfRewriter(TransformerBase):
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "self_rewriter"
 
     def _replace(self, from_node: nodes.Node, to_node: nodes.Node) -> None:

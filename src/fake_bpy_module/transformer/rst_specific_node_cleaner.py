@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import CodeDocumentNode, CodeNode
@@ -38,7 +36,7 @@ class RstSpecificNodeCleaner(TransformerBase):
                 append_child(code_doc_node, node)
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "rst_specific_node_cleaner"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

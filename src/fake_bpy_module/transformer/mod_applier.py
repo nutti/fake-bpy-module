@@ -1,6 +1,6 @@
 import copy
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -276,7 +276,7 @@ class ModApplier(TransformerBase):
         self.mod_documents = []
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "mod_applier"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

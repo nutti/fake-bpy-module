@@ -1,5 +1,4 @@
 import re
-from typing import Self
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -144,7 +143,7 @@ class TargetFileCombiner(TransformerBase):
         return results
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "target_file_combiner"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

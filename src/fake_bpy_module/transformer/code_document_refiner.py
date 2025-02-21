@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from fake_bpy_module.analyzer.nodes import CodeDocumentNode
@@ -38,7 +36,7 @@ class CodeDocumentRefiner(TransformerBase):
             append_child(document, new_doc_node)
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "code_document_refiner"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002

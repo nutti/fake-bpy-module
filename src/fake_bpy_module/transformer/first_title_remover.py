@@ -1,5 +1,3 @@
-from typing import Self
-
 from docutils import nodes
 
 from .transformer_base import TransformerBase
@@ -14,7 +12,7 @@ class FirstTitleRemover(TransformerBase):
             break
 
     @classmethod
-    def name(cls: type[Self]) -> str:
+    def name(cls) -> str:
         return "first_title_remover"
 
     def apply(self, **kwargs: dict) -> None:  # noqa: ARG002
