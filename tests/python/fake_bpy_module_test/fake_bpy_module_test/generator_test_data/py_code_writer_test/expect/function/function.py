@@ -1,6 +1,7 @@
 import typing
 import collections.abc
 import typing_extensions
+import numpy.typing as npt
 
 
 def function_1(arg_1: float, arg_2: str = "test", arg_3: int = 1234) -> str:

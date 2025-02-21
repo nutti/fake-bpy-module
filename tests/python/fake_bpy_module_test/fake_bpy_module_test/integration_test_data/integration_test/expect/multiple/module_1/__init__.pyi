@@ -1,6 +1,7 @@
 import typing
 import collections.abc
 import typing_extensions
+import numpy.typing as npt
 import module_1.submodule_1
 
 from . import submodule_1 as submodule_1

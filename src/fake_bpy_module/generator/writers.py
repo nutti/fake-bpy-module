@@ -628,6 +628,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln("import typing")
             wt.addln("import collections.abc")
             wt.addln("import typing_extensions")
+            wt.addln("import numpy.typing as npt")
 
             # import depended modules
             dep_list_node = get_first_child(document, DependencyListNode)
@@ -869,7 +870,12 @@ class JsonWriter(BaseWriter):
         # import external depended modules
         json_data.append({
             "type": "external-depended-modules",
-            "contents": ["typing", "collections.abc", "typing_extensions"],
+            "contents": [
+                "typing",
+                "collections.abc",
+                "typing_extensions",
+                "numpy.typing",
+            ],
         })
 
         # import depended modules

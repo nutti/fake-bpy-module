@@ -18,12 +18,12 @@
 
    .. method:: foreach_get(seq)
 
-      :type seq: collections.abc.MutableSequence[_GenericType1] | typing_extensions.Buffer
+      :type seq: collections.abc.MutableSequence[_GenericType1] | typing_extensions.Buffer | npt.NDArray
       :mod-option arg seq: skip-refine
 
    .. method:: foreach_set(seq)
 
-      :type seq: collections.abc.Sequence[_GenericType1] | typing_extensions.Buffer
+      :type seq: collections.abc.Sequence[_GenericType1] | typing_extensions.Buffer | npt.NDArray
       :mod-option arg seq: skip-refine
 
    .. method:: __getitem__(key)
