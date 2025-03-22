@@ -150,7 +150,9 @@ jobs:
         # For example: 00:29:45 UTC will create a file version
         #   "...dev2945-py3-none..." and not use {{ module_version }}
         #   "...dev002945-py3-none..."
-        run: bash tests/pylint_cycles.sh blender ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${{ matrix.blender_version }}-*-py3-none-any.whl
+        run: |
+          BLENDER_VERSION_FOR_WHL_FILE=$(echo '${{ matrix.blender_version }}' | tr '.' '_')
+          bash tests/pylint_cycles.sh blender ${{ matrix.blender_version }} ./blender/ ./release/${{ matrix.blender_version }}/fake_bpy_module_${BLENDER_VERSION_FOR_WHL_FILE}-*-py3-none-any.whl
 
       - name: Collect failure state
         if: failure()

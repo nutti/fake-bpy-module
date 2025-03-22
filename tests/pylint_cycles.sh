@@ -170,6 +170,10 @@ function workaround_quirks() {
             sed -i 's/for \(.*\?\) in self\.devices:/for \1 in [self.devices]:/' intern/cycles/blender/addon/properties.py
         fi
 
+        # Supress an error because pylint can not find oslquery package.
+        echo "Supress an import oslquery error"
+        sed -i 's/^\(\s*import oslquery*\)/\1 # pylint: disable=import-error/' intern/cycles/blender/addon/*.py
+
         # pylint does not respect a `hasattr` in `if hasattr(myclass, field) and myclass.field == test`
         echo "Ignoring pylint bug: https://github.com/PyCQA/pylint/issues/801"
         sed -i '/^\s*if hasattr(.*/i # pylint: disable=no-member' intern/cycles/blender/addon/*.py
@@ -182,6 +186,10 @@ function workaround_quirks() {
             echo "Fixing pylint bug: https://github.com/pylint-dev/pylint/issues/3105"
             sed -i 's/for \(.*\?\) in self\.devices:/for \1 in [self.devices]:/' intern/cycles/blender/addon/properties.py
         fi
+
+        # Supress an error because pylint can not find oslquery package.
+        echo "Supress an import oslquery error"
+        sed -i 's/^\(\s*import oslquery*\)/\1 # pylint: disable=import-error/' intern/cycles/blender/addon/*.py
     fi
 }
 
