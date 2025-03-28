@@ -220,3 +220,9 @@
       :rtype: list[:class:`Material` | None, ...]
       :mod-option rtype: skip-refine
       :option function: overload
+
+   .. method:: __iter__()
+
+      :rtype: collections.abc.Iterator[:class:`Material` | None]
+      :mod-option rtype: skip-refine
+      :option function: overload
