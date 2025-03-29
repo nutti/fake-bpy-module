@@ -160,12 +160,12 @@ class DuplicationRemover(TransformerBase):
         class_name_to_nodes: dict[str, list[ClassNode]] = {}
         class_nodes_to_remove: list[ClassNode] = []
         for class_node in class_nodes:
-            name_node = class_node.element(NameNode)
-            if name_node.astext() == "ImagePreviewCollection":
-                from fake_bpy_module.analyzer.nodes import BaseClassListNode
-                base_class_list_node = class_node.element(BaseClassListNode)
-                print("@@@@")
-                print(base_class_list_node.pformat())
+            # name_node = class_node.element(NameNode)
+            # if name_node.astext() == "ImagePreviewCollection":
+            #     from fake_bpy_module.analyzer.nodes import BaseClassListNode
+            #     base_class_list_node = class_node.element(BaseClassListNode)
+            #     print("@@@@")
+            #     print(base_class_list_node.pformat())
 
             class_name = class_node.element(NameNode).astext()
             if class_name not in class_name_to_nodes:
