@@ -42,6 +42,7 @@ class BaseClassFixture(TransformerBase):
             m = self._BASE_CLASS_REGEX.match(para.astext())
             if m:
                 base_classes = split_string_by_comma(m.group(2))
+                print(f"@@ {m.group(2)}")
                 # Fix: "E0240: Inconsistent method resolution order" error on
                 #      pylint_cycles.sh
                 base_classes.reverse()
