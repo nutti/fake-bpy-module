@@ -26,7 +26,13 @@ from fake_bpy_module.analyzer.nodes import (
     NameNode,
     NodeBase,
 )
-from fake_bpy_module.utils import append_child, find_children, get_first_child
+from fake_bpy_module.utils import (
+    LOG_LEVEL_DEBUG,
+    append_child,
+    find_children,
+    get_first_child,
+    output_log,
+)
 
 from .base_class_fixture import BaseClassFixture
 from .transformer_base import TransformerBase
@@ -279,16 +285,37 @@ class ModApplier(TransformerBase):
         if mod_module_name in module_name_to_document:
             document = module_name_to_document[mod_module_name]
 
+            data_nodes = find_children(document, DataNode)
+            data_names = {d.element(NameNode).astext() for d in data_nodes}
             mod_data_nodes = find_children(mod_document, DataNode)
             for mod_data_node in mod_data_nodes:
+                mod_data_name = mod_data_node.element(NameNode).astext()
+                if mod_data_name in data_names:
+                    output_log(LOG_LEVEL_DEBUG,
+                               f"Duplication Skip: {mod_data_name}")
+                    continue
                 append_child(document, mod_data_node.deepcopy())
 
+            func_nodes = find_children(document, FunctionNode)
             mod_func_nodes = find_children(mod_document, FunctionNode)
+            func_names = {f.element(FunctionNode).astext() for f in func_nodes}
             for mod_func_node in mod_func_nodes:
+                mod_func_name = mod_func_node.element(NameNode).astext()
+                if mod_func_name in func_names:
+                    output_log(LOG_LEVEL_DEBUG,
+                               f"Duplication Skip: {mod_func_name}")
+                    continue
                 append_child(document, mod_func_node.deepcopy())
 
+            class_nodes = find_children(document, ClassNode)
             mod_class_nodes = find_children(mod_document, ClassNode)
+            class_names = {c.element(ClassNode).astext() for c in class_nodes}
             for mod_class_node in mod_class_nodes:
+                mod_class_name = mod_class_node.element(ClassNode).astext()
+                if mod_func_name in class_names:
+                    output_log(LOG_LEVEL_DEBUG,
+                               f"Duplication Skip: {mod_class_name}")
+                    continue
                 append_child(document, mod_class_node.deepcopy())
         else:   # If the module is not found, add whole document.
             mod_type_nodes = mod_document.findall(ModTypeNode)
@@ -321,7 +348,7 @@ class ModApplier(TransformerBase):
             self._mod_append_class(class_nodes, mod_class_nodes)
         else:
             raise ValueError(f"Modules to be appended are not found "
-                                f"{mod_module_name}")
+                             f"{mod_module_name}")
 
     def _mod_update(self, mod_document: nodes.document,
                     module_name_to_document: dict[str, nodes.document]) -> None:
@@ -350,7 +377,7 @@ class ModApplier(TransformerBase):
             self._mod_update_class(class_nodes, mod_class_nodes)
         else:
             raise ValueError(f"Modules to be updated are not found "
-                                f"{mod_module_name}")
+                             f"{mod_module_name}")
 
     def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
