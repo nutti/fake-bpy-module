@@ -298,7 +298,7 @@ class ModApplier(TransformerBase):
 
             func_nodes = find_children(document, FunctionNode)
             mod_func_nodes = find_children(mod_document, FunctionNode)
-            func_names = {f.element(FunctionNode).astext() for f in func_nodes}
+            func_names = {f.element(NameNode).astext() for f in func_nodes}
             for mod_func_node in mod_func_nodes:
                 mod_func_name = mod_func_node.element(NameNode).astext()
                 if mod_func_name in func_names:
@@ -309,7 +309,7 @@ class ModApplier(TransformerBase):
 
             class_nodes = find_children(document, ClassNode)
             mod_class_nodes = find_children(mod_document, ClassNode)
-            class_names = {c.element(ClassNode).astext() for c in class_nodes}
+            class_names = {c.element(NameNode).astext() for c in class_nodes}
             for mod_class_node in mod_class_nodes:
                 mod_class_name = mod_class_node.element(ClassNode).astext()
                 if mod_func_name in class_names:
