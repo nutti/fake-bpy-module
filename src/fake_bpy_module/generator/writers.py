@@ -331,10 +331,6 @@ class PyCodeWriterBase(BaseWriter):
         if "generic-types" in class_node.attributes:
             gen_types = f"[{class_node.attributes['generic-types']}]"
 
-        if name_node.astext() == "ImagePreviewCollection":
-            print("@@@@")
-            print(base_class_list_node.pformat())
-
         if base_class_list_node.empty():
             wt.addln(f"class {name_node.astext()}{gen_types}:")
         else:
