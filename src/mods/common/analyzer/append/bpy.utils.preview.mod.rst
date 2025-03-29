@@ -1,6 +1,6 @@
 .. mod-type:: append
 
-.. module:: bpy.utils.preview
+.. module:: bpy.utils.previews
 
 .. class:: ImagePreviewCollection
 
