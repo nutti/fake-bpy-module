@@ -312,7 +312,7 @@ class ModApplier(TransformerBase):
             class_names = {c.element(NameNode).astext() for c in class_nodes}
             for mod_class_node in mod_class_nodes:
                 mod_class_name = mod_class_node.element(NameNode).astext()
-                if mod_func_name in class_names:
+                if mod_class_name in class_names:
                     output_log(LOG_LEVEL_DEBUG,
                                f"Duplication Skip: {mod_class_name}")
                     continue
