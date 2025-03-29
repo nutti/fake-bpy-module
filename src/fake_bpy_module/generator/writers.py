@@ -337,6 +337,9 @@ class PyCodeWriterBase(BaseWriter):
             base_class_nodes = find_children(base_class_list_node,
                                              BaseClassNode)
             dtypes = []
+            if name_node.astext() == "ImagePreviewCollection":
+                print("@@@@")
+                print(base_class_list_node.pformat())
             for base_class_node in base_class_nodes:
                 dtype_list_node = base_class_node.element(DataTypeListNode)
                 if not dtype_list_node.empty():
