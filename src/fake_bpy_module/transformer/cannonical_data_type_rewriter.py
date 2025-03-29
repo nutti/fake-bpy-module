@@ -126,13 +126,6 @@ class CannonicalDataTypeRewriter(TransformerBase):
 
         class_nodes = find_children(document, ClassNode)
         for class_node in class_nodes:
-            name_node = class_node.element(NameNode)
-            if name_node.astext() == "ImagePreviewCollection":
-                from fake_bpy_module.analyzer.nodes import BaseClassListNode
-                base_class_list_node = class_node.element(BaseClassListNode)
-                print("@@@@")
-                print(base_class_list_node.pformat())
-
             class_refs = class_node.traverse(ClassRef)
             for class_ref in class_refs:
                 new_class_ref = rewrite_class_ref(class_ref, module_name)
