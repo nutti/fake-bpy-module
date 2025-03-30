@@ -620,10 +620,12 @@ class PyCodeWriterBase(BaseWriter):
 
             module_node = get_first_child(document, ModuleNode)
             if module_node is not None:
-                module_name = get_first_child(module_node, NameNode).astext()
-                print(f"XXX {module_name}")
-                if module_name == "bl_ui_utils":
-                    print(f"@@@ {document.pformat()}")
+                module_name_node = get_first_child(module_node, NameNode)
+                if module_name_node is not None:
+                    module_name = module_name_node.astext()
+                    print(f"XXX {module_name}")
+                    if module_name == "bl_ui_utils":
+                        print(f"@@@ {document.pformat()}")
 
             code_doc_nodes = find_children(document, CodeDocumentNode)
             doc_writer = CodeWriter()
@@ -657,7 +659,8 @@ class PyCodeWriterBase(BaseWriter):
                 children = [node.astext() for node in child_nodes]
                 module_name = get_first_child(
                     get_first_child(document, ModuleNode), NameNode).astext()
-                try:
+                import contextlib
+                with contextlib.suppress(ValueError):
                     # Skip typing module as it is not available at runtime
                     children.remove("_typing")
                     # Skip import layout from bl_ui_utils module
@@ -665,8 +668,6 @@ class PyCodeWriterBase(BaseWriter):
                     if module_name == "bl_ui_utils":
                         print(f"@@@ {children}")
                         children.remove("layout")
-                except ValueError:
-                    pass
 
                 for child in sorted(children):
                     wt.addln(f"from . import {child} as {child}")
