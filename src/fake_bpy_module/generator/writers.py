@@ -618,11 +618,12 @@ class PyCodeWriterBase(BaseWriter):
             wt = self._writer
             wt.reset()
 
-            module_name = get_first_child(
-                    get_first_child(document, ModuleNode), NameNode).astext()
-            print(f"XXX {module_name}")
-            if module_name == "bl_ui_utils":
-                print(f"@@@ {document.pformat()}")
+            module_node = get_first_child(document, ModuleNode)
+            if module_node is not None:
+                module_name = get_first_child(module_node, NameNode).astext()
+                print(f"XXX {module_name}")
+                if module_name == "bl_ui_utils":
+                    print(f"@@@ {document.pformat()}")
 
             code_doc_nodes = find_children(document, CodeDocumentNode)
             doc_writer = CodeWriter()
