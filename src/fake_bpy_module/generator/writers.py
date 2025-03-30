@@ -655,6 +655,7 @@ class PyCodeWriterBase(BaseWriter):
                     children.remove("_typing")
                     # Skip import layout from bl_ui_utils module
                     if module_name == "bl_ui_utils":
+                        print(f"@@@ {children}")
                         children.remove("layout")
                 except ValueError:
                     pass
