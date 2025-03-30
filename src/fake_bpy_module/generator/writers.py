@@ -648,7 +648,8 @@ class PyCodeWriterBase(BaseWriter):
             if child_list_node is not None:
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
-                module_name = get_first_child(document, ModuleNode).astext()
+                module_name = get_first_child(
+                    get_first_child(document, ModuleNode), NameNode).astext()
                 try:
                     # Skip typing module as it is not available at runtime
                     children.remove("_typing")
