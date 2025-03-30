@@ -647,10 +647,15 @@ class PyCodeWriterBase(BaseWriter):
             if child_list_node is not None:
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
-                for child in sorted(children):
+                try:
                     # Skip typing module as it is not available at runtime
-                    if child == "_typing":
-                        continue
+                    children.remove("_typing")
+                    # Skip import bl_ui_utils.layout
+                    children.remove("bl_ui_utils.layout")
+                except ValueError:
+                    pass
+
+                for child in sorted(children):
                     wt.addln(f"from . import {child} as {child}")
             if len(children) > 0:
                 wt.new_line()
