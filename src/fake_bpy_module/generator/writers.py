@@ -663,6 +663,7 @@ class PyCodeWriterBase(BaseWriter):
                     get_first_child(document, ModuleNode), NameNode).astext()
                 import contextlib
                 with contextlib.suppress(ValueError):
+                    print("WWWW")
                     # Skip typing module as it is not available at runtime
                     children.remove("_typing")
                     # Skip import layout from bl_ui_utils module
