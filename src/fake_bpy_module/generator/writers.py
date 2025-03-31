@@ -654,7 +654,9 @@ class PyCodeWriterBase(BaseWriter):
             # import child module to search child modules
             child_list_node = get_first_child(document, ChildModuleListNode)
             children = []
+            print("YYY")
             if child_list_node is not None:
+                print("ZZZ")
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
                 module_name = get_first_child(
