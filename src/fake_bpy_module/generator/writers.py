@@ -1,4 +1,5 @@
 import abc
+import contextlib
 import copy
 import graphlib
 import json
@@ -618,15 +619,6 @@ class PyCodeWriterBase(BaseWriter):
             wt = self._writer
             wt.reset()
 
-            module_node = get_first_child(document, ModuleNode)
-            if module_node is not None:
-                module_name_node = get_first_child(module_node, NameNode)
-                if module_name_node is not None:
-                    module_name = module_name_node.astext()
-                    print(f"XXX {module_name}")
-                    if module_name == "bl_ui_utils":
-                        print(f"@@@ {document.pformat()}")
-
             code_doc_nodes = find_children(document, CodeDocumentNode)
             doc_writer = CodeWriter()
             visitor = CodeDocumentNodeTranslator(document, doc_writer)
@@ -654,23 +646,18 @@ class PyCodeWriterBase(BaseWriter):
             # import child module to search child modules
             child_list_node = get_first_child(document, ChildModuleListNode)
             children = []
-            print("YYY")
             if child_list_node is not None:
-                print("ZZZ")
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
                 module_name = get_first_child(
                     get_first_child(document, ModuleNode), NameNode).astext()
-                import contextlib
+
+                # Skip typing module as it is not available at runtime
                 with contextlib.suppress(ValueError):
-                    print("WWWW")
-                    # Skip typing module as it is not available at runtime
                     children.remove("_typing")
+                # Skip import layout from bl_ui_utils module
                 with contextlib.suppress(ValueError):
-                    # Skip import layout from bl_ui_utils module
-                    print(f"XXX {module_name}")
                     if module_name == "bl_ui_utils":
-                        print(f"@@@ {children}")
                         children.remove("layout")
 
                 for child in sorted(children):
