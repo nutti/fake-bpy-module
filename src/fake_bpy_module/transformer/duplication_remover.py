@@ -170,6 +170,8 @@ class DuplicationRemover(TransformerBase):
                 else:
                     class_name_to_nodes[class_name].append(class_node)
 
+        print("======")
+        class_nodes_to_remove = list(set(class_nodes_to_remove))
         for class_node in class_nodes_to_remove:
             idx = document.index(class_node)
             print(f"@@@ {class_node.pformat()} - {idx}")
