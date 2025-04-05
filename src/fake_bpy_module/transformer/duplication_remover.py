@@ -170,7 +170,9 @@ class DuplicationRemover(TransformerBase):
                 else:
                     class_name_to_nodes[class_name].append(class_node)
 
+        print("=======")
         for class_node in class_nodes_to_remove:
+            print(f"@@@ {class_node.pformat()}")
             document.remove(class_node)
 
     def _remove_duplicated_functions(self, document: nodes.document) -> None:
