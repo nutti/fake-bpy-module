@@ -2,6 +2,10 @@
 
 .. module:: module_1
 
+.. function:: function_1()
+
+   Duplication Skip
+
 .. function:: function_3(arg_1, arg_2='TEST')
 
    function_3 description

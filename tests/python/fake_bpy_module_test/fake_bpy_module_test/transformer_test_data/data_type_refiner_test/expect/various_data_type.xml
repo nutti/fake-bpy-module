@@ -624,3 +624,10 @@
                 <class-ref>
                     ClassA
                 )
+    <data>
+        <name>
+            data_dict
+        <description>
+        <data-type-list>
+            <data-type>
+                dict

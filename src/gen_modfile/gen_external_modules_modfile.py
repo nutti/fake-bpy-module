@@ -229,8 +229,6 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
     for c in inspect.getmro(class_[1]):
         if c.__name__ == class_[1].__name__:
             continue
-        if c.__module__ == "builtins":
-            continue
 
         # Skip parent classes which are not directly inherited.
         fullname = "{}{}".format(c.__module__, c.__name__)
@@ -239,6 +237,11 @@ def analyze_class(module_name: str, class_: tuple) -> Dict:
 
         if c.__module__ == "bpy_types" and c.__name__ != "_GenericUI":
             class_def["base_classes"].append("bpy.types.{}".format(c.__name__))
+        elif c.__module__ == "builtins":
+            if c.__name__ in ("dict"):
+                class_def["base_classes"].append(c.__name__)
+            else:
+                continue
         else:
             class_def["base_classes"].append(
                 "{}.{}".format(c.__module__, c.__name__))

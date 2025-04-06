@@ -2,6 +2,10 @@
 
 .. module:: module_1
 
+.. class:: ClassA
+
+   Duplication Skip
+
 .. class:: ClassB
 
    ClassB description

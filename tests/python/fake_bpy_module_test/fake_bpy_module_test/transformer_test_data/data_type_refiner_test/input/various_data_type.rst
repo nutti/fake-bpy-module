@@ -298,3 +298,7 @@
 .. data:: data_start_and_end_with_parentheses
 
    :type: (:class:`RefinedClassA`, :class:`bpy_prop_collection`, :class:`ClassA`)
+
+.. data:: data_dict
+
+   :type: dict

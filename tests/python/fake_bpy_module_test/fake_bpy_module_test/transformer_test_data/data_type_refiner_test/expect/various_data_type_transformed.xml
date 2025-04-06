@@ -639,3 +639,10 @@
                 <class-ref>
                     module_1.ClassA
                 ]
+    <data>
+        <name>
+            data_dict
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                dict

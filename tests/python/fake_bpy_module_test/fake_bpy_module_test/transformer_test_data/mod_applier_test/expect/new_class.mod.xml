@@ -5,6 +5,14 @@
         <name>
             module_1
         <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+            Duplication Skip
+        <base-class-list>
+        <attribute-list>
+        <function-list>
     <class generic-types="_GenericType1">
         <name>
             ClassB

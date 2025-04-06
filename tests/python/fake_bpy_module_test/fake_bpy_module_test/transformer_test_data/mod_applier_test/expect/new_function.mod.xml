@@ -5,6 +5,15 @@
         <name>
             module_1
         <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+            Duplication Skip
+        <argument-list>
+        <return>
+            <description>
+            <data-type-list>
     <function function_type="function" generic-types="_GenericType1">
         <name>
             function_3

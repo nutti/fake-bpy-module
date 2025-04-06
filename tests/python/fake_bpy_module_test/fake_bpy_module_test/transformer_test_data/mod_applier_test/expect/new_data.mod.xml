@@ -7,6 +7,12 @@
         <description>
     <data>
         <name>
+            DATA_1
+        <description>
+            Duplication Skip
+        <data-type-list>
+    <data>
+        <name>
             DATA_2
         <description>
             DATA_2 description
