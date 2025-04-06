@@ -1,4 +1,5 @@
 import abc
+import contextlib
 import copy
 import graphlib
 import json
@@ -31,6 +32,7 @@ from fake_bpy_module.analyzer.nodes import (
     FunctionListNode,
     FunctionNode,
     FunctionReturnNode,
+    ModuleNode,
     NameNode,
     NodeBase,
 )
@@ -647,10 +649,18 @@ class PyCodeWriterBase(BaseWriter):
             if child_list_node is not None:
                 child_nodes = find_children(child_list_node, ChildModuleNode)
                 children = [node.astext() for node in child_nodes]
+                module_name = get_first_child(
+                    get_first_child(document, ModuleNode), NameNode).astext()
+
+                # Skip typing module as it is not available at runtime
+                with contextlib.suppress(ValueError):
+                    children.remove("_typing")
+                # Skip import layout from bl_ui_utils module
+                with contextlib.suppress(ValueError):
+                    if module_name == "bl_ui_utils":
+                        children.remove("layout")
+
                 for child in sorted(children):
-                    # Skip typing module as it is not available at runtime
-                    if child == "_typing":
-                        continue
                     wt.addln(f"from . import {child} as {child}")
             if len(children) > 0:
                 wt.new_line()
