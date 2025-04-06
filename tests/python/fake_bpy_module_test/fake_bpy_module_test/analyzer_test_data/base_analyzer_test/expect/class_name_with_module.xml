@@ -1,0 +1,14 @@
+<document source="<string>">
+    <source-filename>
+        class_name_with_module.rst
+    <module>
+        <name>
+            module_1
+        <description>
+    <class>
+        <name>
+            ClassA
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>

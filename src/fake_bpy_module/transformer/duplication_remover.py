@@ -170,6 +170,7 @@ class DuplicationRemover(TransformerBase):
                 else:
                     class_name_to_nodes[class_name].append(class_node)
 
+        class_nodes_to_remove = list(set(class_nodes_to_remove))
         for class_node in class_nodes_to_remove:
             document.remove(class_node)
 

@@ -296,8 +296,8 @@ class ClassDirective(rst.Directive):
     has_content = True
 
     _CLASS_NAME_WITH_ARGS_REGEX = re.compile(
-        r"([a-zA-Z0-9_]+)(\([a-zA-Z0-9_,=. ]+\))")
-    _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_]+)")
+        r"([a-zA-Z0-9_.]+)(\([a-zA-Z0-9_,=. ]+\))")
+    _CLASS_NAME_REGEX = re.compile(r"([a-zA-Z0-9_.]+)")
 
     def run(self) -> list[ClassNode]:
         paragraph_node = nodes.paragraph()
@@ -312,12 +312,12 @@ class ClassDirective(rst.Directive):
         #       __init__ method like __init__(type, buf, elem=None).
         #       We should consider Color(rgb) which will be added by mod file.
         if m := self._CLASS_NAME_WITH_ARGS_REGEX.match(class_name):
-            class_name = m.group(1)
+            class_name = m.group(1).split(".")[-1]
 
         # Get class name.
         # if m := self._CLASS_NAME_WITH_ARGS_REGEX_2.match(class_name):
         if m := self._CLASS_NAME_REGEX.match(class_name):
-            content = m.group(1)
+            content = m.group(1).split(".")[-1]
             class_node.element(NameNode).add_text(content)
 
         # Get all descriptions.
