@@ -605,8 +605,9 @@ class PyCodeWriterBase(BaseWriter):
             else:
                 enum_item_strs.append(f"'{enum_item_name}',")
 
+        enum_item_strs_lines = "\n".join(enum_item_strs)
         wt.addln(f"type {enum_name} = typing.Literal[\n"
-                 f"{'\n'.join(enum_item_strs)}\n]")
+                 f"{enum_item_strs_lines}\n]")
 
     def write(self, filename: str, document: nodes.document,
               style_config: str = 'ruff') -> None:
