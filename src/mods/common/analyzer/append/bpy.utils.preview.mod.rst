@@ -4,6 +4,6 @@
 
 .. class:: ImagePreviewCollection
 
-   .. base-class:: dict
+   .. base-class:: dict[str, bpy.types.ImagePreview]
 
       :mod-option base-class: skip-refine
