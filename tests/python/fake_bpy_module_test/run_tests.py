@@ -69,7 +69,7 @@ def main() -> None:
 
     suite = unittest.TestSuite()
     for case in test_cases:
-        suite.addTest(unittest.makeSuite(case))
+        suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(case))
     ret = unittest.TextTestRunner().run(suite).wasSuccessful()
     sys.exit(not ret)
 

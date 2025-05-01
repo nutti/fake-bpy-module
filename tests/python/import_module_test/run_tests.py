@@ -102,7 +102,7 @@ def generate_tests(config: ImportModuleTestConfig) -> list:
 def run_tests(test_cases: list) -> bool:
     suite = unittest.TestSuite()
     for case in test_cases:
-        suite.addTest(unittest.makeSuite(case))
+        suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(case))
     return unittest.TextTestRunner().run(suite).wasSuccessful()
 
 
