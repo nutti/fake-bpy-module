@@ -14,6 +14,8 @@ jobs:
   pycodestyle:
     name: pycodestyle
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -33,6 +35,8 @@ jobs:
   pylint:
     name: pylint
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -54,6 +58,8 @@ jobs:
   ruff:
     name: ruff
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -73,6 +79,8 @@ jobs:
   markdownlint:
     name: markdownlint
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -86,6 +94,8 @@ jobs:
   yamllint:
     name: yamllint
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -105,6 +115,8 @@ jobs:
   jsonlint:
     name: jsonlint
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -118,6 +130,8 @@ jobs:
   shellcheck:
     name: shellcheck
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
