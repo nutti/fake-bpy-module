@@ -13,7 +13,7 @@ on:   # yamllint disable-line rule:truthy
 jobs:
   pycodestyle:
     name: pycodestyle
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
 
   pylint:
     name: pylint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -53,7 +53,7 @@ jobs:
 
   ruff:
     name: ruff
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -85,7 +85,7 @@ jobs:
 
   yamllint:
     name: yamllint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -104,7 +104,7 @@ jobs:
 
   jsonlint:
     name: jsonlint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
 
   shellcheck:
     name: shellcheck
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
