@@ -153,6 +153,10 @@ jobs:
           name: profiler_result
           path: /tmp/profiler_result.prof
 
+      - name: Show crash.txt
+        if: failure()
+        run: cat /tmp/blender.crash.txt
+
       - name: Collect failure state
         if: failure()
         run: bash tools/collect_failure_state/collect_failure_state.sh /tmp/failure_state
