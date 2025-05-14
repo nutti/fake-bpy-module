@@ -129,6 +129,8 @@ function revert_workaround() {
 echo "Generating rst documents ..."
 cd "${current_dir}"
 
+${blender_bin} --background --factory-startup -noaudio --python-exit-code 1
+
 # Generate rst if sphinx_doc_gen.py is newer than output directory
 if [[ "${tmp_dir}/sphinx-in" -ot "${source_dir}/doc/python_api/sphinx_doc_gen.py" ]]; then
     apply_workaround
