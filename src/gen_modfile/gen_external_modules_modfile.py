@@ -70,6 +70,7 @@ IGNORE_DOC_REGEX_LIST = {
     re.compile(r"^bl_ui.space_toolsystem_common.*"),
     re.compile(r"^bl_ui.space_toolsystem_toolbar.*"),
     re.compile(r"^progress_report.ProgressReport$"),
+    re.compile(r"^_bpy_internal.grease_pencil.stroke.BezierHandle$"),
 }
 
 CLASS_DEFAULT_VALUE_REGEX = re.compile(r"<(.+)[^<]*>")
