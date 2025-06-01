@@ -89,9 +89,11 @@ class FormatValidator(TransformerBase):
 
     def _check_data_type_node(self, data_type_node: DataTypeNode) -> None:
         for child in data_type_node.children:
-            assert isinstance(child, nodes.Text | ModuleRef | ClassRef |
-                              RefRef | nodes.literal | nodes.emphasis |
-                              nodes.title_reference), f"{child.pformat()}"
+            assert isinstance(child, nodes.Text | nodes.reference |
+                              nodes.literal | nodes.emphasis |
+                              nodes.title_reference | nodes.target |
+                              ModuleRef | ClassRef |
+                              RefRef), f"{child.pformat()}"
 
             if isinstance(child, nodes.Text | nodes.literal | nodes.emphasis |
                           nodes.title_reference):
