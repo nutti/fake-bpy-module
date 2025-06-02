@@ -655,7 +655,7 @@ class PyCodeWriterBase(BaseWriter):
 
                 # Skip typing module as it is not available at runtime
                 with contextlib.suppress(ValueError):
-                    children.remove("_typing")
+                    children.remove("stub_internal")
                 # Skip import layout from bl_ui_utils module
                 with contextlib.suppress(ValueError):
                     if module_name == "bl_ui_utils":

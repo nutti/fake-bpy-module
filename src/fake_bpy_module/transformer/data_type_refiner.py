@@ -272,7 +272,7 @@ class DataTypeRefiner(TransformerBase):
             dtype_node = DataTypeNode()
             append_child(dtype_node, nodes.Text("set["))
             append_child(dtype_node,
-                         EnumRef(text=f"bpy._typing.rna_enums.{enum_literal_type}"))
+                         EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
             append_child(dtype_node, nodes.Text("]"))
             return [dtype_node]
 
@@ -281,7 +281,7 @@ class DataTypeRefiner(TransformerBase):
             enum_literal_type = get_rna_enum_name(dtype_str)
             dtype_node = DataTypeNode()
             append_child(dtype_node,
-                         EnumRef(text=f"bpy._typing.rna_enums.{enum_literal_type}"))
+                         EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
             return [dtype_node]
 
         # [Ex] Enumerated constant
@@ -859,14 +859,14 @@ class DataTypeRefiner(TransformerBase):
                 dtype_node = DataTypeNode()
                 append_child(dtype_node, nodes.Text("set["))
                 append_child(dtype_node,
-                             EnumRef(text=f"bpy._typing.rna_enums.{enum_literal_type}"))
+                             EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
                 append_child(dtype_node, nodes.Text("]"))
                 return [dtype_node], True
 
             enum_literal_type = get_rna_enum_name(description_str)
             dtype_node = DataTypeNode()
             append_child(dtype_node,
-                         EnumRef(text=f"bpy._typing.rna_enums.{enum_literal_type}"))
+                         EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
             return [dtype_node], True
 
         return [], False

@@ -145,7 +145,7 @@
             <data-type option="never none">
                 set[
                 <enum-ref>
-                    bpy._typing.rna_enums.Example
+                    bpy.stub_internal.rna_enums.Example
                 ]
     <data>
         <name>
@@ -154,7 +154,7 @@
         <data-type-list>
             <data-type option="never none">
                 <enum-ref>
-                    bpy._typing.rna_enums.Example
+                    bpy.stub_internal.rna_enums.Example
     <data>
         <name>
             data_enumerated_constant

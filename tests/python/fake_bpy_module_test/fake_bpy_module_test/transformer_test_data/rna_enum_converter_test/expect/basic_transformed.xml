@@ -3,7 +3,7 @@
         basic.rst
     <module>
         <name>
-            bpy._typing.rna_enums
+            bpy.stub_internal.rna_enums
         <description>
     <enum>
         <name>
