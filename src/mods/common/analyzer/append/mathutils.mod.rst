@@ -305,14 +305,18 @@
 
    .. method:: __matmul__(other)
 
-      :type other: :class:`Quaternion`
-      :rtype: :class:`Quaternion`
+      :type other: typing_extensions.Self
+      :mod-option arg other: skip-refine
+      :rtype: typing_extensions.Self
+      :mod-option rtype: skip-refine
       :option function: overload
 
    .. method:: __matmul__(other)
 
       :type other: :class:`Vector`
+      :mod-option arg other: skip-refine
       :rtype: :class:`Vector`
+      :mod-option rtype: skip-refine
       :option function: overload
 
    .. method:: __radd__(other)
