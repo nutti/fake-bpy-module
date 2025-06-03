@@ -164,11 +164,26 @@
       :rtype: bool
       :mod-option rtype: skip-refine
 
-   .. method:: get()
+   .. method:: get(key, default=None)
 
+      :type key: str
+      :option key: never none
+      :mod-option arg key: skip-refine
+      :type default: _GenericType2
+      :mod-option arg default: skip-refine
       :rtype: _GenericType1 | _GenericType2
       :mod-option rtype: skip-refine
       :generic-types: _GenericType2
+
+   .. method:: values()
+
+      :rtype: list[_GenericType1 | None]
+      :mod-option rtype: skip-refine
+
+   .. method:: items()
+
+      :rtype: list[tuple[str, _GenericType1]]
+      :mod-option rtype: skip-refine
 
 .. class:: bpy_struct
 
