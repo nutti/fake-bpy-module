@@ -21,7 +21,7 @@ class BaseClass1:
         """
 
 
-def function_1(arg_1: float, arg_2: bool):
+def function_1(arg_1: float, arg_2: bool) -> None:
     """function_1 description
 
     :param arg_1: function_1 arg_1 description

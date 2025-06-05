@@ -251,7 +251,7 @@ class PyCodeWriterBase(BaseWriter):
             if i != len(arg_nodes) - 1:
                 wt.add(", ")
         if return_node.empty():
-            wt.addln("):")
+            wt.addln(") -> None:")
         else:
             dtype_list_node = return_node.element(DataTypeListNode)
             if not dtype_list_node.empty():
@@ -263,7 +263,7 @@ class PyCodeWriterBase(BaseWriter):
                         break
                 wt.addln(f") -> {dtype}:")
             else:
-                wt.addln("):")
+                wt.addln(") -> None:")
 
         desc_node = func_node.element(DescriptionNode)
         if "deprecated" in func_node.attributes:
@@ -484,7 +484,7 @@ class PyCodeWriterBase(BaseWriter):
 
                 return_node = method_node.element(FunctionReturnNode)
                 if return_node.empty():
-                    wt.addln("):")
+                    wt.addln(") -> None:")
                 else:
                     dtype_list_node = return_node.element(DataTypeListNode)
                     if not dtype_list_node.empty():
@@ -497,7 +497,7 @@ class PyCodeWriterBase(BaseWriter):
                                 break
                         wt.addln(f") -> {dtype}:")
                     else:
-                        wt.addln("):")
+                        wt.addln(") -> None:")
 
                 desc_node = method_node.element(DescriptionNode)
                 with CodeWriterIndent(2):
