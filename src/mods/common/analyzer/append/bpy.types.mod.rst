@@ -34,7 +34,7 @@
 
    .. method:: __getitem__(key)
 
-      :type key: int | str
+      :type key: int | str | tuple[str | None]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
       :mod-option rtype: skip-refine
@@ -88,7 +88,7 @@
 
    .. method:: __contains__(key)
 
-      :type key: str | tuple[str, ...] | _GenericType1
+      :type key: str | tuple[str, str | None] | _GenericType1
       :mod-option arg key: skip-refine
       :rtype: bool
       :mod-option rtype: skip-refine
