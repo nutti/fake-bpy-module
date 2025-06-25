@@ -245,9 +245,11 @@ bgl_c_file="${source_dir}/source/blender/python/generic/bgl.c"
 if [ ! -e "${bgl_c_file}" ]; then
     bgl_c_file="${source_dir}/source/blender/python/generic/bgl.cc"
 fi
-if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" || "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${bgl_c_file}" ]]; then
-    mkdir -p "${generated_mod_dir}/gen_bgl_modfile"
-    ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -f rst
+if [ -e "${bgl_c_file}" ]; then
+    if [[ "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" || "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -ot "${bgl_c_file}" ]]; then
+        mkdir -p "${generated_mod_dir}/gen_bgl_modfile"
+        ${python_bin} "${SCRIPT_DIR}/gen_modfile/gen_bgl_modfile.py" -i "${bgl_c_file}" -o "${generated_mod_dir}/gen_bgl_modfile/bgl.mod.rst" -f rst
+    fi
 fi
 
 python_args=""
