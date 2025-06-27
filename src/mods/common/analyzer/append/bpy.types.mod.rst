@@ -28,6 +28,25 @@
 
       :type: bool
 
+
+.. class:: OperatorProperties
+
+   .. method:: __getattr__(key)
+
+      :type key: str
+      :mod-option arg key: skip-refine
+      :rtype: typing.Any
+      :mod-option rtype: skip-refine
+
+   .. method:: __setattr__(key, value)
+
+      :type key: str
+      :mod-option arg key: skip-refine
+      :type value: typing.Any
+      :mod-option arg value: skip-refine
+      :rtype: None
+      :mod-option rtype: skip-refine
+
 .. class:: bpy_prop_collection
 
    :generic-types: _GenericType1
