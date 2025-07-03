@@ -20,7 +20,7 @@ class NodeBase(nodes.Element):
 class UniqueElementNode(NodeBase):
     # pylint: disable=W1113
     def __init__(self, rawsource: str = "", *children: nodes.Node,
-                 **attributes: dict) -> None:
+                 **attributes: str) -> None:
         super().__init__(rawsource, *children, **attributes)
 
         self.elements = {}
@@ -127,7 +127,7 @@ class DataNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -145,7 +145,7 @@ class AttributeNode(DataNode):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -176,7 +176,7 @@ class ArgumentNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -195,7 +195,7 @@ class FunctionReturnNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(DescriptionNode())
@@ -215,7 +215,7 @@ class FunctionNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -239,7 +239,7 @@ class BaseClassNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(DataTypeListNode())
@@ -255,7 +255,7 @@ class ClassNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -275,7 +275,7 @@ class ModuleNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -297,7 +297,7 @@ class EnumItemNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
@@ -319,7 +319,7 @@ class EnumNode(UniqueElementNode, nodes.Part):
     @classmethod
     def create_template(
             cls, rawsource: str = "",
-            *children: nodes.Node, **attributes: dict) -> Self:
+            *children: nodes.Node, **attributes: str) -> Self:
         node = cls(rawsource, *children, **attributes)
 
         node.append_child(NameNode())
