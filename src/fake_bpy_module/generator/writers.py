@@ -5,6 +5,7 @@ import graphlib
 import json
 from collections import OrderedDict
 from pathlib import Path
+from typing import Literal
 
 from docutils import nodes
 
@@ -180,8 +181,7 @@ class PyCodeWriterBase(BaseWriter):
             gen_types = f"[{func_node.attributes['generic-types']}]"
         wt.add(f"def {func_name}{gen_types}(")
 
-        # current_status can be ['NONE', 'POSONLYARG', 'ARG', 'KWONLYARG']
-        current_status = 'NONE'
+        current_status: Literal['NONE', 'POSONLYARG', 'ARG', 'KWONLYARG'] = 'NONE'
         for i, arg_node in enumerate(arg_nodes):
             arg_name = arg_node.element(NameNode).astext()
             dtype_list_node = arg_node.element(DataTypeListNode)
