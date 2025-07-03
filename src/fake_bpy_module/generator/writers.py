@@ -248,8 +248,13 @@ class PyCodeWriterBase(BaseWriter):
             else:
                 wt.add(f"{arg_name}")
 
-            if i != len(arg_nodes) - 1:
+            # Processing last argument.
+            if i == len(arg_nodes) - 1:
+                if current_status == "POSONLYARG":
+                    wt.add(", /, ")
+            else:
                 wt.add(", ")
+
         if return_node.empty():
             wt.addln(") -> None:")
         else:
@@ -447,6 +452,8 @@ class PyCodeWriterBase(BaseWriter):
                     dtype_list_node = arg_node.element(DataTypeListNode)
                     default_value_node = arg_node.element(DefaultValueNode)
 
+                    arg_type: ArgumentNode.ArgumenType
+                    arg_type = arg_node.attributes["argument_type"]
                     is_kwonlyarg = (
                         arg_node.attributes["argument_type"] == "kwonlyarg"
                     )
@@ -479,7 +486,11 @@ class PyCodeWriterBase(BaseWriter):
                     else:
                         wt.add(arg_name)
 
-                    if i != len(arg_nodes) - 1:
+                    # Processing last argument.
+                    if i == len(arg_nodes) - 1:
+                        if arg_type == "POSONLYARG":
+                            wt.add(", /, ")
+                    else:
                         wt.add(", ")
 
                 return_node = method_node.element(FunctionReturnNode)
