@@ -1,5 +1,5 @@
 import abc
-from typing import Self, TypeVar
+from typing import Literal, Self, TypeVar
 
 from docutils import nodes
 
@@ -171,6 +171,7 @@ class ArgumentListNode(ListNode):
 class ArgumentNode(UniqueElementNode, nodes.Part):
     tagname = "argument"
     child_text_separator = ""
+    ArgumentType = Literal["posonlyarg", "arg", "vararg", "kwonlyarg", "kwarg"]
 
     # pylint: disable=W1113
     @classmethod

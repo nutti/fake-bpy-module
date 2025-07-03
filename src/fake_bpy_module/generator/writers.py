@@ -167,27 +167,62 @@ class PyCodeWriterBase(BaseWriter):
 
         return False
 
-    # pylint: disable=R0912
-    def _write_function_code(self, func_node: FunctionNode) -> None:
-        func_name = func_node.element(NameNode).astext()
-        arg_nodes = find_children(
-            func_node.element(ArgumentListNode), ArgumentNode)
-        return_node = func_node.element(FunctionReturnNode)
-
+    # pylint: disable=R0912,R0915
+    def _write_function_code(self,
+                             func_node: FunctionNode, *,
+                             inside_class: bool) -> None:
+        func_type = func_node.attributes["function_type"]
+        arg_list_node = func_node.element(ArgumentListNode)
+        name_node = func_node.element(NameNode)
+        arg_nodes = find_children(arg_list_node, ArgumentNode)
         wt = self._writer
 
         gen_types = ""
         if "generic-types" in func_node.attributes:
             gen_types = f"[{func_node.attributes['generic-types']}]"
-        wt.add(f"def {func_name}{gen_types}(")
 
-        current_status: Literal['NONE', 'POSONLYARG', 'ARG', 'KWONLYARG'] = 'NONE'
+        if inside_class:
+            if "option" in func_node.attributes:
+                if func_node.attributes["option"] == "overload":
+                    wt.addln("@typing.overload")
+
+            func_type = func_node.attributes["function_type"]
+            if func_type in ("function", "method"):
+                if not arg_list_node.empty():
+                    wt.add(f"def {name_node.astext()}{gen_types}(self, ")
+                else:
+                    wt.add(f"def {name_node.astext()}{gen_types}(self")
+            elif func_type == "classmethod":
+                if not arg_list_node.empty():
+                    wt.addln("@classmethod")
+                    wt.add(f"def {name_node.astext()}{gen_types}(cls, ")
+                else:
+                    wt.addln("@classmethod")
+                    wt.add(f"def {name_node.astext()}{gen_types}(cls")
+            elif func_type == "staticmethod":
+                if not arg_list_node.empty():
+                    wt.addln("@staticmethod")
+                    wt.add(f"def {name_node.astext()}{gen_types}(")
+                else:
+                    wt.addln("@staticmethod")
+                    wt.add(f"def {name_node.astext()}{gen_types}(")
+            else:
+                raise NotImplementedError(
+                    f"func_type={func_type} is not supported")
+        else:
+            wt.add(f"def {name_node.astext()}{gen_types}(")
+
+        current_status: Literal['NONE', 'POSONLYARG', 'ARG', 'KWONLYARG']
+        current_status = 'NONE'
+
         for i, arg_node in enumerate(arg_nodes):
             arg_name = arg_node.element(NameNode).astext()
             dtype_list_node = arg_node.element(DataTypeListNode)
             default_value_node = arg_node.element(DefaultValueNode)
 
+            arg_type: ArgumentNode.ArgumentType
             arg_type = arg_node.attributes["argument_type"]
+
             is_arg = arg_type in ("arg", "kwarg", "vararg")
             is_posonlyarg = arg_type == "posonlyarg"
             is_kwonlyarg = arg_type == "kwonlyarg"
@@ -225,9 +260,9 @@ class PyCodeWriterBase(BaseWriter):
                     raise ValueError("Invalid Current Status: "
                                      f"{current_status} ({arg_type})")
 
-            if arg_node.attributes["argument_type"] == "vararg":
+            if arg_type == "vararg":
                 arg_name = f"*{arg_name}"
-            elif arg_node.attributes["argument_type"] == "kwarg":
+            elif arg_type == "kwarg":
                 arg_name = f"**{arg_name}"
 
             if not dtype_list_node.empty():
@@ -255,12 +290,14 @@ class PyCodeWriterBase(BaseWriter):
             else:
                 wt.add(", ")
 
+        return_node = func_node.element(FunctionReturnNode)
         if return_node.empty():
             wt.addln(") -> None:")
         else:
             dtype_list_node = return_node.element(DataTypeListNode)
             if not dtype_list_node.empty():
-                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                dtype_nodes = find_children(dtype_list_node,
+                                            DataTypeNode)
                 dtype = make_union(dtype_nodes)
                 for dtype_node in dtype_nodes:
                     if self._is_accept_none(dtype_node, 'FUNC_RET'):
@@ -274,53 +311,106 @@ class PyCodeWriterBase(BaseWriter):
         if "deprecated" in func_node.attributes:
             desc_node.insert(0, nodes.Text(func_node.attributes["deprecated"]))
 
-        with CodeWriterIndent(1):
-            # documentation
-            if (
-                not desc_node.empty()
-                or any(
-                    n.element(DescriptionNode).empty() == ""
-                    or not n.element(DataTypeListNode).empty()
-                    for n in arg_nodes
-                )
-                or not return_node.empty()
-            ):
-                wt.add(f"''' {desc_node.astext()}")
-                wt.new_line(2)
-                for arg_node in arg_nodes:
-                    name_node = arg_node.element(NameNode)
-                    desc_node = arg_node.element(DescriptionNode)
-                    dtype_list_node = arg_node.element(DataTypeListNode)
-                    if not desc_node.empty():
+        # TODO: refactor it to make it more generic.
+        if inside_class:
+            with CodeWriterIndent(2):
+                # documentation
+                if (
+                    not desc_node.empty()
+                    or not arg_list_node.empty()
+                    or not return_node.empty()
+                ):
+                    wt.addln(f"''' {desc_node.astext()}")
+                    wt.new_line(1)
+
+                    arg_nodes = find_children(arg_list_node, ArgumentNode)
+                    for arg_node in arg_nodes:
+                        name_node = arg_node.element(NameNode)
+                        desc_node = arg_node.element(DescriptionNode)
+                        dtype_list_node = arg_node.element(DataTypeListNode)
                         wt.addln(f":param {name_node.astext()}: "
                                  f"{desc_node.astext()}")
-                    if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node,
-                                                    DataTypeNode)
-                        dtype_str = make_union(dtype_nodes)
-                        for dtype_node in dtype_nodes:
-                            if self._is_accept_none(dtype_node, 'FUNC_ARG'):
-                                dtype_str = f"{dtype_str} | None"
-                                break
-                        wt.addln(f":type {name_node.astext()}: {dtype_str}")
-                if not return_node.empty():
-                    desc_node = return_node.element(DescriptionNode)
-                    dtype_list_node = return_node.element(DataTypeListNode)
-                    if not desc_node.empty():
+                        if not dtype_list_node.empty():
+                            dtype_nodes = find_children(
+                                dtype_list_node, DataTypeNode)
+                            dtype_str = make_union(dtype_nodes)
+                            for dtype_node in dtype_nodes:
+                                if self._is_accept_none(
+                                        dtype_node, 'FUNC_ARG'):
+                                    dtype_str = f"{dtype_str} | None"
+                                    break
+                            wt.addln(f":type {name_node.astext()}: "
+                                     f"{dtype_str}")
+
+                    if not return_node.empty():
+                        desc_node = return_node.element(DescriptionNode)
+                        dtype_list_node = return_node.element(
+                            DataTypeListNode)
+
                         wt.addln(f":return: {desc_node.astext()}")
-                    if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node,
-                                                    DataTypeNode)
-                        dtype = make_union(dtype_nodes)
-                        for dtype_node in dtype_nodes:
-                            if self._is_accept_none(dtype_node, 'FUNC_RET'):
-                                dtype = f"{dtype} | None"
-                                break
-                        wt.addln(f":rtype: {dtype}")
-                wt.addln("'''")
-            else:
-                wt.addln(self.ellipsis_strings["function"])
-            wt.new_line(2)
+
+                        if not dtype_list_node.empty():
+                            dtype_nodes = find_children(dtype_list_node,
+                                                        DataTypeNode)
+                            dtype = make_union(dtype_nodes)
+                            for dtype_node in dtype_nodes:
+                                if self._is_accept_none(
+                                        dtype_node, 'FUNC_RET'):
+                                    dtype = f"{dtype} | None"
+                                    break
+                            wt.addln(f":rtype: {dtype}")
+                    wt.addln("'''")
+                else:
+                    wt.addln(self.ellipsis_strings["method"])
+                wt.new_line()
+        else:  # Not inside_class
+            with CodeWriterIndent(1):
+                # documentation
+                if (
+                    not desc_node.empty()
+                    or any(
+                        n.element(DescriptionNode).empty() == ""
+                        or not n.element(DataTypeListNode).empty()
+                        for n in arg_nodes
+                    )
+                    or not return_node.empty()
+                ):
+                    wt.add(f"''' {desc_node.astext()}")
+                    wt.new_line(2)
+                    for arg_node in arg_nodes:
+                        name_node = arg_node.element(NameNode)
+                        desc_node = arg_node.element(DescriptionNode)
+                        dtype_list_node = arg_node.element(DataTypeListNode)
+                        if not desc_node.empty():
+                            wt.addln(f":param {name_node.astext()}: "
+                                     f"{desc_node.astext()}")
+                        if not dtype_list_node.empty():
+                            dtype_nodes = find_children(dtype_list_node,
+                                                        DataTypeNode)
+                            dtype_str = make_union(dtype_nodes)
+                            for dtype_node in dtype_nodes:
+                                if self._is_accept_none(dtype_node, 'FUNC_ARG'):
+                                    dtype_str = f"{dtype_str} | None"
+                                    break
+                            wt.addln(f":type {name_node.astext()}: {dtype_str}")
+                    if not return_node.empty():
+                        desc_node = return_node.element(DescriptionNode)
+                        dtype_list_node = return_node.element(DataTypeListNode)
+                        if not desc_node.empty():
+                            wt.addln(f":return: {desc_node.astext()}")
+                        if not dtype_list_node.empty():
+                            dtype_nodes = find_children(dtype_list_node,
+                                                        DataTypeNode)
+                            dtype = make_union(dtype_nodes)
+                            for dtype_node in dtype_nodes:
+                                if self._is_accept_none(dtype_node, 'FUNC_RET'):
+                                    dtype = f"{dtype} | None"
+                                    break
+                            wt.addln(f":rtype: {dtype}")
+                    wt.addln("'''")
+                else:
+                    wt.addln(self.ellipsis_strings["function"])
+                wt.new_line(2)
 
     # pylint: disable=R0914,R0915
     def _write_class_code(self, class_node: ClassNode) -> None:
@@ -411,156 +501,7 @@ class PyCodeWriterBase(BaseWriter):
                 wt.new_line(1)
 
             for method_node in method_nodes:
-                func_type = method_node.attributes["function_type"]
-                arg_list_node = method_node.element(ArgumentListNode)
-                name_node = method_node.element(NameNode)
-
-                if "option" in method_node.attributes:
-                    if method_node.attributes["option"] == "overload":
-                        wt.addln("@typing.overload")
-
-                gen_types = ""
-                if "generic-types" in method_node.attributes:
-                    gen_types = f"[{method_node.attributes['generic-types']}]"
-                if func_type in ("function", "method"):
-                    if not arg_list_node.empty():
-                        wt.add(f"def {name_node.astext()}{gen_types}(self, ")
-                    else:
-                        wt.add(f"def {name_node.astext()}{gen_types}(self")
-                elif func_type == "classmethod":
-                    if not arg_list_node.empty():
-                        wt.addln("@classmethod")
-                        wt.add(f"def {name_node.astext()}{gen_types}(cls, ")
-                    else:
-                        wt.addln("@classmethod")
-                        wt.add(f"def {name_node.astext()}{gen_types}(cls")
-                elif func_type == "staticmethod":
-                    if not arg_list_node.empty():
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {name_node.astext()}{gen_types}(")
-                    else:
-                        wt.addln("@staticmethod")
-                        wt.add(f"def {name_node.astext()}{gen_types}(")
-                else:
-                    raise NotImplementedError(
-                        f"func_type={func_type} is not supported")
-
-                arg_nodes = find_children(arg_list_node, ArgumentNode)
-                start_kwarg = False
-                for i, arg_node in enumerate(arg_nodes):
-                    arg_name = arg_node.element(NameNode).astext()
-                    dtype_list_node = arg_node.element(DataTypeListNode)
-                    default_value_node = arg_node.element(DefaultValueNode)
-
-                    arg_type: ArgumentNode.ArgumenType
-                    arg_type = arg_node.attributes["argument_type"]
-                    is_kwonlyarg = (
-                        arg_node.attributes["argument_type"] == "kwonlyarg"
-                    )
-                    if not start_kwarg and is_kwonlyarg:
-                        wt.add("*, ")
-                        start_kwarg = True
-
-                    if arg_node.attributes["argument_type"] == "vararg":
-                        arg_name = f"*{arg_name}"
-                    elif arg_node.attributes["argument_type"] == "kwarg":
-                        arg_name = f"**{arg_name}"
-
-                    if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node,
-                                                    DataTypeNode)
-                        dtype_str = make_union(dtype_nodes)
-                        for dtype_node in dtype_nodes:
-                            if self._is_accept_none(dtype_node, 'FUNC_ARG'):
-                                dtype_str = f"{dtype_str} | None"
-                                break
-
-                        if not default_value_node.empty():
-                            wt.add(f"{arg_name}: {dtype_str}="
-                                   f"{default_value_node.astext()}")
-                        else:
-                            wt.add(f"{arg_name}: {dtype_str}")
-                    elif not default_value_node.empty():
-                        wt.add(f"{arg_name}="
-                               f"{default_value_node.astext()}")
-                    else:
-                        wt.add(arg_name)
-
-                    # Processing last argument.
-                    if i == len(arg_nodes) - 1:
-                        if arg_type == "POSONLYARG":
-                            wt.add(", /, ")
-                    else:
-                        wt.add(", ")
-
-                return_node = method_node.element(FunctionReturnNode)
-                if return_node.empty():
-                    wt.addln(") -> None:")
-                else:
-                    dtype_list_node = return_node.element(DataTypeListNode)
-                    if not dtype_list_node.empty():
-                        dtype_nodes = find_children(dtype_list_node,
-                                                    DataTypeNode)
-                        dtype = make_union(dtype_nodes)
-                        for dtype_node in dtype_nodes:
-                            if self._is_accept_none(dtype_node, 'FUNC_RET'):
-                                dtype = f"{dtype} | None"
-                                break
-                        wt.addln(f") -> {dtype}:")
-                    else:
-                        wt.addln(") -> None:")
-
-                desc_node = method_node.element(DescriptionNode)
-                with CodeWriterIndent(2):
-                    # documentation
-                    if (
-                        not desc_node.empty()
-                        or not arg_list_node.empty()
-                        or not return_node.empty()
-                    ):
-                        wt.addln(f"''' {desc_node.astext()}")
-                        wt.new_line(1)
-
-                        arg_nodes = find_children(arg_list_node, ArgumentNode)
-                        for arg_node in arg_nodes:
-                            name_node = arg_node.element(NameNode)
-                            desc_node = arg_node.element(DescriptionNode)
-                            dtype_list_node = arg_node.element(DataTypeListNode)
-                            wt.addln(f":param {name_node.astext()}: "
-                                     f"{desc_node.astext()}")
-                            if not dtype_list_node.empty():
-                                dtype_nodes = find_children(
-                                    dtype_list_node, DataTypeNode)
-                                dtype_str = make_union(dtype_nodes)
-                                for dtype_node in dtype_nodes:
-                                    if self._is_accept_none(
-                                            dtype_node, 'FUNC_ARG'):
-                                        dtype_str = f"{dtype_str} | None"
-                                        break
-                                wt.addln(f":type {name_node.astext()}: "
-                                         f"{dtype_str}")
-
-                        if not return_node.empty():
-                            desc_node = return_node.element(DescriptionNode)
-                            dtype_list_node = return_node.element(
-                                DataTypeListNode)
-
-                            wt.addln(f":return: {desc_node.astext()}")
-
-                            if not dtype_list_node.empty():
-                                dtype_nodes = find_children(dtype_list_node,
-                                                            DataTypeNode)
-                                dtype = make_union(dtype_nodes)
-                                for dtype_node in dtype_nodes:
-                                    if self._is_accept_none(
-                                            dtype_node, 'FUNC_RET'):
-                                        dtype = f"{dtype} | None"
-                                        break
-                                wt.addln(f":rtype: {dtype}")
-                        wt.addln("'''")
-                    else:
-                        wt.addln(self.ellipsis_strings["method"])
-                    wt.new_line()
+                self._write_function_code(method_node, inside_class=True)
 
             if (len(attr_nodes) == 0
                     and len(method_nodes) == 0
@@ -685,7 +626,7 @@ class PyCodeWriterBase(BaseWriter):
 
             for node in sorted_data:
                 if isinstance(node, FunctionNode):
-                    self._write_function_code(node)
+                    self._write_function_code(node, inside_class=False)
                 elif isinstance(node, ClassNode):
                     self._write_class_code(node)
                 elif isinstance(node, DataNode):
