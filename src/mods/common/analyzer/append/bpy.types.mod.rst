@@ -177,7 +177,7 @@
 
    .. method:: values()
 
-      :rtype: list[_GenericType1 | None]
+      :rtype: list[_GenericType1]
       :mod-option rtype: skip-refine
 
    .. method:: items()
