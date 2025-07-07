@@ -51,13 +51,14 @@ def parse_function_def(content: str) -> str:
     content.strip()
 
     m = _ARG_LIST_FROM_FUNC_DEF_REGEX.search(content)
+    assert m
     name = m.group(1)
     params = split_string_by_comma(m.group(2))
 
     # (test=DirectivesTest.test_invalid_function_arg_order)
     # Handle case:
     #   function_1(arg_1, arg_2, arg_3='NONE', arg_4=True, arg_5): pass
-    fixed_params = []
+    fixed_params: list[str] = []
     required_named_argument = False
     for param in params:
         p = param.strip()
@@ -66,10 +67,13 @@ def parse_function_def(content: str) -> str:
         if len(sp) == 1:
             if required_named_argument:
                 if p == "*":
+                    # Argument without default values are allowed after *.
                     required_named_argument = False
-                if p.startswith("*"):
+                if p.startswith("*") or p == "/":
+                    # *args, **kwargs, /
                     fixed_params.append(p)
                 else:
+                    # Have to add default value to keep signature valid.
                     fixed_params.append(f"{p}=None")
             else:
                 fixed_params.append(p)
@@ -198,16 +202,23 @@ def build_function_node_from_def(fdef: str) -> FunctionNode:
 
     # Get function signature.
     arg_list_node = func_node.element(ArgumentListNode)
-    for i, arg in enumerate(func_def.args.args):
+    arguments = func_def.args
+
+    # Positional args.
+    pos_args = arguments.posonlyargs + arguments.args
+    pos_args_types = ("posonlyarg",) * len(arguments.posonlyargs)
+    pos_args_types += ("arg",) * len(arguments.args)
+    default_start = len(pos_args) - len(arguments.defaults)
+    args_iterator = enumerate(zip(pos_args_types, pos_args, strict=True))
+    for i, (arg_type, arg) in args_iterator:
         # Remove self argument which will be added later.
         if i == 0 and arg.arg == "self":
             continue
-        arg_node = ArgumentNode.create_template(argument_type="arg")
+        arg_node = ArgumentNode.create_template(argument_type=arg_type)
         arg_node.element(NameNode).add_text(arg.arg)
-        default_start = \
-            len(func_def.args.args) - len(func_def.args.defaults)
         if i >= default_start:
-            default = func_def.args.defaults[i - default_start]
+            default = arguments.defaults[i - default_start]
+
             default_value = parse_func_arg_default_value(default)
             if default_value is not None:
                 arg_node.element(DefaultValueNode).add_text(default_value)
@@ -514,7 +525,7 @@ class FunctionDirective(rst.Directive):
             deprecated_str = func_name[index:]
             func_name = func_name[0:index]
 
-        func_defs = []
+        func_defs: list[str] = []
         fdef_str: str = ""
         for fdef in func_name.split("\n"):
             if fdef[-1] == "\\":
