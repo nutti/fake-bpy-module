@@ -156,8 +156,8 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
                 f"{type(operand)} is not supported as an operand of USub")
         if isinstance(expr.op, ast.UAdd):
             operand = parse_func_arg_default_value(expr.operand)
-            if isinstance(operand, float):
-                return operand     # pylint: disable=E1130
+            if isinstance(operand, str):
+                return "None"
             raise NotImplementedError(
                 f"{type(operand)} is not supported as an operand of UAdd")
         raise NotImplementedError(
