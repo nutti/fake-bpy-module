@@ -5,6 +5,11 @@ from typing import ClassVar, Self
 
 from yapf.yapflib.yapf_api import FormatCode
 
+from fake_bpy_module.utils import (
+    LOG_LEVEL_ERR,
+    output_log,
+)
+
 
 class CodeWriterIndent:
     indent_stack: ClassVar[list[int]] = [0]
@@ -106,10 +111,15 @@ class CodeWriter:
                     stderr=subprocess.PIPE
                 ).decode())
             except subprocess.CalledProcessError as e:
-                print("===== Code Data =====")
-                print(self._code_data.getvalue())
-                print("=====================")
-                print(e.stderr)
+                output_log(LOG_LEVEL_ERR, "===== Code Data =====")
+                output_log(LOG_LEVEL_ERR, self._code_data.getvalue())
+                output_log(LOG_LEVEL_ERR, "=====================\n")
+                output_log(LOG_LEVEL_ERR, "===== Code Data with Line =====")
+                sv = self._code_data.getvalue()
+                for i, s in enumerate(sv.splitlines()):
+                    output_log(LOG_LEVEL_ERR, f"L{i}: {s}")
+                output_log(LOG_LEVEL_ERR, "=====================")
+                output_log(LOG_LEVEL_ERR, e.stderr)
                 raise
         elif style_config == "none":
             pass

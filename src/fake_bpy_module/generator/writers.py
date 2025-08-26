@@ -47,6 +47,10 @@ from .code_writer import CodeWriter, CodeWriterIndent
 from .translator import CodeDocumentNodeTranslator
 
 
+def process_description_str(str_: str) -> str:
+    return remove_unencodable(str_.replace("'", ""))
+
+
 def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     all_class_nodes: list[ClassNode] = []
     all_function_nodes: list[FunctionNode] = []
@@ -320,7 +324,8 @@ class PyCodeWriterBase(BaseWriter):
                     or not arg_list_node.empty()
                     or not return_node.empty()
                 ):
-                    wt.addln(f"''' {desc_node.astext()}")
+                    wt.addln(f"''' "
+                             f"{process_description_str(desc_node.astext())}")
                     wt.new_line(1)
 
                     arg_nodes = find_children(arg_list_node, ArgumentNode)
@@ -329,7 +334,7 @@ class PyCodeWriterBase(BaseWriter):
                         desc_node = arg_node.element(DescriptionNode)
                         dtype_list_node = arg_node.element(DataTypeListNode)
                         wt.addln(f":param {name_node.astext()}: "
-                                 f"{desc_node.astext()}")
+                                 f"{process_description_str(desc_node.astext())}")
                         if not dtype_list_node.empty():
                             dtype_nodes = find_children(
                                 dtype_list_node, DataTypeNode)
@@ -347,7 +352,8 @@ class PyCodeWriterBase(BaseWriter):
                         dtype_list_node = return_node.element(
                             DataTypeListNode)
 
-                        wt.addln(f":return: {desc_node.astext()}")
+                        wt.addln(f":return: "
+                                 f"{process_description_str(desc_node.astext())}")
 
                         if not dtype_list_node.empty():
                             dtype_nodes = find_children(dtype_list_node,
@@ -375,7 +381,7 @@ class PyCodeWriterBase(BaseWriter):
                     )
                     or not return_node.empty()
                 ):
-                    wt.add(f"''' {desc_node.astext()}")
+                    wt.add(f"''' {process_description_str(desc_node.astext())}")
                     wt.new_line(2)
                     for arg_node in arg_nodes:
                         name_node = arg_node.element(NameNode)
@@ -383,7 +389,7 @@ class PyCodeWriterBase(BaseWriter):
                         dtype_list_node = arg_node.element(DataTypeListNode)
                         if not desc_node.empty():
                             wt.addln(f":param {name_node.astext()}: "
-                                     f"{desc_node.astext()}")
+                                     f"{process_description_str(desc_node.astext())}")
                         if not dtype_list_node.empty():
                             dtype_nodes = find_children(dtype_list_node,
                                                         DataTypeNode)
@@ -397,7 +403,8 @@ class PyCodeWriterBase(BaseWriter):
                         desc_node = return_node.element(DescriptionNode)
                         dtype_list_node = return_node.element(DataTypeListNode)
                         if not desc_node.empty():
-                            wt.addln(f":return: {desc_node.astext()}")
+                            wt.addln(f":return: "
+                                     f"{process_description_str(desc_node.astext())}")
                         if not dtype_list_node.empty():
                             dtype_nodes = find_children(dtype_list_node,
                                                         DataTypeNode)
@@ -460,7 +467,7 @@ class PyCodeWriterBase(BaseWriter):
 
         with CodeWriterIndent(1):
             if not desc_node.empty():
-                wt.addln(f"''' {desc_node.astext()}")
+                wt.addln(f"''' {process_description_str(desc_node.astext())}")
                 wt.addln("'''")
                 wt.new_line(1)
 
@@ -491,7 +498,7 @@ class PyCodeWriterBase(BaseWriter):
                 if (not desc_node.empty()) or (dtype_str is not None):
                     wt.add("''' ")
                     if not desc_node.empty():
-                        wt.add(f"{desc_node.astext()}")
+                        wt.add(f"{process_description_str(desc_node.astext())}")
                     if dtype_str is not None:
                         wt.new_line(2)
                         wt.addln(f":type: {dtype_str}")
@@ -535,7 +542,7 @@ class PyCodeWriterBase(BaseWriter):
             wt.addln(f"{name_node.astext()}: typing.Any"
                      f"{self.ellipsis_strings['constant']}")
         if not desc_node.empty():
-            wt.addln(f"''' {remove_unencodable(desc_node.astext())}")
+            wt.addln(f"''' {process_description_str(desc_node.astext())}")
             wt.addln("'''")
         wt.new_line(2)
 

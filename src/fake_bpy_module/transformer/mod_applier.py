@@ -404,6 +404,7 @@ class ModApplier(TransformerBase):
             module_name_to_document[module_name_node.astext()] = document
 
         for file in self.mod_files:
+            output_log(LOG_LEVEL_DEBUG, f"Analyze mod file: {file}")
             with Path(file).open("r", encoding="utf-8") as f:
                 contents = f.read()
 

@@ -53,6 +53,7 @@ EXCLUDE_MODULE_LIST = {
     "bl_app_templates_system.VFX",
     "bl_app_templates_system.Video_Editing",
     "bgui.bgui_utils",
+    "_bpy_internal.http.downloader",
 }
 
 IGNORE_DOC_REGEX_LIST = {
@@ -71,6 +72,8 @@ IGNORE_DOC_REGEX_LIST = {
     re.compile(r"^bl_ui.space_toolsystem_toolbar.*"),
     re.compile(r"^progress_report.ProgressReport$"),
     re.compile(r"^_bpy_internal.grease_pencil.stroke.BezierHandle$"),
+    re.compile(r"^_bpy_types._RNAMeta$"),
+    re.compile(r"^_bpy_types._RNAMetaPropGroup$"),
 }
 
 CLASS_DEFAULT_VALUE_REGEX = re.compile(r"<(.+)[^<]*>")

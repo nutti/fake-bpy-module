@@ -154,6 +154,12 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
                 return "None"
             raise NotImplementedError(
                 f"{type(operand)} is not supported as an operand of USub")
+        if isinstance(expr.op, ast.UAdd):
+            operand = parse_func_arg_default_value(expr.operand)
+            if isinstance(operand, str):
+                return "None"
+            raise NotImplementedError(
+                f"{type(operand)} is not supported as an operand of UAdd")
         raise NotImplementedError(
             f"{type(expr.op)} is not supported as an UnaryOp")
     if isinstance(expr, ast.BinOp):
