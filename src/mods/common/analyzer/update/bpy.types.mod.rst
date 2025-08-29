@@ -25,7 +25,7 @@
 
    .. method:: get(key, default=None)
 
-      :type key: str
+      :type key: str | tuple[str, str | None]
       :option key: never none
       :mod-option arg key: skip-refine
       :type default: _GenericType2
