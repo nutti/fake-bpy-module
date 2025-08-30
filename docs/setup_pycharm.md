@@ -3,7 +3,7 @@
 ![Code Completion (PyCharm)](images/code_completion_pycharm.png)
 
 *Note: For PyCharm users, change the value `idea.max.intellisense.filesize` in
-`idea.properties` file to more than 2600 because some modules have the issue of
+`idea.properties` file to more than 6000 because some modules have the issue of
 being too big for intelliSense to work.*
 
 ## 1. Check the generated modules location
