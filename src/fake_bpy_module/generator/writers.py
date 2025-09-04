@@ -498,7 +498,12 @@ class PyCodeWriterBase(BaseWriter):
                 if (not desc_node.empty()) or (dtype_str is not None):
                     wt.add("''' ")
                     if not desc_node.empty():
-                        wt.add(f"{process_description_str(desc_node.astext())}")
+                        desc_text = desc_node.astext()
+                        wt.add(f"{desc_text}")
+                        # Add a space to avoid syntax error
+                        # with 4 single quotes in a row.
+                        if dtype_str is None and desc_text.endswith("'"):
+                            wt.add(' ')
                     if dtype_str is not None:
                         wt.new_line(2)
                         wt.addln(f":type: {dtype_str}")
