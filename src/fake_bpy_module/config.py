@@ -11,7 +11,7 @@ class Configuration:
     style_format: str = "ruff"
     target: str = "blender"
     target_version: str = None
-    mod_version: str = None
+    mod_version: str | None = None
     output_format: str = "pyi"
 
     # pylint: disable=W0201
@@ -105,7 +105,7 @@ def get_target_version() -> str:
     return inst.target_version
 
 
-def get_mod_version() -> str:
+def get_mod_version() -> str | None:
     inst = Configuration.get_instance()
     return inst.mod_version
 
