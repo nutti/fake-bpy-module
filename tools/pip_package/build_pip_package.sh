@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # require: bash version >= 4
-# usage example: bash batch_gen_modules.sh 2.79 out
+# usage example: bash build_pip_package.sh blender 4.3 "./blender-src" "./blender-v4.3-bin" 4.3
 set -eEu
 
 SUPPORTED_BLENDER_VERSIONS=(
