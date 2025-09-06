@@ -111,3 +111,10 @@ def split_string_by_comma(
 def split_string_by_bar(
         line: str, workaround_special_brace_case: bool = True) -> list:
     return split_string_by(line, "|", workaround_special_brace_case)
+
+
+def to_version_int(v: str) -> list[int]:
+    if v == "latest":
+        # Make "latest" less special.
+        return [999, 999]
+    return [int(i) for i in v.split(".")]

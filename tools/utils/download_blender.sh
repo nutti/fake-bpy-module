@@ -3,13 +3,11 @@
 # usage example: bash download_blender.sh 2.79 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
-    "2.90" "2.91" "2.92" "2.93"
-    "3.0" "3.1" "3.2" "3.3" "3.4" "3.5" "3.6"
-    "4.0" "4.1" "4.2" "4.3"
-    "all"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+FAKE_BPY_SRC="$REPO_ROOT/src/fake_bpy_module"
+
+read -r -a SUPPORTED_VERSIONS <<< "$(python "$FAKE_BPY_SRC/support.py" SUPPORTED_BLENDER_VERSIONS_DOWNLOAD)"
+readonly SUPPORTED_VERSIONS
 
 declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
     ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-OSX_10.6-x86_64.zip"

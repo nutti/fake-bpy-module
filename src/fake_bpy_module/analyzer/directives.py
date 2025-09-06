@@ -10,6 +10,7 @@ from fake_bpy_module.utils import (
     append_child,
     find_children,
     split_string_by_comma,
+    to_version_int,
 )
 
 from .nodes import (
@@ -281,18 +282,15 @@ class ModuleDirective(rst.Directive):
         # Get module name.
         module_name = self.arguments[0]
         if config.get_target() == "blender":
-            if config.get_target_version() == "2.90":
+            target_version = config.get_target_version()
+            if target_version == "2.90":
                 if module_name.startswith("bpy.types."):
                     module_name = module_name[:module_name.rfind(".")]
-            elif config.get_target_version() in [
-                    "2.91", "2.92", "2.93",
-                    "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-                    "4.0", "4.1", "4.2", "4.3",
-                    "latest"]:
+            elif to_version_int(target_version) >= [2, 91]:
                 if module_name == "bpy.data":
                     module_name = "bpy"
         elif config.get_target() == "upbge":
-            if config.get_target_version() in ["0.30", "0.36", "latest"]:
+            if config.get_target_version() != "0.2.5":
                 if module_name == "bpy.data":
                     module_name = "bpy"
         module_node.element(NameNode).add_text(module_name)
