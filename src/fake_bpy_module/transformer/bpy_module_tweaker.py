@@ -28,6 +28,7 @@ from fake_bpy_module.utils import (
     find_children,
     get_first_child,
     output_log,
+    to_version_int,
 )
 
 from .transformer_base import TransformerBase
@@ -109,16 +110,10 @@ class BpyModuleTweaker(TransformerBase):
 
             include_override_context = False
             if config.get_target() == "blender":
-                if config.get_target_version() in (
-                        "2.78", "2.79",
-                        "2.80", "2.81", "2.82", "2.83",
-                        "2.90", "2.91", "2.92", "2.93",
-                        "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"):
+                if to_version_int(config.get_target_version()) <= [3, 6]:
                     include_override_context = True
             elif config.get_target() == "upbge":
-                if config.get_target_version() in (
-                        "0.2.5",
-                        "0.30", "0.36"):
+                if to_version_int(config.get_target_version()) <= [0, 36]:
                     include_override_context = True
 
             insert_index = 0

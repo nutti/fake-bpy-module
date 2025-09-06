@@ -5,20 +5,20 @@ set -eEu -o pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 WORKSPACE_DIR=$( realpath "${SCRIPT_DIR}/../.." )
 
+# Source the YAML loader
+REPO_ROOT=$WORKSPACE_DIR
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
+source "$REPO_ROOT/tools/utils/yaml_loader.sh"
+
+load_sequence_from_yaml "SUPPORTED_BLENDER_VERSIONS"
+readonly SUPPORTED_BLENDER_VERSIONS
+
+declare -A BLENDER_TAG_NAME
+load_mapping_from_yaml "BLENDER_TAG_NAME"
+
 BUILD_DIR="build"
 BLENDER_BIN_DIR="${BUILD_DIR}/blender-bin"
 BLENDER_SRC_DIR="${BUILD_DIR}/blender-src"
-
-# Define dependency script paths
-BUILD_PIP_PACKAGE_SCRIPT_PATH="${WORKSPACE_DIR}/tools/pip_package/build_pip_package.sh"
-
-# Define supported versions and tag names
-SUPPORTED_BLENDER_VERSIONS=()
-declare -A BLENDER_TAG_NAME=()
-
-## Import variables from build_pip_package.sh
-## shellcheck disable=SC1090
-eval "$(sed -n '/^SUPPORTED_BLENDER_VERSIONS/,/^TMP_DIR_NAME/{/^TMP_DIR_NAME/!p}' "${BUILD_PIP_PACKAGE_SCRIPT_PATH}")"
 
 # Check arguments
 if [[ $# != 1 ]]; then
@@ -53,7 +53,7 @@ docker_run_parameters=(
 )
 
 # Download Blender binary if not exist
-BLENDER_TARGET_BIN_DIR="${BLENDER_BIN_DIR}/blender-v${target_version}-bin"
+BLENDER_TARGET_BIN_DIR="${BLENDER_BIN_DIR}/blender-${target_version}-bin"
 if [[ ! -d "${WORKSPACE_DIR}/${BLENDER_TARGET_BIN_DIR}" ]]; then
     # Run download_blender.sh in docker to download the Linux version
     docker run "${docker_run_parameters[@]}" \
@@ -65,7 +65,7 @@ gen_module_parameters=(
     "${BLENDER_SRC_DIR}"
     "${BLENDER_TARGET_BIN_DIR}"
     "blender"
-    "${BLENDER_TAG_NAME[v${target_version}]}"
+    "${BLENDER_TAG_NAME[${target_version}]}"
     "${target_version}"
     "${BUILD_DIR}/results"
 )

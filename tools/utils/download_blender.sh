@@ -3,134 +3,37 @@
 # usage example: bash download_blender.sh 2.79 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
-    "2.90" "2.91" "2.92" "2.93"
-    "3.0" "3.1" "3.2" "3.3" "3.4" "3.5" "3.6"
-    "4.0" "4.1" "4.2" "4.3"
-    "all"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
 
-declare -A BLENDER_DOWNLOAD_URL_MACOSX=(
-    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-OSX_10.6-x86_64.zip"
-    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79a-macOS-10.6.zip"
-    ["v2.80"]=""
-    ["v2.81"]=""
-    ["v2.82"]=""
-    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.9-macOS.dmg"
-    ["v2.90"]=""
-    ["v2.91"]=""
-    ["v2.92"]=""
-    ["v2.93"]=""
-    ["v3.0"]=""
-    ["v3.1"]=""
-    ["v3.2"]=""
-    ["v3.3"]=""
-)
+# Source the YAML loader
+source "$REPO_ROOT/tools/utils/yaml_loader.sh"
 
-declare -A BLENDER_DOWNLOAD_URL_WIN64=(
-    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-windows64.zip"
-    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79b-windows64.zip"
-    ["v2.80"]="https://download.blender.org/release/Blender2.80/blender-2.80-windows64.zip"
-    ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-windows64.zip"
-    ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-windows64.zip"
-    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.9-windows64.zip"
-    ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0-windows64.zip"
-    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0-windows64.zip"
-    ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0-windows64.zip"
-    ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.0-windows64.zip"
-    ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0-windows-x64.zip"
-    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0-windows-x64.zip"
-    ["v3.2"]="https://download.blender.org/release/Blender3.2/blender-3.2.0-windows-x64.zip"
-    ["v3.3"]="https://download.blender.org/release/Blender3.3/blender-3.3.0-windows-x64.zip"
-    ["v3.4"]="https://download.blender.org/release/Blender3.4/blender-3.4.0-windows-x64.zip"
-    ["v3.5"]="https://download.blender.org/release/Blender3.5/blender-3.5.0-windows-x64.zip"
-    ["v3.6"]="https://download.blender.org/release/Blender3.6/blender-3.6.0-windows-x64.zip"
-    ["v4.0"]="https://download.blender.org/release/Blender4.0/blender-4.0.0-windows-x64.zip"
-    ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0-windows-x64.zip"
-    ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0-windows-x64.zip"
-    ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0-windows-x64.zip"
-)
+load_sequence_from_yaml "SUPPORTED_BLENDER_VERSIONS_BASE"
+SUPPORTED_VERSIONS=("${SUPPORTED_BLENDER_VERSIONS_BASE[@]}")
+SUPPORTED_VERSIONS+=("all")
+readonly SUPPORTED_VERSIONS
 
-declare -A BLENDER_DOWNLOAD_URL_LINUX=(
-    ["v2.78"]="https://download.blender.org/release/Blender2.78/blender-2.78c-linux-glibc219-x86_64.tar.bz2"
-    ["v2.79"]="https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
-    ["v2.80"]="https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2"
-    ["v2.81"]="https://download.blender.org/release/Blender2.81/blender-2.81a-linux-glibc217-x86_64.tar.bz2"
-    ["v2.82"]="https://download.blender.org/release/Blender2.82/blender-2.82a-linux64.tar.xz"
-    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.9-linux64.tar.xz"
-    ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0-linux64.tar.xz"
-    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0-linux64.tar.xz"
-    ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0-linux64.tar.xz"
-    ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.1-linux-x64.tar.xz"
-    ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0-linux-x64.tar.xz"
-    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0-linux-x64.tar.xz"
-    ["v3.2"]="https://download.blender.org/release/Blender3.2/blender-3.2.0-linux-x64.tar.xz"
-    ["v3.3"]="https://download.blender.org/release/Blender3.3/blender-3.3.0-linux-x64.tar.xz"
-    ["v3.4"]="https://download.blender.org/release/Blender3.4/blender-3.4.0-linux-x64.tar.xz"
-    ["v3.5"]="https://download.blender.org/release/Blender3.5/blender-3.5.0-linux-x64.tar.xz"
-    ["v3.6"]="https://download.blender.org/release/Blender3.6/blender-3.6.0-linux-x64.tar.xz"
-    ["v4.0"]="https://download.blender.org/release/Blender4.0/blender-4.0.0-linux-x64.tar.xz"
-    ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0-linux-x64.tar.xz"
-    ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz"
-    ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0-linux-x64.tar.xz"
-)
+declare -A BLENDER_DOWNLOAD_URL_MACOSX
+load_mapping_from_yaml "BLENDER_DOWNLOAD_URL_MACOSX"
 
-declare -A NEED_MOVE_MACOSX=(
-    ["v2.78"]="blender-2.78c-OSX_10.6-x86_64"
-    ["v2.79"]="blender-2.79b-macOS-10.6"
-)
+declare -A BLENDER_DOWNLOAD_URL_WIN64
+load_mapping_from_yaml "BLENDER_DOWNLOAD_URL_WIN64"
 
-declare -A NEED_MOVE_WIN64=(
-)
+declare -A BLENDER_DOWNLOAD_URL_LINUX
+load_mapping_from_yaml "BLENDER_DOWNLOAD_URL_LINUX"
 
-declare -A NEED_MOVE_LINUX=(
-    ["v2.78"]="blender-2.78c-linux-glibc219-x86_64"
-    ["v2.79"]="blender-2.79b-linux-glibc219-x86_64"
-    ["v2.80"]="blender-2.80-linux-glibc217-x86_64"
-    ["v2.81"]="blender-2.81a-linux-glibc217-x86_64"
-    ["v2.82"]="blender-2.82a-linux64"
-    ["v2.83"]="blender-2.83.9-linux64"
-    ["v2.90"]="blender-2.90.0-linux64"
-    ["v2.91"]="blender-2.91.0-linux64"
-    ["v2.92"]="blender-2.92.0-linux64"
-    ["v2.93"]="blender-2.93.1-linux-x64"
-    ["v3.0"]="blender-3.0.0-linux-x64"
-    ["v3.1"]="blender-3.1.0-linux-x64"
-    ["v3.2"]="blender-3.2.0-linux-x64"
-    ["v3.3"]="blender-3.3.0-linux-x64"
-    ["v3.4"]="blender-3.4.0-linux-x64"
-    ["v3.5"]="blender-3.5.0-linux-x64"
-    ["v3.6"]="blender-3.6.0-linux-x64"
-    ["v4.0"]="blender-4.0.0-linux-x64"
-    ["v4.1"]="blender-4.1.0-linux-x64"
-    ["v4.2"]="blender-4.2.0-linux-x64"
-    ["v4.3"]="blender-4.3.0-linux-x64"
-)
+declare -A BLENDER_NEED_MOVE_MACOSX
+load_mapping_from_yaml "BLENDER_NEED_MOVE_MACOSX"
 
-declare -A BLENDER_CHECKSUM_URL=(
-    ["v2.78"]="https://download.blender.org/release/Blender2.78/release278c.md5"
-    ["v2.79"]="https://download.blender.org/release/Blender2.79/release279b.md5"
-    ["v2.80"]="https://download.blender.org/release/Blender2.80/release280.md5"
-    ["v2.81"]="https://download.blender.org/release/Blender2.81/release281a.md5"
-    ["v2.82"]="https://download.blender.org/release/Blender2.82/release282a.md5"
-    ["v2.83"]="https://download.blender.org/release/Blender2.83/blender-2.83.9.md5"
-    ["v2.90"]="https://download.blender.org/release/Blender2.90/blender-2.90.0.md5"
-    ["v2.91"]="https://download.blender.org/release/Blender2.91/blender-2.91.0.md5"
-    ["v2.92"]="https://download.blender.org/release/Blender2.92/blender-2.92.0.md5"
-    ["v2.93"]="https://download.blender.org/release/Blender2.93/blender-2.93.1.md5"
-    ["v3.0"]="https://download.blender.org/release/Blender3.0/blender-3.0.0.md5"
-    ["v3.1"]="https://download.blender.org/release/Blender3.1/blender-3.1.0.md5"
-    ["v3.2"]="https://download.blender.org/release/Blender3.2/blender-3.2.0.md5"
-    ["v3.3"]="https://download.blender.org/release/Blender3.3/blender-3.3.0.md5"
-    ["v3.4"]="https://download.blender.org/release/Blender3.4/blender-3.4.0.md5"
-    ["v3.5"]="https://download.blender.org/release/Blender3.5/blender-3.5.0.md5"
-    ["v3.6"]="https://download.blender.org/release/Blender3.6/blender-3.6.0.md5"
-    ["v4.0"]="https://download.blender.org/release/Blender4.0/blender-4.0.0.md5"
-    ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0.md5"
-    ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0.md5"
-    ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0.md5"
-)
+declare -A BLENDER_NEED_MOVE_WIN64
+load_mapping_from_yaml "BLENDER_NEED_MOVE_WIN64"
+
+declare -A BLENDER_NEED_MOVE_LINUX
+load_mapping_from_yaml "BLENDER_NEED_MOVE_LINUX"
+
+declare -A BLENDER_CHECKSUM_URL
+load_mapping_from_yaml "BLENDER_CHECKSUM_URL"
 
 function get_extractor() {
     local file_extension=${1}
@@ -319,8 +222,8 @@ if [ "${version}" = "all" ]; then
         for KEY in "${!BLENDER_DOWNLOAD_URL_MACOSX[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_MACOSX[${KEY}]}
             move_from=""
-            if [[ "${NEED_MOVE_MACOSX[${KEY}]+_}" == "_" ]]; then
-                move_from=${NEED_MOVE_MACOSX[${KEY}]}
+            if [[ "${BLENDER_NEED_MOVE_MACOSX[${KEY}]+_}" == "_" ]]; then
+                move_from=${BLENDER_NEED_MOVE_MACOSX[${KEY}]}
             fi
             download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
@@ -329,8 +232,8 @@ if [ "${version}" = "all" ]; then
         for KEY in "${!BLENDER_DOWNLOAD_URL_WIN64[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_WIN64[${KEY}]}
             move_from=""
-            if [[ "${NEED_MOVE_WIN64[${KEY}]+_}" == "_" ]]; then
-                move_from=${NEED_MOVE_WIN64[${KEY}]}
+            if [[ "${BLENDER_NEED_MOVE_WIN64[${KEY}]+_}" == "_" ]]; then
+                move_from=${BLENDER_NEED_MOVE_WIN64[${KEY}]}
             fi
             download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
@@ -339,8 +242,8 @@ if [ "${version}" = "all" ]; then
         for KEY in "${!BLENDER_DOWNLOAD_URL_LINUX[@]}"; do
             url=${BLENDER_DOWNLOAD_URL_LINUX[${KEY}]}
             move_from=""
-            if [[ "${NEED_MOVE_LINUX[${KEY}]+_}" == "_" ]]; then
-                move_from=${NEED_MOVE_LINUX[${KEY}]}
+            if [[ "${BLENDER_NEED_MOVE_LINUX[${KEY}]+_}" == "_" ]]; then
+                move_from=${BLENDER_NEED_MOVE_LINUX[${KEY}]}
             fi
             download_blender "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
@@ -352,29 +255,26 @@ if [ "${version}" = "all" ]; then
     wait_for_all "${pids[@]}"
 else
     if [ "${os}" == "Mac" ]; then
-        ver=v${version}
-        url=${BLENDER_DOWNLOAD_URL_MACOSX[${ver}]}
+        url=${BLENDER_DOWNLOAD_URL_MACOSX[${version}]}
         move_from=""
-        if [[ "${NEED_MOVE_MACOSX[${ver}]+_}" == "_" ]]; then
-            move_from=${NEED_MOVE_MACOSX[${ver}]}
+        if [[ "${BLENDER_NEED_MOVE_MACOSX[${version}]+_}" == "_" ]]; then
+            move_from=${BLENDER_NEED_MOVE_MACOSX[${version}]}
         fi
-        download_blender "${ver}" "${url}" "${move_from}"
+        download_blender "${version}" "${url}" "${move_from}"
     elif [ "${os}" == "Cygwin64" ]; then
-        ver=v${version}
-        url=${BLENDER_DOWNLOAD_URL_WIN64[${ver}]}
+        url=${BLENDER_DOWNLOAD_URL_WIN64[${version}]}
         move_from=""
-        if [[ "${NEED_MOVE_WIN64[${ver}]+_}" == "_" ]]; then
-            move_from=${NEED_MOVE_WIN64[${ver}]}
+        if [[ "${BLENDER_NEED_MOVE_WIN64[${version}]+_}" == "_" ]]; then
+            move_from=${BLENDER_NEED_MOVE_WIN64[${version}]}
         fi
-        download_blender "${ver}" "${url}" "${move_from}"
+        download_blender "${version}" "${url}" "${move_from}"
     elif [ "${os}" == "Linux" ]; then
-        ver=v${version}
-        url=${BLENDER_DOWNLOAD_URL_LINUX[${ver}]}
+        url=${BLENDER_DOWNLOAD_URL_LINUX[${version}]}
         move_from=""
-        if [[ "${NEED_MOVE_LINUX[${ver}]+_}" == "_" ]]; then
-            move_from=${NEED_MOVE_LINUX[${ver}]}
+        if [[ "${BLENDER_NEED_MOVE_LINUX[${version}]+_}" == "_" ]]; then
+            move_from=${BLENDER_NEED_MOVE_LINUX[${version}]}
         fi
-        download_blender "${ver}" "${url}" "${move_from}"
+        download_blender "${version}" "${url}" "${move_from}"
     else
         echo "Not supported operating system (OS=${os})"
         exit 1

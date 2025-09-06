@@ -3,49 +3,24 @@
 # usage example: bash build_pip_package.sh blender 4.3 "./blender-src" "./blender-v4.3-bin" 4.3
 set -eEu
 
-SUPPORTED_BLENDER_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
-    "2.90" "2.91" "2.92" "2.93"
-    "3.0" "3.1" "3.2" "3.3" "3.4" "3.5" "3.6"
-    "4.0" "4.1" "4.2" "4.3"
-    "latest"
-)
-SUPPORTED_UPBGE_VERSIONS=(
-    "0.2.5"
-    "0.30" "0.36"
-    "latest"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
 
-declare -A BLENDER_TAG_NAME=(
-    ["v2.78"]="v2.78c"
-    ["v2.79"]="v2.79b"
-    ["v2.80"]="v2.80"
-    ["v2.81"]="v2.81a"
-    ["v2.82"]="v2.82a"
-    ["v2.83"]="v2.83.9"
-    ["v2.90"]="v2.90.0"
-    ["v2.91"]="v2.91.0"
-    ["v2.92"]="v2.92.0"
-    ["v2.93"]="v2.93.0"
-    ["v3.0"]="v3.0.0"
-    ["v3.1"]="v3.1.0"
-    ["v3.2"]="v3.2.0"
-    ["v3.3"]="v3.3.0"
-    ["v3.4"]="v3.4.0"
-    ["v3.5"]="v3.5.0"
-    ["v3.6"]="v3.6.0"
-    ["v4.0"]="v4.0.0"
-    ["v4.1"]="v4.1.0"
-    ["v4.2"]="v4.2.0"
-    ["v4.3"]="v4.3.0"
-    ["vlatest"]="main"
-)
-declare -A UPBGE_TAG_NAME=(
-    ["v0.2.5"]="v0.2.5"
-    ["v0.30"]="v0.30"
-    ["v0.36"]="v0.36"
-    ["vlatest"]="master"
-)
+# Source the YAML loader
+source "$REPO_ROOT/tools/utils/yaml_loader.sh"
+
+load_sequence_from_yaml "SUPPORTED_BLENDER_VERSIONS"
+readonly SUPPORTED_BLENDER_VERSIONS
+
+load_sequence_from_yaml "SUPPORTED_UPBGE_VERSIONS"
+readonly SUPPORTED_UPBGE_VERSIONS
+
+
+declare -A BLENDER_TAG_NAME
+load_mapping_from_yaml "BLENDER_TAG_NAME"
+
+declare -A UPBGE_TAG_NAME
+load_mapping_from_yaml "UPBGE_TAG_NAME"
 
 declare -A PACKAGE_NAME=(
     ["blender"]="bpy"
@@ -148,18 +123,17 @@ mkdir -p "${tmp_dir}" && cd "${tmp_dir}"
 
 # generate fake module
 fake_module_dir="out"
-ver=v${target_version}
 if [ "${target}" = "blender" ]; then
     if [ "${mod_version}" = "not-specified" ]; then
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${target_version}]}" "${target_version}" "${fake_module_dir}"
     else
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${BLENDER_TAG_NAME[${target_version}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
     fi
 elif [ "${target}" = "upbge" ]; then
     if [ "${mod_version}" = "not-specified" ]; then
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}"
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${target_version}]}" "${target_version}" "${fake_module_dir}"
     else
-        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${ver}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
+        bash "${SCRIPT_DIR}/../../src/gen_module.sh" "${CURRENT_DIR}/${source_dir}" "${CURRENT_DIR}/${blender_dir}" "${target}" "${UPBGE_TAG_NAME[${target_version}]}" "${target_version}" "${fake_module_dir}" "${mod_version}"
     fi
 else
     echo "${target} is not supported."
