@@ -211,7 +211,11 @@ function run_pylint_test() {
 echo "Creating temporary virtualenv for ${python_bin} at ${temp_venv}"
 ${python_bin} -m venv "${temp_venv}"
 # shellcheck source=/dev/null
-source "${temp_venv}"/bin/activate
+if [[ "$(uname -s)" == MINGW64_NT* ]]; then
+    source "${temp_venv}"/Scripts/activate
+else
+    source "${temp_venv}"/bin/activate
+fi
 
 # install pylint
 pip install --quiet pylint
