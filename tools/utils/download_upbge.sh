@@ -3,11 +3,11 @@
 # usage example: bash download_upbge.sh 0.2.5 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
-    "0.2.5"
-    "0.30" "0.36"
-    "all"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+FAKE_BPY_SRC="$REPO_ROOT/src/fake_bpy_module"
+
+read -r -a SUPPORTED_VERSIONS <<< "$(python "$FAKE_BPY_SRC/support.py" SUPPORTED_UPBGE_VERSIONS_DOWNLOAD)"
+readonly SUPPORTED_VERSIONS
 
 declare -A UPBGE_DOWNLOAD_URL_LINUX=(
     ["v0.2.5"]="https://github.com/UPBGE/upbge/releases/download/v0.2.5/UPBGEv0.2.5b2.79Linux64.tar.xz"
