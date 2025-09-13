@@ -131,12 +131,33 @@ def collect_files() -> tuple[list[str], list[str]]:
         str(p.absolute())
         for p in Path(f"{MOD_FILES_DIR}/mods/common").rglob("*.mod.rst")
     ]
-    if target == "blender" and mod_version in ["2.78", "2.79"]:
-        mod_files += [
-            str(p.absolute())
-            for p in Path(f"{MOD_FILES_DIR}/mods/{target}/{mod_version}")
-            .rglob("*.mod.rst")
+
+    # Collect version specific mod files.
+    if target == "blender":
+        applicable_mod_versions: list[str] = []
+        # Collect single-version mods.
+        single_version_mods = ["2.78", "2.79"]
+        if mod_version in single_version_mods:
+            applicable_mod_versions.append(mod_version)
+
+        # Collect multi-version mods.
+        multiversion_mods = ["2.79", "3.3"]
+
+        applicable_mod_versions += [
+            f"{mv}+"
+            for mv in multiversion_mods
+            if mod_version is None
+            or fbm.utils.to_version_int(mod_version)
+            >= fbm.utils.to_version_int(mv)
         ]
+
+        for mod_version_ in applicable_mod_versions:
+            mod_files += [
+                str(p.absolute())
+                for p in Path(f"{MOD_FILES_DIR}/mods/{target}/{mod_version_}")
+                .rglob("*.mod.rst")
+            ]
+
     # Remove unnecessary mod files.
     mod_files = set(mod_files)
     if target == "blender":
