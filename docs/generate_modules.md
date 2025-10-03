@@ -42,9 +42,9 @@ pip install -r src/requirements.txt
 
 After generating modules, you need to setup IDE to enable a code completion.
 
-* [PyCharm](docs/setup_pycharm.md)
-* [Visual Studio Code](docs/setup_visual_studio_code.md)
-* [All Text Editor (Install as Python module)](docs/setup_all_text_editor.md)
+* [PyCharm](setup_pycharm.md)
+* [Visual Studio Code](setup_visual_studio_code.md)
+* [All Text Editor (Install as Python module)](setup_all_text_editor.md)
 
 ## Case 1: Use utility script
 
