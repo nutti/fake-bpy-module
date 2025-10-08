@@ -4,9 +4,10 @@
 set -eEu
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-FAKE_BPY_SRC="$REPO_ROOT/src/fake_bpy_module"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
 
-read -r -a SUPPORTED_VERSIONS <<< "$(python "$FAKE_BPY_SRC/support.py" SUPPORTED_UPBGE_VERSIONS_DOWNLOAD)"
+read -r -a SUPPORTED_VERSIONS <<< "$(yq  ".SUPPORTED_UPBGE_VERSIONS_BASE" "$VERSIONS_YAML" -o=tsv)"
+SUPPORTED_VERSIONS+=("all")
 readonly SUPPORTED_VERSIONS
 
 declare -A UPBGE_DOWNLOAD_URL_LINUX=(

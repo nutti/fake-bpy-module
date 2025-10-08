@@ -51,7 +51,8 @@ jobs:
       - name: Get supported target versions for CI
         id: get_target_versions
         run: |
-          VERSIONS_JSON=$(python src/fake_bpy_module/support.py SUPPORTED_UPBGE_VERSIONS_CI --json)
+          VERSIONS_YAML="src/versions.yml"
+          VERSIONS_JSON=$(yq  ".SUPPORTED_UPBGE_VERSIONS_BASE" "$VERSIONS_YAML" -o=json)
           echo ::set-output name=target_versions::$VERSIONS_JSON
 
   build_modules:

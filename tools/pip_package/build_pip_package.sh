@@ -4,11 +4,11 @@
 set -eEu
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-FAKE_BPY_SRC="$REPO_ROOT/src/fake_bpy_module"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
 
-read -r -a SUPPORTED_BLENDER_VERSIONS <<< "$(python "$FAKE_BPY_SRC/support.py" SUPPORTED_BLENDER_VERSIONS)"
+read -r -a SUPPORTED_BLENDER_VERSIONS <<< "$(yq  ".SUPPORTED_BLENDER_VERSIONS" "$VERSIONS_YAML" -o=tsv)"
 readonly SUPPORTED_BLENDER_VERSIONS
-read -r -a SUPPORTED_UPBGE_VERSIONS <<< "$(python "$FAKE_BPY_SRC/support.py" SUPPORTED_UPBGE_VERSIONS)"
+read -r -a SUPPORTED_UPBGE_VERSIONS <<< "$(yq  ".SUPPORTED_UPBGE_VERSIONS" "$VERSIONS_YAML" -o=tsv)"
 readonly SUPPORTED_UPBGE_VERSIONS
 
 
