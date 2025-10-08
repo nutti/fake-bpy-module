@@ -49,6 +49,8 @@ declare -A BLENDER_DOWNLOAD_URL_WIN64=(
     ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0-windows-x64.zip"
     ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0-windows-x64.zip"
     ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0-windows-x64.zip"
+    ["v4.4"]="https://download.blender.org/release/Blender4.4/blender-4.4.0-windows-x64.zip"
+    ["v4.5"]="https://download.blender.org/release/Blender4.5/blender-4.5.0-windows-x64.zip"
 )
 
 declare -A BLENDER_DOWNLOAD_URL_LINUX=(
@@ -73,6 +75,8 @@ declare -A BLENDER_DOWNLOAD_URL_LINUX=(
     ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0-linux-x64.tar.xz"
     ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz"
     ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0-linux-x64.tar.xz"
+    ["v4.4"]="https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
+    ["v4.5"]="https://download.blender.org/release/Blender4.5/blender-4.5.0-linux-x64.tar.xz"
 )
 
 declare -A NEED_MOVE_MACOSX=(
@@ -105,6 +109,8 @@ declare -A NEED_MOVE_LINUX=(
     ["v4.1"]="blender-4.1.0-linux-x64"
     ["v4.2"]="blender-4.2.0-linux-x64"
     ["v4.3"]="blender-4.3.0-linux-x64"
+    ["v4.4"]="blender-4.4.0-linux-x64"
+    ["v4.5"]="blender-4.5.0-linux-x64"
 )
 
 declare -A BLENDER_CHECKSUM_URL=(
@@ -129,6 +135,8 @@ declare -A BLENDER_CHECKSUM_URL=(
     ["v4.1"]="https://download.blender.org/release/Blender4.1/blender-4.1.0.md5"
     ["v4.2"]="https://download.blender.org/release/Blender4.2/blender-4.2.0.md5"
     ["v4.3"]="https://download.blender.org/release/Blender4.3/blender-4.3.0.md5"
+    ["v4.4"]="https://download.blender.org/release/Blender4.4/blender-4.4.0.md5"
+    ["v4.5"]="https://download.blender.org/release/Blender4.5/blender-4.5.0.md5"
 )
 
 function get_extractor() {

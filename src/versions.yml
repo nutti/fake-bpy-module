@@ -21,6 +21,8 @@ SUPPORTED_BLENDER_VERSIONS_BASE:
   - "4.1"
   - "4.2"
   - "4.3"
+  - "4.4"
+  - "4.5"
 
 # Same list, but adding "latest".
 SUPPORTED_BLENDER_VERSIONS:
@@ -45,6 +47,8 @@ SUPPORTED_BLENDER_VERSIONS:
   - "4.1"
   - "4.2"
   - "4.3"
+  - "4.4"
+  - "4.5"
   - "latest"
 
 SUPPORTED_UPBGE_VERSIONS_BASE:
