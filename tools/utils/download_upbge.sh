@@ -3,11 +3,12 @@
 # usage example: bash download_upbge.sh 0.2.5 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
-    "0.2.5"
-    "0.30" "0.36"
-    "all"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
+
+read -r -a SUPPORTED_VERSIONS <<< "$(yq  ".SUPPORTED_UPBGE_VERSIONS_BASE" "$VERSIONS_YAML" -o=tsv)"
+SUPPORTED_VERSIONS+=("all")
+readonly SUPPORTED_VERSIONS
 
 declare -A UPBGE_DOWNLOAD_URL_LINUX=(
     ["v0.2.5"]="https://github.com/UPBGE/upbge/releases/download/v0.2.5/UPBGEv0.2.5b2.79Linux64.tar.xz"

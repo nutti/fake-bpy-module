@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eEu
 
 declare -A PACKAGE_NAME=(

@@ -15,18 +15,13 @@ declare -r IGNORED_PYLINT_ERRORS=(
     "E1111" # assignment-from-no-return: Is difficult to handle in fake-module, ignoring for now
 )
 
-declare -r SUPPORTED_BLENDER_VERSIONS=(
-    "2.78" "2.79" "2.80" "2.81" "2.82" "2.83"
-    "2.90" "2.91" "2.92" "2.93"
-    "3.0" "3.1" "3.2" "3.3" "3.4" "3.5" "3.6"
-    "4.0" "4.1" "4.2" "4.3"
-    "latest"
-)
-declare -r SUPPORTED_UPBGE_VERSIONS=(
-    "0.2.5"
-    "0.30" "0.36"
-    "latest"
-)
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
+
+read -r -a SUPPORTED_BLENDER_VERSIONS <<< "$(yq  ".SUPPORTED_BLENDER_VERSIONS" "$VERSIONS_YAML" -o=tsv)"
+readonly SUPPORTED_BLENDER_VERSIONS
+read -r -a SUPPORTED_UPBGE_VERSIONS <<< "$(yq  ".SUPPORTED_UPBGE_VERSIONS" "$VERSIONS_YAML" -o=tsv)"
+readonly SUPPORTED_UPBGE_VERSIONS
 
 declare -A BLENDER_TAG_NAME=(
     ["v2.78"]="v2.78c"
@@ -211,7 +206,11 @@ function run_pylint_test() {
 echo "Creating temporary virtualenv for ${python_bin} at ${temp_venv}"
 ${python_bin} -m venv "${temp_venv}"
 # shellcheck source=/dev/null
-source "${temp_venv}"/bin/activate
+if [[ "$(uname -s)" == MINGW64_NT* ]]; then
+    source "${temp_venv}"/Scripts/activate
+else
+    source "${temp_venv}"/bin/activate
+fi
 
 # install pylint
 pip install --quiet pylint
