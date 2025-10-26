@@ -24,6 +24,10 @@
 
    :type: Callable[[float, int], tuple[float, int]]
 
+.. data:: data_python_typing_syntax_7
+
+   :type: set[str]
+
 .. data:: data_multiple_lines
 
    :type: type[

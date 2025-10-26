@@ -84,6 +84,15 @@
                 ]
     <data>
         <name>
+            data_python_typing_syntax_7
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                set[
+                str
+                ]
+    <data>
+        <name>
             data_multiple_lines
         <description>
         <data-type-list>
