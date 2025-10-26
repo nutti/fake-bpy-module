@@ -62,6 +62,10 @@ class SelfRewriter(TransformerBase):
             attr_list_node = class_node.element(AttributeListNode)
             attr_nodes = find_children(attr_list_node, AttributeNode)
             for attr_node in attr_nodes:
+                attr_name = attr_node.element(NameNode).astext()
+                if attr_name == "parent":
+                    continue
+
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 self._rewrite_dtype_list(class_name, dtype_list_node)
 
