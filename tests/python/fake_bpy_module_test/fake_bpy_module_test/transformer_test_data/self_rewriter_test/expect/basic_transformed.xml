@@ -28,7 +28,7 @@
                             ClassB
             <attribute>
                 <name>
-                    attr_3
+                    parent
                 <description>
                 <data-type-list>
                     <data-type>
