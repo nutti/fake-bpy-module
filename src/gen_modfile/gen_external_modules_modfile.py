@@ -48,6 +48,7 @@ import bpy  # pylint: disable=E0401
 EXCLUDE_MODULE_LIST = {
     "bl_i18n_utils.settings_user",
     "bl_i18n_utils.utils_spell_check",
+    "_bl_i18n_utils.utils_spell_check",
     "bl_app_templates_system.2D_Animation",
     "bl_app_templates_system.Sculpting",
     "bl_app_templates_system.VFX",
