@@ -331,6 +331,8 @@
                 list[list[float]]
             <data-type option="never none">
                 tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
+            <data-type option="never none">
+                npt.NDArray
     <data>
         <name>
             data_mathutils_matrix_of
