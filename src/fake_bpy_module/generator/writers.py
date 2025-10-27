@@ -490,14 +490,14 @@ class PyCodeWriterBase(BaseWriter):
                     wt.addln(f"{name_node.astext()}: typing.Any"
                              f"{self.ellipsis_strings['attribute']}")
 
-                if (not desc_node.empty()) or (dtype_str is not None):
+                if not desc_node.empty():
                     wt.add("''' ")
                     if not desc_node.empty():
                         desc_text = desc_node.astext()
                         wt.add(f"{desc_text}")
                         # Add a space to avoid syntax error
                         # with 4 single quotes in a row.
-                        if dtype_str is None and desc_text.endswith("'"):
+                        if desc_text.endswith("'"):
                             wt.add(' ')
                     wt.addln("'''")
                     wt.new_line(1)
