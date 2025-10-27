@@ -7,14 +7,10 @@ class Class123:
     """Class123 description"""
 
     attr_1: float
-    """ attr_1 description
-
-    :type: float
-    """
+    """ attr_1 description"""
 
     def method_1(self) -> int:
         """method_1 description
 
         :return: method_1 return description
-        :rtype: int
         """
