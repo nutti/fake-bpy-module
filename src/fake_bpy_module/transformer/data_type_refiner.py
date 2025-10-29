@@ -263,7 +263,7 @@ class DataTypeRefiner(TransformerBase):
                 v.strip()
                 for v in dtype_str.split("{")[1].split("}")[0].split(",")
             )
-            return [make_data_type_node(f"typing.Literal[{enum_values}]")]
+            return [make_data_type_node(f"set[typing.Literal[{enum_values}]]")]
 
         # [Ex] enum set in {'KEYMAP_FALLBACK'}, (optional)
         if REGEX_MATCH_DATA_TYPE_SET_IN.match(dtype_str):
