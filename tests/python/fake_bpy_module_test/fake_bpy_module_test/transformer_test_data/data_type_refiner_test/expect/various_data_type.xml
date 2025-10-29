@@ -123,7 +123,15 @@
         <description>
         <data-type-list>
             <data-type>
-                enum in ['ONE', 'TWO'], default 'ONE'
+                enum in [
+                <literal>
+                    'ONE'
+                , 
+                <literal>
+                    'TWO'
+                ], default 
+                <literal>
+                    "'ONE'"
     <data>
         <name>
             data_enum_in_1
@@ -137,7 +145,13 @@
         <description>
         <data-type-list>
             <data-type>
-                enum in ['ONE', 'TWO']
+                enum in [
+                <literal>
+                    'ONE'
+                , 
+                <literal>
+                    'TWO'
+                ]
     <data>
         <name>
             data_set_in_default_1
@@ -151,7 +165,15 @@
         <description>
         <data-type-list>
             <data-type>
-                enum set in {'ONE', 'TWO'}, default {}
+                enum set in {
+                <literal>
+                    'ONE'
+                , 
+                <literal>
+                    'TWO'
+                }, default 
+                <literal>
+                    '{}'
     <data>
         <name>
             data_set_in_1
@@ -165,7 +187,13 @@
         <description>
         <data-type-list>
             <data-type>
-                enum set in {'ONE', 'TWO'}
+                enum set in {
+                <literal>
+                    'ONE'
+                , 
+                <literal>
+                    'TWO'
+                }
     <data>
         <name>
             data_enum_set_in_rna
