@@ -1,0 +1,7 @@
+---
+
+extends: default
+
+rules:
+  new-lines:
+    type: platform

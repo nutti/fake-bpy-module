@@ -20,6 +20,7 @@ jobs:
     outputs:
       module_version: ${{ steps.set_module_version.outputs.module_version }}
       file_version: ${{ steps.set_file_version.outputs.file_version }}
+      target_versions: ${{ steps.get_target_versions.outputs.target_versions }}
     steps:
       # Use ISO 8601 date (in UTC) + timestamp (in UTC)
       - name: Create generic module version
@@ -45,6 +46,19 @@ jobs:
         id: set_file_version
         run: echo ::set-output name=file_version::$(date -u +%Y%m%dT%H%M%SZ)
 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Validate versions
+        run: python tests/validate_versions.py
+
+      - name: Get supported Blender versions for CI
+        id: get_target_versions
+        run: |
+          VERSIONS_YAML="src/versions.yml"
+          VERSIONS_JSON=$(yq  ".SUPPORTED_BLENDER_VERSIONS_BASE" "$VERSIONS_YAML" -o=json)
+          echo ::set-output name=target_versions::$VERSIONS_JSON
+
   build_modules:
     name: Build modules
     runs-on: ubuntu-latest
@@ -53,14 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_version:
-          [
-            "2.78", "2.79",
-            "2.80", "2.81", "2.82", "2.83",
-            "2.90", "2.91", "2.92", "2.93",
-            "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-            "4.0", "4.1", "4.2", "4.3"
-          ]
+        blender_version: ${{ fromJson(needs.set_versions.outputs.target_versions) }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -113,7 +120,7 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "debug"
           ENABLE_PYTHON_PROFILER: false
-        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
+        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Generate pip Packages
         if: "!contains(github.ref, 'run-ci/')"
@@ -122,7 +129,7 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
           ENABLE_PYTHON_PROFILER: false
-        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-v${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
+        run: bash tools/pip_package/build_pip_package.sh blender ${{ matrix.blender_version }} ./blender ./blender-bin/blender-${{ matrix.blender_version }}-bin ${{ matrix.blender_version }}
 
       - name: Archive pip packages
         uses: actions/upload-artifact@v4
@@ -175,21 +182,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_version:
-          [
-            "2.78", "2.79",
-            "2.80", "2.81", "2.82", "2.83",
-            "2.90", "2.91", "2.92", "2.93",
-            "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-            "4.0", "4.1", "4.2", "4.3"
-          ]
+        blender_version: ${{ fromJson(needs.set_versions.outputs.target_versions) }}
     steps:
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
           path: dist
 
-      # Publish to TestPyPi on each merge to main
+      # Publish to TestPyPI on each merge to main
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
@@ -207,14 +207,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_version:
-          [
-            "2.78", "2.79",
-            "2.80", "2.81", "2.82", "2.83",
-            "2.90", "2.91", "2.92", "2.93",
-            "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-            "4.0", "4.1", "4.2", "4.3"
-          ]
+        blender_version: ${{ fromJson(needs.set_versions.outputs.target_versions) }}
     steps:
       - name: Fetch Artifacts
         uses: actions/download-artifact@v4
@@ -237,14 +230,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_version:
-          [
-            "2.78", "2.79",
-            "2.80", "2.81", "2.82", "2.83",
-            "2.90", "2.91", "2.92", "2.93",
-            "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
-            "4.0", "4.1", "4.2", "4.3"
-          ]
+        blender_version: ${{ fromJson(needs.set_versions.outputs.target_versions) }}
     steps:
       - name: Fetch Artifacts
         uses: actions/download-artifact@v4

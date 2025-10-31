@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# -ne 1 ]; then
     echo "Usage: run.sh <target>"
@@ -6,7 +6,7 @@ if [ $# -ne 1 ]; then
 fi
 
 readonly TARGET_DIRECTORY=${1}
-readonly SHELLCHECK_CMD="shellcheck"
+readonly SHELLCHECK_CMD="shellcheck -x"
 
 error=0
 for file in $(find "${TARGET_DIRECTORY}" -name "*.sh" | sort); do

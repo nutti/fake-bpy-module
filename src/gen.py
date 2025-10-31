@@ -69,39 +69,39 @@ def parse_options() -> None:
             f"(Supported Target: {fbm.support.SUPPORTED_TARGET})")
 
     if args.target == "blender":
-        if args.target_version in fbm.support.SUPPORTED_BLENDER_VERSION:
+        if args.target_version in fbm.support.SUPPORTED_BLENDER_VERSIONS:
             fbm.config.set_target_version(args.target_version)
         else:
             raise RuntimeError(
                 f"Not supported blender version {args.target_version}. "
                 f"(Supported Version: "
-                f"{fbm.support.SUPPORTED_BLENDER_VERSION})")
+                f"{fbm.support.SUPPORTED_BLENDER_VERSIONS})")
 
     if args.target == "upbge":
-        if args.target_version in fbm.support.SUPPORTED_UPBGE_VERSION:
+        if args.target_version in fbm.support.SUPPORTED_UPBGE_VERSIONS:
             fbm.config.set_target_version(args.target_version)
         else:
             raise RuntimeError(
                 f"Not supported upbge version {args.target_version}. "
-                f"(Supported Version: {fbm.support.SUPPORTED_UPBGE_VERSION})")
+                f"(Supported Version: {fbm.support.SUPPORTED_UPBGE_VERSIONS})")
 
     if args.mod_version:
         if fbm.config.get_target() == "blender":
-            if args.mod_version in fbm.support.SUPPORTED_MOD_BLENDER_VERSION:
+            if args.mod_version in fbm.support.SUPPORTED_MOD_BLENDER_VERSIONS:
                 fbm.config.set_mod_version(args.mod_version)
             else:
                 raise RuntimeError(
                     f"Not supported mod version {args.mod_version}. "
                     f"(Supported Version: "
-                    f"{fbm.support.SUPPORTED_MOD_BLENDER_VERSION})")
+                    f"{fbm.support.SUPPORTED_MOD_BLENDER_VERSIONS})")
         elif fbm.config.get_target() == "upbge":
-            if args.mod_version in fbm.support.SUPPORTED_MOD_UPBGE_VERSION:
+            if args.mod_version in fbm.support.SUPPORTED_MOD_UPBGE_VERSIONS:
                 fbm.config.set_mod_version(args.mod_version)
             else:
                 raise RuntimeError(
                     f"Not supported mod version {args.mod_version}. "
                     f"(Supported Version: "
-                    f"{fbm.support.SUPPORTED_MOD_UPBGE_VERSION})")
+                    f"{fbm.support.SUPPORTED_MOD_UPBGE_VERSIONS})")
 
     if args.output_log_level:
         ARG_TO_LOG_LEVEL = {  # noqa: N806

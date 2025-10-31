@@ -3,29 +3,25 @@
 # usage example: bash download_upbge.sh 0.2.5 out
 set -eEu
 
-SUPPORTED_VERSIONS=(
-    "0.2.5"
-    "0.30" "0.36"
-    "all"
-)
+# Source the YAML loader
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
+source "$REPO_ROOT/tools/utils/yaml_loader.sh"
 
-declare -A UPBGE_DOWNLOAD_URL_LINUX=(
-    ["v0.2.5"]="https://github.com/UPBGE/upbge/releases/download/v0.2.5/UPBGEv0.2.5b2.79Linux64.tar.xz"
-    ["v0.30"]="https://github.com/UPBGE/upbge/releases/download/v0.30/UPBGE-0.30-linux-x86_64.tar.xz"
-    ["v0.36"]="https://github.com/UPBGE/upbge/releases/download/v0.36.1/upbge-0.36.1-linux-x86_64.tar.xz"
-)
+load_sequence_from_yaml "SUPPORTED_UPBGE_VERSIONS_BASE"
+SUPPORTED_VERSIONS=("${SUPPORTED_UPBGE_VERSIONS_BASE[@]}")
+SUPPORTED_VERSIONS+=("all")
+readonly SUPPORTED_VERSIONS
 
-declare -A NEED_MOVE_LINUX=(
-    ["v0.2.5"]="UPBGEv0.2.5b2.79Linux64"
-    ["v0.30"]="UPBGE-0.30-linux-x86_64"
-    ["v0.36"]="upbge-0.36.1-linux-x86_64"
-)
 
-declare -A UPBGE_CHECKSUM_URL=(
-    ["v0.2.5"]="https://raw.githubusercontent.com/nutti/fake-bge-module/main/tools/utils/md5sum/upbge/0.2.5.md5"
-    ["v0.30"]="https://github.com/UPBGE/upbge/releases/download/v0.30/UPBGE-0.30-Release.md5"
-    ["v0.36"]="https://github.com/UPBGE/upbge/releases/download/v0.36.1/upbge-0.36.1-Release.md5"
-)
+declare -A UPBGE_DOWNLOAD_URL_LINUX
+load_mapping_from_yaml "UPBGE_DOWNLOAD_URL_LINUX"
+
+declare -A UPBGE_NEED_MOVE_LINUX
+load_mapping_from_yaml "UPBGE_NEED_MOVE_LINUX"
+
+declare -A UPBGE_CHECKSUM_URL
+load_mapping_from_yaml "UPBGE_CHECKSUM_URL"
 
 function get_extractor() {
     local file_extension=${1}
@@ -218,8 +214,8 @@ if [ "${version}" = "all" ]; then
         for KEY in "${!UPBGE_DOWNLOAD_URL_LINUX[@]}"; do
             url=${UPBGE_DOWNLOAD_URL_LINUX[${KEY}]}
             move_from=""
-            if [[ "${NEED_MOVE_LINUX[${KEY}]+_}" == "_" ]]; then
-                move_from=${NEED_MOVE_LINUX[${KEY}]}
+            if [[ "${UPBGE_NEED_MOVE_LINUX[${KEY}]+_}" == "_" ]]; then
+                move_from=${UPBGE_NEED_MOVE_LINUX[${KEY}]}
             fi
             download_upbge "${KEY}" "${url}" "${move_from}" &
             pids+=($!)
@@ -231,13 +227,12 @@ if [ "${version}" = "all" ]; then
     wait_for_all "${pids[@]}"
 else
     if [ "${os}" == "Linux" ]; then
-        ver=v${version}
-        url=${UPBGE_DOWNLOAD_URL_LINUX[${ver}]}
+        url=${UPBGE_DOWNLOAD_URL_LINUX[${version}]}
         move_from=""
-        if [[ "${NEED_MOVE_LINUX[${ver}]+_}" == "_" ]]; then
-            move_from=${NEED_MOVE_LINUX[${ver}]}
+        if [[ "${UPBGE_NEED_MOVE_LINUX[${version}]+_}" == "_" ]]; then
+            move_from=${UPBGE_NEED_MOVE_LINUX[${version}]}
         fi
-        download_upbge "${ver}" "${url}" "${move_from}"
+        download_upbge "${version}" "${url}" "${move_from}"
     else
         echo "Not supported operating system (OS=${os})"
         exit 1

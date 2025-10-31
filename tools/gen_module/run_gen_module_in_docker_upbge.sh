@@ -4,21 +4,22 @@ set -eEu -o pipefail
 # Define directory variables
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 WORKSPACE_DIR=$( realpath "${SCRIPT_DIR}/../.." )
+REPO_ROOT=$WORKSPACE_DIR
+
+VERSIONS_YAML="$REPO_ROOT/src/versions.yml"
+
+# Source the YAML loader
+source "$REPO_ROOT/tools/utils/yaml_loader.sh"
+
+load_sequence_from_yaml "SUPPORTED_UPBGE_VERSIONS"
+readonly SUPPORTED_UPBGE_VERSIONS
+
+declare -A UPBGE_TAG_NAME
+load_mapping_from_yaml "UPBGE_TAG_NAME"
 
 BUILD_DIR="build"
 UPBGE_BIN_DIR="${BUILD_DIR}/upbge-bin"
 UPBGE_SRC_DIR="${BUILD_DIR}/upbge-src"
-
-# Define dependency script paths
-BUILD_PIP_PACKAGE_SCRIPT_PATH="${WORKSPACE_DIR}/tools/pip_package/build_pip_package.sh"
-
-# Define supported versions and tag names
-SUPPORTED_UPBGE_VERSIONS=()
-declare -A UPBGE_TAG_NAME=()
-
-## Import variables from build_pip_package.sh
-## shellcheck disable=SC1090
-eval "$(sed -n '/^SUPPORTED_UPBGE_VERSIONS/,/^TMP_DIR_NAME/{/^TMP_DIR_NAME/!p}' "${BUILD_PIP_PACKAGE_SCRIPT_PATH}")"
 
 # Check arguments
 if [[ $# != 1 ]]; then
@@ -53,7 +54,7 @@ docker_run_parameters=(
 )
 
 # Download UPBGE binary if not exist
-UPBGE_TARGET_BIN_DIR="${UPBGE_BIN_DIR}/upbge-v${target_version}-bin"
+UPBGE_TARGET_BIN_DIR="${UPBGE_BIN_DIR}/upbge-${target_version}-bin"
 if [[ ! -d "${WORKSPACE_DIR}/${UPBGE_TARGET_BIN_DIR}" ]]; then
     # Run download_upbge.sh in docker to download the Linux version
     docker run "${docker_run_parameters[@]}" \
@@ -65,7 +66,7 @@ gen_module_parameters=(
     "${UPBGE_SRC_DIR}"
     "${UPBGE_TARGET_BIN_DIR}"
     "upbge"
-    "${UPBGE_TAG_NAME[v${target_version}]}"
+    "${UPBGE_TAG_NAME[${target_version}]}"
     "${target_version}"
     "${BUILD_DIR}/results"
 )

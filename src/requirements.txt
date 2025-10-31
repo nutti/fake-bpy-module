@@ -4,3 +4,4 @@ docutils~=0.20.1
 Pygments~=2.17.2
 pylint~=3.2.6
 setuptools~=72.2.0
+pyyaml~=6.0.0
