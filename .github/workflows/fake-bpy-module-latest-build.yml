@@ -85,7 +85,7 @@ jobs:
 
       - name: Download latest Blender files from nutti/blender-daily-build artifacts
         if: steps.cache-blender-bin.outputs.cache-hit != 'true'
-        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.TOKEN_FOR_ACTION_BLENDER_DAILY_BUILD }}
+        run: bash tools/utils/download_latest_blender.sh nutti blender-daily-build "Blender daily build" ./blender-bin ${{ secrets.GITHUB_TOKEN }}
 
         # alternatively to the github checkout, you can also use git.blender.org. See below.
       - name: Checkout Blender from Github
