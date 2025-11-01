@@ -683,8 +683,9 @@ class DataTypeRefiner(TransformerBase):
         def is_func_arg_in_never_none_whitelist(
                 class_full_name: str, func_name: str,
                 arg_name) -> bool:
-            if not class_full_name.startswith("bpy.types"):
-                return False
+            if class_full_name is not None:
+                if not class_full_name.startswith("bpy.types"):
+                    return False
             return func_name == "draw_handler_add"
 
         # Add options.
