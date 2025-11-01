@@ -711,7 +711,7 @@ class DataTypeRefiner(TransformerBase):
                     option_results.append("never none")
             elif variable_kind == 'FUNC_ARG':
                 if is_func_arg_in_never_none_whitelist(
-                        additional_info["self_class"],
+                        additional_info.get("self_class"),
                         additional_info["func_name"],
                         additional_info["arg_name"]):
                     option_results.append("never none")
