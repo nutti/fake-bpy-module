@@ -94,6 +94,13 @@ remote_git_ref="$(get_remote_git_ref "${git_ref}")"
 git fetch --depth 1 origin "${remote_git_ref}"
 git checkout -f "${remote_git_ref}"
 
+# Blender 4.5 has broken function signatures format and the fix is not backported.
+# See https://projects.blender.org/blender/blender/issues/141853.
+if [ "${target_version}" = "4.5" ]; then
+    echo "Applying patch for version 4.5 ..."
+    curl -s https://raw.githubusercontent.com/Andrej730/blender-daily-build/main/enum_values_defaults_fix.patch | patch -p1
+fi
+
 function apply_workaround() {
     local ref=${git_ref}
     local project_source=${source_dir}
