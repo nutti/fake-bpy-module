@@ -33,7 +33,8 @@ load_mapping_from_yaml() {
     local data
 
     # Example data line is `key = value`.
-    data=$(yq -r ".$tag_name" "$VERSIONS_YAML" -oprops)
+    # ``... comments=""`` is needed to ensure comments are stripped.
+    data=$(yq -r "... comments=\"\" | .$tag_name" "$VERSIONS_YAML" -oprops)
 
     # There are still empty mapping currently (e.g. `NEED_MOVE_WIN64`).
     [[ -z $data ]] && return
