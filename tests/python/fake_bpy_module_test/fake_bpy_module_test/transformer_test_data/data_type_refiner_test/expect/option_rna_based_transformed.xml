@@ -97,7 +97,7 @@
                             draw_handler_add arg_1 description
                         <default-value>
                         <data-type-list>
-                            <data-type>
+                            <data-type option="never none">
                                 str
                 <return>
                     <description>
@@ -114,8 +114,8 @@
                             function_1 arg_1 description
                         <default-value>
                         <data-type-list>
-                            <data-type>
-                                str | None
+                            <data-type option="">
+                                str
                 <return>
                     <description>
                     <data-type-list>
