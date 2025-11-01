@@ -199,7 +199,7 @@ jobs:
 
   pypi_release:
     name: PyPI Release fake-bge-module
-    needs: [pypi_release_test]
+    needs: [set_versions, pypi_release_test]
     if: |
       github.repository == 'nutti/fake-bge-module' &&
       github.event_name == 'release'
@@ -222,7 +222,7 @@ jobs:
 
   upload_github_release_assets:
     name: Upload Artifacts to GitHub Release
-    needs: [pypi_release_test]
+    needs: [set_versions, pypi_release_test]
     if: |
       github.repository == 'nutti/fake-bge-module' &&
       github.event_name == 'release'
