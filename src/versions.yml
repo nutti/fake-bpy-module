@@ -21,6 +21,7 @@ SUPPORTED_BLENDER_VERSIONS_BASE:
   - "4.1"
   - "4.2"
   - "4.3"
+  - "4.4"
 
 # Same list, but adding "latest".
 SUPPORTED_BLENDER_VERSIONS:
@@ -45,6 +46,7 @@ SUPPORTED_BLENDER_VERSIONS:
   - "4.1"
   - "4.2"
   - "4.3"
+  - "4.4"
   - "latest"
 
 SUPPORTED_UPBGE_VERSIONS_BASE:
@@ -81,6 +83,7 @@ BLENDER_TAG_NAME:
   "4.1": "v4.1.0"
   "4.2": "v4.2.0"
   "4.3": "v4.3.0"
+  "4.4": "v4.4.0"
   "latest": "main"
 
 UPBGE_TAG_NAME:
@@ -147,6 +150,7 @@ BLENDER_DOWNLOAD_URL_WIN64:
   "4.1": "https://download.blender.org/release/Blender4.1/blender-4.1.0-windows-x64.zip"
   "4.2": "https://download.blender.org/release/Blender4.2/blender-4.2.0-windows-x64.zip"
   "4.3": "https://download.blender.org/release/Blender4.3/blender-4.3.0-windows-x64.zip"
+  "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0-windows-x64.zip"
 
 BLENDER_DOWNLOAD_URL_LINUX:
   "2.78": "https://download.blender.org/release/Blender2.78/blender-2.78c-linux-glibc219-x86_64.tar.bz2"
@@ -170,6 +174,7 @@ BLENDER_DOWNLOAD_URL_LINUX:
   "4.1": "https://download.blender.org/release/Blender4.1/blender-4.1.0-linux-x64.tar.xz"
   "4.2": "https://download.blender.org/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz"
   "4.3": "https://download.blender.org/release/Blender4.3/blender-4.3.0-linux-x64.tar.xz"
+  "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
 # yamllint enable rule:line-length
 
 BLENDER_NEED_MOVE_MACOSX:
@@ -201,6 +206,7 @@ BLENDER_NEED_MOVE_LINUX:
   "4.1": "blender-4.1.0-linux-x64"
   "4.2": "blender-4.2.0-linux-x64"
   "4.3": "blender-4.3.0-linux-x64"
+  "4.4": "blender-4.4.0-linux-x64"
 
 BLENDER_CHECKSUM_URL:
   "2.78": "https://download.blender.org/release/Blender2.78/release278c.md5"
@@ -224,3 +230,4 @@ BLENDER_CHECKSUM_URL:
   "4.1": "https://download.blender.org/release/Blender4.1/blender-4.1.0.md5"
   "4.2": "https://download.blender.org/release/Blender4.2/blender-4.2.0.md5"
   "4.3": "https://download.blender.org/release/Blender4.3/blender-4.3.0.md5"
+  "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0.md5"
