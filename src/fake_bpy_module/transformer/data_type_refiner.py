@@ -681,8 +681,7 @@ class DataTypeRefiner(TransformerBase):
             return f"{class_full_name}.{attr_name}" in blacklist
 
         def is_func_arg_in_never_none_whitelist(
-                class_full_name: str, func_name: str,
-                arg_name) -> bool:
+                class_full_name: str, func_name: str) -> bool:
             if class_full_name is not None:
                 if not class_full_name.startswith("bpy.types"):
                     return False
@@ -713,8 +712,7 @@ class DataTypeRefiner(TransformerBase):
             elif variable_kind == 'FUNC_ARG':
                 if is_func_arg_in_never_none_whitelist(
                         additional_info.get("self_class"),
-                        additional_info["func_name"],
-                        additional_info["arg_name"]):
+                        additional_info["func_name"]):
                     option_results.append("never none")
 
             option_results = sorted(set(option_results))
@@ -1020,7 +1018,7 @@ class DataTypeRefiner(TransformerBase):
                        description_str=description,
                        additional_info={
                            "func_name": func_name,
-                            "arg_name": arg_name,
+                           "arg_name": arg_name,
                            "default_value": default_value_node.astext(),
                        })
 
