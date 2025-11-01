@@ -89,6 +89,7 @@ being too big for intelliSense to work.*
 |4.1|[https://pypi.org/project/fake-bpy-module-4.1/](https://pypi.org/project/fake-bpy-module-4.1/)|
 |4.2|[https://pypi.org/project/fake-bpy-module-4.2/](https://pypi.org/project/fake-bpy-module-4.2/)|
 |4.3|[https://pypi.org/project/fake-bpy-module-4.3/](https://pypi.org/project/fake-bpy-module-4.3/)|
+|4.4|[https://pypi.org/project/fake-bpy-module-4.4/](https://pypi.org/project/fake-bpy-module-4.4/)|
 |latest|[https://pypi.org/project/fake-bpy-module/](https://pypi.org/project/fake-bpy-module/)|
 ||[https://pypi.org/project/fake-bpy-module-latest/](https://pypi.org/project/fake-bpy-module-latest/)|
 
