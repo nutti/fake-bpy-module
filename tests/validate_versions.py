@@ -22,6 +22,17 @@ def main() -> None:
         )
         fail = True
 
+    # Ensure README contains all PyPI URLs.
+    readme_text = (REPO_PATH / "README.md").read_text(encoding="utf-8")
+    for version in base_blender:
+        pypi_url = f"https://pypi.org/project/fake-bpy-module-{version}/"
+        if pypi_url not in readme_text:
+            print(
+                "README is missing PyPI URL for Blender "
+                f"{version} - {pypi_url}."
+            )
+            fail = True
+
     # Check SUPPORTED_UPBGE_VERSIONS.
     base_upbge: list[str] = DATA["SUPPORTED_UPBGE_VERSIONS_BASE"]
     expected_upbge = [*base_upbge, "latest"]
