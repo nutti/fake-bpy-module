@@ -26,6 +26,16 @@
 
       :type: int
 
+   .. method:: draw_handler_add(arg_1)
+
+      :arg arg_1: draw_handler_add arg_1 description
+      :type arg_1: str
+
+   .. method:: function_1(arg_1)
+
+      :arg arg_1: function_1 arg_1 description
+      :type arg_1: str
+
 .. data:: active_data
 
    :type: int

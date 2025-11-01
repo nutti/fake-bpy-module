@@ -673,12 +673,19 @@ class DataTypeRefiner(TransformerBase):
             dtype_str_changed, module_name, variable_kind,
             additional_info=additional_info)
 
-        def is_cls_attr_in_never_none_blacklist(
+        def is_cls_attr_in_never_none_whitelist(
                 class_full_name: str, attr_name: str) -> bool:
             blacklist = (
                 "bpy.types.ID.library"
             )
             return f"{class_full_name}.{attr_name}" in blacklist
+
+        def is_func_arg_in_never_none_whitelist(
+                class_full_name: str, func_name: str,
+                arg_name) -> bool:
+            if not class_full_name.startswith("bpy.types"):
+                return False
+            return func_name == "draw_handler_add"
 
         # Add options.
         for r in result:
@@ -698,9 +705,15 @@ class DataTypeRefiner(TransformerBase):
                 option_results.append("never none")
 
             if variable_kind == 'CLS_ATTR':
-                if is_cls_attr_in_never_none_blacklist(
+                if is_cls_attr_in_never_none_whitelist(
                         additional_info["self_class"],
                         additional_info["data_name"]):
+                    option_results.append("never none")
+            elif variable_kind == 'FUNC_ARG':
+                if is_func_arg_in_never_none_whitelist(
+                        additional_info["self_class"],
+                        additional_info["func_name"],
+                        additional_info["arg_name"]):
                     option_results.append("never none")
 
             option_results = sorted(set(option_results))
@@ -948,9 +961,11 @@ class DataTypeRefiner(TransformerBase):
             func_list_node = class_node.element(FunctionListNode)
             func_nodes = find_children(func_list_node, FunctionNode)
             for func_node in func_nodes:
+                func_name = func_node.element(NameNode).astext()
                 arg_list_node = func_node.element(ArgumentListNode)
                 arg_nodes = find_children(arg_list_node, ArgumentNode)
                 for arg_node in arg_nodes:
+                    arg_name = arg_node.element(NameNode).astext()
                     description = arg_node.element(DescriptionNode).astext()
                     default_value_node = arg_node.element(DefaultValueNode)
                     dtype_list_node = arg_node.element(DataTypeListNode)
@@ -958,6 +973,8 @@ class DataTypeRefiner(TransformerBase):
                            description_str=description,
                            additional_info={
                                "self_class": f"{module_name}.{class_name}",
+                               "func_name": func_name,
+                               "arg_name": arg_name,
                                "default_value": default_value_node.astext(),
                            })
 
@@ -990,15 +1007,19 @@ class DataTypeRefiner(TransformerBase):
 
         func_nodes = find_children(document, FunctionNode)
         for func_node in func_nodes:
+            func_name = func_node.element(NameNode).astext()
             arg_list_node = func_node.element(ArgumentListNode)
             arg_nodes = find_children(arg_list_node, ArgumentNode)
             for arg_node in arg_nodes:
+                arg_name = arg_node.element(NameNode).astext()
                 description = arg_node.element(DescriptionNode).astext()
                 default_value_node = arg_node.element(DefaultValueNode)
                 dtype_list_node = arg_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'FUNC_ARG',
                        description_str=description,
                        additional_info={
+                           "func_name": func_name,
+                            "arg_name": arg_name,
                            "default_value": default_value_node.astext(),
                        })
 

@@ -85,6 +85,40 @@
                     <data-type>
                         int
         <function-list>
+            <function function_type="method">
+                <name>
+                    draw_handler_add
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            draw_handler_add arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                str
+                <return>
+                    <description>
+                    <data-type-list>
+            <function function_type="method">
+                <name>
+                    function_1
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            function_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                str
+                <return>
+                    <description>
+                    <data-type-list>
     <data>
         <name>
             active_data
