@@ -72,7 +72,6 @@ IGNORE_DOC_REGEX_LIST = {
     re.compile(r"^_bl_i18n_utils.utils.I18nMessages.find_best_messages_matches$"),
     re.compile(r"^_bl_i18n_utils.utils.I18nMessages.merge$"),
     re.compile(r"^_bl_i18n_utils.utils.I18nMessages.parse_messages_from_po$"),
-    #
     re.compile(r"^bpy_extras.wm_utils.progress_report.ProgressReport$"),
     re.compile(r"^bpy_types.RNAMeta$"),
     re.compile(r"^bpy_types.RNAMetaPropGroup$"),
