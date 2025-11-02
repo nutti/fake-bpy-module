@@ -40,6 +40,9 @@ Function: function_ref, Data: data_ref, Const: const_ref
 [NOTE]
 Note Contents
 
+[IMPORTANT]
+Important Contents
+
 [WARNING]
 Warning Contents
 

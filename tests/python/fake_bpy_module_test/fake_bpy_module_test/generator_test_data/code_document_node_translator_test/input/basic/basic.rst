@@ -53,6 +53,10 @@ Function: :func:`function_ref`, Data: :data:`data_ref`, Const: :const:`const_ref
 
    Note Contents
 
+.. important::
+
+   Important Contents
+
 .. warning::
 
    Warning Contents
