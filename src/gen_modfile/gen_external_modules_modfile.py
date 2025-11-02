@@ -49,7 +49,7 @@ EXCLUDE_MODULE_LIST = {
     "bl_i18n_utils.settings_user",
     "bl_i18n_utils.utils_spell_check",
     # Blender 5.0+.
-    "_bl_i18n_utils.settings_user",  # Blender 5.0+
+    "_bl_i18n_utils.settings_user",
     "bl_app_templates_system.2D_Animation",
     "bl_app_templates_system.Sculpting",
     "bl_app_templates_system.VFX",
