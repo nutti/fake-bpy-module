@@ -43,6 +43,25 @@ class BaseAnalyzer:
 
         document.insert(0, SourceFilenameNode(text=Path(filename).name))
 
+        def check_substitution_definition(node: nodes.Node) -> bool:
+            if isinstance(node, nodes.substitution_definition):
+                name = node.attributes["names"][0]
+                # See #399.
+                print(
+                    f"WARNING. Substitution definition found in '{filename}'. "
+                    "It's not fully supported and may be not handled properly."
+                    f" Substitute definition name: '{name}'."
+                )
+                return True
+            return False
+
+        # Discrard substitution definitions, because they are already applied
+        # after `publish_doctree` by one of the default `docutils` transforms.
+        document.children = [
+            c for c in document.children
+            if not check_substitution_definition(c)
+        ]
+
         return document
 
     def analyze(self, filenames: list) -> list[nodes.document]:
