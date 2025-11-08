@@ -38,7 +38,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[_GenericType1, ...]
+      :rtype: tuple[_GenericType1, ...]
       :mod-option rtype: skip-refine
       :option function: overload
 
