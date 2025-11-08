@@ -63,7 +63,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[_GenericType1, ...]
+      :rtype: list[_GenericType1]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -134,7 +134,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[_GenericType1, ...]
+      :rtype: list[_GenericType1]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -251,7 +251,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[:class:`Material` | None, ...]
+      :rtype: list[:class:`Material` | None]
       :mod-option rtype: skip-refine
       :option function: overload
 
