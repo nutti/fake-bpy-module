@@ -30,7 +30,8 @@ class RstSpecificNodeCleaner(TransformerBase):
                     nodes.enumerated_list | nodes.definition_list |
                     nodes.block_quote | nodes.line_block | nodes.literal_block |
                     nodes.section | nodes.field_list | nodes.note |
-                    nodes.important | nodes.warning | nodes.target | CodeNode):
+                    nodes.important | nodes.warning | nodes.target |
+                    nodes.substitution_definition | CodeNode):
                 code_doc_node = CodeDocumentNode()
                 self._replace(node, code_doc_node)
                 append_child(code_doc_node, node)
