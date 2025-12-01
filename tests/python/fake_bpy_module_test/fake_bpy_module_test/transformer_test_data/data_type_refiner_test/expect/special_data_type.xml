@@ -58,6 +58,13 @@
                 Callable[[float, int], tuple[float, int]]
     <data>
         <name>
+            data_python_typing_syntax_7
+        <description>
+        <data-type-list>
+            <data-type>
+                Literal["OPTION_1", "OPTION_2", "OPTION_3"]
+    <data>
+        <name>
             data_multiple_lines
         <description>
         <data-type-list>

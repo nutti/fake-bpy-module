@@ -85,6 +85,7 @@ _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 _REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Iterable|Sequence|Callable|list|dict|tuple|type)?\[(.+)\]$")  # noqa: E501
+_REGEX_DATA_TYPE_LITERALS_TYPE = re.compile(r"^Literal\[(.+)\]$")
 _REGEX_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\((.+)\)$")
 
 REGEX_SPLIT_OR = re.compile(r" \| | or |,")
@@ -768,6 +769,12 @@ class DataTypeRefiner(TransformerBase):
             modifier = pydoc_to_typing_annotation.get(modifier, modifier)
 
             return parse_multiple_data_type_elements(m.group(2), modifier)
+
+        if m := _REGEX_DATA_TYPE_LITERALS_TYPE.match(dtype_str):
+            new_dtype_node = DataTypeNode()
+            text = nodes.Text(f"typing.Literal[{m.group(1)}]")
+            append_child(new_dtype_node, text)
+            return [new_dtype_node]
 
         # Ex. string, default "", -> string
         if m := REGEX_MATCH_DATA_TYPE_WITH_DEFAULT.match(dtype_str):
