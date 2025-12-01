@@ -18,7 +18,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[_GenericType1, ...]
+      :rtype: list[_GenericType1]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -45,7 +45,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[:class:`BMVert`, ...]
+      :rtype: list[:class:`BMVert`]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -72,7 +72,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[:class:`BMEdge`, ...]
+      :rtype: list[:class:`BMEdge`]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -99,7 +99,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[:class:`BMFace`, ...]
+      :rtype: list[:class:`BMFace`]
       :mod-option rtype: skip-refine
       :option function: overload
 
@@ -126,7 +126,7 @@
 
       :type key: slice
       :mod-option arg key: skip-refine
-      :rtype: list[:class:`BMLoop`, ...]
+      :rtype: list[:class:`BMLoop`]
       :mod-option rtype: skip-refine
       :option function: overload
 
