@@ -268,7 +268,7 @@ bash tools/gen_module/run_gen_module_in_docker.sh <blender-version>
 ### Results
 
 | Directory | Contents |
-|----|----|
+| ---- | ---- |
 | `build/blender-bin` | Blender/UPBGE binaries |
 | `build/blender-src` | Blender/UPBGE source code |
 | `build/examples` | Blender/UPBGE Python API sample code |
