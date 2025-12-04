@@ -1,6 +1,8 @@
 Title
 =====
 
+.. |TEST_REPLACEMENT| replace:: Test replacement text.
+
 Paragraph: *Emphasis*
 
 * Bullet List Item 1
