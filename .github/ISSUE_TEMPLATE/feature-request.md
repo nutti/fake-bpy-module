@@ -7,6 +7,7 @@ assignees: ''
 
 ---
 
+<!-- markdownlint-disable MD001 -->
 ### Description about the feature
 
 *The description about the feature. It is good to clear who will benefit with*
