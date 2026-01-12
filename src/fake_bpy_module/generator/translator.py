@@ -10,6 +10,7 @@ from fake_bpy_module.analyzer.roles import (
     ModuleRef,
     RefRef,
 )
+from fake_bpy_module.utils import LOG_LEVEL_WARN, output_log
 
 from .code_writer import (
     CodeWriter,
@@ -55,6 +56,24 @@ class CodeDocumentNodeTranslator(nodes.SparseNodeVisitor):
 
     def depart_section(self, _: nodes.section) -> None:
         self.doc_writer.addln("--------------------")
+        self.doc_writer.new_line()
+
+    def visit_substitution_definition(
+        self, node: nodes.substitution_definition
+    ) -> None:
+        name = node.attributes["names"][0]
+        self.doc_writer.add(f"SUBSTITUTION REPLACEMENT '{name}':")
+        self.doc_writer.new_line()
+        output_log(
+            LOG_LEVEL_WARN,
+            f"WARNING. Found substitution definition by name '{name}'. "
+            "It's not fully supported and may be not handled properly."
+        )
+
+    def depart_substitution_definition(
+        self, _: nodes.substitution_definition
+    ) -> None:
+        self.doc_writer.new_line()
         self.doc_writer.new_line()
 
     def visit_emphasis(self, _: nodes.emphasis) -> None:

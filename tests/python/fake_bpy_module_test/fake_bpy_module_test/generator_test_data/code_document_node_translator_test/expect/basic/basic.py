@@ -1,4 +1,7 @@
 """
+SUBSTITUTION REPLACEMENT 'TEST_REPLACEMENT':
+Test replacement text.
+
 Paragraph: *Emphasis*
 
 * Bullet List Item 1
