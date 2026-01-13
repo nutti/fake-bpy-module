@@ -27,6 +27,14 @@
                     <data-type>
                         <class-ref>
                             ClassB
+            <attribute>
+                <name>
+                    parent
+                <description>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            ClassB
         <function-list>
             <function function_type="method">
                 <name>

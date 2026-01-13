@@ -10,6 +10,10 @@
 
       :type: :class:`ClassB`
 
+   .. attribute:: parent
+
+      :type: :class:`ClassB`
+
    .. method:: method_1(arg_1, arg_2)
 
       :type arg_1: :class:`ClassA`
