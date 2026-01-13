@@ -84,7 +84,7 @@ _REGEX_DATA_TYPE_OPTION_STR = re.compile(r"\(([a-zA-Z, ]+?)\)$")
 _REGEX_DATA_TYPE_OPTION_END_WITH_NONE = re.compile(r"or None$")
 _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
-_REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Iterable|Sequence|Callable|list|dict|tuple|type)?\[(.+)\]$")  # noqa: E501
+_REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Iterable|Sequence|Callable|list|dict|tuple|type|set)?\[(.+)\]$")  # noqa: E501
 _REGEX_DATA_TYPE_LITERALS_TYPE = re.compile(r"^Literal\[(.+)\]$")
 _REGEX_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\((.+)\)$")
 

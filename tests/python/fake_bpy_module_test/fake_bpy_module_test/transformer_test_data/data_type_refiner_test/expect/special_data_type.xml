@@ -65,6 +65,13 @@
                 Literal["OPTION_1", "OPTION_2", "OPTION_3"]
     <data>
         <name>
+            data_python_typing_syntax_8
+        <description>
+        <data-type-list>
+            <data-type>
+                set[str]
+    <data>
+        <name>
             data_multiple_lines
         <description>
         <data-type-list>
