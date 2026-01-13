@@ -376,7 +376,8 @@ class DataTypeRefiner(TransformerBase):
             ] * int(m.group(1))
             return [
                 make_data_type_node("list[list[float]]"),
-                make_data_type_node(f"tuple[{', '.join(tuple_elems)}]")
+                make_data_type_node(f"tuple[{', '.join(tuple_elems)}]"),
+                make_data_type_node("npt.NDArray"),
             ]
 
         if m := REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF.match(dtype_str):
