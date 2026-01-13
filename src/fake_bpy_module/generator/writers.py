@@ -344,8 +344,6 @@ class PyCodeWriterBase(BaseWriter):
                                         dtype_node, 'FUNC_ARG'):
                                     dtype_str = f"{dtype_str} | None"
                                     break
-                            wt.addln(f":type {name_node.astext()}: "
-                                     f"{dtype_str}")
 
                     if not return_node.empty():
                         desc_node = return_node.element(DescriptionNode)
@@ -364,7 +362,6 @@ class PyCodeWriterBase(BaseWriter):
                                         dtype_node, 'FUNC_RET'):
                                     dtype = f"{dtype} | None"
                                     break
-                            wt.addln(f":rtype: {dtype}")
                     wt.addln("'''")
                 else:
                     wt.addln(self.ellipsis_strings["method"])
@@ -398,7 +395,6 @@ class PyCodeWriterBase(BaseWriter):
                                 if self._is_accept_none(dtype_node, 'FUNC_ARG'):
                                     dtype_str = f"{dtype_str} | None"
                                     break
-                            wt.addln(f":type {name_node.astext()}: {dtype_str}")
                     if not return_node.empty():
                         desc_node = return_node.element(DescriptionNode)
                         dtype_list_node = return_node.element(DataTypeListNode)
@@ -413,7 +409,6 @@ class PyCodeWriterBase(BaseWriter):
                                 if self._is_accept_none(dtype_node, 'FUNC_RET'):
                                     dtype = f"{dtype} | None"
                                     break
-                            wt.addln(f":rtype: {dtype}")
                     wt.addln("'''")
                 else:
                     wt.addln(self.ellipsis_strings["function"])
@@ -495,18 +490,15 @@ class PyCodeWriterBase(BaseWriter):
                     wt.addln(f"{name_node.astext()}: typing.Any"
                              f"{self.ellipsis_strings['attribute']}")
 
-                if (not desc_node.empty()) or (dtype_str is not None):
+                if not desc_node.empty():
                     wt.add("''' ")
                     if not desc_node.empty():
                         desc_text = desc_node.astext()
                         wt.add(f"{desc_text}")
                         # Add a space to avoid syntax error
                         # with 4 single quotes in a row.
-                        if dtype_str is None and desc_text.endswith("'"):
+                        if desc_text.endswith("'"):
                             wt.add(' ')
-                    if dtype_str is not None:
-                        wt.new_line(2)
-                        wt.addln(f":type: {dtype_str}")
                     wt.addln("'''")
                     wt.new_line(1)
             if len(attr_nodes) > 0:
