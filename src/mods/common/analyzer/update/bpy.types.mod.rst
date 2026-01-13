@@ -172,3 +172,10 @@
 
       :type index: int (never None) 
       :mod-option arg index: update-argument-type
+
+.. class:: Context
+
+   .. method:: temp_override(*, window, area, region, **keywords)
+
+      :rtype: :class:`bpy.types.ContextTempOverride`
+      :mod-option rtype: skip-refine
