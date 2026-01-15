@@ -55,17 +55,41 @@
 
    :type: 4x4 :class:`mathutils.Matrix`
 
-.. data:: data_enum_in_default
+.. data:: data_enum_in_default_1
 
    :type: enum in ['ONE', 'TWO'], default 'ONE'
 
-.. data:: data_enum_in
+.. data:: data_enum_in_default_2
+
+   :type: enum in [``'ONE'``, ``'TWO'``], default ``"'ONE'"``
+
+.. data:: data_enum_in_1
 
    :type: enum in ['ONE', 'TWO']
 
-.. data:: data_set_in
+.. data:: data_enum_in_2
+
+   :type: enum in [``'ONE'``, ``'TWO'``]
+
+.. data:: data_set_in_default_1
+
+   :type: enum set in {'ONE', 'TWO'}, default {}
+
+.. data:: data_set_in_default_2
+
+   :type: enum set in {``'ONE'``, ``'TWO'``}, default ``'{}'``
+
+.. data:: data_set_in_default_3
+
+   :type: enum set in {}, default set()
+
+.. data:: data_set_in_1
 
    :type: enum set in {'ONE', 'TWO'}
+
+.. data:: data_set_in_2
+
+   :type: enum set in {``'ONE'``, ``'TWO'``}
 
 .. data:: data_enum_set_in_rna
 
