@@ -179,3 +179,10 @@
 
       :rtype: :class:`bpy.types.ContextTempOverride`
       :mod-option rtype: skip-refine
+
+.. class:: Mesh
+
+   .. method:: from_pydata(vertices, edges, faces, shade_flat)
+
+      :type vertices: collections.abc.Iterable[collections.abc.Sequence[float] | :class:`mathutils.Vector`] | None
+      :mod-option arg vertices: skip-refine
