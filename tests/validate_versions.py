@@ -29,15 +29,16 @@ def main() -> None:
         fail = True
 
     # Ensure README contains all PyPI URLs.
-    readme_text = (REPO_PATH / "README.md").read_text(encoding="utf-8")
-    for version in base_blender:
-        pypi_url = f"https://pypi.org/project/fake-{args.target}-module-{version}/"
-        if pypi_url not in readme_text:
-            print(
-                "README is missing PyPI URL for Blender "
-                f"{version} - {pypi_url}."
-            )
-            fail = True
+    if args.target == "bpy":
+        readme_text = (REPO_PATH / "README.md").read_text(encoding="utf-8")
+        for version in base_blender:
+            pypi_url = f"https://pypi.org/project/fake-bpy-module-{version}/"
+            if pypi_url not in readme_text:
+                print(
+                    "README is missing PyPI URL for Blender "
+                    f"{version} - {pypi_url}."
+                )
+                fail = True
 
     # Check SUPPORTED_UPBGE_VERSIONS.
     base_upbge: list[str] = DATA["SUPPORTED_UPBGE_VERSIONS_BASE"]
@@ -49,6 +50,18 @@ def main() -> None:
             f"but got {actual_upbge}"
         )
         fail = True
+
+    # Ensure README contains all PyPI URLs.
+    if args.target == "bge":
+        readme_text = (REPO_PATH / "README.md").read_text(encoding="utf-8")
+        for version in base_upbge:
+            pypi_url = f"https://pypi.org/project/fake-bge-module-{version}/"
+            if pypi_url not in readme_text:
+                print(
+                    "README is missing PyPI URL for UPBGE "
+                    f"{version} - {pypi_url}."
+                )
+                fail = True
 
     # Check BLENDER_TAG_NAME keys (includes latest).
     blender_tag_name: dict[str, str] = DATA["BLENDER_TAG_NAME"]

@@ -177,7 +177,7 @@ jobs:
 
   pypi_release_test:
     name: PyPI Release test
-    needs: [build_modules]
+    needs: [set_versions, build_modules]
     if: |
       github.repository == 'nutti/fake-bge-module' &&
       github.event_name != 'pull_request'
@@ -185,11 +185,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        upbge_version:
-          [
-            "0.2.5",
-            "0.30", "0.36"
-          ]
+        upbge_version: ${{ fromJson(needs.set_versions.outputs.target_versions) }}
     steps:
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
