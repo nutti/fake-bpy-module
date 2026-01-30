@@ -116,6 +116,9 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "debug"
           ENABLE_PYTHON_PROFILER: false
+          # Skip LFS smudge filter, because it would fail the checkout
+          # since the Blender mirror doesn't actually have LFS files.
+          GIT_LFS_SKIP_SMUDGE: 1
         run: bash tools/pip_package/build_pip_package.sh upbge ${{ matrix.upbge_version }} ./upbge ./upbge-bin/upbge-${{ matrix.upbge_version }}-bin ${{ matrix.upbge_version }}
 
       - name: Generate pip Packages
@@ -125,6 +128,9 @@ jobs:
           GEN_MODULE_CODE_FORMAT: "ruff"
           GEN_MODULE_OUTPUT_LOG_LEVEL: "warn"
           ENABLE_PYTHON_PROFILER: false
+          # Skip LFS smudge filter, because it would fail the checkout
+          # since the Blender mirror doesn't actually have LFS files.
+          GIT_LFS_SKIP_SMUDGE: 1
         run: bash tools/pip_package/build_pip_package.sh upbge ${{ matrix.upbge_version }} ./upbge ./upbge-bin/upbge-${{ matrix.upbge_version }}-bin ${{ matrix.upbge_version }}
 
       - name: Archive pip packages

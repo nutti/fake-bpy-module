@@ -1,0 +1,12 @@
+--- gen_module-tmp/sphinx-in.orig/bpy.types.ArmatureModifier.rst	2026-01-29 17:10:16.000000000 +0530
++++ gen_module-tmp/sphinx-in/bpy.types.ArmatureModifier.rst	2026-01-30 19:34:39.725729300 +0530
+@@ -40,8 +40,7 @@ base classes --- :class:`bpy_struct`, :c
+       - Using with other modifiers can cause issues.
+       - The Armature must have a single child mesh.
+       - Only position and normal vertex buffers are updated.
+-      - GPU skinning is highly simplified compared to the CPU pipeline and
+-          may produce incorrect deformations.
++      - GPU skinning is highly simplified compared to the CPU pipeline and may produce incorrect deformations.
+ 
+       :type: boolean, default False
+ 
