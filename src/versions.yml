@@ -114,7 +114,7 @@ UPBGE_DOWNLOAD_URL_LINUX:
   "0.50": "https://github.com/UPBGE/upbge/releases/download/v0.50/upbge-0.50-linux-x64.tar.xz"
 
 UPBGE_CHECKSUM_URL:
-  "0.2.5": "https://raw.githubusercontent.com/nutti/fake-bge-module/main/tools/utils/md5sum/upbge/0.2.5.md5"
+  "0.2.5": "https://raw.githubusercontent.com/nutti/fake-bpy-module/main/tools/utils/md5sum/upbge/0.2.5.md5"
   "0.30": "https://github.com/UPBGE/upbge/releases/download/v0.30/UPBGE-0.30-Release.md5"
   "0.36": "https://github.com/UPBGE/upbge/releases/download/v0.36.1/upbge-0.36.1-Release.md5"
   "0.44": "https://github.com/UPBGE/upbge/releases/download/v0.44/upbge-0.44-release.md5"
