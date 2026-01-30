@@ -50,7 +50,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate versions
-        run: python tests/validate_versions.py
+        if: github.repository == 'nutti/fake-bpy-module'
+        run: python tests/validate_versions.py bpy
 
       - name: Get supported Blender versions for CI
         id: get_target_versions

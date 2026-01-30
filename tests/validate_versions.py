@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import yaml
@@ -9,6 +10,11 @@ DATA = yaml.safe_load(VERSIONS_YAML.read_text(encoding="utf-8"))
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "target", choices=("bpy", "bge"), help="Validation target")
+    args = parser.parse_args()
+
     fail = False
 
     # Check SUPPORTED_BLENDER_VERSIONS.
@@ -25,7 +31,7 @@ def main() -> None:
     # Ensure README contains all PyPI URLs.
     readme_text = (REPO_PATH / "README.md").read_text(encoding="utf-8")
     for version in base_blender:
-        pypi_url = f"https://pypi.org/project/fake-bpy-module-{version}/"
+        pypi_url = f"https://pypi.org/project/fake-{args.target}-module-{version}/"
         if pypi_url not in readme_text:
             print(
                 "README is missing PyPI URL for Blender "
