@@ -89,7 +89,7 @@ jobs:
 
       - name: Download latest UPBGE files from nutti/upbge-daily-build artifacts
         if: steps.cache-upbge-bin.outputs.cache-hit != 'true'
-        run: bash tools/utils/download_latest_upbge.sh nutti upbge-daily-build "UPBGE daily build" ./upbge-bin ${{ secrets.TOKEN_FOR_ACTION_UPBGE_DAILY_BUILD }}
+        run: bash tools/utils/download_latest_upbge.sh nutti upbge-daily-build "UPBGE daily build" ./upbge-bin ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout UPBGE from Github
         uses: actions/checkout@v4

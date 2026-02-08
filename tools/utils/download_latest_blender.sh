@@ -14,7 +14,7 @@ token_for_actions=${5:-not-specified}
 
 echo "Trying to get the artifact URL ..."
 artifacts_url=$(bash "$(dirname "${BASH_SOURCE[0]}")/get_latest_artifacts_url.sh" "${owner}" "${repository}" "${workflow}")
-echo "  Artifact URL is ${artifacts_url}."
+echo "  Artifact URL is '${artifacts_url}'."
 
 echo "Downloading the artifact ..."
 mkdir -p "${target_dir}"
