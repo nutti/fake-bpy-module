@@ -199,6 +199,16 @@
                     bpy.stub_internal.rna_enums.Example
     <data>
         <name>
+            data_literal_rna
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                Literal[
+                <enum-ref>
+                    bpy.stub_internal.rna_enums.Example
+                ]
+    <data>
+        <name>
             data_enumerated_constant
         <description>
         <data-type-list>

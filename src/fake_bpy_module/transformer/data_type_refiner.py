@@ -87,6 +87,7 @@ _REGEX_DATA_TYPE_OPTION_OPTIONAL = re.compile(r"(^|^An |\()[oO]ptional(\s|\))")
 _REGEX_DATA_TYPE_STARTS_WITH_COLLECTION = re.compile(r"^(list|tuple|dict)")
 _REGEX_DATA_TYPE_MODIFIER_TYPES = re.compile(r"^(Iterable|Sequence|Callable|list|dict|tuple|type|set)?\[(.+)\]$")  # noqa: E501
 _REGEX_DATA_TYPE_LITERALS_TYPE = re.compile(r"^Literal\[(.+)\]$")
+_REGEX_DATA_TYPE_LITERALS_WITH_BACK_QUOTE_TYPE = re.compile(r"^Literal\[`(.+)`\]$")  # noqa: E501
 _REGEX_DATA_TYPE_START_AND_END_WITH_PARENTHESES = re.compile(r"^\((.+)\)$")
 
 REGEX_SPLIT_OR = re.compile(r" \| | or |,")
@@ -793,6 +794,15 @@ class DataTypeRefiner(TransformerBase):
             modifier = pydoc_to_typing_annotation.get(modifier, modifier)
 
             return parse_multiple_data_type_elements(m.group(2), modifier)
+
+        if m := _REGEX_DATA_TYPE_LITERALS_WITH_BACK_QUOTE_TYPE.match(dtype_str):
+            enum_literal_type = get_rna_enum_name(dtype_str)
+            dtype_node = DataTypeNode()
+            append_child(dtype_node, nodes.Text("Literal["))
+            append_child(dtype_node,
+                         EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
+            append_child(dtype_node, nodes.Text("]"))
+            return [dtype_node]
 
         if m := _REGEX_DATA_TYPE_LITERALS_TYPE.match(dtype_str):
             new_dtype_node = DataTypeNode()

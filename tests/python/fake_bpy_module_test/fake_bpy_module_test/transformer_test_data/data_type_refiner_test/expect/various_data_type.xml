@@ -221,6 +221,16 @@
                     rna_enum_example
     <data>
         <name>
+            data_literal_rna
+        <description>
+        <data-type-list>
+            <data-type>
+                Literal[
+                <ref-ref>
+                    rna_enum_example
+                ]
+    <data>
+        <name>
             data_enumerated_constant
         <description>
         <data-type-list>

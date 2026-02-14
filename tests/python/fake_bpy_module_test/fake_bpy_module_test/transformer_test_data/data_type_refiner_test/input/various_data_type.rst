@@ -99,6 +99,10 @@
 
    :type: enum in :ref:`rna_enum_example`
 
+.. data:: data_literal_rna
+
+   :type: Literal[:ref:`rna_enum_example`]
+
 .. data:: data_enumerated_constant
 
    :type: Enumerated constant
