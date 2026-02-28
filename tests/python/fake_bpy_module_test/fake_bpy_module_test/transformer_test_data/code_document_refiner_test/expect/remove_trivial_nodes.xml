@@ -40,5 +40,10 @@
             <list_item>
                 <paragraph>
                     To be removed
+            <list_item>
+                <paragraph>
+                    <class-ref>
+                        bpy_struct.id_data
+        :columns: 2
     <paragraph>
         Some descriptions 4
