@@ -26,9 +26,6 @@ class CodeDocumentRefiner(TransformerBase):
                 next_node = node.parent.children[index+1]
                 nodes_to_remove.append(node)
                 nodes_to_remove.append(next_node)
-                if isinstance(node.next_node(), nodes.hlist):
-                    print("@@@@@@@@@@@")
-                    nodes_to_remove.append(node.next_node())
             elif node.astext().startswith("subclasses ---"):
                 nodes_to_remove.append(node)
         for node in nodes_to_remove:

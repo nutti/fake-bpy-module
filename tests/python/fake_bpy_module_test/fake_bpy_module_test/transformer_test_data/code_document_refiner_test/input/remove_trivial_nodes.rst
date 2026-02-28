@@ -27,6 +27,7 @@ Some descriptions 3
 .. rubric:: References
 
 .. hlist::
+   :columns: 2
 
    * To be removed
 
