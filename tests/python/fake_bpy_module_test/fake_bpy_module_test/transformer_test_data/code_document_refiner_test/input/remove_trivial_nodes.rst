@@ -30,5 +30,6 @@ Some descriptions 3
    :columns: 2
 
    * To be removed
+   * :class:`bpy_struct.id_data`
 
 Some descriptions 4
