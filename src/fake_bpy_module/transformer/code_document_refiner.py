@@ -20,12 +20,12 @@ class CodeDocumentRefiner(TransformerBase):
         para_nodes = find_children(new_doc_node, nodes.paragraph)
         nodes_to_remove: list[nodes.Node] = []
         for node in para_nodes:
-            print("@@@@@@@@")
-            print(node.pformat())
-            index = node.parent.children.index(node)
-            next_node = node.parent.children[index+1]
-            print("^------")
-            print(next_node.pformat())
+            # print("@@@@@@@@")
+            # print(node.pformat())
+            # index = node.parent.children.index(node)
+            # next_node = node.parent.children[index+1]
+            # print("^------")
+            # print(next_node.pformat())
             if node.astext() in ("Inherited Functions", "Inherited Properties",
                                  "References"):
                 print("OK")
