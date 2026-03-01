@@ -45,6 +45,8 @@ class BaseAnalyzer:
 
         document.insert(0, SourceFilenameNode(text=Path(filename).name))
 
+        print(document.pformat())
+
         return document
 
     def analyze(self, filenames: list) -> list[nodes.document]:
