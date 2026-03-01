@@ -622,8 +622,8 @@ class DocumentDirective(rst.Directive):
 
         content = " ".join(self.arguments)
         append_child(paragraph, nodes.Text(content))
-        print("@@@@@@")
-        print(paragraph.pformat())
+        # print("@@@@@@")
+        # print(paragraph.pformat())
 
         return [paragraph]
 
