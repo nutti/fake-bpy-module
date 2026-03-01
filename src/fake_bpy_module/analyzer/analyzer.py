@@ -37,14 +37,13 @@ class BaseAnalyzer:
             "line_length_limit": 20000,
         }
 
+        print(f"@@@@@@@ {filename}")
+
         document: nodes.document = publish_doctree(
             contents, settings_overrides=settings_overrides,
             reader=readers.BpyRstDocsReader())
 
         document.insert(0, SourceFilenameNode(text=Path(filename).name))
-
-        print(f"@@@@@@@ {filename}")
-        print(document.pformat())
 
         return document
 
