@@ -620,6 +620,8 @@ class DocumentDirective(rst.Directive):
         paragraph: nodes.paragraph = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, paragraph)
 
+        print("PPPPPPPPPPPPPP")
+        print(self.content)
         content = " ".join(self.arguments)
         append_child(paragraph, nodes.Text(content))
 

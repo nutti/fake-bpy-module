@@ -22,8 +22,13 @@ class CodeDocumentRefiner(TransformerBase):
         for node in para_nodes:
             print("@@@@@@@@")
             print(node.pformat())
+            index = node.parent.children.index(node)
+            next_node = node.parent.children[index+1]
+            print("^------")
+            print(next_node.pformat())
             if node.astext() in ("Inherited Functions", "Inherited Properties",
                                  "References"):
+                print("OK")
                 index = node.parent.children.index(node)
                 next_node = node.parent.children[index+1]
                 nodes_to_remove.append(node)
