@@ -27,7 +27,36 @@ Some descriptions 3
 .. rubric:: References
 
 .. hlist::
+   :columns: 2
+
+   * To be removed
+   * :class:`bpy_struct.id_data`
+
+Some descriptions 4
+
+Inherited Functions
+====================
+
+.. hlist::
 
    * To be removed
 
-Some descriptions 4
+Some descriptions 5
+
+Inherited Properties
+====================
+
+.. hlist::
+
+   * To be removed
+
+Some descriptions 6
+
+References
+==========
+
+.. hlist::
+
+   * To be removed
+
+Some descriptions 7
