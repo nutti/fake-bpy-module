@@ -23,7 +23,9 @@ class CodeDocumentRefiner(TransformerBase):
             if node.astext() in ("Inherited Functions", "Inherited Properties",
                                  "References"):
                 index = node.parent.children.index(node)
-                next_node = node.parent.children[index+1]
+                next_node = node.parent.children[index+1]    #@@@@@@ここを変更する必要がある
+                print("@@@@@@@@")
+                print(next_node.pformat())
                 nodes_to_remove.append(node)
                 nodes_to_remove.append(next_node)
             elif node.astext().startswith("subclasses ---"):
