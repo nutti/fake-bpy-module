@@ -716,7 +716,7 @@ def register_directives() -> None:
     rst.directives.register_directive("seealso", DocumentDirective)
     rst.directives.register_directive("hlist", DocumentDirective)
     rst.directives.register_directive("toctree", DocumentDirective)
-    rst.directives.register_directive("rubric", DocumentDirective)
+    # rst.directives.register_directive("rubric", DocumentDirective)
     rst.directives.register_directive("deprecated", DocumentDirective)
 
     rst.directives.register_directive("include", NopDirective)
