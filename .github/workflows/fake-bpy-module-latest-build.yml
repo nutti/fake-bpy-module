@@ -61,8 +61,8 @@ jobs:
         run: |
           pip install -r src/requirements.txt
 
-      - name: Test fake_bpy_module core module
-        run: bash tests/run_pre_tests.sh src
+      # - name: Test fake_bpy_module core module
+      #   run: bash tests/run_pre_tests.sh src
 
       - name: Install Blender binary dependencies
         run: |

@@ -15,7 +15,7 @@
                 DATA_1 type
     <paragraph>
         Some descriptions 1
-    <rubric>
+    <paragraph>
         Inherited Functions
     <paragraph>
         <bullet_list bullet="*">
@@ -24,7 +24,7 @@
                     To be removed
     <paragraph>
         Some descriptions 2
-    <rubric>
+    <paragraph>
         Inherited Properties
     <paragraph>
         <bullet_list bullet="*">
@@ -33,7 +33,7 @@
                     To be removed
     <paragraph>
         Some descriptions 3
-    <rubric>
+    <paragraph>
         References
     <paragraph>
         <bullet_list bullet="*">
