@@ -33,6 +33,8 @@ from fake_bpy_module.utils import (
 
 from .transformer_base import TransformerBase
 
+REGEX_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`(, \(readonly\))*$")  # noqa: E501
+REGEX_BPY_PROP_COLLECTION_OF_SIMPLE_SYNTAX = re.compile(r"^`bpy\.types\.([a-zA-Z0-9]+)`\[`bpy\.types\.([a-zA-Z0-9]+)`\]")  # noqa: E501
 
 class BpyModuleTweaker(TransformerBase):
 
@@ -168,9 +170,10 @@ class BpyModuleTweaker(TransformerBase):
                 dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                 for dtype_node in dtype_nodes:
                     dtype_str = dtype_node.astext()
-                    if m := re.match(
-                            r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `"
-                            r"([a-zA-Z0-9]+)`(, \(readonly\))*$", dtype_str):
+                    if m := REGEX_BPY_PROP_COLLECTION_OF.match(dtype_str):  # noqa: SIM114
+                        parent_to_child[m.group(1)] = m.group(2)
+                    elif m := REGEX_BPY_PROP_COLLECTION_OF_SIMPLE_SYNTAX.match(
+                            dtype_str):
                         parent_to_child[m.group(1)] = m.group(2)
 
         for parent, child in parent_to_child.items():

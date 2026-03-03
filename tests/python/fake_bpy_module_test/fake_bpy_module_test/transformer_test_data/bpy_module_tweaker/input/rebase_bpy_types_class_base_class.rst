@@ -24,3 +24,8 @@
 
       :type: :class:`Attributes2` :class:`bpy_prop_collection` of :class:`Attribute2`
 
+   .. attribute:: attr_3
+
+      attr_3 description
+
+      :type: :class:`bpy.types.A`[:class:`bpy.types.B`]
