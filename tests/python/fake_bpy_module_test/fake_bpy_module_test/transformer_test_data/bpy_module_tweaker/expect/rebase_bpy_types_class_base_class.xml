@@ -71,4 +71,17 @@
                          of 
                         <class-ref>
                             Attribute2
+            <attribute>
+                <name>
+                    attr_3
+                <description>
+                    attr_3 description
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy.types.A
+                         [ 
+                        <class-ref>
+                            bpy.types.B
+                         ]
         <function-list>

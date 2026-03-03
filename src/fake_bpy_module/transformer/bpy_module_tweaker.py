@@ -34,7 +34,7 @@ from fake_bpy_module.utils import (
 from .transformer_base import TransformerBase
 
 REGEX_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`(, \(readonly\))*$")  # noqa: E501
-REGEX_BPY_PROP_COLLECTION_OF_SIMPLE_SYNTAX = re.compile(r"^`bpy\.types\.([a-zA-Z0-9]+)`\[`bpy\.types\.([a-zA-Z0-9]+)`\]")  # noqa: E501
+REGEX_BPY_PROP_COLLECTION_OF_SIMPLE_SYNTAX = re.compile(r"^`bpy\.types\.([a-zA-Z0-9]+)` \[ `bpy\.types\.([a-zA-Z0-9]+)` \]")  # noqa: E501
 
 class BpyModuleTweaker(TransformerBase):
 
