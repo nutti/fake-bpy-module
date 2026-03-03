@@ -79,9 +79,23 @@
                 <data-type-list>
                     <data-type>
                         <class-ref>
-                            bpy.types.A
+                            bpy.types.ClassB
                          [ 
                         <class-ref>
-                            bpy.types.B
+                            bpy.types.ClassC
                          ]
+        <function-list>
+    <class>
+        <name>
+            ClassB
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            ClassC
+        <description>
+        <base-class-list>
+        <attribute-list>
         <function-list>
