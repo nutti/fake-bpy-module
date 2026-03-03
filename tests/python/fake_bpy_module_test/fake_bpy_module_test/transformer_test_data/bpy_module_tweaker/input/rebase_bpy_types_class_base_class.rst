@@ -28,4 +28,8 @@
 
       attr_3 description
 
-      :type: :class:`bpy.types.A` [ :class:`bpy.types.B` ]
+      :type: :class:`bpy.types.ClassB` [ :class:`bpy.types.ClassC` ]
+
+.. class:: ClassB
+
+.. class:: ClassC
