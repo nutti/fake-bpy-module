@@ -100,8 +100,8 @@ class CodeWriter:
                 self._code_data.getvalue(), style_config="pep8")[0])
         elif style_config == "ruff":
             try:
-                self._code_data = io.StringIO(subprocess.check_output(
-                    [  # noqa: S607, S603
+                self._code_data = io.StringIO(subprocess.check_output(  # noqa: S603
+                    [  # noqa: S607
                         "ruff",
                         "format",
                         "--isolated",

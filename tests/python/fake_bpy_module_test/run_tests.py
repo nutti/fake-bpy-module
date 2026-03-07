@@ -28,7 +28,7 @@ def main() -> None:
     sys.path.append(str(path))
 
     sys.path.append(str(Path(__file__).parent))
-    import fake_bpy_module_test     # pylint: disable=C0415  # noqa: I001
+    import fake_bpy_module_test     # noqa: I001, PLC0415
 
     test_cases = [
         fake_bpy_module_test.analyzer_test.BaseAnalyzerTest,
