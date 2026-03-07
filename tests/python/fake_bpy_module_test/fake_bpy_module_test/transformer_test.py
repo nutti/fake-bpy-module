@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from docutils import nodes  # noqa: TCH002
+from docutils import nodes  # noqa: TC002
 from docutils.core import publish_doctree
 from fake_bpy_module import config
 from fake_bpy_module.analyzer.analyzer import BaseAnalyzer

@@ -1,4 +1,4 @@
-from docutils import nodes  # noqa: TCH002
+from docutils import nodes  # noqa: TC002
 
 from fake_bpy_module.analyzer.nodes import (
     AttributeListNode,
