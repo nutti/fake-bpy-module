@@ -3,6 +3,7 @@ from pathlib import Path
 
 from docutils import nodes  # noqa: TC002
 from docutils.core import publish_doctree
+
 from fake_bpy_module import config  # pylint: disable=E0401
 from fake_bpy_module.analyzer.analyzer import (
     BaseAnalyzer,  # pylint: disable=E0401
