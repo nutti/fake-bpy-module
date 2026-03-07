@@ -578,11 +578,10 @@ class DataTypeRefiner(TransformerBase):
 
         def may_have_rna_based_options(module_name: str) -> bool:
             if module_name.startswith("bpy."):
-                if module_name == "bpy.utils":
-                    return False
-                if module_name == "bpy.path":
-                    return False
-                return True
+                return module_name not in (
+                    "bpy.utils",
+                    "bpy.path",
+                )
 
             return False
 
