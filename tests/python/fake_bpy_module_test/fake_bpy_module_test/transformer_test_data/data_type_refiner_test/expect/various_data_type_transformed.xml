@@ -203,7 +203,7 @@
         <description>
         <data-type-list>
             <data-type option="never none">
-                Literal[
+                typing.Literal[
                 <enum-ref>
                     bpy.stub_internal.rna_enums.Example
                 ]
