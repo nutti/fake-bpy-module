@@ -65,7 +65,8 @@ jobs:
           cache: "pip"
 
       - name: Install required pip packages
-        run: pip3 install ruff==0.4.5
+        run: |
+          pip3 install -r src/requirements.txt
 
       - name: ruff format check
         run: ruff check --output-format=github .
