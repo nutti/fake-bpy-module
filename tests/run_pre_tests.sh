@@ -27,11 +27,12 @@ fi
 python_bin=$(command -v "${PYTHON_BIN}")
 
 # check if python version meets our requirements
-IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
-if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 11 ]]; then
-    echo "Error: Unsupported python version \"${python_version[0]}.${python_version[1]}\". Requiring python 3.11 or higher."
-    exit 1
-fi
+"$python_bin" -c "
+import sys
+if sys.version_info < (3, 11):
+    print(f'Error: Python 3.11+ required, got {sys.version_info[:3]}')
+    sys.exit(1)
+"
 
 if ! ${python_bin} "${SCRIPT_DIR}/python/fake_bpy_module_test/run_tests.py" -p "${PACKAGES_PATH}"; then
     echo "Error: fake_bpy_module test failed"

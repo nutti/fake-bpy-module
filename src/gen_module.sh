@@ -62,11 +62,12 @@ fi
 python_bin=$(command -v "${PYTHON_BIN}")
 
 echo "Checking if Python version meets the requirements ..."
-IFS=" " read -r -a python_version <<< "$(${python_bin} -c 'import sys; print(sys.version_info[:])' | tr -d '(),')"
-if [ "${python_version[0]}" -lt 3 ] || [[ "${python_version[0]}" -eq 3 && "${python_version[1]}" -lt 11 ]]; then
-    echo "Error: Unsupported python version \"${python_version[0]}.${python_version[1]}\". Requiring python 3.11 or higher."
-    exit 1
-fi
+"$python_bin" -c "
+import sys
+if sys.version_info < (3, 11):
+    print(f'Error: Python 3.11+ required, got {sys.version_info[:3]}')
+    sys.exit(1)
+"
 
 function get_remote_git_ref() {
     local ref=$1
