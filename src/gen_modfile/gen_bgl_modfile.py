@@ -221,7 +221,7 @@ def write_to_rst_modfile(data: dict, config: 'GenerationConfig') -> None:
                 func_info = info
                 f.write(f".. function:: {func_info['name']}"
                         f"({', '.join(func_info['parameters'])})\n\n")
-                for param_info in func_info["parameter_details"]:
+                for param_info in func_info["parameter_details"]:  # noqa: FURB122
                     f.write(f"   :type {param_info['name']}: "
                             f"{param_info['data_type']}\n")
                 if func_info["return"]["data_type"] == "":
