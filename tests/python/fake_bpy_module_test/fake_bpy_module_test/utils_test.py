@@ -1,7 +1,8 @@
 import os
 
-from docutils import nodes  # noqa: TCH002
+from docutils import nodes  # noqa: TC002
 from docutils.core import publish_doctree
+
 from fake_bpy_module.analyzer.nodes import (  # pylint: disable=E0401
     DataNode,
     FunctionNode,

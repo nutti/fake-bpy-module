@@ -344,7 +344,7 @@ def analyze(modules: List) -> Dict:
 
 def write_description(f: TextIO, description: str, indent: str) -> None:
     lines = description.split("\n")
-    for line in lines:
+    for line in lines:  # noqa: FURB122
         f.write("{}{}\n".format(indent, line))
     f.write("\n")
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import docutils
+
 from fake_bpy_module import config  # pylint: disable=E0401
 from fake_bpy_module.analyzer.analyzer import (
     BaseAnalyzer,  # pylint: disable=E0401

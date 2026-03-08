@@ -6,9 +6,9 @@ from .utils import check_os
 
 __all__ = [
     "analyze",
-    "transform",
-    "generate",
-    "config",
     "check_os",
+    "config",
+    "generate",
     "support",
+    "transform",
 ]
