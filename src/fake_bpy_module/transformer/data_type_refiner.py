@@ -797,7 +797,7 @@ class DataTypeRefiner(TransformerBase):
         if m := _REGEX_DATA_TYPE_LITERALS_WITH_BACK_QUOTE_TYPE.match(dtype_str):
             enum_literal_type = get_rna_enum_name(dtype_str)
             dtype_node = DataTypeNode()
-            append_child(dtype_node, nodes.Text("Literal["))
+            append_child(dtype_node, nodes.Text("typing.Literal["))
             append_child(dtype_node,
                          EnumRef(text=f"bpy.stub_internal.rna_enums.{enum_literal_type}"))
             append_child(dtype_node, nodes.Text("]"))
