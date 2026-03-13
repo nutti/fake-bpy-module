@@ -21,11 +21,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.12"
           cache: "pip"
 
       - name: Install required pip packages
-        run: pip3 install pycodestyle==2.9.1
+        run: pip3 install -r tests/lint/lint-requirements.txt
 
       - name: pycodestyle test
         run: bash tests/lint/pycodestyle/run.sh .
@@ -94,11 +94,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.12"
           cache: "pip"
 
       - name: Get required pip packages
-        run: pip3 install yamllint==1.27.1
+        run: pip3 install -r tests/lint/lint-requirements.txt
 
       - name: yamllint test
         run: bash tests/lint/yamllint/run.sh .

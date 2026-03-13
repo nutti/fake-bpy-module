@@ -119,36 +119,33 @@ def parse_func_arg_default_value(expr: ast.expr) -> str | None:
         return expr.value
     if isinstance(expr, ast.Name):
         return expr.id
+
+    def get_items_str(expr: ast.List | ast.Tuple | ast.Set) -> str:
+        return ", ".join(
+            str(parse_func_arg_default_value(e)) for e in expr.elts
+        )
+
     if isinstance(expr, ast.List):
-        return (
-            f"""[{', '.join(str(parse_func_arg_default_value(e))
-            for e in expr.elts)}]"""
-            if len(expr.elts) > 0
-            else "[]"
-        )
+        if len(expr.elts) == 0:
+            return "[]"
+        return f"[{get_items_str(expr)}]"
     if isinstance(expr, ast.Tuple):
-        return (
-            f"""({', '.join(str(parse_func_arg_default_value(e))
-            for e in expr.elts)})"""
-            if len(expr.elts) > 0
-            else "()"
-        )
+        if len(expr.elts) == 0:
+            return "()"
+        return f"({get_items_str(expr)})"
     if isinstance(expr, ast.Set):
-        return (
-            f"""{{{', '.join(str(parse_func_arg_default_value(e))
-            for e in expr.elts)}}}"""
-            if len(expr.elts) > 0
-            else "set()"
-        )
+        if len(expr.elts) == 0:
+            return "set()"
+        return f"{{{get_items_str(expr)}}}"
     if isinstance(expr, ast.Dict):
-        return (
-            f"""{{{', '.join(
-            f'{parse_func_arg_default_value(k)}'
-            f':{parse_func_arg_default_value(v)}'
-            for k, v in zip(expr.keys, expr.values, strict=False))}}}"""
-            if len(expr.keys) > 0
-            else "{}"
+        if len(expr.keys) == 0:
+            return "{}"
+        items = ', '.join(
+            f'{parse_func_arg_default_value(k)}:{parse_func_arg_default_value(v)}'
+            for k, v in zip(expr.keys, expr.values, strict=False)
         )
+        return f"{{{items}}}"
+
     if isinstance(expr, ast.UnaryOp):
         if isinstance(expr.op, ast.USub):
             operand = parse_func_arg_default_value(expr.operand)
