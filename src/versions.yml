@@ -24,6 +24,7 @@ SUPPORTED_BLENDER_VERSIONS_BASE:
   - "4.4"
   - "4.5"
   - "5.0"
+  - "5.1"
 
 # Same list, but adding "latest".
 SUPPORTED_BLENDER_VERSIONS:
@@ -51,6 +52,7 @@ SUPPORTED_BLENDER_VERSIONS:
   - "4.4"
   - "4.5"
   - "5.0"
+  - "5.1"
   - "latest"
 
 SUPPORTED_UPBGE_VERSIONS_BASE:
@@ -94,6 +96,7 @@ BLENDER_TAG_NAME:
   "4.4": "v4.4.0"
   "4.5": "v4.5.5"
   "5.0": "v5.0.0"
+  "5.1": "v5.1.0"
   "latest": "main"
 
 UPBGE_TAG_NAME:
@@ -171,6 +174,7 @@ BLENDER_DOWNLOAD_URL_WIN64:
   "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0-windows-x64.zip"
   "4.5": "https://download.blender.org/release/Blender4.5/blender-4.5.5-windows-x64.zip"
   "5.0": "https://download.blender.org/release/Blender5.0/blender-5.0.0-windows-x64.zip"
+  "5.1": "https://download.blender.org/release/Blender5.1/blender-5.1.0-windows-x64.zip"
 
 BLENDER_DOWNLOAD_URL_LINUX:
   "2.78": "https://download.blender.org/release/Blender2.78/blender-2.78c-linux-glibc219-x86_64.tar.bz2"
@@ -197,6 +201,7 @@ BLENDER_DOWNLOAD_URL_LINUX:
   "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
   "4.5": "https://download.blender.org/release/Blender4.5/blender-4.5.5-linux-x64.tar.xz"
   "5.0": "https://download.blender.org/release/Blender5.0/blender-5.0.0-linux-x64.tar.xz"
+  "5.1": "https://download.blender.org/release/Blender5.1/blender-5.1.0-linux-x64.tar.xz"
 # yamllint enable rule:line-length
 
 BLENDER_NEED_MOVE_MACOSX:
@@ -231,6 +236,7 @@ BLENDER_NEED_MOVE_LINUX:
   "4.4": "blender-4.4.0-linux-x64"
   "4.5": "blender-4.5.5-linux-x64"
   "5.0": "blender-5.0.0-linux-x64"
+  "5.1": "blender-5.1.0-linux-x64"
 
 BLENDER_CHECKSUM_URL:
   "2.78": "https://download.blender.org/release/Blender2.78/release278c.md5"
@@ -257,3 +263,4 @@ BLENDER_CHECKSUM_URL:
   "4.4": "https://download.blender.org/release/Blender4.4/blender-4.4.0.md5"
   "4.5": "https://download.blender.org/release/Blender4.5/blender-4.5.5.md5"
   "5.0": "https://download.blender.org/release/Blender5.0/blender-5.0.0.md5"
+  "5.1": "https://download.blender.org/release/Blender5.1/blender-5.1.0.md5"
