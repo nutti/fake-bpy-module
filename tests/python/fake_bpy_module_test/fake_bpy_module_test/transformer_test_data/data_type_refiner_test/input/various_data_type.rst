@@ -223,6 +223,10 @@
 
    :type: :class:`RefinedClassA` :class:`bpy_prop_collection` of :class:`ClassA`, 
 
+.. data:: data_value_bpy_prop_collection_of_simple_syntax
+
+   :type: :class:`RefinedClassA`\ [:class:`ClassA`]
+
 .. data:: data_set_of_strings
 
    :type: set of strings

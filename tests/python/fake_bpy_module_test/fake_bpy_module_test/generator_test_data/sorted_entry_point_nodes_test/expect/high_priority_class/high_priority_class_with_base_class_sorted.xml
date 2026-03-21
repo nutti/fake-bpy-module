@@ -1,41 +1,7 @@
 <document source="<string>">
-    <source-filename>
-        high_priority_class.rst
-    <module>
-        <name>
-            module_1
-        <description>
     <class>
         <name>
-            a_class
-        <description>
-        <base-class-list>
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            c_class
-        <description>
-        <base-class-list>
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            bpy_prop_collection
-        <description>
-        <base-class-list>
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            bpy_prop_collection_idprop
-        <description>
-        <base-class-list>
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            bpy_prop_array
+            bpy_prop
         <description>
         <base-class-list>
         <attribute-list>
@@ -49,7 +15,40 @@
         <function-list>
     <class>
         <name>
-            bpy_prop
+            bpy_prop_collection
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            bpy_prop_array
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            bpy_prop_collection_idprop
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop_collection
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            a_class
         <description>
         <base-class-list>
         <attribute-list>
@@ -57,6 +56,13 @@
     <class>
         <name>
             b_class
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            c_class
         <description>
         <base-class-list>
         <attribute-list>

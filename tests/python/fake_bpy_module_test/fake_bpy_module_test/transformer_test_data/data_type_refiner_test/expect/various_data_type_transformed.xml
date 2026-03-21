@@ -453,6 +453,14 @@
                     refined_module_a.RefinedClassA
     <data>
         <name>
+            data_value_bpy_prop_collection_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                <class-ref>
+                    refined_module_a.RefinedClassA
+    <data>
+        <name>
             data_set_of_strings
         <description>
         <data-type-list>

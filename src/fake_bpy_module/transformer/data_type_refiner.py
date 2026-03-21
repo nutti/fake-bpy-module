@@ -59,6 +59,7 @@ REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of 
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
 REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`$")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0-9]+)`\]")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of\s+`([a-zA-Z0-9_.]+)`$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa: E501
@@ -426,6 +427,15 @@ class DataTypeRefiner(TransformerBase):
                 return [make_data_type_node(f"`{s1}`")]
 
         if m := REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF.match(
+                dtype_str):
+            s1 = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            s2 = self._parse_custom_data_type(
+                m.group(2), uniq_full_names, uniq_module_names, module_name)
+            if s1 and s2:
+                return [make_data_type_node(f"`{s1}`")]
+
+        if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE.match(
                 dtype_str):
             s1 = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)

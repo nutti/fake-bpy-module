@@ -62,7 +62,7 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
     for class_node in class_nodes:
         class_name = class_node.element(NameNode).astext()
         if class_name in ("bpy_prop_collection", "bpy_prop_collection_idprop",
-                          "bpy_prop_array", "bpy_struct"):
+                          "bpy_prop_array", "bpy_struct", "bpy_prop"):
             all_high_priority_class_nodes.append(class_node)
         else:
             all_class_nodes.append(class_node)
@@ -79,26 +79,41 @@ def sorted_entry_point_nodes(document: nodes.document) -> list[NodeBase]:
         class_name = class_node.element(NameNode).astext()
         class_name_to_node[class_name] = class_node
 
-    graph = {}
-    for class_node in all_class_nodes:
-        src_name = class_node.element(NameNode).astext()
-        base_class_list_node = class_node.element(BaseClassListNode)
-        base_class_nodes = find_children(base_class_list_node, BaseClassNode)
+    def create_class_node_deps_graph(class_nodes: list[ClassNode]) -> dict:
+        deps_graph = {}
+        for class_node in class_nodes:
+            src_name = class_node.element(NameNode).astext()
+            base_class_list_node = class_node.element(BaseClassListNode)
+            base_class_nodes = find_children(
+                base_class_list_node, BaseClassNode)
 
-        dst_names = []
-        for base_class_node in base_class_nodes:
-            dtype_list_node = base_class_node.element(DataTypeListNode)
-            dtype_nodes = find_children(dtype_list_node, DataTypeNode)
-            dtypes = [dt.astext().replace("`", "") for dt in dtype_nodes]
+            dst_names = []
+            for base_class_node in base_class_nodes:
+                dtype_list_node = base_class_node.element(DataTypeListNode)
+                dtype_nodes = find_children(dtype_list_node, DataTypeNode)
+                dtypes = [dt.astext().replace("`", "") for dt in dtype_nodes]
 
-            dst_names = [dtype for dtype in dtypes
-                         if dtype in class_name_to_node]
-        graph[src_name] = dst_names
+                dst_names = [dtype for dtype in dtypes
+                             if dtype in class_name_to_node]
+            deps_graph[src_name] = dst_names
+        return deps_graph
 
+    graph = create_class_node_deps_graph(all_class_nodes)
     sorter = graphlib.TopologicalSorter(graph)
     sorted_class_names = list(sorter.static_order())
     sorted_class_nodes = [class_name_to_node[name]
                           for name in sorted_class_names]
+
+    # Move all high priority class nodes to the head.
+    graph = create_class_node_deps_graph(all_high_priority_class_nodes)
+    sorter = graphlib.TopologicalSorter(graph)
+    sorted_class_names = list(sorter.static_order())
+    sorted_all_high_priority_class_nodes = [
+        class_name_to_node[name] for name in sorted_class_names]
+    for node in sorted_all_high_priority_class_nodes:
+        sorted_class_nodes.remove(node)
+    sorted_class_nodes = sorted_all_high_priority_class_nodes + \
+        sorted_class_nodes
 
     # Sort function data
     sorted_function_nodes = sorted(

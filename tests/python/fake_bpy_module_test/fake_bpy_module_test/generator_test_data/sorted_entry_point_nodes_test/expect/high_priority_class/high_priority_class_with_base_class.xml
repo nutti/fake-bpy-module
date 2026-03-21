@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        high_priority_class.rst
+        high_priority_class_with_base_class.rst
     <module>
         <name>
             module_1
@@ -24,6 +24,10 @@
             bpy_prop_collection
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop
         <attribute-list>
         <function-list>
     <class>
@@ -31,6 +35,10 @@
             bpy_prop_collection_idprop
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop_collection
         <attribute-list>
         <function-list>
     <class>
@@ -38,6 +46,10 @@
             bpy_prop_array
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type mod-option="skip-refine">
+                        bpy_prop
         <attribute-list>
         <function-list>
     <class>

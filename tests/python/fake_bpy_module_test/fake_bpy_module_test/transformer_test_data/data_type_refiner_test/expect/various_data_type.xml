@@ -474,6 +474,18 @@
                 ,
     <data>
         <name>
+            data_value_bpy_prop_collection_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    RefinedClassA
+                [
+                <class-ref>
+                    ClassA
+                ]
+    <data>
+        <name>
             data_set_of_strings
         <description>
         <data-type-list>
