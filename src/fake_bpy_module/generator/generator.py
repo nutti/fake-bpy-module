@@ -18,8 +18,10 @@ def generate(documents: list[nodes.document]) -> None:
     # Create module directories.
     for doc in documents:
         target_filename = get_first_child(doc, TargetFileNode).astext()
-        dir_path = (f"{config.get_output_dir()}/"
-                    f"{target_filename[:target_filename.rfind('/')]}")
+        parts = list(Path(target_filename).parts)
+        parts[0] += "-stubs"
+        parts.pop()
+        dir_path = f"{config.get_output_dir()}/{Path(*parts)}"
         Path(dir_path).mkdir(parents=True, exist_ok=True)
 
         # Create py.typed file at the root of modules.
@@ -40,5 +42,7 @@ def generate(documents: list[nodes.document]) -> None:
 
     for doc in documents:
         target_filename = get_first_child(doc, TargetFileNode).astext()
-        generator.write(f"{config.get_output_dir()}/{target_filename}",
+        parts = list(Path(target_filename).parts)
+        parts[0] += "-stubs"
+        generator.write(f"{config.get_output_dir()}/{Path(*parts)}",
                         doc, config.get_style_format())

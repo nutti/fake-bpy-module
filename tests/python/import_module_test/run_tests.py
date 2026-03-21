@@ -69,11 +69,12 @@ def generate_tests(config: ImportModuleTestConfig) -> list:
         return output
 
     for mod_name in module_names:
-        test_codes = replace_template_content(template_content, mod_name)
-        path = Path(f"{tests_dir}/{mod_name}_test.py")
+        mod_name_fixed = mod_name.replace("-stubs", "")
+        test_codes = replace_template_content(template_content, mod_name_fixed)
+        path = Path(f"{tests_dir}/{mod_name_fixed}_test.py")
         with path.open("w", encoding="utf-8") as f:
             f.writelines(test_codes)
-        init_file.write(f"from . import {mod_name}_test\n")
+        init_file.write(f"from . import {mod_name_fixed}_test\n")
     init_file.close()
 
     # Load generated modules.

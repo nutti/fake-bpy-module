@@ -63,7 +63,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             actual_files_dir = self.output_dir
 
             py_files = [
-                f"module_abc/__init__.{ext}",
+                f"module_abc-stubs/__init__.{ext}",
             ]
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"
@@ -101,9 +101,9 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             actual_files_dir = self.output_dir
 
             py_files = [
-                f"module_1/__init__.{ext}",
-                f"module_1/submodule_1/__init__.{ext}",
-                f"module_2/__init__.{ext}",
+                f"module_1-stubs/__init__.{ext}",
+                f"module_1-stubs/submodule_1/__init__.{ext}",
+                f"module_2-stubs/__init__.{ext}",
             ]
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"
@@ -138,7 +138,7 @@ class IntegrationTest(common.FakeBpyModuleTestBase):
             actual_files_dir = self.output_dir
 
             py_files = [
-                f"module_exceptional/__init__.{ext}",
+                f"module_exceptional-stubs/__init__.{ext}",
             ]
             for file_ in py_files:
                 expect_file_path = f"{expect_files_dir}/{file_}"

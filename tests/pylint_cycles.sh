@@ -239,6 +239,16 @@ popd > /dev/null
 echo
 pip install "${fake_module_wheel}"
 
+
+# Remove -stub from directory name to supress error.
+site_packages=$(python3 -c "import site; print(site.getsitepackages()[0])")
+find "${site_packages}" -type d -name "*-stubs" | while IFS= read -r dir; do
+    if [[ "${dir}" == *-stubs ]]; then
+        new_dir="${dir%-stubs}/"
+        mv "${dir}" "${new_dir}"
+    fi
+done
+
 # Re-enter source
 pushd "${source_dir}" > /dev/null
 

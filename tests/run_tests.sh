@@ -61,6 +61,15 @@ for pkg in $(find "${PACKAGES_PATH}" -name "*.zip"); do
     mkdir -p "${tmp_dir_path}"
     unzip "${pkg}" -d "${tmp_dir_path}"
     pkg_dir_path=${tmp_dir_path}/${pkg_dir_name}
+
+    # Remove -stub from directory name to supress error.
+    find "${pkg_dir_path}" -type d -name "*-stubs" | while IFS= read -r dir; do
+        if [[ "${dir}" == *-stubs ]]; then
+            new_dir="${dir%-stubs}/"
+            mv "${dir}" "${new_dir}"
+        fi
+    done
+
     if ! ${python_bin} "${SCRIPT_DIR}/python/import_module_test/run_tests.py" -p "${pkg_dir_path}"; then
         echo "Import module test failed: ${pkg}"
         ((failed_test+=1))
