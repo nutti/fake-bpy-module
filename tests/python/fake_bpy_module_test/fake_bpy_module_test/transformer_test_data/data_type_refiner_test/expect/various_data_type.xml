@@ -723,3 +723,11 @@
         <data-type-list>
             <data-type>
                 dict
+    <data>
+        <name>
+            data_numpy_ndarray
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    numpy.ndarray

@@ -334,3 +334,7 @@
 .. data:: data_dict
 
    :type: dict
+
+.. data:: data_numpy_ndarray
+
+   :type: :class:`numpy.ndarray`

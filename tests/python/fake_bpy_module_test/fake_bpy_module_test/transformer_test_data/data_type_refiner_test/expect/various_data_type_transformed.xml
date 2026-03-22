@@ -708,3 +708,10 @@
         <data-type-list>
             <data-type option="never none">
                 dict
+    <data>
+        <name>
+            data_numpy_ndarray
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                npt.NDArray

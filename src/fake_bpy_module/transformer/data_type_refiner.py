@@ -58,6 +58,7 @@ REGEX_MATCH_DATA_TYPE_FLOAT_MULTI_DIMENSIONAL_ARRAY_OF = re.compile(r"^float mul
 REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of ([0-9]) \* ([0-9]) items in \[([-einf+0-9,. ]+)\](, .+)*$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
+REGEX_MATCH_DATA_TYPE_NUMPY_NDARRAY = re.compile(r"^`numpy.ndarray`$")
 REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0-9]+)`\]")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of\s+`([a-zA-Z0-9_.]+)`$")  # noqa: E501
@@ -415,6 +416,8 @@ class DataTypeRefiner(TransformerBase):
             return [make_data_type_node("str")]
         if REGEX_MATCH_DATA_TYPE_INTEGER.match(dtype_str):
             return [make_data_type_node("int")]
+        if REGEX_MATCH_DATA_TYPE_NUMPY_NDARRAY.match(dtype_str):
+            return [make_data_type_node("npt.NDArray")]
         if dtype_str == "tuple":
             return [make_data_type_node("tuple")]
         if dtype_str == "sequence":
