@@ -243,6 +243,14 @@
 
    :type: :class:`bpy_prop_collection` of :class:`RefinedClassA`,
 
+.. data:: data_bpy_prop_collection_of_simple_syntax
+
+   :type: :class:`bpy_prop_collection`\ [:class:`RefinedClassA`],
+
+.. data:: data_bpy_prop_array_of_simple_syntax
+
+   :type: :class:`bpy_prop_array`\ [int],
+
 .. data:: data_list_of_value_objects
 
    :type: List of :class:`RefinedClassA` objects

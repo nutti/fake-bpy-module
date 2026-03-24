@@ -59,10 +59,12 @@ REGEX_MATCH_DATA_TYPE_MATHUTILS_MATRIX_OF = re.compile(r"^`mathutils.Matrix` of 
 REGEX_MATCH_DATA_TYPE_STRING = re.compile(r"^(str|strings|string)\.*$")
 REGEX_MATCH_DATA_TYPE_INTEGER = re.compile(r"^(int|integer|)\.*$")
 REGEX_MATCH_DATA_TYPE_NUMPY_NDARRAY = re.compile(r"^`numpy.ndarray`$")
-REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`$")  # noqa: E501
-REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0-9]+)`\]")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_V_BPY_PROP_COLLECTION_OF = re.compile(r"^`([a-zA-Z0-9]+)` `bpy_prop_collection` of `([a-zA-Z0-9]+)`$")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_V_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0-9]+)`\]")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_SEQUENCE_OF = re.compile(r"^sequence of\s+`([a-zA-Z0-9_.]+)`$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF = re.compile(r"^`bpy_prop_collection` of `([a-zA-Z0-9]+)`")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`bpy_prop_collection`\[`([a-zA-Z0-9]+)`\]")  # noqa: E501
+REGEX_MATCH_DATA_TYPE_BPY_PROP_ARRAY_OF_SIMPLE = re.compile(r"^`bpy_prop_array`\[([a-zA-Z0-9]+)\]")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS = re.compile(r"^List of `([A-Za-z0-9]+)` objects$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE = re.compile(r"^[Ll]ist of `([A-Za-z0-9_.]+)`$")  # noqa: E501
 REGEX_MATCH_DATA_TYPE_LIST_OF_NUMBER_OR_STRING = re.compile(r"^(list|sequence) of (float|int|str)")  # noqa: E501
@@ -429,7 +431,7 @@ class DataTypeRefiner(TransformerBase):
             if s1:
                 return [make_data_type_node(f"`{s1}`")]
 
-        if m := REGEX_MATCH_DATA_TYPE_VALUE_BPY_PROP_COLLECTION_OF.match(
+        if m := REGEX_MATCH_DATA_TYPE_V_BPY_PROP_COLLECTION_OF.match(
                 dtype_str):
             s1 = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -438,7 +440,7 @@ class DataTypeRefiner(TransformerBase):
             if s1 and s2:
                 return [make_data_type_node(f"`{s1}`")]
 
-        if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE.match(
+        if m := REGEX_MATCH_DATA_TYPE_V_BPY_PROP_COLLECTION_OF_SIMPLE.match(
                 dtype_str):
             s1 = self._parse_custom_data_type(
                 m.group(1), uniq_full_names, uniq_module_names, module_name)
@@ -469,6 +471,19 @@ class DataTypeRefiner(TransformerBase):
             if s:
                 return [make_data_type_node(
                     f"`bpy.types.bpy_prop_collection`[`{s}`]")]
+        # [Ex] `bpy_prop_collection`[`ThemeStripColor`]
+        if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_COLLECTION_OF_SIMPLE.match(
+                dtype_str):
+            s = self._parse_custom_data_type(
+                m.group(1), uniq_full_names, uniq_module_names, module_name)
+            if s:
+                return [make_data_type_node(
+                    f"`bpy.types.bpy_prop_collection`[`{s}`]")]
+        # [Ex] `bpy_prop_array`[int]
+        if m := REGEX_MATCH_DATA_TYPE_BPY_PROP_ARRAY_OF_SIMPLE.match(
+                dtype_str):
+            return [make_data_type_node(
+                f"`bpy.types.bpy_prop_array`[{m.group(1)}]")]
         # [Ex] List of FEdge objects
         if m := REGEX_MATCH_DATA_TYPE_LIST_OF_VALUE_OBJECTS.match(dtype_str):
             s = self._parse_custom_data_type(

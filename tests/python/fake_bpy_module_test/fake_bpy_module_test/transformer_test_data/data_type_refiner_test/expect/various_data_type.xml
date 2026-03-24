@@ -521,6 +521,27 @@
                 ,
     <data>
         <name>
+            data_bpy_prop_collection_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    bpy_prop_collection
+                [
+                <class-ref>
+                    RefinedClassA
+                ],
+    <data>
+        <name>
+            data_bpy_prop_array_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type>
+                <class-ref>
+                    bpy_prop_array
+                [int],
+    <data>
+        <name>
             data_list_of_value_objects
         <description>
         <data-type-list>

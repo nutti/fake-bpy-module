@@ -499,6 +499,27 @@
                 ]
     <data>
         <name>
+            data_bpy_prop_collection_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                <class-ref>
+                    bpy.types.bpy_prop_collection
+                [
+                <class-ref>
+                    refined_module_a.RefinedClassA
+                ]
+    <data>
+        <name>
+            data_bpy_prop_array_of_simple_syntax
+        <description>
+        <data-type-list>
+            <data-type option="never none">
+                <class-ref>
+                    bpy.types.bpy_prop_array
+                [int]
+    <data>
+        <name>
             data_list_of_value_objects
         <description>
         <data-type-list>
