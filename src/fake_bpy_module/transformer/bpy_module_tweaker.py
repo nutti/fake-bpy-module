@@ -249,6 +249,8 @@ class BpyModuleTweaker(TransformerBase):
             func_list_node = class_node.element(FunctionListNode)
             func_list_node.append(func_node)
 
+            document.remove(func_node)
+
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
