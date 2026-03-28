@@ -228,6 +228,27 @@ class BpyModuleTweaker(TransformerBase):
                 f"`bpy_prop_collection` of `{child}`"))
             bc_list_node.append_child(bc_node)
 
+    def _chage_ops_function_to_function_class(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
+        if module_name != "bpy.ops":
+            return
+
+        func_nodes = find_children(document, FunctionNode)
+        for func_node in func_nodes:
+            func_name_node = func_node.element(NameNode)
+            func_name = func_name_node.astext()
+            func_node.attributes["function_type"] = "method"
+            func_name_node.clear()
+            func_name_node.add_text("__call__")
+
+            class_node = ClassNode.create_template()
+            class_node.element(NameNode).add_text(func_name)
+
+            func_list_node = class_node.element(FunctionListNode)
+            func_list_node.append(func_node)
+
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
