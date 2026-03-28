@@ -817,6 +817,10 @@ class DataTypeRefinerTest(TransformerTestBase):
         entry_points.append(entry_point)
         entry_point = EntryPoint("bpy.types", "ID", "class")
         entry_points.append(entry_point)
+        entry_point = EntryPoint("bpy.types", "RefinedClassA", "class")
+        entry_points.append(entry_point)
+        entry_point = EntryPoint("bpy.types", "RefinedClassB", "class")
+        entry_points.append(entry_point)
 
         self.assertEqual(len(documents), len(expect_files))
         for doc, expect in zip(documents, expect_files, strict=True):

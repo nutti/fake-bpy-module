@@ -623,29 +623,44 @@ class DataTypeRefiner(TransformerBase):
             elif variable_kind == 'CONST':
                 option_results.append("never none")
 
-            if m := _REGEX_DATA_TYPE_OPTION_STR.search(dtype_str):
-                option_str = m.group(1)
-                options = [sp.strip().lower() for sp in option_str.split(",")]
-                has_unknown_option = False
-                for opt in options:
-                    if opt not in ("optional", "readonly", "never none"):
-                        has_unknown_option = True
-                        output_log(LOG_LEVEL_WARN,
-                                   f"Unknown option '{opt}' is found from "
-                                   f"{dtype_str}")
+            def parse_options(string_to_parse: str) -> (list[str], str):
+                results = []
+                stripped = string_to_parse
 
-                # If there is unknown parameter options, we don't strip them
-                # from original string.
-                if not has_unknown_option:
-                    option_results.extend(options)
+                if m := _REGEX_DATA_TYPE_OPTION_STR.search(string_to_parse):
+                    option_str = m.group(1)
+                    options = [sp.strip().lower()
+                               for sp in option_str.split(",")]
+                    has_unknown_option = False
+                    for opt in options:
+                        if opt not in ("optional", "readonly", "never none"):
+                            has_unknown_option = True
+                            output_log(LOG_LEVEL_WARN,
+                                       f"Unknown option '{opt}' is found from "
+                                       f"{string_to_parse}")
 
-                    # Strip the unused string to speed up the later parsing
-                    # process.
-                    stripped = _REGEX_DATA_TYPE_OPTION_STR.sub("", dtype_str)
-                    output_log(LOG_LEVEL_DEBUG,
-                               f"Data type is stripped: "
-                               f"{dtype_str} -> {stripped}")
-                    dtype_str = stripped
+                    # If there is unknown parameter options, we don't strip them
+                    # from original string.
+                    if not has_unknown_option:
+                        results.extend(options)
+
+                        # Strip the unused string to speed up the later parsing
+                        # process.
+                        stripped = _REGEX_DATA_TYPE_OPTION_STR.sub(
+                            "", string_to_parse)
+                        output_log(LOG_LEVEL_DEBUG,
+                                   f"Data type is stripped: "
+                                   f"{string_to_parse} -> {stripped}")
+
+                return results, stripped
+
+            o, s = parse_options(dtype_str)
+            option_results.extend(o)
+            dtype_str = s
+            if description_str is not None:
+                # TODO: strip description_str as well as dtype_str
+                o, _ = parse_options(description_str)
+                option_results.extend(o)
 
             option_results = sorted(set(option_results))
 
@@ -661,7 +676,7 @@ class DataTypeRefiner(TransformerBase):
         is_never_none = True
         is_optional = False
 
-        if m := _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
+        if _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.search(dtype_str):
             stripped = _REGEX_DATA_TYPE_OPTION_END_WITH_NONE.sub("", dtype_str)
             output_log(LOG_LEVEL_DEBUG,
                        f"Data type is stripped: {dtype_str} -> {stripped}")
@@ -669,7 +684,7 @@ class DataTypeRefiner(TransformerBase):
             is_never_none = False
 
         if description_str is not None:
-            if m := _REGEX_DATA_TYPE_OPTION_OPTIONAL.search(description_str):
+            if _REGEX_DATA_TYPE_OPTION_OPTIONAL.search(description_str):
                 # If default value is not None, data type does not need
                 # optional.
                 is_never_none = (
@@ -990,6 +1005,12 @@ class DataTypeRefiner(TransformerBase):
                             is_pointer_prop = False
                             break
 
+                # This is for the bpy_prop_collection syntax introduced
+                # since Blender 5.1.
+                if REGEX_MATCH_DATA_TYPE_V_BPY_PROP_COLLECTION_OF_SIMPLE.match(
+                        dtype_node.astext()):
+                    is_pointer_prop = False
+
                 options = []
                 if "option" in dtype_node.attributes:
                     options = dtype_node.attributes["option"].split(",")
@@ -1046,8 +1067,10 @@ class DataTypeRefiner(TransformerBase):
             attr_nodes = find_children(attr_list_node, AttributeNode)
             for attr_node in attr_nodes:
                 attr_name = attr_node.element(NameNode).astext()
+                description = attr_node.element(DescriptionNode).astext()
                 dtype_list_node = attr_node.element(DataTypeListNode)
                 refine(dtype_list_node, module_name, 'CLS_ATTR',
+                       description_str=description,
                        additional_info={
                            "self_class": f"{module_name}.{class_name}",
                            "data_name": f"{attr_name}"
@@ -1085,8 +1108,10 @@ class DataTypeRefiner(TransformerBase):
         data_nodes = find_children(document, DataNode)
         for data_node in data_nodes:
             data_name = data_node.element(NameNode).astext()
+            description = data_node.element(DescriptionNode).astext()
             dtype_list_node = data_node.element(DataTypeListNode)
             refine(dtype_list_node, module_name, 'CONST',
+                   description_str=description,
                    additional_info={"data_name": f"{data_name}"})
 
     @classmethod
