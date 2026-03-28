@@ -258,6 +258,8 @@ if "${enable_python_profiler}"; then
     python_args="-m profile -s cumtime -o ${SCRIPT_DIR}/../${PROFILER_RESULT_FILENAME}"
 fi
 
+exit 1
+
 echo "Generating fake bpy modules ..."
 if [ "${mod_version}" = "not-specified" ]; then
     # shellcheck disable=SC2086
