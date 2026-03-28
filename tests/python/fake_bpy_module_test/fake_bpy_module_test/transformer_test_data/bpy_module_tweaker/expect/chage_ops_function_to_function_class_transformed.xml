@@ -1,0 +1,44 @@
+<document source="<string>">
+    <source-filename>
+        chage_ops_function_to_function_class.rst
+    <module>
+        <name>
+            bpy.ops
+        <description>
+    <class>
+        <name>
+            function_1
+        <description>
+        <base-class-list>
+        <attribute-list>
+        <function-list>
+            <function function_type="method">
+                <name>
+                    __call__
+                <description>
+                <argument-list>
+                    <argument argument_type="arg">
+                        <name>
+                            arg_1
+                        <description>
+                            function_1 arg_1 description
+                        <default-value>
+                        <data-type-list>
+                            <data-type>
+                                int
+                    <argument argument_type="arg">
+                        <name>
+                            arg_2
+                        <description>
+                            function_1 arg_2 description
+                        <default-value>
+                            False
+                        <data-type-list>
+                            <data-type>
+                                bool
+                <return>
+                    <description>
+                        function_1 return description
+                    <data-type-list>
+                        <data-type>
+                            str
