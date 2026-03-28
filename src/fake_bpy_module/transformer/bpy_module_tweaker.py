@@ -228,7 +228,7 @@ class BpyModuleTweaker(TransformerBase):
                 f"`bpy_prop_collection` of `{child}`"))
             bc_list_node.append_child(bc_node)
 
-    def _chage_ops_function_to_function_class(
+    def _change_ops_function_to_function_class(
             self, document: nodes.document) -> None:
         module_name = get_first_child(
             document, ModuleNode).element(NameNode).astext()
@@ -267,6 +267,7 @@ class BpyModuleTweaker(TransformerBase):
         self._add_bpy_app_handlers_functions_data_types(document)
         self._add_bpy_ops_override_parameters(document)
         self._rebase_bpy_types_class_base_class(document)
+        self._change_ops_function_to_function_class(document)
 
     @classmethod
     def name(cls) -> str:
