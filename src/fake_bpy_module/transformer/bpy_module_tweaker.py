@@ -41,7 +41,7 @@ REGEX_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0
 class BpyModuleTweaker(TransformerBase):
     def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
         super().__init__(documents, **kwargs)
-        self.tweak_items : list[str] = kwargs["tweak_items"]
+        self.tweak_items : list[str] = kwargs.get("tweak_items")
 
     def _make_bpy_types_classes_methods_arguments_kwonlyargs(
             self, document: nodes.document) -> None:
