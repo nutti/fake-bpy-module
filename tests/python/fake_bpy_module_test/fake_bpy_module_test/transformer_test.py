@@ -505,11 +505,11 @@ class BpyModuleTweakerTest(TransformerTestBase):
                                  strict=True):
             self.compare_with_file_contents(trans.pformat(), expect)
 
-    def test_chage_ops_function_to_function_class(self) -> None:
-        rst_files = ["chage_ops_function_to_function_class.rst"]
-        expect_files = ["chage_ops_function_to_function_class.xml"]
+    def test_change_ops_function_to_function_class(self) -> None:
+        rst_files = ["change_ops_function_to_function_class.rst"]
+        expect_files = ["change_ops_function_to_function_class.xml"]
         expect_transformed_files = [
-            "chage_ops_function_to_function_class_transformed.xml"
+            "change_ops_function_to_function_class_transformed.xml"
         ]
         rst_files = [f"{self.data_dir}/input/{f}" for f in rst_files]
         expect_files = [f"{self.data_dir}/expect/{f}" for f in expect_files]
@@ -528,7 +528,7 @@ class BpyModuleTweakerTest(TransformerTestBase):
         ], {
             "bpy_module_tweaker": {
                 "tweak_items": [
-                    "chage_ops_function_to_function_class"
+                    "change_ops_function_to_function_class"
                 ]
             }
         })
