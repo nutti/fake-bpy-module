@@ -251,6 +251,8 @@ class BpyModuleTweaker(TransformerBase):
 
             document.remove(func_node)
 
+        print(f"@@@ {document.pformat()}")
+
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
