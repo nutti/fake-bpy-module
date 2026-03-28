@@ -1,6 +1,6 @@
-.. module:: bpy.ope
+.. module:: bpy.ops
 
-.. method:: function_1(arg_1, arg_2=False)
+.. function:: function_1(arg_1, arg_2=False)
 
    :arg arg_1: function_1 arg_1 description
    :type arg_1: int
