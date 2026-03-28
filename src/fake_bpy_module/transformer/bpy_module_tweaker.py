@@ -39,6 +39,9 @@ REGEX_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0
 
 
 class BpyModuleTweaker(TransformerBase):
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
+        super().__init__(documents, **kwargs)
+        self.tweak_items : list[str] = kwargs["tweak_items"]
 
     def _make_bpy_types_classes_methods_arguments_kwonlyargs(
             self, document: nodes.document) -> None:
@@ -251,8 +254,6 @@ class BpyModuleTweaker(TransformerBase):
 
             document.remove(func_node)
 
-        print(f"@@@ {document.pformat()}")
-
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
@@ -262,12 +263,23 @@ class BpyModuleTweaker(TransformerBase):
         if not name_node.astext().startswith("bpy"):
             return
 
-        self._make_bpy_types_classes_methods_arguments_kwonlyargs(document)
-        self._make_bpy_prop_functions_arguments_kwonlyargs(document)
-        self._add_bpy_app_handlers_functions_data_types(document)
-        self._add_bpy_ops_override_parameters(document)
-        self._rebase_bpy_types_class_base_class(document)
-        self._change_ops_function_to_function_class(document)
+        funcs = []
+        if self.tweak_items is None:
+            funcs = [
+                self._make_bpy_types_classes_methods_arguments_kwonlyargs,
+                self._make_bpy_prop_functions_arguments_kwonlyargs,
+                self._add_bpy_app_handlers_functions_data_types,
+                self._add_bpy_ops_override_parameters,
+                self._rebase_bpy_types_class_base_class,
+                self._change_ops_function_to_function_class
+            ]
+        else:
+            for item in self.tweak_items:
+                fn = getattr(self, f"_{item}")
+                funcs.append(fn)
+
+        for fn in funcs:
+            fn(document)
 
     @classmethod
     def name(cls) -> str:

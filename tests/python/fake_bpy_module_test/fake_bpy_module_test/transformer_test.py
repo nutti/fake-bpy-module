@@ -427,7 +427,15 @@ class BpyModuleTweakerTest(TransformerTestBase):
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-        transformer = Transformer(["bpy_module_tweaker"])
+        transformer = Transformer([
+            "bpy_module_tweaker"
+        ], {
+            "bpy_module_tweaker": {
+                "tweak_items": [
+                    "add_bpy_ops_override_parameters"
+                ]
+            }
+        })
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
@@ -481,7 +489,15 @@ class BpyModuleTweakerTest(TransformerTestBase):
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-        transformer = Transformer(["bpy_module_tweaker"])
+        transformer = Transformer([
+            "bpy_module_tweaker"
+        ], {
+            "bpy_module_tweaker": {
+                "tweak_items": [
+                    "rebase_bpy_types_class_base_class"
+                ]
+            }
+        })
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
@@ -507,7 +523,15 @@ class BpyModuleTweakerTest(TransformerTestBase):
         for doc, expect in zip(documents, expect_files, strict=True):
             self.compare_with_file_contents(doc.pformat(), expect)
 
-        transformer = Transformer(["bpy_module_tweaker"])
+        transformer = Transformer([
+            "bpy_module_tweaker"
+        ], {
+            "bpy_module_tweaker": {
+                "tweak_items": [
+                    "chage_ops_function_to_function_class"
+                ]
+            }
+        })
         transformed = transformer.transform(documents)
 
         self.assertEqual(len(transformed), len(expect_transformed_files))
