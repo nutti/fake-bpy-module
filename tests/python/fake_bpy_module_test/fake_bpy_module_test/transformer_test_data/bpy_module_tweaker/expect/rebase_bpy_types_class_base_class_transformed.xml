@@ -123,3 +123,27 @@
         <base-class-list>
         <attribute-list>
         <function-list>
+    <class>
+        <name>
+            ClassD
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_struct
+        <attribute-list>
+        <function-list>
+    <class>
+        <name>
+            bpy_prop_collection_idprop
+        <description>
+        <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+        <attribute-list>
+        <function-list>

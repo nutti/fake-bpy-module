@@ -1,0 +1,37 @@
+<document source="<string>">
+    <source-filename>
+        change_ops_function_to_function_class.rst
+    <module>
+        <name>
+            bpy.ops.action
+        <description>
+    <function function_type="function">
+        <name>
+            function_1
+        <description>
+        <argument-list>
+            <argument argument_type="arg">
+                <name>
+                    arg_1
+                <description>
+                    function_1 arg_1 description
+                <default-value>
+                <data-type-list>
+                    <data-type>
+                        int
+            <argument argument_type="arg">
+                <name>
+                    arg_2
+                <description>
+                    function_1 arg_2 description
+                <default-value>
+                    False
+                <data-type-list>
+                    <data-type>
+                        bool
+        <return>
+            <description>
+                function_1 return description
+            <data-type-list>
+                <data-type>
+                    str

@@ -39,6 +39,9 @@ REGEX_BPY_PROP_COLLECTION_OF_SIMPLE = re.compile(r"^`([a-zA-Z0-9]+)`\[`([a-zA-Z0
 
 
 class BpyModuleTweaker(TransformerBase):
+    def __init__(self, documents: list[nodes.document], **kwargs: dict) -> None:
+        super().__init__(documents, **kwargs)
+        self.tweak_items: list[str] = kwargs.get("tweak_items")
 
     def _make_bpy_types_classes_methods_arguments_kwonlyargs(
             self, document: nodes.document) -> None:
@@ -228,6 +231,40 @@ class BpyModuleTweaker(TransformerBase):
                 f"`bpy_prop_collection` of `{child}`"))
             bc_list_node.append_child(bc_node)
 
+    def _change_ops_function_to_function_class(
+            self, document: nodes.document) -> None:
+        module_name = get_first_child(
+            document, ModuleNode).element(NameNode).astext()
+        if not module_name.startswith("bpy.ops"):
+            return
+
+        func_nodes = find_children(document, FunctionNode)
+        for func_node in func_nodes:
+            func_name_node = func_node.element(NameNode)
+            func_name = func_name_node.astext()
+            func_node.attributes["function_type"] = "method"
+            func_name_node.clear()
+            func_name_node.add_text("__call__")
+            document.remove(func_node)
+
+            class_name = f"_CLS_{func_name}"
+            class_node = ClassNode.create_template()
+            class_node.element(NameNode).add_text(class_name)
+            func_list_node = class_node.element(FunctionListNode)
+            func_list_node.append(func_node)
+            base_class_node = BaseClassNode.create_template()
+            base_class_node.element(DataTypeListNode).append(
+                make_data_type_node("bpy.ops._BPyOpsSubModOp"))
+            base_class_list_node = class_node.element(BaseClassListNode)
+            base_class_list_node.append(base_class_node)
+            document.append(class_node)
+
+            data_node = DataNode.create_template()
+            data_node.element(NameNode).add_text(func_name)
+            data_node.element(DataTypeListNode).append(
+                make_data_type_node(class_name))
+            document.append(data_node)
+
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)
         if not module_node:
@@ -237,11 +274,23 @@ class BpyModuleTweaker(TransformerBase):
         if not name_node.astext().startswith("bpy"):
             return
 
-        self._make_bpy_types_classes_methods_arguments_kwonlyargs(document)
-        self._make_bpy_prop_functions_arguments_kwonlyargs(document)
-        self._add_bpy_app_handlers_functions_data_types(document)
-        self._add_bpy_ops_override_parameters(document)
-        self._rebase_bpy_types_class_base_class(document)
+        funcs = []
+        if self.tweak_items is None:
+            funcs = [
+                self._make_bpy_types_classes_methods_arguments_kwonlyargs,
+                self._make_bpy_prop_functions_arguments_kwonlyargs,
+                self._add_bpy_app_handlers_functions_data_types,
+                self._add_bpy_ops_override_parameters,
+                self._rebase_bpy_types_class_base_class,
+                self._change_ops_function_to_function_class
+            ]
+        else:
+            for item in self.tweak_items:
+                fn = getattr(self, f"_{item}")
+                funcs.append(fn)
+
+        for fn in funcs:
+            fn(document)
 
     @classmethod
     def name(cls) -> str:

@@ -1,6 +1,6 @@
 <document source="<string>">
     <source-filename>
-        rebase_bpy_types_class_base_class_version_depend.rst
+        rebase_bpy_types_class_base_class_v5.1-.rst
     <module>
         <name>
             bpy.types
@@ -24,6 +24,14 @@
             Attributes1
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute1
         <attribute-list>
         <function-list>
     <class>
@@ -31,6 +39,14 @@
             Attributes2
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            Attribute2
         <attribute-list>
         <function-list>
     <class>
@@ -90,6 +106,14 @@
             ClassB
         <description>
         <base-class-list>
+            <base-class>
+                <data-type-list>
+                    <data-type>
+                        <class-ref>
+                            bpy_prop_collection
+                         of 
+                        <class-ref>
+                            ClassC
         <attribute-list>
         <function-list>
     <class>
@@ -97,29 +121,5 @@
             ClassC
         <description>
         <base-class-list>
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            ClassD
-        <description>
-        <base-class-list>
-            <base-class>
-                <data-type-list>
-                    <data-type>
-                        <class-ref>
-                            bpy_prop_collection
-        <attribute-list>
-        <function-list>
-    <class>
-        <name>
-            bpy_prop_collection_idprop
-        <description>
-        <base-class-list>
-            <base-class>
-                <data-type-list>
-                    <data-type>
-                        <class-ref>
-                            bpy_prop_collection
         <attribute-list>
         <function-list>

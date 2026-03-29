@@ -34,10 +34,3 @@
 
 .. class:: ClassC
 
-.. class:: ClassD
-
-   .. base-class:: `bpy_prop_collection`
-
-.. class:: bpy_prop_collection_idprop
-
-   .. base-class:: `bpy_prop_collection`
