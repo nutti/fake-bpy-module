@@ -490,32 +490,56 @@ class PyCodeWriterBase(BaseWriter):
                         0, nodes.Text(attr_node.attributes["deprecated"]))
 
                 dtype_str = None
+                is_readonly = False
                 if not dtype_list_node.empty():
                     dtype_nodes = find_children(dtype_list_node, DataTypeNode)
                     dtype_str = make_union(dtype_nodes)
                     for dtype_node in dtype_nodes:
+                        if "option" in dtype_node.attributes:
+                            options = dtype_node.attributes["option"]
+                            if "readonly" in options:
+                                is_readonly = True
+
                         if self._is_accept_none(dtype_node, 'CLS_ATTR'):
                             dtype_str = f"{dtype_str} | None"
                             break
 
-                if dtype_str is not None:
+                if dtype_str is None:
+                    dtype_str = "typing.Any"
+
+                if is_readonly:
+                    wt.addln("@property")
+                    wt.addln(f"def {name_node.astext()}(self) -> {dtype_str}:")
+
+                    with CodeWriterIndent(1, True):
+                        if not desc_node.empty():
+                            wt.add("''' ")
+                            if not desc_node.empty():
+                                desc_text = desc_node.astext()
+                                wt.add(f"{desc_text}")
+                                # Add a space to avoid syntax error
+                                # with 4 single quotes in a row.
+                                if desc_text.endswith("'"):
+                                    wt.add(' ')
+                            wt.addln("'''")
+                        else:
+                            wt.addln(self.ellipsis_strings["method"])
+                        wt.new_line(1)
+                else:
                     wt.addln(f"{name_node.astext()}: {dtype_str}"
                              f"{self.ellipsis_strings['attribute']}")
-                else:
-                    wt.addln(f"{name_node.astext()}: typing.Any"
-                             f"{self.ellipsis_strings['attribute']}")
 
-                if not desc_node.empty():
-                    wt.add("''' ")
                     if not desc_node.empty():
-                        desc_text = desc_node.astext()
-                        wt.add(f"{desc_text}")
-                        # Add a space to avoid syntax error
-                        # with 4 single quotes in a row.
-                        if desc_text.endswith("'"):
-                            wt.add(' ')
-                    wt.addln("'''")
-                    wt.new_line(1)
+                        wt.add("''' ")
+                        if not desc_node.empty():
+                            desc_text = desc_node.astext()
+                            wt.add(f"{desc_text}")
+                            # Add a space to avoid syntax error
+                            # with 4 single quotes in a row.
+                            if desc_text.endswith("'"):
+                                wt.add(' ')
+                        wt.addln("'''")
+                        wt.new_line(1)
             if len(attr_nodes) > 0:
                 wt.new_line(1)
 

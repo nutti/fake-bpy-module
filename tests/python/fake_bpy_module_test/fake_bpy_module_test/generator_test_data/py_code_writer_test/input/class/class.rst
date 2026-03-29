@@ -74,6 +74,13 @@
 
       :type: _GenericType1
 
+   .. attribute:: attr_2
+
+      attr_2 description
+
+      :type: int
+      :option: readonly
+
    .. method:: method_1(arg_1, arg_2)
 
       method_1 description

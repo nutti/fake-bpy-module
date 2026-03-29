@@ -55,6 +55,10 @@ class ClassB[_GenericType1]:
     attr_1: _GenericType1 = None
     """ attr_1 description"""
 
+    @property
+    def attr_2(self) -> int | None:
+        """attr_2 description"""
+
     def method_1[_GenericType2](
         self, arg_1: _GenericType1, arg_2: _GenericType2
     ) -> _GenericType2:

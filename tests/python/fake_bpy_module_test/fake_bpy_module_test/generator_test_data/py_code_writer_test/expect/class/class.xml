@@ -167,6 +167,14 @@
                 <data-type-list>
                     <data-type>
                         _GenericType1
+            <attribute>
+                <name>
+                    attr_2
+                <description>
+                    attr_2 description
+                <data-type-list>
+                    <data-type option="readonly">
+                        int
         <function-list>
             <function function_type="method" generic-types="_GenericType2">
                 <name>
