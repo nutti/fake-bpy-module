@@ -15,8 +15,9 @@
 
       Test if the operator can be executed in the current context.
 
-      :param context: Execution context (optional)
+      :arg context: Execution context
       :type context: str
+      :option arg context: optional
       :return: True if the operator can be executed
       :rtype: bool
       :mod-option rtype: skip-refine
