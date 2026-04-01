@@ -206,11 +206,13 @@ class PyCodeWriterBase(BaseWriter):
                     wt.addln("@typing.overload")
 
             func_type = func_node.attributes["function_type"]
+            func_name = name_node.astext()
             if func_type in ("function", "method"):
+                first_arg = "cls" if func_name == "__new__" else "self"
                 if not arg_list_node.empty():
-                    wt.add(f"def {name_node.astext()}{gen_types}(self, ")
+                    wt.add(f"def {func_name}{gen_types}({first_arg}, ")
                 else:
-                    wt.add(f"def {name_node.astext()}{gen_types}(self")
+                    wt.add(f"def {func_name}{gen_types}({first_arg}")
             elif func_type == "classmethod":
                 if not arg_list_node.empty():
                     wt.addln("@classmethod")

@@ -244,12 +244,11 @@ class BpyModuleTweaker(TransformerBase):
             func_name = func_name_node.astext()
             func_node.attributes["function_type"] = "method"
             func_name_node.clear()
-            func_name_node.add_text("__call__")
+            func_name_node.add_text("__new__")
             document.remove(func_node)
 
-            class_name = f"_CLS_{func_name}"
             class_node = ClassNode.create_template()
-            class_node.element(NameNode).add_text(class_name)
+            class_node.element(NameNode).add_text(func_name)
             func_list_node = class_node.element(FunctionListNode)
             func_list_node.append(func_node)
             base_class_node = BaseClassNode.create_template()
@@ -258,12 +257,6 @@ class BpyModuleTweaker(TransformerBase):
             base_class_list_node = class_node.element(BaseClassListNode)
             base_class_list_node.append(base_class_node)
             document.append(class_node)
-
-            data_node = DataNode.create_template()
-            data_node.element(NameNode).add_text(func_name)
-            data_node.element(DataTypeListNode).append(
-                make_data_type_node(class_name))
-            document.append(data_node)
 
     def _apply(self, document: nodes.document) -> None:
         module_node = get_first_child(document, ModuleNode)

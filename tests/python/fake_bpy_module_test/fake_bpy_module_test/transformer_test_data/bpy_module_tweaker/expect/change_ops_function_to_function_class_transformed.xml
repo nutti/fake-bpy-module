@@ -7,7 +7,7 @@
         <description>
     <class>
         <name>
-            _CLS_function_1
+            function_1
         <description>
         <base-class-list>
             <base-class>
@@ -18,7 +18,7 @@
         <function-list>
             <function function_type="method">
                 <name>
-                    __call__
+                    __new__
                 <description>
                 <argument-list>
                     <argument argument_type="arg">
@@ -46,10 +46,3 @@
                     <data-type-list>
                         <data-type>
                             str
-    <data>
-        <name>
-            function_1
-        <description>
-        <data-type-list>
-            <data-type>
-                _CLS_function_1
