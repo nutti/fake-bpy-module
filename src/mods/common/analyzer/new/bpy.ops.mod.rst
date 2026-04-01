@@ -4,42 +4,40 @@
 
 .. class:: _BPyOpsSubModOp
 
-   .. attribute:: _func
-
-      :type: str
-      :mod-option attribute: skip-refine
-
-   .. attribute:: _module
-
-      :type: str
-      :mod-option attribute: skip-refine
-
    .. attribute:: bl_options
+
+      Set of option flags for this operator (e.g. ``'REGISTER'``, ``'UNDO'``).
 
       :type: set[str]
       :mod-option attribute: skip-refine
 
-   .. method:: _get_doc()
+   .. method:: poll(context='EXEC_DEFAULT', /)
 
-      :rtype: str
-      :mod-option rtype: str
+      Test if the operator can be executed in the current context.
 
-   .. method:: poll(*args)
-
-      :rtype: str
-      :mod-option rtype: str
+      :arg context: Execution context
+      :type context: str
+      :option arg context: optional
+      :return: True if the operator can be executed
+      :rtype: bool
+      :mod-option rtype: skip-refine
 
    .. method:: idname()
 
+      :return: Return the Blender-format operator idname (e.g., ``'OBJECT_OT_select_all'``).
       :rtype: str
       :mod-option rtype: skip-refine
 
    .. method:: idname_py()
 
+      :return: Return the Python-format operator idname (e.g., ``'object.select_all'``).
       :rtype: str
       :mod-option rtype: skip-refine
 
    .. method:: get_rna_type()
 
-      :rtype: :class:`bpy.types.bpy_struct`
+      Get the RNA type definition for this operator.
+
+      :return: RNA type object for introspection
+      :rtype: :class:`bpy.types.Struct`
       :mod-option rtype: skip-refine
