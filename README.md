@@ -145,6 +145,10 @@ Support via [GitHub Sponsors](https://github.com/sponsors/nutti)
 * CONTACTS: [Twitter](https://twitter.com/nutti__)
 * WEBSITE: [Japanese Only](https://colorful-pico.net/)
 
+### Reviewer
+
+* [**@Andrej730**](https://github.com/Andrej730)
+
 ### Contributors
 
 * [**@grische**](https://github.com/grische)
@@ -155,7 +159,6 @@ Support via [GitHub Sponsors](https://github.com/sponsors/nutti)
 * [**@JonathanPlasse**](https://github.com/JonathanPlasse)
 * [**@UuuNyaa**](https://github.com/UuuNyaa)
 * [**@Road-hog123**](https://github.com/Road-hog123)
-* [**@Andrej730**](https://github.com/Andrej730)
 * [**@ice3**](https://github.com/ice3)
 * [**@almarouk**](https://github.com/almarouk)
 * [**@UnknownLITE**](https://github.com/UnknownLITE)
