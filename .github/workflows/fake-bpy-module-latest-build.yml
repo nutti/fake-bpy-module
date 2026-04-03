@@ -67,7 +67,7 @@ jobs:
       - name: Install Blender binary dependencies
         run: |
           sudo apt update
-          sudo apt install --no-install-recommends -y libglu1-mesa libegl1 libxxf86vm1 libxfixes3 libxi6 libxkbcommon0 libgl1
+          sudo apt install --no-install-recommends -y libglu1-mesa libegl1 libxxf86vm1 libxfixes3 libxi6 libxkbcommon0 libgl1 libjack0 libpulse0
 
       - name: Install fake-bpy-module tools
         run: sudo apt install --no-install-recommends -y pandoc
