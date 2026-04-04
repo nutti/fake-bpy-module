@@ -206,8 +206,6 @@
 
 .. class:: bpy_struct
 
-   :generic-types: _GenericType1
-
    .. attribute:: bl_rna
 
       :type: :class:`bpy.types.BlenderRNA`, (never none)
