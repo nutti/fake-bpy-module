@@ -53,7 +53,7 @@
 
    .. method:: __getitem__(key)
 
-      :type key: int | str | tuple[str, str | None]
+      :type key: int | str | tuple[str, ...]
       :mod-option arg key: skip-refine
       :rtype: _GenericType1
       :mod-option rtype: skip-refine
@@ -66,13 +66,6 @@
       :rtype: list[_GenericType1]
       :mod-option rtype: skip-refine
       :option function: overload
-
-   .. method:: __setitem__(key, value)
-
-      :type key: int | str
-      :mod-option arg key: skip-refine
-      :type value: _GenericType1 | None
-      :mod-option arg value: skip-refine
 
    .. method:: __setitem__(key, value)
 

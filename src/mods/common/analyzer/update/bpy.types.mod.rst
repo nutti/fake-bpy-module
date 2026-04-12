@@ -31,6 +31,8 @@
       :type default: _GenericType2
       :mod-option arg default: skip-refine
       :generic-types: _GenericType2
+      :rtype: _GenericType2 | None
+      :mod-option rtype: skip-refine
 
    .. method:: items()
 
