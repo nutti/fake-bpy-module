@@ -194,7 +194,7 @@ jobs:
 
       # Publish to TestPyPI on each merge to main
       - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@v1.3.1
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/
@@ -218,7 +218,7 @@ jobs:
           path: dist
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.3.1
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           password: ${{ secrets.pypi_token }}
           packages_dir: "dist/fake_bge_modules_${{ matrix.upbge_version }}_pip_*/*/"
