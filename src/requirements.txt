@@ -1,7 +1,7 @@
 yapf~=0.40.2
 ruff~=0.15.5
 docutils~=0.20.1
-Pygments~=2.17.2
+Pygments~=2.20.0
 pylint~=3.2.6
 setuptools~=78.1.1
 pyyaml~=6.0.0
