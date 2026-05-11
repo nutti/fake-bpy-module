@@ -219,11 +219,14 @@ Or, you can download .zip file from GitHub.
 cd fake-${TARGET}-module/src
 
 mkdir -p mods/generated_mods
-${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile -f json
-${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o mods/generated_mods/gen_startup_modfile -f json
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m addon_utils -o mods/generated_mods/gen_modules_modfile -f rst
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_external_modules_modfile.py -- -m keyingsets_builtins -a -o mods/generated_mods/gen_startup_modfile -f rst
+
+mkdir -p mods/generated_mods/gen_node_inputs_outputs_for_node_class
+${BLENDER_BIN}/blender --background --factory-startup -noaudio --python-exit-code 1 --python gen_modfile/gen_node_inputs_outputs_for_node_class.py -- -o mods/generated_mods/gen_node_inputs_outputs_for_node_class -f rst
 
 mkdir -p mods/generated_mods/gen_bgl_modfile
-python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.cc -o mods/generated_mods/gen_bgl_modfile/bgl.json -f json
+python gen_modfile/gen_bgl_modfile.py -i ${BLENDER_SRC}/source/blender/python/generic/bgl.cc -o mods/generated_mods/gen_bgl_modfile/bgl.rst -f rst
 ```
 <!-- markdownlint-enable MD013 -->
 

@@ -241,6 +241,11 @@ if [[ "${generated_mod_dir}/gen_startup_modfile" -ot "${SCRIPT_DIR}/gen_modfile/
     touch "${generated_mod_dir}/gen_startup_modfile"
 fi
 
+if [[ "${generated_mod_dir}/gen_node_inputs_outputs_for_node_class" -ot "${SCRIPT_DIR}/gen_modfile/gen_node_inputs_outputs_for_node_class.py" ]]; then
+    ${blender_bin} --background --factory-startup -noaudio --python-exit-code 1 --python "${SCRIPT_DIR}/gen_modfile/gen_node_inputs_outputs_for_node_class.py" -- -o "${generated_mod_dir}/gen_node_inputs_outputs_for_node_class" -f rst
+    touch "${generated_mod_dir}/gen_node_inputs_outputs_for_node_class"
+fi
+
 # generate bgl modfile if gen_bgl_modfile.py and source is newer
 bgl_c_file="${source_dir}/source/blender/python/generic/bgl.c"
 if [ ! -e "${bgl_c_file}" ]; then
