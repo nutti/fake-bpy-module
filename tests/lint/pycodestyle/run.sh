@@ -14,7 +14,7 @@ readonly PYCODESTYLE_CMD="pycodestyle"
 
 # pycodestyle
 error=0
-for file in $(find "${PYTHON_SCRIPT_DIRECTORY}" -name "*.py" | sort); do
+for file in $(find "${PYTHON_SCRIPT_DIRECTORY}" -name "*.py" -not -path "./.venv/*" | sort); do
     echo "======= pycodestyle ${file} ======="
 
     if ! ${PYCODESTYLE_CMD} --config="${SCRIPT_DIR}/.pycodestyle" "${file}"; then
