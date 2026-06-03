@@ -691,6 +691,26 @@ class BaseClassDirective(rst.Directive):
         return [base_class_list_node]
 
 
+class DetailsDirective(rst.Directive):
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+    has_content = True
+
+    def run(self) -> list[FunctionNode]:
+        # `.. details::` used in Blender docs to denote a section
+        # with dunder methods.
+        # See "Special Methods" in
+        # https://docs.blender.org/api/5.2/bmesh.types.html#bmesh.types.BMDeformVert
+        container = nodes.Element()
+        self.state.nested_parse(self.content, self.content_offset, container)
+        children = list(container.children)
+        container.children = []
+        for child in children:
+            child.parent = None
+        return children
+
+
 def register_directives() -> None:
     rst.directives.register_directive("module", ModuleDirective)
     rst.directives.register_directive("currentmodule", ModuleDirective)
@@ -715,5 +735,6 @@ def register_directives() -> None:
     rst.directives.register_directive("deprecated", DocumentDirective)
 
     rst.directives.register_directive("include", NopDirective)
+    rst.directives.register_directive("details", DetailsDirective)
 
     rst.directives.register_directive("mod-type", ModTypeDirective)
