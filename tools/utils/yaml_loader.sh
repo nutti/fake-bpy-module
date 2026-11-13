@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# shellcheck shell=bash
 
 # Check that required variables are defined
 if [ -z "$REPO_ROOT" ]; then
