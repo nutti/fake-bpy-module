@@ -64,6 +64,8 @@ function verify_download_integrity() {
     # Official md5sum files does not follow correct format.
     # To suppress an error, modify the checksum file.
     sed -i -E 's/\r//g' "${checksum_filename}"
+    # Ubuntu 26.04 is using uutils for coreutils and it had a bug rejecting tab separators.
+    sed -i -E 's/\t/  /' "${checksum_filename}"
 
     local checksum
     checksum="$(grep "${target_filename}" "${checksum_filename}")"
